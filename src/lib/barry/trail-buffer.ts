@@ -12,10 +12,10 @@ export type TrailBuffer = {
 const KEY = 'barry.trailBuffer';
 const SENT_KEY = 'barry.trailSent';
 const BATCH = 200;
-const MAX_SLOTS = 8_640;
+const MAX_SLOTS = 1_440;
 
-/** The 10-second UTC window a reading falls in, the same window as the database's `slot` column. */
-export const slotKey = (reading: Pick<Position, 'takenAt'>): string => `${reading.takenAt.toISOString().slice(0, 18)}0`;
+/** The UTC minute a reading falls in. The database's `slot` column is finer, so one reading a minute always fits. */
+export const slotKey = (reading: Pick<Position, 'takenAt'>): string => reading.takenAt.toISOString().slice(0, 16);
 
 type Stored = { t: string; lat: number; lon: number; acc: number | null };
 type Contents = Record<string, Record<string, Stored>>;
