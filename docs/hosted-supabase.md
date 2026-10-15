@@ -6,7 +6,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 
 - Every migration in `supabase/migrations`. `supabase/seed.sql` is for local development only and is never pushed.
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
-- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://mircowidmer.github.io/barry/trail`. Without `TWILIO_API_URL`, text messages go to `https://api.twilio.com`.
+- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://barry.support/trail`. Without `TWILIO_API_URL`, text messages go to `https://api.twilio.com`.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
 
 ## Ship a change
@@ -26,7 +26,7 @@ Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[
 1. Put the hosted values in `supabase/.env.hosted`, which git ignores:
 
    ```
-   TRAIL_MAP_URL=https://mircowidmer.github.io/barry/trail
+   TRAIL_MAP_URL=https://barry.support/trail
    RESEND_API_KEY=re_...
    EMAIL_FROM=barry@your-verified-domain
    TWILIO_ACCOUNT_SID=AC...
