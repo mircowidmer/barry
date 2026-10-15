@@ -148,8 +148,8 @@ If a Heads-up, an Alert, or an All-clear cannot be delivered, the app shows the 
 
 - Barry reads the location at Start and at each Deadline move. This needs only the "while using the app" location permission.
 - If the Adventurer allows the "Always" location permission, Barry also records the Trail. There is no switch for each Adventure.
-- The Trail keeps about one reading per minute, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
-- iOS sends background readings when the phone moves, not on a timer. Barry keeps at most one of them per minute.
+- The Trail keeps about one reading every 10 seconds, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
+- iOS sends background readings when the phone moves, not on a timer. Barry keeps at most one of them per 10 seconds.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Known Position is the newest reading, from Start, a Deadline move, or the Trail.

@@ -11,9 +11,10 @@ export type TrailBuffer = {
 
 const KEY = 'barry.trailBuffer';
 const BATCH = 200;
-const MAX_MINUTES = 1440;
+const MAX_SLOTS = 8_640;
 
-export const minuteKey = (reading: Pick<Position, 'takenAt'>): string => reading.takenAt.toISOString().slice(0, 16);
+/** The 10-second UTC window a reading falls in, the same window as the database's `slot` column. */
+export const slotKey = (reading: Pick<Position, 'takenAt'>): string => `${reading.takenAt.toISOString().slice(0, 18)}0`;
 
 type Stored = { t: string; lat: number; lon: number; acc: number | null };
 type Contents = Record<string, Record<string, Stored>>;
@@ -26,7 +27,7 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
     return raw ? (JSON.parse(raw) as Contents) : {};
   };
   const write = (contents: Contents) => storage.setItem(KEY, JSON.stringify(contents));
-  const minutes = (contents: Contents, adventureId: string) => Object.keys(contents[adventureId] ?? {}).sort();
+  const slots = (contents: Contents, adventureId: string) => Object.keys(contents[adventureId] ?? {}).sort();
 
   let running: Promise<void> | null = null;
 
@@ -34,7 +35,7 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
     for (const adventureId of Object.keys(read())) {
       for (;;) {
         const contents = read();
-        const batchKeys = minutes(contents, adventureId).slice(0, BATCH);
+        const batchKeys = slots(contents, adventureId).slice(0, BATCH);
         if (batchKeys.length === 0) break;
         const batch = batchKeys.map((k) => toReading(contents[adventureId][k]));
         const outcome = await send(adventureId as AdventureId, batch);
@@ -55,9 +56,9 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
       const contents = read();
       const own = (contents[adventureId] ??= {});
       for (const r of readings) {
-        own[minuteKey(r)] ??= { t: r.takenAt.toISOString(), lat: r.latitude, lon: r.longitude, acc: r.accuracyM };
+        own[slotKey(r)] ??= { t: r.takenAt.toISOString(), lat: r.latitude, lon: r.longitude, acc: r.accuracyM };
       }
-      for (const k of minutes(contents, adventureId).slice(0, -MAX_MINUTES)) delete own[k];
+      for (const k of slots(contents, adventureId).slice(0, -MAX_SLOTS)) delete own[k];
       write(contents);
     },
     flush: (send) => {
@@ -72,7 +73,7 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
     },
     newest: (adventureId) => {
       const contents = read();
-      const last = minutes(contents, adventureId).at(-1);
+      const last = slots(contents, adventureId).at(-1);
       return last ? toReading(contents[adventureId][last]) : null;
     },
   };
