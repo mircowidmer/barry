@@ -138,6 +138,8 @@ export type Barry = {
   flushPendingCheckIns(): Promise<void>;
 
   deliveryFailures(id: AdventureId): Promise<DeliveryFailure[]>;
+  /** Every reading of the Adventure, oldest first, from Start, Deadline moves and the Trail. */
+  readings(id: AdventureId): Promise<Position[]>;
   watchAdventure(id: AdventureId, onChange: (adventure: Adventure) => void): () => void;
 
   trail: Trail;

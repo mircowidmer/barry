@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable } from 'react-native';
 
+import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { Button, HoldButton, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
@@ -86,13 +87,19 @@ function Overview({
       {ended.map(
         (a) =>
           a.stage === 'ended' && (
-            <Section key={a.id}>
-              <ThemedText type="smallBold">{a.plan.destination}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                Checked in {formatWhen(a.checkedInAt)}
-                {a.alertsSent > 0 && ` · ${a.alertsSent} Alert${a.alertsSent > 1 ? 's' : ''} sent`}
-              </ThemedText>
-            </Section>
+            <Pressable
+              key={a.id}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${a.plan.destination}`}
+              onPress={() => router.push({ pathname: '/adventure/[id]', params: { id: a.id } })}>
+              <Section>
+                <ThemedText type="smallBold">{a.plan.destination}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  Checked in {formatWhen(a.checkedInAt)}
+                  {a.alertsSent > 0 && ` · ${a.alertsSent} Alert${a.alertsSent > 1 ? 's' : ''} sent`}
+                </ThemedText>
+              </Section>
+            </Pressable>
           ),
       )}
     </Screen>
@@ -144,14 +151,7 @@ function LiveAdventure({
   }, [initial.id, adventure]);
 
   if (adventure.stage === 'planned') return null;
-  if (adventure.stage === 'ended') {
-    return (
-      <Screen title={adventure.plan.destination}>
-        <Notice tone="success">You checked in at {formatWhen(adventure.checkedInAt)}. Welcome back.</Notice>
-        <Button title="Done" onPress={onChanged} />
-      </Screen>
-    );
-  }
+  if (adventure.stage === 'ended') return <EndedAdventureScreen adventure={adventure} onDone={onChanged} />;
 
   const move = async (minutes: number) => {
     setBusy(true);

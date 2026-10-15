@@ -9,7 +9,7 @@ export type TrailMap =
   | (Base & { status: 'underway' | 'alerted'; trail: TrailPoint[]; lastKnownPosition: LastKnown | null })
   | (Base & { status: 'checked_in'; checkedInAt: Date });
 
-export type TrailMapView =
+export type TrailMapState =
   | { kind: 'loading' }
   | { kind: 'not_found' }
   | { kind: 'ready'; map: TrailMap }

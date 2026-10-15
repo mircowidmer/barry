@@ -1,5 +1,5 @@
 import { Notice, Screen, Section } from '@/components/form';
-import { OsmMap } from '@/components/osm-map';
+import { TrailMapView } from '@/components/trail-map-view';
 import { ThemedText } from '@/components/themed-text';
 import { formatTime } from '@/lib/trail-map/format';
 import type { TrailMap } from '@/lib/trail-map/types';
@@ -52,7 +52,7 @@ function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date })
       )}
       {map.status !== 'checked_in' && (
         <>
-          <OsmMap trail={map.trail} last={map.lastKnownPosition} timeZone={map.timeZone} />
+          <TrailMapView trail={map.trail} last={map.lastKnownPosition} timeZone={map.timeZone} />
           <ThemedText type="small">
             {map.lastKnownPosition
               ? `Last Known Position at ${time(map.lastKnownPosition.takenAt)}: ${map.lastKnownPosition.latitude.toFixed(5)}, ${map.lastKnownPosition.longitude.toFixed(5)}` +

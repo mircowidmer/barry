@@ -45,16 +45,18 @@ export const parseProfile = (row: ProfileRow): AdventurerProfile => ({
   medicalNotes: row.medical_notes,
 });
 
+export const POSITION_SELECT = 'taken_at, latitude, longitude, accuracy_m';
+
+export const parsePosition = (row: PositionRow): Position => ({
+  takenAt: new Date(row.taken_at),
+  latitude: row.latitude,
+  longitude: row.longitude,
+  accuracyM: row.accuracy_m,
+});
+
 const latestPosition = (rows: PositionRow[] | undefined): Position | null => {
   const latest = rows?.[0];
-  return latest
-    ? {
-        takenAt: new Date(latest.taken_at),
-        latitude: latest.latitude,
-        longitude: latest.longitude,
-        accuracyM: latest.accuracy_m,
-      }
-    : null;
+  return latest ? parsePosition(latest) : null;
 };
 
 export const parseAdventure = (row: AdventureWithRelations): Adventure => {

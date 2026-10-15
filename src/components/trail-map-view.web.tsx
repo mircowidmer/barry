@@ -5,11 +5,11 @@ import { useEffect, useRef } from 'react';
 
 import { formatTime } from '@/lib/trail-map/format';
 
-import type { OsmMapProps } from './osm-map';
+import type { TrailMapViewProps } from './trail-map-view';
 
 const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-export function OsmMap({ trail, last, timeZone }: OsmMapProps) {
+export function TrailMapView({ trail, last, timeZone }: TrailMapViewProps) {
   const element = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
 
