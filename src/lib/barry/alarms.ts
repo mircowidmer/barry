@@ -1,0 +1,56 @@
+import type { InProgressAdventure } from './types';
+
+export const REMINDER_LEAD_MS = 30 * 60_000;
+
+const PREFIX = 'barry.';
+
+export type AlarmKind = 'reminder' | 'overdue_notice';
+
+/** A notification the phone shows by itself, so it needs neither signal nor push. */
+export type Alarm = { identifier: string; kind: AlarmKind; at: Date; adventure: InProgressAdventure };
+
+export type NotificationService = {
+  scheduledIdentifiers(): Promise<string[]>;
+  /** Replaces any scheduled notification with the same identifier. */
+  schedule(alarm: Alarm): Promise<void>;
+  cancel(identifier: string): Promise<void>;
+};
+
+const alarm = (kind: AlarmKind, at: Date, adventure: InProgressAdventure): Alarm => ({
+  identifier: `${PREFIX}${kind}.${adventure.id}`,
+  kind,
+  at,
+  adventure,
+});
+
+/**
+ * The Reminder and the Overdue Notice still ahead of `now`. A Deadline set less than 30 minutes
+ * ahead puts the Reminder in the past, which is the server's rule for skipping it.
+ */
+export const dueAlarms = (adventure: InProgressAdventure | null, checkedIn: boolean, now: Date): Alarm[] => {
+  if (!adventure || checkedIn) return [];
+  return [
+    alarm('reminder', new Date(adventure.deadline.getTime() - REMINDER_LEAD_MS), adventure),
+    alarm('overdue_notice', adventure.deadline, adventure),
+  ].filter((a) => a.at > now);
+};
+
+export const createAlarms = ({ notifications, due }: { notifications: NotificationService; due: () => Alarm[] }) => {
+  const apply = async () => {
+    const wanted = due();
+    const keep = new Set(wanted.map((a) => a.identifier));
+    const stale = (await notifications.scheduledIdentifiers()).filter((id) => id.startsWith(PREFIX) && !keep.has(id));
+    await Promise.all([...stale.map(notifications.cancel), ...wanted.map(notifications.schedule)]);
+  };
+
+  // One sync at a time, so a slow sync from older state cannot reschedule what a newer one cancelled.
+  let last: Promise<void> = Promise.resolve();
+  return {
+    /** Brings the scheduled notifications in line with `due()`. Idempotent. */
+    sync: (): Promise<void> => {
+      const run = last.then(apply);
+      last = run.catch(() => undefined);
+      return run;
+    },
+  };
+};
