@@ -1,3 +1,4 @@
+import { type SymbolViewProps, SymbolView } from 'expo-symbols';
 import { type ReactNode, useState } from 'react';
 import {
   ActivityIndicator,
@@ -72,12 +73,14 @@ export function Button({
   kind = 'primary',
   disabled,
   busy,
+  icon,
 }: {
   title: string;
   onPress: () => void;
   kind?: ButtonKind;
   disabled?: boolean;
   busy?: boolean;
+  icon?: SymbolViewProps['name'];
 }) {
   const theme = useTheme();
   const background = kind === 'primary' ? theme.accent : kind === 'danger' ? theme.danger : theme.backgroundSelected;
@@ -90,11 +93,22 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        icon && styles.iconButton,
         { backgroundColor: background, opacity: disabled ? 0.4 : pressed ? 0.7 : 1 },
       ]}>
-      {busy ? <ActivityIndicator color={color} /> : <ThemedText style={{ color, fontWeight: 600 }}>{title}</ThemedText>}
+      {busy ? (
+        <ActivityIndicator color={color} />
+      ) : icon ? (
+        <SymbolView name={icon} tintColor={color} size={24} fallback={<ButtonTitle title={title} color={color} />} />
+      ) : (
+        <ButtonTitle title={title} color={color} />
+      )}
     </Pressable>
   );
+}
+
+function ButtonTitle({ title, color }: { title: string; color: string }) {
+  return <ThemedText style={{ color, fontWeight: 600 }}>{title}</ThemedText>;
 }
 
 /** Completes only after a deliberate hold, so a pocket press cannot end protection. */
@@ -172,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  iconButton: { flex: 1 },
   hold: { minHeight: 64, overflow: 'hidden' },
   notice: { borderLeftWidth: 4, paddingLeft: Spacing.two, paddingVertical: Spacing.one },
   row: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap' },
