@@ -172,10 +172,7 @@ function LiveAdventure({
     const result = await barry.checkIn(adventure.id);
     setBusy(false);
     if (result.kind === 'ended') setAdventure(result.adventure);
-    else {
-      setNotice({ tone: 'warning', text: 'Check-in saved on your phone. Barry sends it as soon as you have signal.' });
-      onChanged();
-    }
+    else onChanged();
   };
 
   return (
