@@ -274,7 +274,7 @@ function PlanForm({
       </Section>
 
       {live ? (
-        <Button title="Save changes" onPress={onSave} busy={busy === 'save'} />
+        <Button title="Save Changes" onPress={onSave} busy={busy === 'save'} />
       ) : (
         <>
           {warnings.map((w) => (
