@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable } from 'react-native';
 
 import { Button, HoldButton, Notice, Row, Screen, Section } from '@/components/form';
@@ -124,11 +124,16 @@ function LiveAdventure({
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const stage = useRef<Adventure['stage']>(initial.stage);
+
+  useEffect(() => {
+    stage.current = adventure.stage;
+  }, [adventure]);
   useEffect(
     () =>
       barry.watchAdventure(initial.id, (next) => {
+        if (next.stage !== stage.current) setNotice(null);
         setAdventure(next);
-        setNotice(null);
       }),
     [initial.id],
   );
