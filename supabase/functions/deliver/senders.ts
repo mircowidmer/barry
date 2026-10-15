@@ -51,11 +51,37 @@ const expoPush: Sender = async (to, message) => {
   return reason === 'MessageRateExceeded' ? { outcome: 'retry', reason } : { outcome: 'failed', reason };
 };
 
-const notEnabled = (channel: Channel): Sender => () =>
-  Promise.resolve({ outcome: 'failed', reason: `${channel} is not set up` });
+export const smsBody = (message: Rendered): string => `${message.subject}\n\n${message.text}`;
+
+export type TwilioConfig = { apiUrl: string; accountSid: string; authToken: string; from: string };
+
+const parseJson = (body: string): Record<string, unknown> => {
+  try {
+    return JSON.parse(body);
+  } catch {
+    return {};
+  }
+};
+
+export const twilioSms = (config: () => TwilioConfig): Sender => async (to, message) => {
+  const { apiUrl, accountSid, authToken, from } = config();
+  const response = await fetch(`${apiUrl}/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+    method: 'POST',
+    headers: { authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}` },
+    body: new URLSearchParams({ To: to, From: from, Body: smsBody(message) }),
+  });
+  const body = parseJson(await response.text());
+  if (!response.ok) return fromHttpStatus(response.status, `Twilio ${body.code ?? 'error'}: ${body.message ?? response.statusText}`);
+  return { outcome: 'sent', providerRef: typeof body.sid === 'string' ? body.sid : null };
+};
 
 export const senders: Record<Channel, Sender> = {
   email: mailpitEmail,
-  sms: notEnabled('sms'),
+  sms: twilioSms(() => ({
+    apiUrl: Deno.env.get('TWILIO_API_URL') ?? 'https://api.twilio.com',
+    accountSid: env('TWILIO_ACCOUNT_SID'),
+    authToken: env('TWILIO_AUTH_TOKEN'),
+    from: env('TWILIO_FROM'),
+  })),
   push: expoPush,
 };
