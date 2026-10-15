@@ -13,7 +13,7 @@ From the Adventure tab, an Adventurer plans an Adventure with a destination, an 
 ## How to get to it (user POV)
 
 - Tap `Plan an Adventure` on the Adventure tab (201, 250).
-- Tap a card under `Planned` to reopen a saved Adventure.
+- Tap a card under `Planned Adventures` to reopen a saved Adventure.
 
 ## Driving it with the iOS Simulator
 
