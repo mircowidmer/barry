@@ -16,7 +16,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
 
   const remove = async () => {
     setDeleteError(null);
-    const outcome = await askToDeleteAdventure(adventure.id);
+    const outcome = await askToDeleteAdventure(adventure.id, 'ended');
     if (outcome.kind === 'deleted') router.back();
     else if (outcome.kind === 'failed') setDeleteError(outcome.message);
   };

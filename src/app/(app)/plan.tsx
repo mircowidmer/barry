@@ -17,6 +17,7 @@ import {
   type StartWarning,
   startWarnings,
 } from '@/lib/barry';
+import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { formatWhen, refusalText } from '@/lib/wording';
 
 type Form = {
@@ -92,7 +93,7 @@ function PlanForm({
 }) {
   const [form, setForm] = useState<Form>(() => toForm(data.adventure));
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
-  const [busy, setBusy] = useState<'save' | 'start' | 'delete' | null>(null);
+  const [busy, setBusy] = useState<'save' | 'start' | null>(null);
   const theme = useTheme();
 
   const adventure = data.adventure;
@@ -168,11 +169,9 @@ function PlanForm({
 
   const onDelete = async () => {
     if (!id) return;
-    setBusy('delete');
-    const result = await barry.deleteAdventure(id).catch(() => null);
-    setBusy(null);
-    if (result?.kind === 'deleted') router.back();
-    else setNotice({ tone: 'danger', text: result ? refusalText(result.refusal) : 'Could not delete.' });
+    const outcome = await askToDeleteAdventure(id, 'planned');
+    if (outcome.kind === 'deleted') router.back();
+    else if (outcome.kind === 'failed') setNotice({ tone: 'danger', text: outcome.message });
   };
 
   const pickAndroid = () =>
@@ -285,7 +284,7 @@ function PlanForm({
           </ThemedText>
           <Row>
             <Button title="Save for later" kind="secondary" onPress={onSave} busy={busy === 'save'} />
-            {id && <Button title="Delete" kind="danger" onPress={onDelete} busy={busy === 'delete'} />}
+            {id && <Button title="Delete" kind="danger" onPress={onDelete} />}
           </Row>
         </>
       )}
