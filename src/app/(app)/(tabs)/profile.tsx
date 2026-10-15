@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
-import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
+import { Field, Notice, Screen, Section } from '@/components/form';
+import { IconActions } from '@/components/icon-actions';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry } from '@/lib/barry';
@@ -100,22 +101,20 @@ function ProfileForm({ initial }: { initial: Form }) {
         <Notice tone="danger">Could not save. Check that the phone number starts with + and the country code.</Notice>
       )}
       {deleteError && <Notice tone="danger">{deleteError}</Notice>}
-      <Row>
-        <Button
-          title="Save profile"
-          icon="checkmark"
-          onPress={save}
-          busy={status === 'saving'}
-          disabled={profile.name.trim() === '' || profile.phone.trim() === ''}
-        />
-        <Button
-          title="Sign out"
-          icon="rectangle.portrait.and.arrow.right"
-          kind="secondary"
-          onPress={() => supabase.auth.signOut()}
-        />
-        <Button title="Delete Account" icon="person.crop.circle.badge.xmark" kind="danger" onPress={deleteAccount} busy={deleting} />
-      </Row>
+      <IconActions
+        actions={[
+          {
+            label: 'Save profile',
+            icon: 'checkmark',
+            kind: 'primary',
+            onPress: save,
+            busy: status === 'saving',
+            disabled: profile.name.trim() === '' || profile.phone.trim() === '',
+          },
+          { label: 'Sign out', icon: 'rectangle.portrait.and.arrow.right', kind: 'secondary', onPress: () => supabase.auth.signOut() },
+          { label: 'Delete Account', icon: 'person.crop.circle.badge.xmark', kind: 'danger', onPress: deleteAccount, busy: deleting },
+        ]}
+      />
       <ThemedText type="small" themeColor="textSecondary">
         Signed in as {session?.user.email}
       </ThemedText>
