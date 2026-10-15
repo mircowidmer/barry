@@ -97,6 +97,9 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 ### Edit an Active or Overdue Adventure
 
 - The Alert always carries the latest Plan.
+- A change to the destination, route, starting point or notes sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
+- Several changes before a Plan Update goes out send only one, with the latest Plan.
+- Changing only the contacts, or moving the Deadline, sends no Plan Update.
 - A contact added to the Adventure gets a Heads-up.
 - A contact removed from the Adventure gets no further messages, and their Trail Map link stops working.
 - The Adventure always keeps at least one contact. Removing the last one is refused.
@@ -108,6 +111,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Message | Recipient | Channel | Sent when | Content |
 | --- | --- | --- | --- | --- |
 | Heads-up | Each contact of the Adventure | Every channel the contact has | Supabase confirms the Start, or a contact is added to an Active or Overdue Adventure | Adventurer's name, Plan, Deadline, the contact's Trail Map link |
+| Plan Update | Each contact whose Heads-up went out | Every channel the contact has | The Adventurer changes the Plan of an Active or Overdue Adventure | Adventurer's name, the new Plan, Deadline, the contact's Trail Map link |
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts in total | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |

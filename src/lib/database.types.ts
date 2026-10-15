@@ -65,14 +65,14 @@ isOneToOne: false
                   ]
                 },"adventures": {
                   Row: {
-                    "adventurer_id": string,"alert_at": string | null,"alerts_sent": number,"checked_in_at": string | null,"created_at": string,"deadline": string | null,"deadline_set_at": string | null,"destination": string | null,"ended_at": string | null,"id": string,"last_alert_at": string | null,"notes": string | null,"route": string | null,"stage": Database["public"]['Enums']["adventure_stage"],"started_at": string | null,"starting_point": string | null,"time_zone": string | null,"updated_at": string
+                    "adventurer_id": string,"alert_at": string | null,"alerts_sent": number,"checked_in_at": string | null,"created_at": string,"deadline": string | null,"deadline_set_at": string | null,"destination": string | null,"ended_at": string | null,"id": string,"last_alert_at": string | null,"notes": string | null,"plan_revision": number,"route": string | null,"stage": Database["public"]['Enums']["adventure_stage"],"started_at": string | null,"starting_point": string | null,"time_zone": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "adventurer_id": string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"notes"?: string | null,"route"?: string | null,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"starting_point"?: string | null,"time_zone"?: string | null,"updated_at"?: string
+                    "adventurer_id": string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"notes"?: string | null,"plan_revision"?: number,"route"?: string | null,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"starting_point"?: string | null,"time_zone"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "adventurer_id"?: string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"notes"?: string | null,"route"?: string | null,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"starting_point"?: string | null,"time_zone"?: string | null,"updated_at"?: string
+                    "adventurer_id"?: string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"notes"?: string | null,"plan_revision"?: number,"route"?: string | null,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"starting_point"?: string | null,"time_zone"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -93,14 +93,14 @@ isOneToOne: false
                   ]
                 },"messages": {
                   Row: {
-                    "adventure_id": string,"attempts": number,"channel": Database["public"]['Enums']["channel"],"contact_id": string | null,"created_at": string,"failure_reason": string | null,"for_deadline": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"lease_until": string | null,"next_attempt_at": string,"provider_ref": string | null,"round": number | null,"sent_at": string | null,"status": Database["public"]['Enums']["message_status"],"to_address": string
+                    "adventure_id": string,"attempts": number,"channel": Database["public"]['Enums']["channel"],"contact_id": string | null,"created_at": string,"failure_reason": string | null,"for_deadline": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"lease_until": string | null,"next_attempt_at": string,"plan_revision": number | null,"provider_ref": string | null,"round": number | null,"sent_at": string | null,"status": Database["public"]['Enums']["message_status"],"to_address": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "adventure_id": string,"attempts"?: number,"channel": Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind": Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address": string
+                    "adventure_id": string,"attempts"?: number,"channel": Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind": Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"plan_revision"?: number | null,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address": string
                   }
                   Update: {
-                    "adventure_id"?: string,"attempts"?: number,"channel"?: Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind"?: Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address"?: string
+                    "adventure_id"?: string,"attempts"?: number,"channel"?: Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind"?: Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"plan_revision"?: number | null,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address"?: string
                   }
                   Relationships: [
                     {
@@ -119,14 +119,14 @@ isOneToOne: false
                   ]
                 },"position_readings": {
                   Row: {
-                    "accuracy_m": number | null,"adventure_id": string,"id": number,"latitude": number,"longitude": number,"slot": string | null,"reason": string,"taken_at": string
+                    "accuracy_m": number | null,"adventure_id": string,"id": number,"latitude": number,"longitude": number,"reason": string,"slot": string | null,"taken_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "accuracy_m"?: number | null,"adventure_id": string,"id"?: never,"latitude": number,"longitude": number,"slot"?: never,"reason": string,"taken_at": string
+                    "accuracy_m"?: number | null,"adventure_id": string,"id"?: never,"latitude": number,"longitude": number,"reason": string,"slot"?: never,"taken_at": string
                   }
                   Update: {
-                    "accuracy_m"?: number | null,"adventure_id"?: string,"id"?: never,"latitude"?: number,"longitude"?: number,"slot"?: never,"reason"?: string,"taken_at"?: string
+                    "accuracy_m"?: number | null,"adventure_id"?: string,"id"?: never,"latitude"?: number,"longitude"?: number,"reason"?: string,"slot"?: never,"taken_at"?: string
                   }
                   Relationships: [
                     {
@@ -193,6 +193,7 @@ isOneToOne: false
 "kind": Database["public"]['Enums']["message_kind"],
 "lease_until": string | null,
 "next_attempt_at": string,
+"plan_revision": number | null,
 "provider_ref": string | null,
 "round": number | null,
 "sent_at": string | null,
@@ -241,7 +242,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "adventure_stage": "planned"|"active"|"overdue"|"alerted"|"ended","channel": "email"|"sms"|"push","message_kind": "heads_up"|"reminder"|"overdue_notice"|"alert"|"all_clear","message_status": "pending"|"sending"|"sent"|"failed"|"cancelled","refusal": "not_found"|"profile_incomplete"|"destination_missing"|"deadline_missing"|"deadline_not_in_future"|"deadline_not_later"|"no_contacts"|"unknown_contact"|"another_adventure_in_progress"|"wrong_stage"|"invalid_time_zone"|"messages_pending"
+            "adventure_stage": "planned"|"active"|"overdue"|"alerted"|"ended","channel": "email"|"sms"|"push","message_kind": "heads_up"|"reminder"|"overdue_notice"|"alert"|"all_clear"|"plan_update","message_status": "pending"|"sending"|"sent"|"failed"|"cancelled","refusal": "not_found"|"profile_incomplete"|"destination_missing"|"deadline_missing"|"deadline_not_in_future"|"deadline_not_later"|"no_contacts"|"unknown_contact"|"another_adventure_in_progress"|"wrong_stage"|"invalid_time_zone"|"messages_pending"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -361,7 +362,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "adventure_stage": ["planned", "active", "overdue", "alerted", "ended"],"channel": ["email", "sms", "push"],"message_kind": ["heads_up", "reminder", "overdue_notice", "alert", "all_clear"],"message_status": ["pending", "sending", "sent", "failed", "cancelled"],"refusal": ["not_found", "profile_incomplete", "destination_missing", "deadline_missing", "deadline_not_in_future", "deadline_not_later", "no_contacts", "unknown_contact", "another_adventure_in_progress", "wrong_stage", "invalid_time_zone", "messages_pending"]
+            "adventure_stage": ["planned", "active", "overdue", "alerted", "ended"],"channel": ["email", "sms", "push"],"message_kind": ["heads_up", "reminder", "overdue_notice", "alert", "all_clear", "plan_update"],"message_status": ["pending", "sending", "sent", "failed", "cancelled"],"refusal": ["not_found", "profile_incomplete", "destination_missing", "deadline_missing", "deadline_not_in_future", "deadline_not_later", "no_contacts", "unknown_contact", "another_adventure_in_progress", "wrong_stage", "invalid_time_zone", "messages_pending"]
           }
         }
 } as const

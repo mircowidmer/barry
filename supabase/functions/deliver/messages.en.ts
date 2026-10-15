@@ -48,6 +48,20 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         ),
       };
 
+    case 'plan_update':
+      return {
+        subject: `${name} changed the Plan for ${facts.plan.destination}`,
+        text: lines(
+          `${name} changed the Plan of the Adventure you are an Emergency Contact for.`,
+          '',
+          ...planLines(facts.plan),
+          '',
+          `If ${name} has not checked in by ${time(facts.deadline)}, Barry will message you again.`,
+          trailLine(facts.trailToken) && '',
+          trailLine(facts.trailToken),
+        ),
+      };
+
     case 'reminder':
       return {
         subject: 'Check in or move your Deadline',

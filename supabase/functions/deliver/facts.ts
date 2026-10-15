@@ -26,6 +26,7 @@ export type MessageFacts = {
   deadline: Date;
 } & (
   | { kind: 'heads_up'; trailToken: string | null }
+  | { kind: 'plan_update'; trailToken: string | null }
   | { kind: 'reminder' }
   | { kind: 'overdue_notice'; alertAt: Date }
   | {
@@ -78,6 +79,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
 
   switch (f.kind) {
     case 'heads_up':
+    case 'plan_update':
       return { ...base, kind: f.kind, trailToken: optionalText(f.trail_token) };
     case 'reminder':
       return { ...base, kind: f.kind };

@@ -83,6 +83,10 @@ _Avoid_: Warning, nudge
 The message to an Adventure's Emergency Contacts when it starts, carrying the Plan, the Deadline and the contact's Trail Map link.
 _Avoid_: Start notification, invite
 
+**Plan Update**:
+The message to an Adventure's Emergency Contacts when the Adventurer changes the Plan of an Active or Overdue Adventure, carrying the new Plan, the Deadline and the contact's Trail Map link.
+_Avoid_: Change notification, edit message
+
 **Alert**:
 The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Last Known Position, the Adventurer Profile and the contact's Trail Map link.
 _Avoid_: Notification, alarm, SOS
