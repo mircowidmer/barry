@@ -12,7 +12,8 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 
 - An Adventurer signs in with an email address and a password through Supabase Auth.
 - Each account has one Adventurer Profile.
-- An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure.
+- The Adventurer deletes the account from the Profile tab with **Delete Account**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
+- An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
 
 ## Adventurer Profile
 
@@ -195,4 +196,3 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - An app warning when the outside monitor has not heard from Supabase.
 - Detecting bounced emails.
 - Push delivery receipts from Expo, and removing expired push tokens. A push notification counts as sent once Expo accepts it.
-- Deleting the account from the app.

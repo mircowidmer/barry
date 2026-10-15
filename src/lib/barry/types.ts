@@ -129,6 +129,8 @@ export type Barry = {
   getInProgressAdventure(): Promise<InProgressView>;
   saveAdventure(draft: AdventureDraft): Promise<SaveAdventureResult>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
+  /** Deletes the signed-in account with everything it owns, then signs out on this phone. */
+  deleteAccount(): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
 
   startConditions(): Promise<StartConditions>;
   start(id: AdventureId): Promise<StartResult>;
