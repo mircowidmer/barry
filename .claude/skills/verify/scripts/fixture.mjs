@@ -4,6 +4,7 @@
 //   fixture.mjs state                 the test account's live Adventure, its contacts and messages
 //   fixture.mjs live [minutes]        create a live Adventure for the test account (Deadline in N min, default 120)
 //   fixture.mjs overdue               move the live Adventure's Deadline to one minute ago
+//   fixture.mjs trail                 the latest Adventure's readings by reason, and each contact's Trail Map token
 //   fixture.mjs end                   check in from any live Adventure of the test account (cleanup)
 //   fixture.mjs offline | online      stop or start the API gateway, so the app has "no signal"
 import { execFileSync } from 'node:child_process';
@@ -47,6 +48,17 @@ const commands = {
       returning adventure_id;`);
   },
   overdue: () => sql(`update public.adventures set deadline = now() - interval '1 minute' where id = ${live} returning stage;`),
+  trail: () => {
+    const latest = `(select id from public.adventures where adventurer_id = ${anna} order by created_at desc limit 1)`;
+    return sql(`
+      select 'adventure', stage from public.adventures where id = ${latest};
+      select 'readings', reason, count(*), count(distinct minute),
+             to_char(min(taken_at) at time zone 'Europe/Zurich', 'HH24:MI:SS'),
+             to_char(max(taken_at) at time zone 'Europe/Zurich', 'HH24:MI:SS')
+        from public.position_readings where adventure_id = ${latest} group by reason order by reason;
+      select 'link', c.name, ac.trail_token from public.adventure_contacts ac
+        join public.emergency_contacts c on c.id = ac.contact_id where ac.adventure_id = ${latest} order by c.name;`);
+  },
   end: () => {
     // Resolved first: once the role is authenticated, auth.users is not readable.
     const id = sql(`select id from auth.users where email = '${email.replace(/'/g, "''")}';`);
@@ -66,7 +78,7 @@ const commands = {
 
 const [name, ...args] = process.argv.slice(2);
 if (!commands[name]) {
-  console.error('usage: fixture.mjs state | live [minutes] | overdue | end | offline | online');
+  console.error('usage: fixture.mjs state | live [minutes] | overdue | trail | end | offline | online');
   process.exit(2);
 }
 console.log(commands[name](...args));
