@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "barry-local",
+    "name": "Barry",
     "slug": "barry-local",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "barrylocal",
+    "scheme": "barry",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",

@@ -23,7 +23,7 @@ Preconditions:
 
 - **Enter credentials.** `clip.sh email`, long-press `Email` (201, 247), tap `Paste`. `clip.sh password`, long-press `Password` (201, 329), tap `Paste`, then `clip.sh clear`. `Sign in` turns solid blue.
 - **Sign in (`signin-password`).** Tap `Sign in` (201, 390). The Adventure tab opens with `Plan an Adventure`.
-- **Push (`signin-push`).** On a fresh install the prompt `"barry-local" Would Like to Send You Notifications` appears. Tap `Allow`. Within 10 seconds the database has a row in `push_devices` for the test account starting with `ExponentPushToken[`.
+- **Push (`signin-push`).** On a fresh install the prompt `"Barry" Would Like to Send You Notifications` appears. Tap `Allow`. Within 10 seconds the database has a row in `push_devices` for the test account starting with `ExponentPushToken[`.
 - **Persist (`signin-persist`).** Run `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`. The app opens signed in on the Adventure tab.
 - **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Sign out`. The sign-in screen returns.
 
