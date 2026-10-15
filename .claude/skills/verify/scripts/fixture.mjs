@@ -3,7 +3,7 @@
 // It never stands in for a user action: the app drives every step the user takes.
 //   fixture.mjs state                 the test account's live Adventure, its contacts and messages
 //   fixture.mjs live [minutes]        create a live Adventure for the test account (Deadline in N min, default 120)
-//   fixture.mjs overdue               move the live Adventure's Deadline to one minute ago
+//   fixture.mjs overdue               move the live Adventure's Deadline to now
 //   fixture.mjs trail                 the latest Adventure's readings by reason, and each contact's Trail Map token
 //   fixture.mjs end                   check in from any live Adventure of the test account (cleanup)
 //   fixture.mjs offline | online      stop or start the API gateway, so the app has "no signal"
@@ -47,7 +47,7 @@ const commands = {
         on c.adventurer_id = adv.adventurer_id and c.name = 'Luca' and c.removed_at is null
       returning adventure_id;`);
   },
-  overdue: () => sql(`update public.adventures set deadline = now() - interval '1 minute' where id = ${live} returning stage;`),
+  overdue: () => sql(`update public.adventures set deadline = now() where id = ${live} returning stage;`),
   trail: () => {
     const latest = `(select id from public.adventures where adventurer_id = ${anna} order by created_at desc limit 1)`;
     return sql(`

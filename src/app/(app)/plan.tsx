@@ -217,7 +217,7 @@ function PlanForm({
       {!live && (
         <Section title="Deadline">
           <ThemedText type="small" themeColor="textSecondary">
-            If you have not checked in by then, Barry waits 30 minutes and then alerts your contacts.
+            If you have not checked in by then, Barry waits 1 minute and then alerts your contacts.
           </ThemedText>
           {Platform.OS === 'ios' ? (
             <View style={{ alignItems: 'flex-start' }}>
