@@ -45,7 +45,7 @@ Preconditions:
 
 - The simulated route ends. At 2 m/s the route above takes about 25 minutes. Once it ends, Barry gets no readings, because iOS sends updates only on movement. A stalled count after a route ended is not a bug: start a new route.
 - The iOS 27 simulator refuses geofencing (`startGeofencingAsync` throws). The relaunch after a force-quit cannot be verified here; it needs a real iPhone. Report it as unverified.
-- `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's 60-second refresh.
+- `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's 10-second refresh, which fetches only readings newer than the newest one shown.
 - `fixture.mjs live` inserts the Adventure without `start_adventure`, so there is no `start` reading. A Check-in then leaves no readings at all.
 - Count uploads with `docker logs --since 60s supabase_kong_barry-local | grep -c rpc/record_trail`. A walk makes at most one call per new 10-second slot, about 6 a minute, and never more calls than new readings. More calls than readings means Barry sends slots it already sent again.
 - A launch on a live Adventure the app has not saved yet, as after `fixture.mjs live`, must start recording without HOME and a relaunch. If the status bar shows no location arrow and the count stays at 0, the Trail missed the Adventure.

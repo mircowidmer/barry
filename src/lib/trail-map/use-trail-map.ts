@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
-import { fetchTrailMap, tokenFromHash } from './fetch';
+import { fetchTrailMap, mergeTrailMap, newestReading, tokenFromHash } from './fetch';
 import type { TrailMap, TrailMapState } from './types';
 
-const POLL_MS = 60_000;
+const POLL_MS = 10_000;
 
 const onWeb = Platform.OS === 'web';
 
@@ -24,7 +24,7 @@ export function useTrailMap(): TrailMapState {
     let since: Date | null = null;
     let stopped = false;
     const poll = async () => {
-      const result = token ? await load(token) : null;
+      const result = token ? await load(token, newestReading(last)) : null;
       if (stopped) return;
       if (result === 'offline') {
         since ??= new Date();
@@ -32,8 +32,8 @@ export function useTrailMap(): TrailMapState {
         return;
       }
       since = null;
-      last = result;
-      setView(result ? { kind: 'ready', map: result } : { kind: 'not_found' });
+      last = result ? mergeTrailMap(last, result) : null;
+      setView(last ? { kind: 'ready', map: last } : { kind: 'not_found' });
     };
     const reload = () => window.location.reload();
     window.addEventListener('hashchange', reload);

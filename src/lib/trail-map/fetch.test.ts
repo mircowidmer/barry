@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { fetchTrailMap, parseTrailMap, tokenFromHash } from './fetch';
+import { fetchTrailMap, mergeTrailMap, newestReading, parseTrailMap, tokenFromHash } from './fetch';
 
 const plan = { destination: 'Rigi', route: 'North face', starting_point: null, notes: null };
 const underway = {
@@ -89,6 +89,16 @@ describe('fetchTrailMap', () => {
     ]);
   });
 
+  it('asks only for readings after the newest one it has', async () => {
+    let body: unknown;
+    const fetchFn = (async (_url: string, init?: RequestInit) => {
+      body = JSON.parse(String(init?.body));
+      return new Response(JSON.stringify(underway), { status: 200 });
+    }) as typeof fetch;
+    await fetchTrailMap(fetchFn, 'http://x', 'k')('IW4w4EYG9ordT7LiJugZhg', new Date('2026-10-15T09:41:00Z'));
+    expect(body).toEqual({ p_token: 'IW4w4EYG9ordT7LiJugZhg', p_after: '2026-10-15T09:41:00.000Z' });
+  });
+
   it('tells an unknown link from no signal', async () => {
     const token = 'IW4w4EYG9ordT7LiJugZhg';
     expect(await fetchTrailMap(respond(200, null) as typeof fetch, 'http://x', 'k')(token)).toBeNull();
@@ -97,5 +107,51 @@ describe('fetchTrailMap', () => {
       throw new TypeError('Network request failed');
     }) as typeof fetch;
     expect(await fetchTrailMap(noSignal, 'http://x', 'k')(token)).toBe('offline');
+  });
+});
+
+describe('mergeTrailMap', () => {
+  const map = (overrides: Record<string, unknown>) => parseTrailMap({ ...underway, ...overrides })!;
+  const at = (iso: string) => new Date(iso);
+
+  it('adds the new readings to the Trail it already shows, and takes the rest from the answer', () => {
+    const shown = map({});
+    const update = map({
+      plan: { ...plan, route: 'West ridge' },
+      last_known_position: { taken_at: '2026-10-15T09:41:10Z', latitude: 47.04, longitude: 8.69, accuracy_m: 8 },
+      trail: [[47.04, 8.69, '2026-10-15T09:41:10Z']],
+    });
+    const merged = mergeTrailMap(shown, update);
+    expect(merged.status === 'underway' && merged.trail.map((p) => p.takenAt.toISOString())).toEqual([
+      '2026-10-15T08:00:00.000Z',
+      '2026-10-15T09:41:00.000Z',
+      '2026-10-15T09:41:10.000Z',
+    ]);
+    expect(merged.plan.route).toBe('West ridge');
+    expect(merged.status === 'underway' && merged.lastKnownPosition?.latitude).toBe(47.04);
+  });
+
+  it('keeps the Trail when nothing new arrived, and drops a reading it already has', () => {
+    const shown = map({});
+    expect(mergeTrailMap(shown, map({ trail: [] }))).toEqual(shown);
+    expect(mergeTrailMap(shown, map({ trail: [[47.03, 8.68, '2026-10-15T09:41:00Z']] }))).toEqual(shown);
+  });
+
+  it('shows the answer as it is after the Check-in, or when it shows nothing yet', () => {
+    const checkedIn = parseTrailMap({
+      status: 'checked_in',
+      adventurer_name: 'Anna',
+      time_zone: 'Europe/Zurich',
+      plan,
+      checked_in_at: '2026-10-15T10:00:00Z',
+    })!;
+    expect(mergeTrailMap(map({}), checkedIn)).toEqual(checkedIn);
+    expect(mergeTrailMap(null, map({}))).toEqual(map({}));
+  });
+
+  it('asks for readings after the newest point shown', () => {
+    expect(newestReading(map({}))).toEqual(at('2026-10-15T09:41:00Z'));
+    expect(newestReading(map({ trail: [] }))).toBeNull();
+    expect(newestReading(null)).toBeNull();
   });
 });
