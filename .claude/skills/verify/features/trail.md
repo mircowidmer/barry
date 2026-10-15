@@ -10,7 +10,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
 - `trail-map` shows `<name>'s Trail`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
 - `trail-map-checked-in` shows `<name> checked in at …` and no map after the Check-in.
-- `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It reloads every minute.
+- `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every 10 seconds, and the Plan's `Last Known Position: <time>` always shows the same time as the marker.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.
 - `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
 - `history-delete` deletes an Ended Adventure, from its screen with `Delete Adventure` or from `Past Adventures` on the History tab by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this Adventure. Try again in a few minutes.`
@@ -47,6 +47,6 @@ Preconditions:
 - The iOS 27 simulator refuses geofencing (`startGeofencingAsync` throws). The relaunch after a force-quit cannot be verified here; it needs a real iPhone. Report it as unverified.
 - `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's 60-second refresh.
 - `fixture.mjs live` inserts the Adventure without `start_adventure`, so there is no `start` reading. A Check-in then leaves no readings at all.
-- The live screen's `Last position` is the reading from when the screen loaded. It does not refresh with each reading.
+- After an app restart Barry has once flooded `record_trail` (about 36 calls a second, every reply `null`) while storing no readings, and a terminate plus launch cleared it. It did not recur in a later restart, clear and walk run, so the cause is unknown. Check with `docker logs --since 60s supabase_kong_barry-local | grep -c rpc/record_trail`: a normal walk makes about 8 calls a minute. If it floods, terminate and launch Barry, and report it.
 - Background uploads were verified within the session token's first hour only. An expired token during a background wake is unverified.
 - The Trail Map URL in messages comes from `TRAIL_MAP_URL` in `supabase/config.toml`. The edge runtime reads it at start, so a change needs `npx supabase stop` and `npx supabase start`.
