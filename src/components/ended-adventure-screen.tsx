@@ -24,7 +24,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
       )}
       {readings.status === 'ready' &&
         (readings.data.length > 0 ? (
-          <TrailMapView trail={readings.data} last={readings.data.at(-1)!} timeZone={adventure.timeZone} />
+          <TrailMapView trail={readings.data} last={readings.data.at(-1)!} />
         ) : (
           <ThemedText type="small" themeColor="textSecondary">
             No positions were recorded.

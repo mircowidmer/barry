@@ -3,17 +3,17 @@ import { useEffect, useRef } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
 import { fitCamera } from '@/lib/trail-map/camera';
-import { formatTime } from '@/lib/trail-map/format';
+import { formatWhen } from '@/lib/wording';
 import type { LastKnown, TrailPoint } from '@/lib/trail-map/types';
 
-export type TrailMapViewProps = { trail: TrailPoint[]; last: LastKnown | null; timeZone: string };
+export type TrailMapViewProps = { trail: TrailPoint[]; last: LastKnown | null };
 
 const TRAIL = '#208AEF';
 const LAST = '#E5484D';
 
 const at = (p: TrailPoint) => ({ latitude: p.latitude, longitude: p.longitude });
 
-export function TrailMapView({ trail, last, timeZone }: TrailMapViewProps) {
+export function TrailMapView({ trail, last }: TrailMapViewProps) {
   const map = useRef<AppleMaps.MapView>(null);
   const camera = fitCamera(last ? [...trail, last] : trail);
   const [latitude, longitude, zoom] = [camera?.center.latitude, camera?.center.longitude, camera?.zoom];
@@ -52,7 +52,7 @@ export function TrailMapView({ trail, last, timeZone }: TrailMapViewProps) {
                 id: 'last',
                 coordinates: at(last),
                 tintColor: LAST,
-                title: `Last Known Position, ${formatTime(last.takenAt, timeZone)}`,
+                title: `Last Known Position, ${formatWhen(last.takenAt)}`,
               },
             ]
           : []
