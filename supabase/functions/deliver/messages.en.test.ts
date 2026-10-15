@@ -3,6 +3,7 @@ import { assertEquals, assertStringIncludes } from 'jsr:@std/assert@1.0.13';
 import { parseFacts } from './facts.ts';
 import { trailMapLinks } from './links.ts';
 import { formatTime, render } from './messages.en.ts';
+import { smsBody } from './senders.ts';
 
 const links = trailMapLinks('http://localhost:8081/trail');
 const token = 'Xk3vQ9pL2mN8rT5wY1zA0b';
@@ -115,4 +116,30 @@ Deno.test('without a link base or a token the Heads-up and the Alert go out with
 Deno.test('an unset or invalid TRAIL_MAP_URL gives no links', () => {
   assertEquals(trailMapLinks(undefined), null);
   assertEquals(trailMapLinks('not a url'), null);
+});
+
+const GSM_7 =
+  '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà' +
+  '^{}\\[~]|€';
+
+Deno.test('every text message body uses only the GSM-7 alphabet, so it is not sent at the UCS-2 rate', () => {
+  const bodies = [
+    render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links),
+    render(
+      parseFacts({
+        ...base,
+        kind: 'alert',
+        round: 2,
+        trail_token: token,
+        profile,
+        last_known_position: { taken_at: '2026-10-17T12:12:00Z', latitude: 47.03, longitude: 8.68, accuracy_m: 12 },
+      }),
+      links,
+    ),
+    render(parseFacts({ ...base, kind: 'alert', round: 1, profile, last_known_position: null, trail_token: null }), links),
+    render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links),
+  ].map(smsBody);
+  for (const body of bodies) {
+    assertEquals([...body].filter((c) => !GSM_7.includes(c)), [], body.split('\n')[0]);
+  }
 });
