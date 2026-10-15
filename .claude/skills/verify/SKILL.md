@@ -14,7 +14,7 @@ Helpers live in `.claude/skills/verify/scripts/`, run from the repo root. Shell 
 From the repo root, in this order:
 
 1. `npx supabase start`. Ready when `.claude/skills/verify/scripts/doctor.sh` shows the database, Kong and the Edge runtime up. A fresh database needs `npx supabase db reset --local`, which applies every migration and `supabase/seed.sql` (the Vault secrets `deliver` needs). A reset deletes the test account too: create it again through the app's **Create account** with the values in `.env.local`.
-2. `node scripts/push-relay.mjs` and `node scripts/sms-relay.mjs` as background processes. Ready when they print `push relay listening on http://localhost:8787/push` and `sms relay listening on http://localhost:8788`.
+2. `node scripts/sms-relay.mjs` as a background process. Ready when it prints `sms relay listening on http://localhost:8788`.
 3. The app:
    - If `ios/` is missing or a native dependency changed: `LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
    - Otherwise: `npx expo start --dev-client --port 8081` as a background process, then `xcrun simctl launch booted support.barry`. Ready when Metro prints `iOS Bundled`.
@@ -25,7 +25,7 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 
 ## Doctor
 
-`.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the relays on :8787 and :8788, Metro on :8081, a booted simulator, the `support.barry` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
+`.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the text message relay on :8788, Metro on :8081, a booted simulator, the `support.barry` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
 
 ## Drive
 
@@ -61,7 +61,7 @@ Proof standards: drive the real screens, not the database. Capture the action an
 - `.claude/skills/verify/scripts/fixture.mjs end` checks in from any live Adventure the run left, so no Alert goes to the contacts later.
 - `.claude/skills/verify/scripts/fixture.mjs online` if the run took the API offline.
 - `.claude/skills/verify/scripts/clip.sh clear`.
-- Stop only the processes this run started: the relays and Metro background tasks by their task ID, and `npx supabase stop` if the run started Supabase.
+- Stop only the processes this run started: the text message relay and Metro background tasks by their task ID, and `npx supabase stop` if the run started Supabase.
 - Keep `.verify-artifacts/`. Cleanup never deletes proof.
 
 ## Upgrade path
