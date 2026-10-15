@@ -1,0 +1,52 @@
+name: Trail Map on GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}trail
+    env:
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      BARRY_WEB_BASE_URL: /${{ github.event.repository.name }}
+    steps:
+      # A browser blocks an HTTPS page from calling plain HTTP, so a local Supabase address cannot work here.
+      - name: Check the Supabase address
+        run: |
+          case "$EXPO_PUBLIC_SUPABASE_URL" in
+            https://*) ;;
+            *) echo "::error::Set the repository variable EXPO_PUBLIC_SUPABASE_URL to the hosted Supabase project's https:// URL."; exit 1 ;;
+          esac
+          if [ -z "$EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Set the repository variable EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY."; exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx expo export --platform web
+      - name: Keep only the Trail Map
+        run: mkdir site && cp -R dist/trail.html dist/_expo dist/assets dist/favicon.ico site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
