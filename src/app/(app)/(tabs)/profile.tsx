@@ -68,7 +68,7 @@ function ProfileForm({ initial }: { initial: Form }) {
           onChangeText={set('phone')}
           keyboardType="phone-pad"
           autoComplete="tel"
-          hint="With country code, for example +41 79 123 45 67."
+          hint="With country code, for example +41771234567."
         />
       </Section>
       <Section title="Car (optional)">
