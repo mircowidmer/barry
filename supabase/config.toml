@@ -387,6 +387,9 @@ deno_version = 2
 DELIVER_SECRET = "local-deliver-secret"
 EMAIL_API_URL = "http://supabase_inbucket_barry-local:8025/api/v1/send"
 EMAIL_FROM = "barry@localhost"
+# scripts/push-relay.mjs on the Mac hands pushes to the iOS Simulator. Remove this line to send
+# through Expo once `eas credentials` has set up the Apple push key.
+EXPO_PUSH_URL = "http://host.docker.internal:8787/push"
 
 [functions.deliver]
 verify_jwt = false

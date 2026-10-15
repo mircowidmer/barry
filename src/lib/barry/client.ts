@@ -23,6 +23,8 @@ export type BarryDeps = {
   timeZone(): string;
   now(): Date;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
+  /** Whether the system lets Barry show notifications. */
+  pushPermitted(): Promise<boolean>;
 };
 
 // A Postgres or PostgREST error always has a code. A failed request has none, and then the
@@ -46,7 +48,7 @@ const orNull = <T,>(value: T | null | undefined): T => (value ?? null) as T;
 const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
   a !== null && (a.stage === 'active' || a.stage === 'overdue' || a.stage === 'alerted');
 
-export const createBarry = ({ supabase, readPosition, timeZone, now, storage }: BarryDeps): Barry => {
+export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pushPermitted }: BarryDeps): Barry => {
   const userId = async () => {
     const { data } = await supabase.auth.getSession();
     const id = data.session?.user.id;
@@ -127,6 +129,13 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage }: 
 
     enabledChannels,
 
+    registerPushDevice: async (expoPushToken) => {
+      const { error } = await supabase
+        .from('push_devices')
+        .upsert({ expo_push_token: expoPushToken, adventurer_id: await userId(), updated_at: now().toISOString() });
+      if (error) fail('registerPushDevice', error);
+    },
+
     listAdventures: async () => {
       const { data, error } = await supabase
         .from('adventures')
@@ -174,11 +183,12 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage }: 
     },
 
     startConditions: async () => {
-      const [channels, devices] = await Promise.all([
+      const [channels, devices, permitted] = await Promise.all([
         enabledChannels(),
         supabase.from('push_devices').select('expo_push_token', { count: 'exact', head: true }),
+        pushPermitted(),
       ]);
-      return { smsEnabled: channels.has('sms'), pushRegistered: (devices.count ?? 0) > 0 };
+      return { smsEnabled: channels.has('sms'), pushRegistered: permitted && (devices.count ?? 0) > 0 };
     },
 
     start: async (id) => {
