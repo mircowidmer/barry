@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(19);
+select plan(21);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -21,7 +21,8 @@ insert into public.adventures (id, adventurer_id, stage, destination, deadline, 
 
 insert into public.adventure_contacts (adventure_id, contact_id) values
   ('a0000000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001'),
-  ('a0000000-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002');
+  ('a0000000-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002'),
+  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000001');
 
 insert into public.messages (adventure_id, kind, channel, to_address, contact_id) values
   ('a0000000-0000-0000-0000-000000000001', 'heads_up', 'email', 'luca@example.com', 'aaaaaaaa-0000-0000-0000-000000000001');
@@ -146,6 +147,17 @@ select throws_ok(
   $$delete from auth.users where id = '11111111-1111-1111-1111-111111111111'$$,
   'P0001', 'barry:adventure_in_progress',
   'An account with an Active Adventure cannot be deleted'
+);
+
+select lives_ok(
+  $$delete from auth.users where id = '22222222-2222-2222-2222-222222222222'$$,
+  'An account with no Adventure in progress can be deleted'
+);
+
+select is(
+  (select count(*)::int from public.emergency_contacts where adventurer_id = '22222222-2222-2222-2222-222222222222'),
+  0,
+  'Deleting the account deletes its contacts'
 );
 
 select * from finish();
