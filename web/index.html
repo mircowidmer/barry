@@ -6,77 +6,9 @@
   <title>Barry — go alone, get home</title>
   <meta name="description" content="Barry tells the people you choose when you don't come back from an adventure alone.">
   <link rel="icon" href="/favicon.ico">
-  <style>
-    :root {
-      --bg: #ffffff;
-      --surface: #f2f4f7;
-      --text: #111418;
-      --muted: #5b6470;
-      --accent: #0b6bcb;
-      --border: #e3e7ec;
-      --warning-bg: #fff6e5;
-      --warning: #8a5a00;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0d1014;
-        --surface: #181c22;
-        --text: #f2f4f7;
-        --muted: #a3acb8;
-        --accent: #5aa9ff;
-        --border: #262c34;
-        --warning-bg: #2b2210;
-        --warning: #f0c060;
-      }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font: 17px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    header {
-      background: linear-gradient(160deg, #34c759, #0088ff);
-      color: #fff;
-      padding: 56px 16px 64px;
-      text-align: center;
-    }
-    header img { width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.2); }
-    header h1 { margin: 20px 0 8px; font-size: 44px; letter-spacing: -0.02em; }
-    header p { margin: 0 auto; max-width: 34em; font-size: 20px; opacity: 0.95; }
-    header .slogan { margin-bottom: 16px; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; opacity: 1; }
-    .status {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: rgb(255 255 255 / 0.18);
-      font-size: 15px;
-    }
-    main { max-width: 760px; margin: 0 auto; padding: 8px 16px 48px; }
-    h2 { margin: 44px 0 4px; font-size: 26px; letter-spacing: -0.01em; }
-    .lead { margin: 0 0 16px; color: var(--muted); }
-    ul.features { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-    ul.features li {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-    }
-    ul.features strong { display: block; margin-bottom: 2px; }
-    .note {
-      margin-top: 44px;
-      padding: 16px;
-      border-radius: 14px;
-      background: var(--warning-bg);
-      color: var(--warning);
-    }
-    footer { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; color: var(--muted); font-size: 15px; }
-    a { color: var(--accent); }
-  </style>
+  <link rel="stylesheet" href="/site.css">
 </head>
-<body>
+<body class="site">
   <header>
     <img src="/logo.png" alt="Barry's icon, a St. Bernard with a little barrel on its collar">
     <h1>Barry</h1>
@@ -129,7 +61,7 @@
       <li><strong>Only the people you chose</strong>Your contacts see your Trail only during the adventure, through their own link. Nobody else does.</li>
     </ul>
 
-    <p class="note"><strong>Barry is not an emergency service.</strong> It never calls rescue services. It tells the people you chose, and they decide what to do.</p>
+    <p class="note important"><strong>Barry is not an emergency service.</strong> It never calls rescue services. It tells the people you chose, and they decide what to do.</p>
   </main>
 
   <footer>

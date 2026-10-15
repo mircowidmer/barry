@@ -54,5 +54,5 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     [],
   );
 
-  return <div ref={element} style={{ height: 420, width: '100%', borderRadius: 12, overflow: 'hidden' }} />;
+  return <div ref={element} className="map" />;
 }

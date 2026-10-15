@@ -1,29 +1,6 @@
-import { Link } from 'expo-router';
-import { useSyncExternalStore } from 'react';
+import { Redirect } from 'expo-router';
 
-import { Notice, Screen } from '@/components/form';
-import { ThemedText } from '@/components/themed-text';
-import { confirmationError } from '@/lib/confirmation';
-
-export const generateMetadata = () => ({ title: 'Barry', robots: { index: false, follow: false } });
-
-export default function ConfirmedRoute() {
-  const error = useSyncExternalStore(
-    () => () => undefined,
-    () => (typeof location === 'undefined' ? null : confirmationError(location.href)),
-    () => null,
-  );
-
-  return error ? (
-    <Screen title="This link did not work">
-      <Notice tone="warning">{error}.</Notice>
-      <ThemedText>Open Barry and tap Create account again to get a new link.</ThemedText>
-    </Screen>
-  ) : (
-    <Screen title="Your email is confirmed">
-      <Link href="barry://sign-in">
-        <ThemedText type="linkPrimary">Open Barry and sign in</ThemedText>
-      </Link>
-    </Screen>
-  );
+// The page is for a browser; trail.web.tsx and confirmed.web.tsx render it there.
+export default function BrowserOnlyRoute() {
+  return <Redirect href="/" />;
 }
