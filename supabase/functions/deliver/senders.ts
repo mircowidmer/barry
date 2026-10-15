@@ -51,8 +51,6 @@ const expoPush: Sender = async (to, message) => {
   return reason === 'MessageRateExceeded' ? { outcome: 'retry', reason } : { outcome: 'failed', reason };
 };
 
-export const smsBody = (message: Rendered): string => `${message.subject}\n\n${message.text}`;
-
 export type TwilioConfig = { apiUrl: string; accountSid: string; authToken: string; from: string };
 
 const parseJson = (body: string): Record<string, unknown> => {
@@ -68,7 +66,7 @@ export const twilioSms = (config: () => TwilioConfig): Sender => async (to, mess
   const response = await fetch(`${apiUrl}/2010-04-01/Accounts/${accountSid}/Messages.json`, {
     method: 'POST',
     headers: { authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}` },
-    body: new URLSearchParams({ To: to, From: from, Body: smsBody(message) }),
+    body: new URLSearchParams({ To: to, From: from, Body: message.text }),
   });
   const body = parseJson(await response.text());
   if (!response.ok) return fromHttpStatus(response.status, `Twilio ${body.code ?? 'error'}: ${body.message ?? response.statusText}`);

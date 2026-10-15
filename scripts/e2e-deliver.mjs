@@ -38,14 +38,14 @@ const waitForMail = async (to, subject) => {
 
 const textsBefore = (await fetch(SMS_RELAY).then((r) => r.json())).length;
 
-const waitForText = async (to, subject) => {
+const waitForText = async (to, start) => {
   for (let i = 0; i < 45; i++) {
     const texts = (await fetch(SMS_RELAY).then((r) => r.json())).slice(textsBefore);
-    const found = texts.find((m) => m.to === to && m.body.startsWith(`${subject}\n`));
+    const found = texts.find((m) => m.to === to && m.body.startsWith(start));
     if (found) return found;
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-  throw new Error(`no text message "${subject}" to ${to} within 90 seconds`);
+  throw new Error(`no text message starting "${start}" to ${to} within 90 seconds`);
 };
 
 const step = (text) => console.log(`- ${text}`);
@@ -97,7 +97,7 @@ let t = Date.now();
 const headsUp = await waitForMail(luca, 'Anna is heading out to Grosser Mythen');
 step(`Heads-up reached Luca in ${Math.round((Date.now() - t) / 1000)} s: "${headsUp.Subject}"`);
 
-const headsUpText = await waitForText(sara, 'Anna is heading out to Grosser Mythen');
+const headsUpText = await waitForText(sara, 'Anna is going on an Adventure alone');
 expect(/Follow Anna's Trail: \S+/.test(headsUpText.body), `the Heads-up reached Sara by text message from ${headsUpText.from}`);
 
 const link = trailLink(headsUp);
@@ -113,7 +113,7 @@ const alert = await waitForMail(luca, 'Anna has not checked in');
 step(`Alert reached Luca in ${Math.round((Date.now() - t) / 1000)} s after the Grace Period ended:`);
 console.log(alert.Text.split('\n').map((line) => `    ${line}`).join('\n'));
 expect(trailLink(alert) === link, 'the Alert carries the same Trail Map link');
-const alertText = await waitForText(sara, 'Anna has not checked in');
+const alertText = await waitForText(sara, 'Anna has not checked in from an Adventure');
 expect(alertText.body.includes("Anna's phone: +41790000001"), 'the Alert reached Sara by text message with the Profile');
 map = await trailMap(token);
 expect(map?.status === 'alerted', 'the Trail Map shows the Alert');
@@ -123,7 +123,7 @@ step(`check_in refusal: ${checkIn ?? 'none'}`);
 t = Date.now();
 const allClear = await waitForMail(luca, 'Anna is back safe');
 step(`All-clear reached Luca in ${Math.round((Date.now() - t) / 1000)} s: "${allClear.Text}"`);
-await waitForText(sara, 'Anna is back safe');
+await waitForText(sara, 'Anna checked in safely');
 step('All-clear reached Sara by text message');
 map = await trailMap(token);
 expect(

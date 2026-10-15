@@ -29,7 +29,7 @@ Deno.test('a text message goes to Twilio as a form with Basic auth, and its sid 
   assertEquals(Object.fromEntries(new URLSearchParams(await request.text())), {
     To: '+41792222222',
     From: 'Barry',
-    Body: 'Anna is back safe\n\nAnna checked in safely at Sat 17 Oct, 19:05.',
+    Body: 'Anna checked in safely at Sat 17 Oct, 19:05.',
   });
 });
 

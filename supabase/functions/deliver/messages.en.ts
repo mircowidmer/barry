@@ -72,7 +72,9 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
             ? `${name} has not checked in`
             : `${name} has still not checked in (Alert ${facts.round} of 3)`,
         text: lines(
-          `${name} has not checked in from an Adventure. The Deadline was ${time(facts.deadline)}.`,
+          facts.round === 1
+            ? `${name} has not checked in from an Adventure. The Deadline was ${time(facts.deadline)}.`
+            : `${name} has still not checked in from an Adventure (Alert ${facts.round} of 3). The Deadline was ${time(facts.deadline)}.`,
           '',
           ...planLines(facts.plan),
           '',
