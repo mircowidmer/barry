@@ -11,8 +11,8 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-map` shows `<name>'s Trail`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
 - `trail-map-checked-in` shows `<name> checked in at …` and no map after the Check-in.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.
-- `trail-history` opens an Ended Adventure from `Past Adventures` (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
-- `history-delete` deletes an Ended Adventure, from its screen with `Delete Adventure` or from `Past Adventures` by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this Adventure. Try again in a few minutes.`
+- `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
+- `history-delete` deletes an Ended Adventure, from its screen with `Delete Adventure` or from `Past Adventures` on the History tab by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this Adventure. Try again in a few minutes.`
 
 ## How to get to it (user POV)
 
@@ -28,7 +28,7 @@ Preconditions:
 - For `trail-off`: `xcrun simctl privacy booted revoke location-always support.barry`, then `xcrun simctl privacy booted grant location support.barry`.
 - For the other journeys: `xcrun simctl privacy booted grant location-always support.barry`.
 - After any `privacy` change, `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`, because the app reads the permission on load and on foreground only.
-- `fixture.mjs live 120`, then tap `Contacts` (201, 817) and `Adventure` (115, 817) so the app loads and saves the live Adventure.
+- `fixture.mjs live 120`, then tap `Contacts` (243, 820) and `Adventure` (73, 820) so the app loads and saves the live Adventure.
 
 - **Off (`trail-off`).** The live screen shows `Barry can share only where you started.` under the countdown.
 - **Recording (`trail-recording`).** The live screen shows `Barry is recording your Trail. Closing Barry stops the Trail.` and the status bar shows the location arrow.
@@ -37,7 +37,7 @@ Preconditions:
 - **Offline (`trail-offline`).** While walking, `fixture.mjs offline`, wait two minutes, `fixture.mjs trail` shows no new readings. `fixture.mjs online`, then `xcrun simctl launch booted support.barry`. Within 30 seconds the missing minutes arrive, still one per minute.
 - **Page (`trail-map`).** Take Luca's token from `fixture.mjs trail` (`link | Luca | <token>`) and open `http://localhost:8081/trail#<token>` in the built-in browser. The page reads `Anna's Trail` (or the Profile name), shows a line on the map, `Last Known Position at <time>` (no time zone), and `Destination: Pilatus`. `get_page_text` contains no `Deadline` and no `overdue`. Repeat after `fixture.mjs overdue` and the next tick: the page looks the same.
 - **Check-in (`trail-after-checkin`, `trail-map-checked-in`).** Hold `Hold to check in` with `duration: 2.2`. The app reads `You checked in at … Welcome back.` with a `Done` button and an Apple map below it: a blue line, a blue dot per reading and a red marker on the newest one. `fixture.mjs trail` prints `adventure | ended` and the same `trail` count as before. Reload the page with `location.reload()`: it reads `Anna checked in at <time>.` with no map.
-- **History (`trail-history`).** Tap `Done`, then the Adventure's card under `Past Adventures`. The pushed screen has a `Back` button and shows the Plan, `You checked in at …` and the same map. An Ended Adventure without readings shows `No positions were recorded.`
+- **History (`trail-history`).** Tap `Done`, tap `History` (158, 820), then the Adventure's card under `Past Adventures`. The pushed screen has a `Back` button and shows the Plan, `You checked in at …` and the same map. An Ended Adventure without readings shows `No positions were recorded.`
 - **Proof.** Screenshot the live screen notices and the page, and save `fixture.mjs trail` after each step to `.verify-artifacts/<run-id>/`.
 
 ## Gotchas

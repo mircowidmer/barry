@@ -12,7 +12,7 @@ The Contacts tab lists the Adventurer's Emergency Contacts and lets them add, ed
 
 ## How to get to it (user POV)
 
-- Tap `Contacts` in the tab bar (201, 817).
+- Tap `Contacts` in the tab bar (243, 820).
 
 ## Driving it with the iOS Simulator
 

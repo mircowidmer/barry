@@ -36,4 +36,5 @@ Each feature file starts with an H1 title and one paragraph describing the user-
 - [Plan and start](./plan-and-start.md) covers planning, Start warnings, Start and the Heads-up.
 - [Live Adventure](./live-adventure.md) covers the countdown, Deadline moves, Overdue, editing, Check-in, the short-tap guard and offline Check-in.
 - [Notifications](./notifications.md) covers the Reminder and the Overdue Notice pushes.
+- [History](./history.md) covers the History tab with the live Adventure and the Ended Adventures.
 - [Trail and Trail Map](./trail.md) covers background recording, offline readings, the contact's Trail Map page, and the Check-in delete.
