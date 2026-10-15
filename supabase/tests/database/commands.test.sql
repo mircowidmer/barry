@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(51);
+select plan(61);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -46,6 +46,32 @@ insert into public.messages (adventure_id, kind, round, channel, to_address, con
   ('b0000000-0000-0000-0000-000000000021', 'alert', 1, 'email', 'noah@example.com', 'bbbbbbbb-0000-0000-0000-000000000001', 'sent', 1),
   ('b0000000-0000-0000-0000-000000000021', 'alert', 1, 'email', 'olga@example.com', 'bbbbbbbb-0000-0000-0000-000000000002', 'pending', 0),
   ('b0000000-0000-0000-0000-000000000021', 'alert', 1, 'email', 'paul@example.com', 'bbbbbbbb-0000-0000-0000-000000000003', 'pending', 1);
+
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone,
+                               started_at, checked_in_at, ended_at) values
+  ('c0000000-0000-0000-0000-000000000031', '11111111-1111-1111-1111-111111111111', 'ended', 'Säntis',
+   now() - interval '20 days', now() - interval '21 days', 'Europe/Zurich',
+   now() - interval '21 days', now() - interval '20 days', now() - interval '20 days'),
+  ('c0000000-0000-0000-0000-000000000032', '11111111-1111-1111-1111-111111111111', 'ended', 'Eiger',
+   now() - interval '2 hours', now() - interval '10 hours', 'Europe/Zurich',
+   now() - interval '10 hours', now() - interval '5 minutes', now() - interval '5 minutes'),
+  ('c0000000-0000-0000-0000-000000000033', '11111111-1111-1111-1111-111111111111', 'ended', 'Mönch',
+   now() - interval '2 hours', now() - interval '10 hours', 'Europe/Zurich',
+   now() - interval '10 hours', now() - interval '5 minutes', now() - interval '5 minutes');
+
+insert into public.adventure_contacts (adventure_id, contact_id) values
+  ('c0000000-0000-0000-0000-000000000031', 'aaaaaaaa-0000-0000-0000-000000000001'),
+  ('c0000000-0000-0000-0000-000000000032', 'aaaaaaaa-0000-0000-0000-000000000001'),
+  ('c0000000-0000-0000-0000-000000000033', 'aaaaaaaa-0000-0000-0000-000000000001');
+
+insert into public.position_readings (adventure_id, taken_at, latitude, longitude, reason) values
+  ('c0000000-0000-0000-0000-000000000031', now() - interval '21 days', 47.25, 9.34, 'start');
+
+insert into public.messages (adventure_id, kind, channel, to_address, contact_id, status, attempts) values
+  ('c0000000-0000-0000-0000-000000000031', 'heads_up', 'email', 'luca@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', 'sent', 1),
+  ('c0000000-0000-0000-0000-000000000031', 'all_clear', 'email', 'luca@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', 'failed', 3),
+  ('c0000000-0000-0000-0000-000000000032', 'all_clear', 'email', 'luca@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', 'pending', 0),
+  ('c0000000-0000-0000-0000-000000000033', 'all_clear', 'email', 'luca@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', 'sending', 1);
 
 create function pg_temp.messages(p_adventure uuid, p_kind public.message_kind) returns text[]
 language sql as $$
@@ -196,6 +222,46 @@ select is(
   0,
   'The deleted Adventure is gone'
 );
+select is(public.delete_adventure('c0000000-0000-0000-0000-000000000031'),
+  null::public.refusal, 'An Ended Adventure whose messages are done can be deleted');
+select is(
+  (select count(*)::int from public.adventures where id = 'c0000000-0000-0000-0000-000000000031'),
+  0,
+  'The deleted Ended Adventure is gone'
+);
+reset role;
+select is(
+  (select count(*)::int from public.position_readings where adventure_id = 'c0000000-0000-0000-0000-000000000031'),
+  0,
+  'Its readings are gone'
+);
+select is(
+  (select count(*)::int from public.adventure_contacts where adventure_id = 'c0000000-0000-0000-0000-000000000031'),
+  0,
+  'Its contacts are gone'
+);
+select is(
+  (select count(*)::int from public.messages where adventure_id = 'c0000000-0000-0000-0000-000000000031'),
+  0,
+  'Its messages are gone'
+);
+set local role authenticated;
+select is(public.delete_adventure('c0000000-0000-0000-0000-000000000032'),
+  'messages_pending'::public.refusal, 'An Ended Adventure with a pending All-clear cannot be deleted');
+select is(
+  (select count(*)::int from public.adventures where id = 'c0000000-0000-0000-0000-000000000032'),
+  1,
+  'The Adventure with a pending All-clear still exists'
+);
+select is(public.delete_adventure('c0000000-0000-0000-0000-000000000033'),
+  'messages_pending'::public.refusal, 'An Ended Adventure with an All-clear being sent cannot be deleted');
+select is(
+  (select count(*)::int from public.adventures where id = 'c0000000-0000-0000-0000-000000000033'),
+  1,
+  'The Adventure with an All-clear being sent still exists'
+);
+select is(public.delete_adventure('b0000000-0000-0000-0000-000000000021'),
+  'not_found'::public.refusal, 'Anna cannot delete Ben''s Adventure');
 
 -- move_deadline
 

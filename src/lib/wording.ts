@@ -12,6 +12,7 @@ const refusals: Record<Refusal, string> = {
   another_adventure_in_progress: 'Another Adventure is already in progress. Check in from it first.',
   wrong_stage: 'This Adventure can no longer be changed.',
   invalid_time_zone: 'Your phone reported a time zone Barry does not know.',
+  messages_pending: 'Barry is still sending messages for this Adventure. Try again in a few minutes.',
 };
 
 export const refusalText = (refusal: Refusal) => refusals[refusal];
