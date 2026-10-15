@@ -50,6 +50,6 @@ npx expo start --dev-client
 - Barry works only on the Wi-Fi your Mac is on, and only while the Mac is awake with Supabase and Metro running. On mobile data the app cannot reach the backend.
 - There are no push notifications on the iPhone. The build leaves them out. Barry still asks for notification permission, because the Reminder and the Overdue Notice are local notifications that the app schedules on the phone. They arrive without push and without signal.
 - The Trail Map links in the emails open only on devices on the same Wi-Fi.
-- Text messages go to `scripts/sms-relay.mjs`, which prints them and sends nothing. [How to send real text messages](text-messages.md) sets up Twilio.
+- Text messages go to `scripts/sms-relay.mjs`, which prints them and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them, and [How to send real text messages](text-messages.md) sets up Twilio.
 - A free team's profile expires after 7 days. When iOS says Barry is no longer available, repeat steps 3 and 4.
 - If the macOS firewall asks whether `node` or Docker may accept incoming connections, allow it.
