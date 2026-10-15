@@ -1,16 +1,14 @@
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { Button, HoldButton, Notice, Row, Screen, Section } from '@/components/form';
-import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTrailStatus } from '@/hooks/use-trail-status';
-import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure } from '@/lib/barry';
-import { askToDeleteAdventure } from '@/lib/delete-adventure';
+import { type Adventure, barry, type DeliveryFailure, type InProgressAdventure } from '@/lib/barry';
 import { formatDuration, formatWhen, refusalText } from '@/lib/wording';
 
 export default function AdventureScreen() {
@@ -56,12 +54,6 @@ function Overview({
   onReload: () => void;
 }) {
   const planned = adventures.filter((a) => a.stage === 'planned');
-  const ended = adventures.filter((a) => a.stage === 'ended');
-  const remove = async (id: AdventureId) => {
-    const outcome = await askToDeleteAdventure(id);
-    if (outcome.kind === 'deleted') onReload();
-    else if (outcome.kind === 'failed') Alert.alert('Could not delete', outcome.message);
-  };
   return (
     <Screen title="Adventure">
       {offlineSince && (
@@ -90,26 +82,6 @@ function Overview({
           </Section>
         </Pressable>
       ))}
-      {ended.length > 0 && <ThemedText type="smallBold">Past Adventures</ThemedText>}
-      {ended.map(
-        (a) =>
-          a.stage === 'ended' && (
-            <SwipeToDelete key={a.id} label={`Delete ${a.plan.destination}`} onDelete={() => remove(a.id)}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Open ${a.plan.destination}`}
-                onPress={() => router.push({ pathname: '/adventure/[id]', params: { id: a.id } })}>
-                <Section>
-                  <ThemedText type="smallBold">{a.plan.destination}</ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    Checked in {formatWhen(a.checkedInAt)}
-                    {a.alertsSent > 0 && ` · ${a.alertsSent} Alert${a.alertsSent > 1 ? 's' : ''} sent`}
-                  </ThemedText>
-                </Section>
-              </Pressable>
-            </SwipeToDelete>
-          ),
-      )}
     </Screen>
   );
 }

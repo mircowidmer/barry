@@ -16,6 +16,10 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Adventure</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.hiking" md="hiking" />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="history">
+        <NativeTabs.Trigger.Label>History</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="list.bullet" md="list" />
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="contacts">
         <NativeTabs.Trigger.Label>Contacts</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="person.2.fill" md="group" />

@@ -59,7 +59,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 | Alerted | The Grace Period ends without a Check-in. | Ended |
 | Ended | The Adventurer checks in. | Nothing |
 
-An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. Ended Adventures stay in the Adventurer's history. Opening one shows its Plan, its Check-in time, and a map of its readings. The Adventurer can delete an Ended Adventure after confirming. Deleting removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
+An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. The Adventure tab lists the Planned Adventures. The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first. Opening an Ended Adventure shows its Plan, its Check-in time, and a map of its readings. The Adventurer can delete an Ended Adventure after confirming. Deleting removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
 
 ### Rules by stage
 
@@ -143,7 +143,7 @@ If a Heads-up, an Alert, or an All-clear cannot be delivered, the app shows the 
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Known Position is the newest reading, from Start, a Deadline move, or the Trail.
-- The Trail stays with the Adventure after the Check-in. Only the Adventurer can see it: the app shows the map on the Check-in screen and on each Ended Adventure in the history. Emergency Contacts lose sight of every position at the Check-in.
+- The Trail stays with the Adventure after the Check-in. Only the Adventurer can see it: the app shows the map on the Check-in screen and on each Ended Adventure in the History tab. Emergency Contacts lose sight of every position at the Check-in.
 - The Trail is deleted with the Adventurer's account.
 
 ## Trail Map
