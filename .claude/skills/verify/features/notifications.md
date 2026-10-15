@@ -16,7 +16,7 @@ The Adventurer gets a Reminder 30 minutes before the Deadline and an Overdue Not
 
 Preconditions:
 
-- Baseline from the index. The relay may be stopped. Stopping it shows that the notification is local.
+- Baseline from the index. No push relay runs, so every notification that appears is local.
 
 - **Overdue Notice (`local-overdue`).** Run `fixture.mjs live 2`, then `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`, so the app loads the Adventure and schedules the notification. Wait until the live screen shows the countdown, then press `button HOME`. At the Deadline, a banner from `Barry` reads `You are overdue. Your Deadline for Pilatus was <weekday> <day> <month>, <HH:MM>. Barry alerts your Emergency Contacts at …`. Take `xcrun simctl io booted screenshot` about once a second from one second before the Deadline, because the banner stays for about 5 seconds. `fixture.mjs state` lists no `reminder` or `overdue_notice` message rows.
 - **Reminder (`local-reminder`).** Run `fixture.mjs live 31`, then relaunch the app as above and press `button HOME`. About a minute later the banner reads `Check in or move your Deadline. Your Deadline for Pilatus is …`.
@@ -29,4 +29,4 @@ Preconditions:
 - With the app in the foreground, the banner shows for a few seconds only. Background the app first for a screenshot.
 - The simulator's clock decides when the notification shows. The Alert still follows the database clock.
 - Metro prints no `console.log` output from this build. To see why a schedule failed, send the error to a local HTTP listener with `fetch`, and remove it afterwards.
-- Older Notification Center entries that end in `Zurich time` came from the relay before push was turned off. They are not local notifications.
+- Older Notification Center entries that end in `Zurich time` came from the old push relay before push was turned off. They are not local notifications.
