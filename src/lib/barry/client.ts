@@ -2,6 +2,7 @@ import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
 
+import { createAdventureCache } from './adventure-cache';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { ADVENTURE_SELECT, type AdventureWithRelations, parseAdventure, parseContact, parseProfile } from './rows';
 import type {
@@ -56,10 +57,16 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
     return id;
   };
 
+  const cache = createAdventureCache(storage, now);
+
   const getAdventure = async (id: AdventureId) => {
     const { data, error } = await supabase.from('adventures').select(ADVENTURE_SELECT).eq('id', id).maybeSingle();
     if (error) fail('getAdventure', error);
-    return data ? parseAdventure(data as unknown as AdventureWithRelations) : null;
+    const row = data as unknown as AdventureWithRelations | null;
+    const adventure = row ? parseAdventure(row) : null;
+    if (isInProgress(adventure)) cache.save(row);
+    else if (cache.load()?.row.id === id) cache.save(null);
+    return adventure;
   };
 
   const enabledChannels = async () => {
@@ -153,9 +160,16 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
         .select(ADVENTURE_SELECT)
         .in('stage', ['active', 'overdue', 'alerted'])
         .maybeSingle();
-      if (error) fail('getInProgressAdventure', error);
-      const adventure = data ? parseAdventure(data as unknown as AdventureWithRelations) : null;
-      return isInProgress(adventure) ? adventure : null;
+      if (error) {
+        if (!isNoSignal(error)) fail('getInProgressAdventure', error);
+        const cached = cache.load();
+        const adventure = cached ? parseAdventure(cached.row) : null;
+        return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: cached?.savedAt ?? now() };
+      }
+      const row = data as unknown as AdventureWithRelations | null;
+      cache.save(row);
+      const adventure = row ? parseAdventure(row) : null;
+      return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: null };
     },
 
     saveAdventure: async ({ id, plan, deadline, contactIds }) => {

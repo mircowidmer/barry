@@ -91,6 +91,9 @@ export type AdventureDraft = {
   contactIds: EmergencyContactId[];
 };
 
+/** The live Adventure, or the last one seen when the server cannot be reached. */
+export type InProgressView = { adventure: InProgressAdventure | null; offlineSince: Date | null };
+
 export type SaveAdventureResult =
   | { kind: 'saved'; adventure: Adventure }
   | { kind: 'refused'; refusal: Refusal };
@@ -107,7 +110,7 @@ export type Barry = {
 
   listAdventures(): Promise<Adventure[]>;
   getAdventure(id: AdventureId): Promise<Adventure | null>;
-  getInProgressAdventure(): Promise<InProgressAdventure | null>;
+  getInProgressAdventure(): Promise<InProgressView>;
   saveAdventure(draft: AdventureDraft): Promise<SaveAdventureResult>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
 
