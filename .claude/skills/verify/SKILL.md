@@ -32,7 +32,7 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `duration` for a long-press), `swipe`, `button HOME`, `open_url`. Coordinates are device points on the iPhone 18 Pro, 402 × 874. A screenshot is shown scaled, so convert with the factor the tool reports.
 
 - **Wait after every tap.** The debug build reacts one to three seconds late. Wait 2 to 3 seconds after a tap before the next screenshot, or the screenshot shows the old screen and the next tap lands on the new one.
-- **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign in`, `Plan an Adventure`, `Start Adventure`, `Hold to check in`, `+1 hour`, `Edit Plan or contacts`, `Save Changes`. Coordinates in the feature files are hints for an unscrolled screen only.
+- **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign in`, `Plan an Adventure`, `Start Adventure`, `Hold to check in`, `+1 hour`, `Edit Plan or Contacts`, `Save Changes`. Coordinates in the feature files are hints for an unscrolled screen only.
 - **Text entry.** The `text` action does not reach the field. Use the clipboard:
   1. `.claude/skills/verify/scripts/clip.sh set "Grosser Mythen"` (or `clip.sh email`, `clip.sh password`).
   2. Long-press the field: `tap` at its centre with `duration: 0.9`.
