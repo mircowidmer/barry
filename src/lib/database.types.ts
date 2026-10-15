@@ -119,14 +119,14 @@ isOneToOne: false
                   ]
                 },"position_readings": {
                   Row: {
-                    "accuracy_m": number | null,"adventure_id": string,"id": number,"latitude": number,"longitude": number,"minute": string | null,"reason": string,"taken_at": string
+                    "accuracy_m": number | null,"adventure_id": string,"id": number,"latitude": number,"longitude": number,"slot": string | null,"reason": string,"taken_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "accuracy_m"?: number | null,"adventure_id": string,"id"?: never,"latitude": number,"longitude": number,"minute"?: never,"reason": string,"taken_at": string
+                    "accuracy_m"?: number | null,"adventure_id": string,"id"?: never,"latitude": number,"longitude": number,"slot"?: never,"reason": string,"taken_at": string
                   }
                   Update: {
-                    "accuracy_m"?: number | null,"adventure_id"?: string,"id"?: never,"latitude"?: number,"longitude"?: number,"minute"?: never,"reason"?: string,"taken_at"?: string
+                    "accuracy_m"?: number | null,"adventure_id"?: string,"id"?: never,"latitude"?: number,"longitude"?: number,"slot"?: never,"reason"?: string,"taken_at"?: string
                   }
                   Relationships: [
                     {

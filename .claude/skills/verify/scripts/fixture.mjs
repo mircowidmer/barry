@@ -52,7 +52,7 @@ const commands = {
     const latest = `(select id from public.adventures where adventurer_id = ${anna} order by created_at desc limit 1)`;
     return sql(`
       select 'adventure', stage from public.adventures where id = ${latest};
-      select 'readings', reason, count(*), count(distinct minute),
+      select 'readings', reason, count(*), count(distinct slot),
              to_char(min(taken_at) at time zone 'Europe/Zurich', 'HH24:MI:SS'),
              to_char(max(taken_at) at time zone 'Europe/Zurich', 'HH24:MI:SS')
         from public.position_readings where adventure_id = ${latest} group by reason order by reason;

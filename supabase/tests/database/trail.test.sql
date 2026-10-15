@@ -67,9 +67,9 @@ select is(length((select token from tokens where name = 'Luca:a0000000-0000-0000
 select isnt((select token from tokens where name = 'Luca:a0000000-0000-0000-0000-000000000001'),
   (select token from tokens where name = 'Mia:a0000000-0000-0000-0000-000000000001'),
   'Each contact of an Adventure gets their own link');
-select is((select minute from public.position_readings where adventure_id = 'b0000000-0000-0000-0000-000000000001'),
-  '2026-10-15T09:41:00Z'::timestamptz,
-  'The minute of 2026-10-15T09:41:59.900Z is 2026-10-15T09:41 in UTC');
+select is((select slot from public.position_readings where adventure_id = 'b0000000-0000-0000-0000-000000000001'),
+  '2026-10-15T09:41:50Z'::timestamptz,
+  'The slot of 2026-10-15T09:41:59.900Z is 2026-10-15T09:41:50 in UTC');
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", "role": "authenticated"}';
@@ -88,15 +88,15 @@ select is(public.record_trail('a0000000-0000-0000-0000-000000000001', (select re
 select is(pg_temp.trail_count(), 3, 'The same batch again stores nothing new');
 
 select is(public.record_trail('a0000000-0000-0000-0000-000000000001', jsonb_build_array(
-    pg_temp.reading(date_trunc('minute', now()) - interval '30 minutes' + interval '40 seconds', 47.05),
-    pg_temp.reading(date_trunc('minute', now()) - interval '30 minutes' + interval '10 seconds', 47.04))), null,
-  'Two readings in one minute are accepted');
+    pg_temp.reading(date_trunc('minute', now()) - interval '30 minutes' + interval '18 seconds', 47.05),
+    pg_temp.reading(date_trunc('minute', now()) - interval '30 minutes' + interval '12 seconds', 47.04))), null,
+  'Two readings in one 10-second window are accepted');
 select is(
   (select array_agg(latitude) from public.position_readings
    where adventure_id = 'a0000000-0000-0000-0000-000000000001' and reason = 'trail'
-     and minute = date_trunc('minute', now()) - interval '30 minutes'),
+     and slot = date_trunc('minute', now()) - interval '30 minutes' + interval '10 seconds'),
   array[47.04::double precision],
-  'Two readings in one minute store the first');
+  'Two readings in one 10-second window store the first');
 
 select is(public.record_trail('a0000000-0000-0000-0000-000000000001', jsonb_build_array(
     pg_temp.reading(now() - interval '2 hours', 47.1),
@@ -112,9 +112,9 @@ select is(public.move_deadline('a0000000-0000-0000-0000-000000000001', now() + i
   'Anna moves the Deadline');
 select is(
   (select array_agg(reason order by reason) from public.position_readings
-   where adventure_id = 'a0000000-0000-0000-0000-000000000001' and minute = date_trunc('minute', now()) - interval '10 minutes'),
+   where adventure_id = 'a0000000-0000-0000-0000-000000000001' and slot = date_trunc('minute', now()) - interval '10 minutes'),
   array['deadline_move', 'trail'],
-  'A Deadline move in the same minute as a Trail reading stores both');
+  'A Deadline move in the same 10 seconds as a Trail reading stores both');
 
 select is(public.record_trail('a0000000-0000-0000-0000-000000000002', (select readings from batch)), 'wrong_stage',
   'A Planned Adventure takes no Trail');

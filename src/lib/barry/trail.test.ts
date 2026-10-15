@@ -177,9 +177,9 @@ describe('the Trail', () => {
     expect(os).toEqual({ updates: null, fence: null });
   });
 
-  it('uploads the background readings, one per minute', async () => {
+  it('uploads the background readings, one per 10 seconds', async () => {
     const { trail, uploads } = setup();
-    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03), fix('2026-10-15T09:01:40Z', 47.031), fix('2026-10-15T09:02:05Z', 47.032)]);
+    await trail.onLocations([fix('2026-10-15T09:01:01Z', 47.03), fix('2026-10-15T09:01:08Z', 47.031), fix('2026-10-15T09:01:15Z', 47.032)]);
     expect(uploads).toEqual([{ id: 'a1', latitudes: [47.03, 47.032] }]);
   });
 
