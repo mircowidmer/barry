@@ -18,7 +18,7 @@ Preconditions:
 - Baseline from the index, with the relay running and notifications allowed.
 
 - **Reminder (`push-reminder`).** Run `fixture.mjs live 20`. Within 60 seconds the relay prints `pushed to simulator: Check in or move your Deadline`, and `fixture.mjs state` lists `reminder | push | ExponentPushToken[…] | sent`.
-- **Overdue Notice (`push-overdue`).** Press `button HOME`, then run `fixture.mjs overdue`. Within 60 seconds the relay prints `pushed to simulator: You are overdue`, and a banner from `barry-local` reads `You are overdue. Your Deadline for Pilatus was …`. Swipe from (201, 2) to (201, 600) to see both notifications in Notification Center.
+- **Overdue Notice (`push-overdue`).** Press `button HOME`, then run `fixture.mjs overdue`. Within 60 seconds the relay prints `pushed to simulator: You are overdue`, and a banner from `Barry` reads `You are overdue. Your Deadline for Pilatus was …`. Swipe from (201, 2) to (201, 600) to see both notifications in Notification Center.
 - **Proof.** Save the relay lines and a Notification Center screenshot, then run `fixture.mjs end`.
 
 ## Gotchas

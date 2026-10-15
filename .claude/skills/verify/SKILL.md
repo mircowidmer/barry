@@ -18,7 +18,7 @@ From the repo root, in this order:
 3. The app:
    - If `ios/` is missing or a native dependency changed: `LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
    - Otherwise: `npx expo start --dev-client --port 8081` as a background process, then `xcrun simctl launch booted support.barry`. Ready when Metro prints `iOS Bundled`.
-   - If iOS shows `Open in "barry-local"?`, choose **Open**.
+   - If iOS shows `Open in "Barry"?`, choose **Open**.
 4. Run the doctor. Every line must say `ok`.
 
 Only one instance exists: one database, one Metro port, one booted simulator. Never start a second run while another agent drives the app. If the doctor shows a stack you did not start, drive it only if the user said so.
@@ -39,7 +39,7 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
   3. Wait one second, then take a screenshot. A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
   4. Tap `Paste`. Never tap `AutoFill`.
   5. After pasting the password, run `clip.sh clear`.
-- **Sign in.** Paste the email and the password, then tap `Sign in`. The first sign-in shows `"barry-local" Would Like to Send You Notifications`. Choose **Allow**, so the app registers its push token.
+- **Sign in.** Paste the email and the password, then tap `Sign in`. The first sign-in shows `"Barry" Would Like to Send You Notifications`. Choose **Allow**, so the app registers its push token.
 - **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content.
 - **Hold to check in.** A Check-in needs `tap` with `duration: 2.2` on `Hold to check in`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
