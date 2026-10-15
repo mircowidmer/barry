@@ -10,7 +10,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
 - `trail-map` shows `<name>'s Trail`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
 - `trail-map-checked-in` shows `<name> checked in at …` and no map after the Check-in.
-- `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every 10 seconds, and the Plan's `Last Known Position: <time>` always shows the same time as the marker.
+- `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every minute, and the Plan's `Last Known Position: <time>` always shows the same time as the marker.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.
 - `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
 - `history-delete` deletes an Ended Adventure, from its screen with `Delete Adventure` or from `Past Adventures` on the History tab by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this Adventure. Try again in a few minutes.`
@@ -45,7 +45,7 @@ Preconditions:
 
 - The simulated route ends. At 2 m/s the route above takes about 25 minutes. Once it ends, Barry gets no readings, because iOS sends updates only on movement. A stalled count after a route ended is not a bug: start a new route.
 - The iOS 27 simulator refuses geofencing (`startGeofencingAsync` throws). The relaunch after a force-quit cannot be verified here; it needs a real iPhone. Report it as unverified.
-- `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's 10-second refresh, which fetches only readings newer than the newest one shown.
+- `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's one-minute refresh, which fetches only readings newer than the newest one shown.
 - `fixture.mjs live` inserts the Adventure without `start_adventure`, so there is no `start` reading. A Check-in then leaves no readings at all.
 - Count uploads with `docker logs --since 60s supabase_kong_barry-local | grep -c rpc/record_trail`. A walk makes at most one call per new 10-second slot, about 6 a minute, and never more calls than new readings. More calls than readings means Barry sends slots it already sent again.
 - A launch on a live Adventure the app has not saved yet, as after `fixture.mjs live`, must start recording without HOME and a relaunch. If the status bar shows no location arrow and the count stays at 0, the Trail missed the Adventure.
