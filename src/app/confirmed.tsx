@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { useSyncExternalStore } from 'react';
 
 import { Notice, Screen } from '@/components/form';
@@ -20,7 +21,9 @@ export default function ConfirmedRoute() {
     </Screen>
   ) : (
     <Screen title="Your email is confirmed">
-      <ThemedText>Go back to Barry and sign in.</ThemedText>
+      <Link href="barry://sign-in">
+        <ThemedText type="linkPrimary">Open Barry and sign in</ThemedText>
+      </Link>
     </Screen>
   );
 }
