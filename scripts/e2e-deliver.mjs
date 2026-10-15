@@ -90,7 +90,7 @@ let map = await trailMap(token);
 expect(map?.status === 'underway', 'the Trail Map shows the Adventure underway without an account');
 expect(!('deadline' in map) && map.trail.length === 1, 'the Trail Map shows the Start reading and no Deadline');
 
-must(await admin.from('adventures').update({ deadline: new Date(Date.now() - 31 * 60_000).toISOString() }).eq('id', id), 'move Deadline into the past');
+must(await admin.from('adventures').update({ deadline: new Date(Date.now() - 2 * 60_000).toISOString() }).eq('id', id), 'move Deadline into the past');
 t = Date.now();
 const alert = await waitForMail(luca, 'Anna has not checked in');
 step(`Alert reached Luca in ${Math.round((Date.now() - t) / 1000)} s after the Grace Period ended:`);

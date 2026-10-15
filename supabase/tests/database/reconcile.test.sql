@@ -118,7 +118,7 @@ select is(
   'Moving the Deadline later re-arms the Reminder for the new Deadline'
 );
 
-select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:05+02');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:00:30+02');
 
 select is((pg_temp.anna()).stage, 'overdue'::public.adventure_stage, 'At the new Deadline the Adventure becomes Overdue');
 
