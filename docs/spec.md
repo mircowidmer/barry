@@ -92,6 +92,7 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 - A Check-in from an Active or Overdue Adventure ends it without a message to anyone.
 - A Check-in from an Alerted Adventure ends it and sends an All-clear.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows the Check-in.
+- With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
 
 ### Edit an Active or Overdue Adventure
 
