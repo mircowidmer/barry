@@ -646,7 +646,7 @@ Four runners (Opus, Fable, Sonnet, Haiku) produced candidates. A cross-judge on 
 - Does supabase-js refresh an expired session during a background wake? The simulator run uploaded in the background within the token's first hour only; the expiry case is still unverified.
 - The live screen's "Last position" shows the reading from when the screen loaded. A reading does not update `adventures`, so Realtime does not refresh it.
 - Does Expo Router allow a `_layout.web.tsx` for a group, and does the static export still evaluate the `(app)` screens on web? The `.web.ts` stubs cover the second case either way.
-- How long should an Ended Adventure's link keep showing the Check-in time? The spec does not say. Forever (until account deletion) is the default here; 7 days would be one `and (a.ended_at > now() - interval '7 days')` in `trail_map`.
+- ~~How long should an Ended Adventure's link keep showing the Check-in time?~~ Settled on 15 October: the link never expires, as `trail_map` already behaves (spec, Trail Map section). An expiry would be one `and (a.ended_at > now() - interval '…')` in `trail_map`.
 - Should the page say "Barry has raised the Alert" in those words, and should it suggest calling the Adventurer? Wording is a product call.
 - Battery: `BestForNavigation` with `distanceInterval: 10` for a 10-hour Adventure. Is `Accuracy.High` acceptable if field tests show heavy drain?
 
