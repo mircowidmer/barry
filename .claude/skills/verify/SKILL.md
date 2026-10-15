@@ -44,6 +44,7 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
 - **Hold to check in.** A Check-in needs `tap` with `duration: 2.2` on `Hold to check in`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
 - **Refreshing banner.** A blue `Refreshing…` bar at the top means Metro reloaded after a file in the repo changed, including files in this skill. It does not affect the run.
+- **Changed `deliver` code.** The local edge runtime does not always reload `supabase/functions`. After changing them, run `docker restart supabase_edge_runtime_barry-local`, or messages still go out with the old text.
 - **Messages.** Email lands in Mailpit at http://127.0.0.1:54324. Notifications appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600). The text message relay prints `texted <to> from Barry: <first line>` for each text message, then the other lines indented, and `curl -s http://localhost:8788/messages` lists them in full.
 
 ## Evidence

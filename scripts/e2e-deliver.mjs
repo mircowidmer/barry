@@ -103,7 +103,7 @@ let t = Date.now();
 const headsUp = await waitForMail(luca, 'Anna is heading out to Grosser Mythen');
 step(`Heads-up reached Luca in ${Math.round((Date.now() - t) / 1000)} s: "${headsUp.Subject}"`);
 
-const headsUpText = await waitForText(sara, 'Anna is going on an Adventure alone');
+const headsUpText = await waitForText(sara, 'Anna is going on an adventure alone');
 expect(/Follow Anna's Trail: \S+/.test(headsUpText.body), `the Heads-up reached Sara by text message from ${headsUpText.from}`);
 
 const link = trailLink(headsUp);
@@ -119,7 +119,7 @@ const alert = await waitForMail(luca, 'Anna has not checked in');
 step(`Alert reached Luca in ${Math.round((Date.now() - t) / 1000)} s after the Grace Period ended:`);
 console.log(alert.Text.split('\n').map((line) => `    ${line}`).join('\n'));
 expect(trailLink(alert) === link, 'the Alert carries the same Trail Map link');
-const alertText = await waitForText(sara, 'Anna has not checked in from an Adventure');
+const alertText = await waitForText(sara, 'Anna has not checked in from an adventure');
 expect(alertText.body.includes("Anna's phone: +41790000001"), 'the Alert reached Sara by text message with the Profile');
 map = await trailMap(token);
 expect(map?.status === 'alerted', 'the Trail Map shows the Alert');
