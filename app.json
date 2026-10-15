@@ -8,7 +8,11 @@
     "scheme": "barry",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "support.barry"
+      "bundleIdentifier": "support.barry",
+      "appleTeamId": "4GNTKX8XTQ",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Barry connects to your development Mac on this network while you test it."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +33,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "./plugins/without-push",
       "expo-router",
       [
         "expo-splash-screen",

@@ -84,7 +84,7 @@ const headsUp = await waitForMail(luca, 'Anna is heading out to Grosser Mythen')
 step(`Heads-up reached Luca in ${Math.round((Date.now() - t) / 1000)} s: "${headsUp.Subject}"`);
 
 const link = trailLink(headsUp);
-expect(link?.startsWith('http://localhost:8081/trail#'), `the Heads-up carries Luca's Trail Map link (${link})`);
+expect(/^http:\/\/[^/]+:8081\/trail#/.test(link ?? ''), `the Heads-up carries Luca's Trail Map link (${link})`);
 const token = new URL(link).hash.slice(1);
 let map = await trailMap(token);
 expect(map?.status === 'underway', 'the Trail Map shows the Adventure underway without an account');
