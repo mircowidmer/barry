@@ -1,6 +1,6 @@
 # How to send real text messages
 
-Barry sends text messages through Twilio's Messaging API. Locally, `scripts/sms-relay.mjs` stands in for Twilio: it prints each text message and sends nothing. Follow these steps to send real text messages to Emergency Contacts.
+Barry sends text messages through Twilio's Messaging API. Locally, `scripts/sms-relay.mjs` stands in for Twilio: it prints each text message and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them. Follow these steps to send real text messages to Emergency Contacts.
 
 ## Steps
 
