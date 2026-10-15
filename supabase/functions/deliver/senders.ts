@@ -38,7 +38,7 @@ const mailpitEmail: Sender = async (to, message, messageId) => {
 };
 
 const expoPush: Sender = async (to, message) => {
-  const response = await fetch('https://exp.host/--/api/v2/push/send', {
+  const response = await fetch(Deno.env.get('EXPO_PUSH_URL') ?? 'https://exp.host/--/api/v2/push/send', {
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: 'application/json' },
     body: JSON.stringify({ to, title: message.subject, body: message.text, sound: 'default', priority: 'high' }),

@@ -102,6 +102,8 @@ export type Barry = {
   saveContact(contact: ContactDraft): Promise<EmergencyContact>;
   removeContact(id: EmergencyContactId): Promise<{ kind: 'removed' } | { kind: 'in_use' }>;
   enabledChannels(): Promise<ReadonlySet<Channel>>;
+  /** Called each time the app opens. Upsert, so a repeat is harmless. */
+  registerPushDevice(expoPushToken: string): Promise<void>;
 
   listAdventures(): Promise<Adventure[]>;
   getAdventure(id: AdventureId): Promise<Adventure | null>;

@@ -1,4 +1,5 @@
 import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 
 import { supabase } from '@/lib/supabase';
 
@@ -36,4 +37,5 @@ export const barry = createBarry({
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   now: () => new Date(),
   storage: localStorage,
+  pushPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
 });

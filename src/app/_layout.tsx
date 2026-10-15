@@ -5,6 +5,7 @@ import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { barry } from '@/lib/barry';
+import { registerForPush } from '@/lib/push';
 import { SessionProvider, useSession } from '@/lib/session';
 
 SplashScreen.preventAutoHideAsync();
@@ -15,8 +16,11 @@ function Navigation() {
   useEffect(() => {
     if (!session) return;
     barry.flushPendingCheckIns();
+    registerForPush();
     const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') barry.flushPendingCheckIns();
+      if (state !== 'active') return;
+      barry.flushPendingCheckIns();
+      registerForPush();
     });
     return () => subscription.remove();
   }, [session]);
