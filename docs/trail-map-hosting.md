@@ -12,11 +12,8 @@ You need a hosted Supabase project. The page fetches the Trail from Supabase in 
 2. Open **Settings > Secrets and variables > Actions > Variables** and add two repository variables:
    - `EXPO_PUBLIC_SUPABASE_URL`, the hosted project's URL, for example `https://abcd.supabase.co`.
    - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, the hosted project's publishable key. It is public by design, so a variable is enough.
-3. Point the links in Heads-ups and Alerts at the page:
-
-   ```bash
-   npx supabase secrets set TRAIL_MAP_URL=https://mircowidmer.github.io/barry/trail
-   ```
+3. Point the links in Heads-ups and Alerts at the page. Set `TRAIL_MAP_URL=https://mircowidmer.github.io/barry/trail` in `supabase/.env.hosted` and run `node scripts/hosted-secrets.mjs`, as [The hosted Supabase project](hosted-supabase.md) describes. Do not run `npx supabase secrets set` by hand.
+4. In the Supabase dashboard, open **Authentication > URL Configuration** and set **Site URL** to `https://mircowidmer.github.io/barry/confirmed`.
 
 ## Deploy
 
