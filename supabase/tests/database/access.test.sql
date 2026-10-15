@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(23);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -122,6 +122,12 @@ select throws_ok(
   $$select * from private.channel_config$$,
   '42501', null,
   'The app cannot reach the private schema'
+);
+
+select is(
+  (select array_agg(c) from public.enabled_channels() c),
+  array['email', 'push']::public.channel[],
+  'The app can read which channels Barry sends on'
 );
 
 select throws_ok(
