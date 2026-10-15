@@ -1,4 +1,5 @@
 import type { MessageFacts, Plan } from './facts.ts';
+import type { TrailMapLinks } from './links.ts';
 
 export type Rendered = { subject: string; text: string };
 
@@ -28,9 +29,10 @@ const planLines = (plan: Plan): string[] =>
 
 const lines = (...parts: (string | false | null)[]): string => parts.filter((p) => p !== false && p !== null).join('\n');
 
-export const render = (facts: MessageFacts): Rendered => {
+export const render = (facts: MessageFacts, links: TrailMapLinks | null): Rendered => {
   const name = facts.adventurerName;
   const time = (at: Date) => formatTime(at, facts.timeZone);
+  const trailLine = (token: string | null) => links !== null && token !== null && `Follow ${name}'s Trail: ${links.forToken(token)}`;
 
   switch (facts.kind) {
     case 'heads_up':
@@ -42,6 +44,8 @@ export const render = (facts: MessageFacts): Rendered => {
           ...planLines(facts.plan),
           '',
           `If ${name} has not checked in by ${time(facts.deadline)}, Barry will message you again.`,
+          trailLine(facts.trailToken) && '',
+          trailLine(facts.trailToken),
         ),
       };
 
@@ -79,6 +83,7 @@ export const render = (facts: MessageFacts): Rendered => {
             : 'Last Known Position: not recorded',
           p !== null &&
             `Map: https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=15/${p.latitude}/${p.longitude}`,
+          trailLine(facts.trailToken),
           '',
           `${name}'s phone: ${facts.profile.phone}`,
           car !== '' && `Car: ${car}`,

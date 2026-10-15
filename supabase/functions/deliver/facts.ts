@@ -25,10 +25,16 @@ export type MessageFacts = {
   plan: Plan;
   deadline: Date;
 } & (
-  | { kind: 'heads_up' }
+  | { kind: 'heads_up'; trailToken: string | null }
   | { kind: 'reminder' }
   | { kind: 'overdue_notice'; alertAt: Date }
-  | { kind: 'alert'; round: number; profile: ProfileDetails; lastKnownPosition: Position | null }
+  | {
+      kind: 'alert';
+      round: number;
+      trailToken: string | null;
+      profile: ProfileDetails;
+      lastKnownPosition: Position | null;
+    }
   | { kind: 'all_clear'; checkedInAt: Date }
 );
 
@@ -72,6 +78,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
 
   switch (f.kind) {
     case 'heads_up':
+      return { ...base, kind: f.kind, trailToken: optionalText(f.trail_token) };
     case 'reminder':
       return { ...base, kind: f.kind };
     case 'overdue_notice':
@@ -82,6 +89,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
         ...base,
         kind: f.kind,
         round: Number(f.round),
+        trailToken: optionalText(f.trail_token),
         profile: {
           phone: text(p.phone, 'profile.phone'),
           carMake: optionalText(p.car_make),
