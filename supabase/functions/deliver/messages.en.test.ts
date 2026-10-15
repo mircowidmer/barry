@@ -3,7 +3,6 @@ import { assertEquals, assertStringIncludes } from 'jsr:@std/assert@1.0.13';
 import { parseFacts } from './facts.ts';
 import { trailMapLinks } from './links.ts';
 import { formatTime, render } from './messages.en.ts';
-import { smsBody } from './senders.ts';
 
 const links = trailMapLinks('http://localhost:8081/trail');
 const token = 'Xk3vQ9pL2mN8rT5wY1zA0b';
@@ -87,6 +86,7 @@ Deno.test('a later Alert says which round it is, and a missing position says so'
     links,
   );
   assertEquals(subject, 'Anna has still not checked in (Alert 2 of 3)');
+  assertStringIncludes(text, 'Anna has still not checked in from an Adventure (Alert 2 of 3).');
   assertStringIncludes(text, 'Last Known Position: not recorded');
 });
 
@@ -138,7 +138,7 @@ Deno.test('every text message body uses only the GSM-7 alphabet, so it is not se
     ),
     render(parseFacts({ ...base, kind: 'alert', round: 1, profile, last_known_position: null, trail_token: null }), links),
     render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links),
-  ].map(smsBody);
+  ].map((message) => message.text);
   for (const body of bodies) {
     assertEquals([...body].filter((c) => !GSM_7.includes(c)), [], body.split('\n')[0]);
   }
