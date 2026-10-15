@@ -226,7 +226,7 @@ The user answered the open questions on 2026-10-15:
 
 ## Implementation reconciliation
 
-Nothing implemented yet.
+- `private.decide()` is implemented in `supabase/migrations/20261015081453_clock_decide.sql`, with the `adventure_stage` enum, the four timing constants and the `clock_decision` type. `supabase/tests/database/decide.test.sql` checks it against 20 cases. The behaviour matches the sketch's pseudocode with no deviation. A Deadline set exactly 30 minutes ahead still gets a Reminder, and one set less than 30 minutes ahead does not.
 
 ## Open questions and risks
 
