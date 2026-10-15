@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Button, Field, Notice, Screen, Section } from '@/components/form';
+import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry } from '@/lib/barry';
@@ -99,20 +99,26 @@ function ProfileForm({ initial }: { initial: Form }) {
       {status === 'error' && (
         <Notice tone="danger">Could not save. Check that the phone number starts with + and the country code.</Notice>
       )}
-      <Button
-        title="Save profile"
-        onPress={save}
-        busy={status === 'saving'}
-        disabled={profile.name.trim() === '' || profile.phone.trim() === ''}
-      />
-      <Section>
-        <ThemedText type="small" themeColor="textSecondary">
-          Signed in as {session?.user.email}
-        </ThemedText>
-        <Button title="Sign out" kind="secondary" onPress={() => supabase.auth.signOut()} />
-      </Section>
       {deleteError && <Notice tone="danger">{deleteError}</Notice>}
-      <Button title="Delete Account" kind="danger" onPress={deleteAccount} busy={deleting} />
+      <Row>
+        <Button
+          title="Save profile"
+          icon="checkmark"
+          onPress={save}
+          busy={status === 'saving'}
+          disabled={profile.name.trim() === '' || profile.phone.trim() === ''}
+        />
+        <Button
+          title="Sign out"
+          icon="rectangle.portrait.and.arrow.right"
+          kind="secondary"
+          onPress={() => supabase.auth.signOut()}
+        />
+        <Button title="Delete Account" icon="trash" kind="danger" onPress={deleteAccount} busy={deleting} />
+      </Row>
+      <ThemedText type="small" themeColor="textSecondary">
+        Signed in as {session?.user.email}
+      </ThemedText>
     </Screen>
   );
 }
