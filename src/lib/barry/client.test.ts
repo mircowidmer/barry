@@ -44,12 +44,12 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   ...overrides,
 });
 
-const setup = () => {
+const setup = ({ cached = true } = {}) => {
   const storage = memoryStorage();
   const now = () => new Date('2026-10-17T15:00:00Z');
-  createAdventureCache(storage, now).save(row({}));
-  const world = { signal: false };
+  if (cached) createAdventureCache(storage, now).save(row({}));
   const ended = row({ stage: 'ended', checked_in_at: '2026-10-17T15:00:00Z', ended_at: '2026-10-17T15:10:00Z' });
+  const world = { signal: false, server: ended };
   const query = {
     select: () => query,
     eq: () => query,
@@ -57,18 +57,19 @@ const setup = () => {
     order: () => query,
     limit: () => query,
     maybeSingle: async () =>
-      world.signal ? { data: ended, error: null } : { data: null, error: { message: 'Network request failed' } },
+      world.signal ? { data: world.server, error: null } : { data: null, error: { message: 'Network request failed' } },
   };
   const supabase = {
     auth: { getSession: async () => ({ data: { session: { user: { id: 'u1' } } } }) },
     rpc: async () => (world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } }),
     from: () => query,
   } as unknown as SupabaseClient<Database>;
+  const updates: string[] = [];
   const location: LocationService = {
     backgroundPermitted: async () => true,
     requestBackground: async () => true,
-    startUpdates: async () => undefined,
-    stopUpdates: async () => undefined,
+    startUpdates: async (mode) => void updates.push(mode),
+    stopUpdates: async () => void updates.push('off'),
     setFence: async () => undefined,
     lastReading: async () => null,
   };
@@ -88,7 +89,7 @@ const setup = () => {
     notifications,
     location,
   });
-  return { barry, world, scheduled: () => Object.fromEntries(scheduled) };
+  return { barry, world, updates, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -101,6 +102,20 @@ describe('flushPendingCheckIns', () => {
     await barry.flushPendingCheckIns();
     expect(barry.pendingCheckIns()).toEqual([]);
     expect(await barry.trail.status()).toBe('off');
+  });
+});
+
+describe('the Trail', () => {
+  it('starts recording when Barry first learns of a live Adventure after the launch found none', async () => {
+    const { barry, world, updates } = setup({ cached: false });
+    await barry.trail.sync();
+    expect(updates).toEqual(['off']);
+
+    world.signal = true;
+    world.server = row({});
+    await barry.getInProgressAdventure();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(updates).toEqual(['off', 'recording']);
   });
 });
 
