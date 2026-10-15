@@ -11,6 +11,7 @@ While an Adventure is Active, Overdue or Alerted, the Adventure tab shows its st
 - `live-checkin` ends the Adventure after holding `Hold to check in`.
 - `live-short-tap` leaves the Adventure live after a short press on `Hold to check in`.
 - `live-offline-checkin` keeps a Check-in made without signal and sends it when the signal returns.
+- `live-background-checkin` sends a queued Check-in from a background location wake, with "Always" granted, without Barry being opened.
 - `live-offline-view` shows the last known live Adventure with a `No signal` notice when the app opens without signal.
 
 ## How to get to it (user POV)
@@ -43,5 +44,6 @@ Preconditions:
 - A short tap passes trivially if it misses the button. Confirm the same coordinates end the Adventure with a 2.2-second hold in the same run.
 - Without signal each request waits up to 10 seconds before the app falls back to the saved Adventure.
 - `fixture.mjs offline` stops the whole API gateway, so the relay, Realtime and every screen lose the server too. Always run `fixture.mjs online` before the next journey.
-- A queued Check-in is sent only when the app comes to the foreground or another Check-in starts. Leaving the app open after `online` does not send it.
+- With "Always", a queued Check-in is sent on the next background location wake (the screen shows `Barry keeps trying in the background.`). Without "Always", it is sent only when the app comes to the foreground or another Check-in starts.
+- **Background Check-in (`live-background-checkin`).** Start a simulated walk with `xcrun simctl location booted start --speed=2 --distance=15 <waypoints>` so iOS delivers wakes. `fixture.mjs offline`, hold `Hold to check in`, press `button HOME`, `fixture.mjs online`, and do not open Barry. Within about a minute the latest Adventure is `ended`, with `checked_in_at` at the hold and `ended_at` at a location wake after `online`. Verified on 15 October: hold 14:35:54, delivered 14:37:17.
 - While Alerted, `Need more time?` and `Edit Plan or contacts` are hidden by design.
