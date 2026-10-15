@@ -95,6 +95,18 @@ describe('the Trail', () => {
     expect(uploads).toEqual([{ id: 'a1', latitudes: [47.03, 47.032] }]);
   });
 
+  it('records and uploads when iOS refuses the fence', async () => {
+    const { trail, os, uploads } = setup({ fenceFails: true });
+    expect(await trail.sync()).toBe('recording');
+    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
+    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.032)]);
+    expect(os).toMatchObject({ updates: true, fence: null });
+    expect(uploads).toEqual([
+      { id: 'a1', latitudes: [47.03] },
+      { id: 'a1', latitudes: [47.032] },
+    ]);
+  });
+
   it('keeps the readings when the session cannot be refreshed, and sends them later', async () => {
     const { trail, uploads, respond } = setup();
     respond({ data: null, error: { message: 'JWT expired' } });

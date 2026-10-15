@@ -66,22 +66,23 @@ export const createTrail = ({
     return id && (await location.backgroundPermitted()) ? id : null;
   };
 
+  // The fence only brings the Trail back after a force-quit. When iOS refuses it, recording and
+  // uploading go on without it.
   const moveFence = async (center: Position | null) => {
-    await location.setFence(center);
-    fence = center;
+    try {
+      await location.setFence(center);
+      fence = center;
+    } catch {}
   };
 
   const sync = async (): Promise<TrailStatus> => {
     const id = await recordingFor();
-    if (id) {
-      await location.startUpdates();
-      await moveFence(buffer.newest(id) ?? (await location.lastReading()));
-    } else {
-      await location.stopUpdates();
-      await moveFence(null);
-    }
+    if (id) await location.startUpdates();
+    else await location.stopUpdates();
     buffer.keepOnly(await liveId());
+    const center = id ? buffer.newest(id) : null;
     await flush();
+    await moveFence(id ? (center ?? (await location.lastReading())) : null);
     return id ? 'recording' : 'off';
   };
 
@@ -105,8 +106,8 @@ export const createTrail = ({
         }
         buffer.add(id, locations.map(toReading));
         const newest = buffer.newest(id);
-        if (newest && (!fence || metresBetween(fence, newest) > FENCE_MOVE_M)) await moveFence(newest);
         await flush();
+        if (newest && (!fence || metresBetween(fence, newest) > FENCE_MOVE_M)) await moveFence(newest);
       }),
 
     onFenceExit: () =>
