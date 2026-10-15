@@ -6,7 +6,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 
 - Every migration in `supabase/migrations`. `supabase/seed.sql` is for local development only and is never pushed.
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
-- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. `TRAIL_MAP_URL` is `https://mircowidmer.github.io/barry/trail`. Without `TWILIO_API_URL`, text messages go to `https://api.twilio.com`.
+- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://mircowidmer.github.io/barry/trail`. Without `TWILIO_API_URL`, text messages go to `https://api.twilio.com`.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
 
 ## Ship a change
@@ -61,7 +61,6 @@ All three values are `true` when the clock ticked in the last two minutes and me
 
 ## Not done yet
 
-- Email. Hosted email fails until `RESEND_API_KEY` and `EMAIL_FROM` are set with the script.
 - Text messages. The Twilio account is a trial, which sends only template messages, so hosted text messages fail until it is upgraded.
 - Sign-up. Hosted Auth asks new accounts to confirm their email, and its built-in email service sends only to members of the Supabase team.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.
