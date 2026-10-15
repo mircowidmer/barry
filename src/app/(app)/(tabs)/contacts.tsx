@@ -98,7 +98,7 @@ export default function ContactsScreen() {
           value={draft.phone}
           onChangeText={(phone) => setDraft((d) => ({ ...d, phone }))}
           keyboardType="phone-pad"
-          hint="With country code, for example +41 79 123 45 67."
+          hint="With country code, for example +41771234567."
         />
         <Row>
           <Button
