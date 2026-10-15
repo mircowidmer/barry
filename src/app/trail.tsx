@@ -1,20 +1,9 @@
 import { Notice, Screen, Section } from '@/components/form';
 import { OsmMap } from '@/components/osm-map';
 import { ThemedText } from '@/components/themed-text';
+import { formatTime } from '@/lib/trail-map/format';
 import type { TrailMap } from '@/lib/trail-map/types';
 import { useTrailMap } from '@/lib/trail-map/use-trail-map';
-
-const formatTime = (at: Date, timeZone: string) => {
-  const when = at.toLocaleString('en-GB', {
-    timeZone,
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  return `${when} ${timeZone.split('/').pop()!.replaceAll('_', ' ')} time`;
-};
 
 export const generateMetadata = () => ({ title: 'Trail Map', robots: { index: false, follow: false } });
 
@@ -63,7 +52,7 @@ function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date })
       )}
       {map.status !== 'checked_in' && (
         <>
-          <OsmMap trail={map.trail} last={map.lastKnownPosition} />
+          <OsmMap trail={map.trail} last={map.lastKnownPosition} timeZone={map.timeZone} />
           <ThemedText type="small">
             {map.lastKnownPosition
               ? `Last Known Position at ${time(map.lastKnownPosition.takenAt)}: ${map.lastKnownPosition.latitude.toFixed(5)}, ${map.lastKnownPosition.longitude.toFixed(5)}` +
