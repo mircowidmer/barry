@@ -11,8 +11,9 @@ import { formatDuration, formatWhen, refusalText } from '@/lib/wording';
 
 export default function AdventureScreen() {
   const loaded = useLoad(async () => {
-    const [inProgress, adventures] = await Promise.all([barry.getInProgressAdventure(), barry.listAdventures()]);
-    return { inProgress, adventures, pending: barry.pendingCheckIns() };
+    const { adventure: inProgress, offlineSince } = await barry.getInProgressAdventure();
+    const adventures = inProgress || offlineSince ? [] : await barry.listAdventures();
+    return { inProgress, offlineSince, adventures, pending: barry.pendingCheckIns() };
   });
 
   if (loaded.status === 'error') {
@@ -25,21 +26,41 @@ export default function AdventureScreen() {
   }
   if (!loaded.data) return <Screen title="Adventure">{null}</Screen>;
 
-  const { inProgress, adventures, pending } = loaded.data;
+  const { inProgress, offlineSince, adventures, pending } = loaded.data;
   const queued = inProgress && pending.find((c) => c.adventureId === inProgress.id);
 
   return inProgress ? (
-    <LiveAdventure key={inProgress.id} adventure={inProgress} queuedAt={queued?.checkedInAt ?? null} onChanged={loaded.reload} />
+    <LiveAdventure
+      key={inProgress.id}
+      adventure={inProgress}
+      offlineSince={offlineSince}
+      queuedAt={queued?.checkedInAt ?? null}
+      onChanged={loaded.reload}
+    />
   ) : (
-    <Overview adventures={adventures} />
+    <Overview adventures={adventures} offlineSince={offlineSince} onRetry={loaded.reload} />
   );
 }
 
-function Overview({ adventures }: { adventures: Adventure[] }) {
+function Overview({
+  adventures,
+  offlineSince,
+  onRetry,
+}: {
+  adventures: Adventure[];
+  offlineSince: Date | null;
+  onRetry: () => void;
+}) {
   const planned = adventures.filter((a) => a.stage === 'planned');
   const ended = adventures.filter((a) => a.stage === 'ended');
   return (
     <Screen title="Adventure">
+      {offlineSince && (
+        <>
+          <Notice tone="warning">No signal. Barry cannot load your Adventures right now.</Notice>
+          <Button title="Try again" kind="secondary" onPress={onRetry} />
+        </>
+      )}
       <ThemedText themeColor="textSecondary">
         Plan where you are going and when you will be back. If you don’t check in by then, Barry tells your Emergency
         Contacts.
@@ -89,10 +110,12 @@ const MOVES = [
 
 function LiveAdventure({
   adventure: initial,
+  offlineSince,
   queuedAt,
   onChanged,
 }: {
   adventure: InProgressAdventure;
+  offlineSince: Date | null;
   queuedAt: Date | null;
   onChanged: () => void;
 }) {
@@ -101,7 +124,6 @@ function LiveAdventure({
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
-
   useEffect(
     () =>
       barry.watchAdventure(initial.id, (next) => {
@@ -165,6 +187,12 @@ function LiveAdventure({
       {adventure.stage === 'alerted' && (
         <Notice tone="danger">
           Your Emergency Contacts were alerted ({adventure.alertsSent} of 3). Check in to send them the All-clear.
+        </Notice>
+      )}
+      {offlineSince && (
+        <Notice tone="warning">
+          No signal. This is your Adventure as of {formatWhen(offlineSince)}. Check-in still works and is sent when you
+          have signal.
         </Notice>
       )}
       {queuedAt && <Notice tone="warning">Check-in from {formatWhen(queuedAt)} is waiting for signal.</Notice>}
