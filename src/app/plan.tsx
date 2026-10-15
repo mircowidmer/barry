@@ -1,0 +1,284 @@
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { Platform, Pressable, View } from 'react-native';
+
+import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
+import { ThemedText } from '@/components/themed-text';
+import { useLoad } from '@/hooks/use-load';
+import { useTheme } from '@/hooks/use-theme';
+import {
+  type Adventure,
+  type AdventureId,
+  barry,
+  type EmergencyContact,
+  type EmergencyContactId,
+  type StartConditions,
+  type StartWarning,
+  startWarnings,
+} from '@/lib/barry';
+import { formatWhen, refusalText } from '@/lib/wording';
+
+type Form = {
+  destination: string;
+  route: string;
+  startingPoint: string;
+  notes: string;
+  deadline: Date;
+  contactIds: EmergencyContactId[];
+};
+
+const inFourHours = () => {
+  const at = new Date(Date.now() + 4 * 3600_000);
+  at.setMinutes(Math.ceil(at.getMinutes() / 15) * 15, 0, 0);
+  return at;
+};
+
+const toForm = (a: Adventure | null): Form => ({
+  destination: a?.plan.destination ?? '',
+  route: a?.plan.route ?? '',
+  startingPoint: a?.plan.startingPoint ?? '',
+  notes: a?.plan.notes ?? '',
+  deadline: a?.deadline ?? inFourHours(),
+  contactIds: a?.contacts.map((c) => c.id) ?? [],
+});
+
+const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
+
+const warningText = (w: StartWarning) => {
+  switch (w.kind) {
+    case 'no_push':
+      return 'This phone is not set up for notifications, so you will get no Reminder or Overdue Notice.';
+    case 'email_only':
+      return `Text messages are not set up yet, so ${w.contacts.map((c) => c.name).join(', ')} get email only.`;
+    case 'unreachable':
+      return w.contacts.length === 1
+        ? `Text messages are not set up yet, and ${w.contacts[0].name} only has a phone number, so they will get no message at all.`
+        : `Text messages are not set up yet, and ${w.contacts.map((c) => c.name).join(', ')} only have a phone number, so they will get no message at all.`;
+  }
+};
+
+export default function PlanScreen() {
+  const params = useLocalSearchParams<{ id?: string }>();
+  const [id, setId] = useState<AdventureId | undefined>(params.id as AdventureId | undefined);
+  const loaded = useLoad(async () => {
+    const [contacts, adventure, conditions] = await Promise.all([
+      barry.listContacts(),
+      id ? barry.getAdventure(id) : null,
+      barry.startConditions(),
+    ]);
+    return { contacts, adventure, conditions };
+  });
+
+  if (!loaded.data) {
+    return (
+      <Screen>{loaded.status === 'error' && <Notice tone="danger">Could not load the Adventure.</Notice>}</Screen>
+    );
+  }
+  return <PlanForm data={loaded.data} id={id} setId={setId} reload={loaded.reload} />;
+}
+
+function PlanForm({
+  data,
+  id,
+  setId,
+  reload,
+}: {
+  data: { contacts: EmergencyContact[]; adventure: Adventure | null; conditions: StartConditions };
+  id: AdventureId | undefined;
+  setId: (id: AdventureId) => void;
+  reload: () => void;
+}) {
+  const [form, setForm] = useState<Form>(() => toForm(data.adventure));
+  const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
+  const [busy, setBusy] = useState<'save' | 'start' | 'delete' | null>(null);
+  const theme = useTheme();
+
+  const adventure = data.adventure;
+  const warnings = startWarnings(
+    data.contacts.filter((c) => form.contactIds.includes(c.id)),
+    data.conditions,
+  );
+  const live = adventure !== null && adventure.stage !== 'planned';
+  const set = (field: 'destination' | 'route' | 'startingPoint' | 'notes') => (text: string) =>
+    setForm((f) => ({ ...f, [field]: text }));
+  const toggle = (contactId: EmergencyContactId) =>
+    setForm((f) => ({
+      ...f,
+      contactIds: f.contactIds.includes(contactId)
+        ? f.contactIds.filter((c) => c !== contactId)
+        : [...f.contactIds, contactId],
+    }));
+
+  const save = async (): Promise<AdventureId | null> => {
+    const result = await barry.saveAdventure({
+      id,
+      plan: {
+        destination: orNull(form.destination) ?? undefined,
+        route: orNull(form.route),
+        startingPoint: orNull(form.startingPoint),
+        notes: orNull(form.notes),
+      },
+      deadline: form.deadline,
+      contactIds: form.contactIds,
+    });
+    if (result.kind === 'refused') {
+      setNotice({ tone: 'danger', text: refusalText(result.refusal) });
+      return null;
+    }
+    setId(result.adventure.id);
+    return result.adventure.id;
+  };
+
+  const onSave = async () => {
+    setBusy('save');
+    const saved = await save().catch(() => null);
+    setBusy(null);
+    if (saved) {
+      if (live) router.back();
+      else {
+        setNotice({ tone: 'success', text: 'Saved. Start it when you head out.' });
+        reload();
+      }
+    }
+  };
+
+  const onStart = async () => {
+    setBusy('start');
+    setNotice(null);
+    const saved = await save().catch(() => null);
+    const result = saved ? await barry.start(saved) : null;
+    setBusy(null);
+    if (result?.kind === 'protected') router.back();
+    else if (result?.kind === 'refused') setNotice({ tone: 'danger', text: refusalText(result.refusal) });
+    else if (saved) {
+      setNotice({
+        tone: 'warning',
+        text: 'You are not protected yet. Barry did not confirm the Start. Try again when you have signal.',
+      });
+    }
+  };
+
+  const onDelete = async () => {
+    if (!id) return;
+    setBusy('delete');
+    const result = await barry.deleteAdventure(id).catch(() => null);
+    setBusy(null);
+    if (result?.kind === 'deleted') router.back();
+    else setNotice({ tone: 'danger', text: result ? refusalText(result.refusal) : 'Could not delete.' });
+  };
+
+  const pickAndroid = () =>
+    DateTimePickerAndroid.open({
+      value: form.deadline,
+      mode: 'date',
+      minimumDate: new Date(),
+      onChange: (_, date) => {
+        if (!date) return;
+        DateTimePickerAndroid.open({
+          value: date,
+          mode: 'time',
+          is24Hour: true,
+          onChange: (__, time) => time && setForm((f) => ({ ...f, deadline: time })),
+        });
+      },
+    });
+
+  return (
+    <Screen>
+      <Stack.Screen options={{ title: live ? 'Edit Adventure' : id ? 'Planned Adventure' : 'Plan an Adventure' }} />
+      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
+
+      <Section title="Where are you going?">
+        <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Grosser Mythen" />
+        <Field label="Route" value={form.route} onChangeText={set('route')} placeholder="Optional" />
+        <Field
+          label="Starting point"
+          value={form.startingPoint}
+          onChangeText={set('startingPoint')}
+          placeholder="Optional, for example where you park"
+        />
+        <Field
+          label="Notes"
+          value={form.notes}
+          onChangeText={set('notes')}
+          multiline
+          placeholder="Optional, for example what you are wearing"
+        />
+      </Section>
+
+      {!live && (
+        <Section title="Deadline">
+          <ThemedText type="small" themeColor="textSecondary">
+            If you have not checked in by then, Barry waits 30 minutes and then alerts your contacts.
+          </ThemedText>
+          {Platform.OS === 'ios' ? (
+            <View style={{ alignItems: 'flex-start' }}>
+              <DateTimePicker
+                value={form.deadline}
+                mode="datetime"
+                display="compact"
+                minimumDate={new Date()}
+                onChange={(_, date) => date && setForm((f) => ({ ...f, deadline: date }))}
+                accessibilityLabel="Deadline"
+              />
+            </View>
+          ) : (
+            <Button title={formatWhen(form.deadline)} kind="secondary" onPress={pickAndroid} />
+          )}
+        </Section>
+      )}
+
+      <Section title="Emergency Contacts">
+        {data.contacts.length === 0 && (
+          <ThemedText type="small" themeColor="textSecondary">
+            You have no contacts yet. Add them in the Contacts tab.
+          </ThemedText>
+        )}
+        {data.contacts.map((c) => {
+          const chosen = form.contactIds.includes(c.id);
+          return (
+            <Pressable
+              key={c.id}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: chosen }}
+              accessibilityLabel={c.name}
+              onPress={() => toggle(c.id)}
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                backgroundColor: chosen ? theme.backgroundSelected : theme.background,
+              }}>
+              <ThemedText>
+                {chosen ? '☑' : '☐'} {c.name}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {[c.email, c.phone].filter(Boolean).join(' · ')}
+              </ThemedText>
+            </Pressable>
+          );
+        })}
+      </Section>
+
+      {live ? (
+        <Button title="Save changes" onPress={onSave} busy={busy === 'save'} />
+      ) : (
+        <>
+          {warnings.map((w) => (
+            <Notice key={w.kind} tone="warning">
+              {warningText(w)}
+            </Notice>
+          ))}
+          <Button title="Start Adventure" onPress={onStart} busy={busy === 'start'} />
+          <ThemedText type="small" themeColor="textSecondary">
+            Starting sends a Heads-up to your contacts with your Plan and Deadline, which is {formatWhen(form.deadline)}.
+          </ThemedText>
+          <Row>
+            <Button title="Save for later" kind="secondary" onPress={onSave} busy={busy === 'save'} />
+            {id && <Button title="Delete" kind="danger" onPress={onDelete} busy={busy === 'delete'} />}
+          </Row>
+        </>
+      )}
+    </Screen>
+  );
+}

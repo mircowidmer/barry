@@ -1,18 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useEffect } from 'react';
+import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { barry } from '@/lib/barry';
+import { SessionProvider, useSession } from '@/lib/session';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+function Navigation() {
+  const { session, loading } = useSession();
+
+  useEffect(() => {
+    if (!session) return;
+    barry.flushPendingCheckIns();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') barry.flushPendingCheckIns();
+    });
+    return () => subscription.remove();
+  }, [session]);
+
+  if (loading) return null;
+
+  return (
+    <Stack>
+      <Stack.Protected guard={session !== null}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="plan" options={{ title: 'Adventure', headerBackTitle: 'Back' }} />
+      </Stack.Protected>
+      <Stack.Protected guard={session === null}>
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
+      <SessionProvider>
+        <AnimatedSplashOverlay />
+        <Navigation />
+      </SessionProvider>
     </ThemeProvider>
   );
 }
