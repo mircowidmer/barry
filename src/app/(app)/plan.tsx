@@ -196,7 +196,7 @@ function PlanForm({
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
       <Section title="Where are you going?">
-        <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Grosser Mythen" />
+        <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Where are you going to?" />
         <Field label="Route" value={form.route} onChangeText={set('route')} placeholder="Optional" />
         <Field
           label="Starting point"
