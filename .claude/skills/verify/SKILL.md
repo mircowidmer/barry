@@ -5,7 +5,7 @@ description: Drive the Barry iOS app (Expo SDK 58 development build in the iOS S
 
 # Verify Barry
 
-Barry is a solo-adventure safety app. The user touches the iOS app. Everything it does goes through the local Supabase stack, which runs the clock (pg_cron) and sends email to Mailpit. The app schedules the Reminder and the Overdue Notice as local notifications. Supabase sends no pushes, because its push channel is off. Read [features/README.md](features/README.md) before driving, then use the matching feature file as the recipe.
+Barry is a solo-adventure safety app. The user touches the iOS app. Everything it does goes through the local Supabase stack, which runs the clock (pg_cron), sends email to Mailpit, and sends text messages to a local relay that prints them. The app schedules the Reminder and the Overdue Notice as local notifications. Supabase sends no pushes, because its push channel is off. Read [features/README.md](features/README.md) before driving, then use the matching feature file as the recipe.
 
 Helpers live in `.claude/skills/verify/scripts/`, run from the repo root. Shell commands that touch Docker, the simulator or the clipboard need the sandbox disabled.
 
@@ -14,7 +14,7 @@ Helpers live in `.claude/skills/verify/scripts/`, run from the repo root. Shell 
 From the repo root, in this order:
 
 1. `npx supabase start`. Ready when `.claude/skills/verify/scripts/doctor.sh` shows the database, Kong and the Edge runtime up. A fresh database needs `npx supabase db reset --local`, which applies every migration and `supabase/seed.sql` (the Vault secrets `deliver` needs). A reset deletes the test account too: create it again through the app's **Create account** with the values in `.env.local`.
-2. `node scripts/push-relay.mjs` as a background process. Ready when it prints `push relay listening on http://localhost:8787/push`.
+2. `node scripts/push-relay.mjs` and `node scripts/sms-relay.mjs` as background processes. Ready when they print `push relay listening on http://localhost:8787/push` and `sms relay listening on http://localhost:8788`.
 3. The app:
    - If `ios/` is missing or a native dependency changed: `LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
    - Otherwise: `npx expo start --dev-client --port 8081` as a background process, then `xcrun simctl launch booted support.barry`. Ready when Metro prints `iOS Bundled`.
@@ -25,7 +25,7 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 
 ## Doctor
 
-`.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the relay on :8787, Metro on :8081, a booted simulator, the `support.barry` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
+`.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the relays on :8787 and :8788, Metro on :8081, a booted simulator, the `support.barry` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
 
 ## Drive
 
@@ -44,7 +44,7 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
 - **Hold to check in.** A Check-in needs `tap` with `duration: 2.2` on `Hold to check in`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
 - **Refreshing banner.** A blue `Refreshing…` bar at the top means Metro reloaded after a file in the repo changed, including files in this skill. It does not affect the run.
-- **Messages.** Email lands in Mailpit at http://127.0.0.1:54324. Notifications appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600).
+- **Messages.** Email lands in Mailpit at http://127.0.0.1:54324. Notifications appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600). The text message relay prints `texted <to> from Barry: <first line>` for each text message, and `curl -s http://localhost:8788/messages` lists them in full.
 
 ## Evidence
 
@@ -52,7 +52,7 @@ Write proof to `.verify-artifacts/<run-id>/`, which git ignores, with `<run-id>`
 
 - Screenshots: `xcrun simctl io booted screenshot .verify-artifacts/<run-id>/<step>.png` after the user action and after the resulting state.
 - Stored state: `.claude/skills/verify/scripts/fixture.mjs state > .verify-artifacts/<run-id>/<step>.state.txt`. Every mutation needs this second, read-only view.
-- Messages: banner screenshots for notifications, and Mailpit subjects for email.
+- Messages: banner screenshots for notifications, the text message relay's output lines, and Mailpit subjects for email.
 
 Proof standards: drive the real screens, not the database. Capture the action and the result, not only the final screen. Check side effects (rows, messages, pushes) alongside what is visible. A step you could not reach is reported as unverified with the unmet precondition. It is never passed through a different path.
 
@@ -61,7 +61,7 @@ Proof standards: drive the real screens, not the database. Capture the action an
 - `.claude/skills/verify/scripts/fixture.mjs end` checks in from any live Adventure the run left, so no Alert goes to the contacts later.
 - `.claude/skills/verify/scripts/fixture.mjs online` if the run took the API offline.
 - `.claude/skills/verify/scripts/clip.sh clear`.
-- Stop only the processes this run started: the relay and Metro background tasks by their task ID, and `npx supabase stop` if the run started Supabase.
+- Stop only the processes this run started: the relays and Metro background tasks by their task ID, and `npx supabase stop` if the run started Supabase.
 - Keep `.verify-artifacts/`. Cleanup never deletes proof.
 
 ## Upgrade path
