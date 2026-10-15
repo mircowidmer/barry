@@ -51,6 +51,10 @@ The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO
 3. Under **API Keys**, create a key with **Sending access**, limited to that domain.
 4. Put the key in `RESEND_API_KEY` and an address on the verified domain, such as `barry@barry.example.ch`, in `EMAIL_FROM` in `supabase/.env.hosted`, then run the script.
 
+## Edit the sign-up email
+
+The confirmation email that Supabase Auth sends after **Create account** lives only in the dashboard, under **Authentication > Emails > Templates > Confirm signup**, and needs custom SMTP to be editable. Its subject is "Confirm your email for Barry". Supabase treats the template as HTML and builds the plain-text part from it, so write each sentence in its own `<p>`. Keep `{{ .ConfirmationURL }}` as the link target.
+
 ## Check that it runs
 
 ```bash
