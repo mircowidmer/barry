@@ -59,7 +59,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 | Alerted | The Grace Period ends without a Check-in. | Ended |
 | Ended | The Adventurer checks in. | Nothing |
 
-An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. The Adventure tab lists the Planned Adventures. The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first. Opening an Ended Adventure shows its Plan, its Check-in time, and a map of its readings. The Adventurer can delete an Ended Adventure after confirming. Deleting removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
+An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. The Adventure tab lists the Planned Adventures. The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first. Opening an Ended Adventure shows its Plan, its Check-in time, and a map of its readings. The Adventurer can delete a Planned or an Ended Adventure after confirming, from its screen or by swiping its card left. Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
 
 ### Rules by stage
 

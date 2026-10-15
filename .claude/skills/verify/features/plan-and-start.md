@@ -9,6 +9,7 @@ From the Adventure tab, an Adventurer plans an Adventure with a destination, an 
 - `plan-start` starts the Adventure, records the position and opens the live screen.
 - `plan-headsup` sends the Heads-up by email and by text message to each contact on every channel it has.
 - `plan-refusals` shows a refusal such as `Add a destination.` instead of starting.
+- `plan-delete` deletes a Planned Adventure, from its screen with `Delete` or from `Planned Adventures` by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?` with `Its Plan is removed. Nobody was told about it yet.`; `Cancel` keeps it.
 
 ## How to get to it (user POV)
 

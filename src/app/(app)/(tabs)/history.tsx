@@ -41,7 +41,7 @@ export default function HistoryScreen() {
   const inProgress = loaded.data.find(isInProgress);
   const ended = loaded.data.filter(isEnded);
   const remove = async (id: AdventureId) => {
-    const outcome = await askToDeleteAdventure(id);
+    const outcome = await askToDeleteAdventure(id, 'ended');
     if (outcome.kind === 'deleted') loaded.reload();
     else if (outcome.kind === 'failed') Alert.alert('Could not delete', outcome.message);
   };
