@@ -10,6 +10,10 @@ Barry watches over people who go on outdoor outings alone. If an Adventurer fail
 A Barry user who plans Adventures and checks in from them.
 _Avoid_: User, hiker, member
 
+**Adventurer Profile**:
+What Barry knows about an Adventurer for rescuers: name, phone number, car make, colour and number plate, and optional medical notes.
+_Avoid_: Account, user details, settings
+
 **Emergency Contact**:
 A person in an Adventurer's saved list, reachable by phone number, email, or both. They don't need Barry or an account. Each Adventure uses some of them.
 _Avoid_: Watcher, guardian, buddy, friend
@@ -72,7 +76,7 @@ The message to an Adventure's Emergency Contacts when it starts, carrying the Pl
 _Avoid_: Start notification, invite
 
 **Alert**:
-The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan and the Last Known Position.
+The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Last Known Position and the Adventurer Profile.
 _Avoid_: Notification, alarm, SOS
 
 **All-clear**:
