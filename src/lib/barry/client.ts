@@ -285,6 +285,15 @@ export const createBarry = ({
       return { kind: 'deleted' };
     },
 
+    deleteAccount: async () => {
+      const { data, error } = await supabase.rpc('delete_account');
+      if (error) fail('deleteAccount', error);
+      if (data) return { kind: 'refused', refusal: data };
+      remember(null);
+      await supabase.auth.signOut({ scope: 'local' });
+      return { kind: 'deleted' };
+    },
+
     startConditions: async () => {
       const [channels, notificationsAllowed, trailPermitted] = await Promise.all([
         enabledChannels(),

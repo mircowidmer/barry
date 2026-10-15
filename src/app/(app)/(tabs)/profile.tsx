@@ -4,6 +4,7 @@ import { Button, Field, Notice, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry } from '@/lib/barry';
+import { askToDeleteAccount } from '@/lib/delete-account';
 import { useSession } from '@/lib/session';
 import { supabase } from '@/lib/supabase';
 
@@ -32,6 +33,15 @@ function ProfileForm({ initial }: { initial: Form }) {
   const { session } = useSession();
   const [profile, setProfile] = useState<Form>(initial);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const deleteAccount = async () => {
+    setDeleteError(null);
+    const outcome = await askToDeleteAccount(() => setDeleting(true));
+    setDeleting(false);
+    if (outcome.kind === 'failed') setDeleteError(outcome.message);
+  };
 
   const set = (field: keyof AdventurerProfile) => (text: string) => {
     setProfile((p) => ({ ...p, [field]: text }));
@@ -101,6 +111,8 @@ function ProfileForm({ initial }: { initial: Form }) {
         </ThemedText>
         <Button title="Sign out" kind="secondary" onPress={() => supabase.auth.signOut()} />
       </Section>
+      {deleteError && <Notice tone="danger">{deleteError}</Notice>}
+      <Button title="Delete Account" kind="danger" onPress={deleteAccount} busy={deleting} />
     </Screen>
   );
 }

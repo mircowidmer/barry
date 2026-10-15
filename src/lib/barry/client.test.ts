@@ -60,8 +60,12 @@ const setup = ({ cached = true } = {}) => {
     maybeSingle: async () =>
       world.signal ? { data: world.server, error: null } : { data: null, error: { message: 'Network request failed' } },
   };
+  const signOuts: unknown[] = [];
   const supabase = {
-    auth: { getSession: async () => ({ data: { session: { user: { id: 'u1' } } } }) },
+    auth: {
+      getSession: async () => ({ data: { session: { user: { id: 'u1' } } } }),
+      signOut: async (options: unknown) => void signOuts.push(options),
+    },
     rpc: async () => (world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } }),
     from: () => query,
   } as unknown as SupabaseClient<Database>;
@@ -90,7 +94,7 @@ const setup = ({ cached = true } = {}) => {
     notifications,
     location,
   });
-  return { barry, world, updates, scheduled: () => Object.fromEntries(scheduled) };
+  return { barry, world, updates, signOuts, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -132,5 +136,16 @@ describe('local notifications', () => {
 
     expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
     expect(scheduled()).toEqual({});
+  });
+});
+
+describe('deleteAccount', () => {
+  it('forgets the saved Adventure and signs out on this phone only', async () => {
+    const { barry, world, signOuts } = setup();
+    world.signal = true;
+    expect(await barry.deleteAccount()).toEqual({ kind: 'deleted' });
+    expect(signOuts).toEqual([{ scope: 'local' }]);
+    world.signal = false;
+    expect((await barry.getInProgressAdventure()).adventure).toBeNull();
   });
 });
