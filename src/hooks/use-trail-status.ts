@@ -1,0 +1,19 @@
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { AppState } from 'react-native';
+
+import { barry, type TrailStatus } from '@/lib/barry';
+
+/** Whether Barry records the Trail, read again on focus and whenever the app comes back. */
+export function useTrailStatus(): TrailStatus | null {
+  const [status, setStatus] = useState<TrailStatus | null>(null);
+  const read = useCallback(() => {
+    barry.trail.status().then(setStatus, () => undefined);
+  }, []);
+  useFocusEffect(read);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => state === 'active' && read());
+    return () => subscription.remove();
+  }, [read]);
+  return status;
+}

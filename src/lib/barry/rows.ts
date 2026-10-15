@@ -13,14 +13,17 @@ type Tables = Database['public']['Tables'];
 export type AdventureRow = Tables['adventures']['Row'];
 export type ContactRow = Tables['emergency_contacts']['Row'];
 export type ProfileRow = Tables['adventurer_profiles']['Row'];
-export type PositionRow = Tables['position_readings']['Row'];
+export type PositionRow = Pick<Tables['position_readings']['Row'], 'taken_at' | 'latitude' | 'longitude' | 'accuracy_m'>;
 
 export type AdventureWithRelations = AdventureRow & {
   adventure_contacts: { emergency_contacts: ContactRow | null }[];
-  position_readings: PositionRow[];
+  /** At most the newest reading: every query orders and limits the embed. */
+  last_position: PositionRow[];
 };
 
-export const ADVENTURE_SELECT = '*, adventure_contacts(emergency_contacts(*)), position_readings(*)';
+export const ADVENTURE_SELECT =
+  '*, adventure_contacts(emergency_contacts(*)), last_position:position_readings(taken_at, latitude, longitude, accuracy_m)';
+
 
 const date = (value: string | null, field: string): Date => {
   if (value === null) throw new Error(`adventure row: ${field} is missing`);
@@ -43,8 +46,9 @@ export const parseProfile = (row: ProfileRow): AdventurerProfile => ({
   medicalNotes: row.medical_notes,
 });
 
-const latestPosition = (rows: PositionRow[]): Position | null => {
-  const latest = [...rows].sort((a, b) => b.taken_at.localeCompare(a.taken_at))[0];
+// A cache written by an older build has no last_position.
+const latestPosition = (rows: PositionRow[] | undefined): Position | null => {
+  const latest = rows?.[0];
   return latest
     ? {
         takenAt: new Date(latest.taken_at),
@@ -87,7 +91,7 @@ export const parseAdventure = (row: AdventureWithRelations): Adventure => {
     alertAt: date(row.alert_at, 'alert_at'),
     timeZone: row.time_zone ?? 'UTC',
     startedAt: date(row.started_at, 'started_at'),
-    lastKnownPosition: latestPosition(row.position_readings),
+    lastKnownPosition: latestPosition(row.last_position),
   };
 
   switch (row.stage) {

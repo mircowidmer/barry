@@ -4,6 +4,8 @@ import type { Database } from '@/lib/database.types';
 
 import { createAdventureCache } from './adventure-cache';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
+import { createTrail, type LocationService } from './trail';
+import { createTrailBuffer } from './trail-buffer';
 import { ADVENTURE_SELECT, type AdventureWithRelations, parseAdventure, parseContact, parseProfile } from './rows';
 import type {
   Adventure,
@@ -26,6 +28,7 @@ export type BarryDeps = {
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Whether the system lets Barry show notifications. */
   pushPermitted(): Promise<boolean>;
+  location: LocationService;
 };
 
 // A Postgres or PostgREST error always has a code. A failed request has none, and then the
@@ -49,7 +52,15 @@ const orNull = <T,>(value: T | null | undefined): T => (value ?? null) as T;
 const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
   a !== null && (a.stage === 'active' || a.stage === 'overdue' || a.stage === 'alerted');
 
-export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pushPermitted }: BarryDeps): Barry => {
+export const createBarry = ({
+  supabase,
+  readPosition,
+  timeZone,
+  now,
+  storage,
+  pushPermitted,
+  location,
+}: BarryDeps): Barry => {
   const userId = async () => {
     const { data } = await supabase.auth.getSession();
     const id = data.session?.user.id;
@@ -60,7 +71,13 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
   const cache = createAdventureCache(storage, now);
 
   const getAdventure = async (id: AdventureId) => {
-    const { data, error } = await supabase.from('adventures').select(ADVENTURE_SELECT).eq('id', id).maybeSingle();
+    const { data, error } = await supabase
+      .from('adventures')
+      .select(ADVENTURE_SELECT)
+      .eq('id', id)
+      .order('taken_at', { referencedTable: 'last_position', ascending: false })
+      .limit(1, { referencedTable: 'last_position' })
+      .maybeSingle();
     if (error) fail('getAdventure', error);
     const row = data as unknown as AdventureWithRelations | null;
     const adventure = row ? parseAdventure(row) : null;
@@ -83,6 +100,30 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
     if (error) return isNoSignal(error) ? 'no_signal' : fail('checkIn', error);
     return data === null ? 'accepted' : 'refused';
   });
+
+  const trail = createTrail({
+    location,
+    buffer: createTrailBuffer(storage),
+    signedIn: async () => (await supabase.auth.getSession()).data.session !== null,
+    inProgressId: () => (cache.load()?.row.id as AdventureId | undefined) ?? null,
+    checkInQueued: (id) => queue.pending().some((c) => c.adventureId === id),
+    recordTrail: async (id, batch) => {
+      const { data, error } = await supabase.rpc('record_trail', {
+        p_id: id,
+        p_readings: batch.map((r) => ({
+          taken_at: r.takenAt.toISOString(),
+          latitude: r.latitude,
+          longitude: r.longitude,
+          accuracy_m: r.accuracyM,
+        })),
+      });
+      return { data, error };
+    },
+  });
+
+  const syncTrail = () => {
+    trail.sync().catch(() => undefined);
+  };
 
   return {
     getProfile: async () => {
@@ -147,6 +188,8 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
       const { data, error } = await supabase
         .from('adventures')
         .select(ADVENTURE_SELECT)
+        .order('taken_at', { referencedTable: 'last_position', ascending: false })
+        .limit(1, { referencedTable: 'last_position' })
         .order('created_at', { ascending: false });
       if (error) fail('listAdventures', error);
       return ((data ?? []) as unknown as AdventureWithRelations[]).map(parseAdventure);
@@ -159,6 +202,8 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
         .from('adventures')
         .select(ADVENTURE_SELECT)
         .in('stage', ['active', 'overdue', 'alerted'])
+        .order('taken_at', { referencedTable: 'last_position', ascending: false })
+        .limit(1, { referencedTable: 'last_position' })
         .maybeSingle();
       if (error) {
         if (!isNoSignal(error)) fail('getInProgressAdventure', error);
@@ -197,12 +242,17 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
     },
 
     startConditions: async () => {
-      const [channels, devices, permitted] = await Promise.all([
+      const [channels, devices, permitted, trailPermitted] = await Promise.all([
         enabledChannels(),
         supabase.from('push_devices').select('expo_push_token', { count: 'exact', head: true }),
         pushPermitted(),
+        location.backgroundPermitted(),
       ]);
-      return { smsEnabled: channels.has('sms'), pushRegistered: permitted && (devices.count ?? 0) > 0 };
+      return {
+        smsEnabled: channels.has('sms'),
+        pushRegistered: permitted && (devices.count ?? 0) > 0,
+        trailPermitted,
+      };
     },
 
     start: async (id) => {
@@ -215,6 +265,7 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
       if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('start', error);
       if (data) return { kind: 'refused', refusal: data as Refusal };
       const adventure = await getAdventure(id);
+      syncTrail();
       return isInProgress(adventure) ? { kind: 'protected', adventure } : { kind: 'unconfirmed' };
     },
 
@@ -228,6 +279,7 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
       if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('moveDeadline', error);
       if (data) return { kind: 'refused', refusal: data as Refusal };
       const adventure = await getAdventure(id);
+      syncTrail();
       return isInProgress(adventure) ? { kind: 'moved', adventure } : { kind: 'unconfirmed' };
     },
 
@@ -236,6 +288,7 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
       queue.add({ adventureId: id, checkedInAt });
       const done = await queue.flush();
       const adventure = done.has(id) ? await getAdventure(id).catch(() => null) : null;
+      syncTrail();
       return adventure?.stage === 'ended'
         ? { kind: 'ended', adventure: adventure as EndedAdventure }
         : { kind: 'queued', checkedInAt };
@@ -264,6 +317,8 @@ export const createBarry = ({ supabase, readPosition, timeZone, now, storage, pu
         }),
       );
     },
+
+    trail,
 
     watchAdventure: (id, onChange) => {
       const channel = supabase

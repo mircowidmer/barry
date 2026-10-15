@@ -68,9 +68,26 @@ export type DeliveryFailure = {
 export type StartWarning =
   | { kind: 'no_push' }
   | { kind: 'email_only'; contacts: EmergencyContact[] }
-  | { kind: 'unreachable'; contacts: EmergencyContact[] };
+  | { kind: 'unreachable'; contacts: EmergencyContact[] }
+  | { kind: 'no_trail' };
 
-export type StartConditions = { smsEnabled: boolean; pushRegistered: boolean };
+export type StartConditions = { smsEnabled: boolean; pushRegistered: boolean; trailPermitted: boolean };
+
+/** A fix as the OS location task delivers it. */
+export type RawLocation = { timestamp: number; coords: { latitude: number; longitude: number; accuracy: number | null } };
+
+export type TrailStatus = 'recording' | 'off';
+
+export type Trail = {
+  /** Records iff an Adventure is in progress, no Check-in is queued and "Always" is granted. Then flushes. Idempotent. */
+  sync(): Promise<TrailStatus>;
+  status(): Promise<TrailStatus>;
+  requestPermission(): Promise<boolean>;
+  /** Background task entry. Buffers, re-centres the fence, flushes. Never throws. */
+  onLocations(locations: readonly RawLocation[]): Promise<void>;
+  /** Geofence task entry after a relaunch. Takes one reading, then syncs. Never throws. */
+  onFenceExit(): Promise<void>;
+};
 
 export type StartResult =
   | { kind: 'protected'; adventure: InProgressAdventure }
@@ -123,4 +140,6 @@ export type Barry = {
 
   deliveryFailures(id: AdventureId): Promise<DeliveryFailure[]>;
   watchAdventure(id: AdventureId, onChange: (adventure: Adventure) => void): () => void;
+
+  trail: Trail;
 };

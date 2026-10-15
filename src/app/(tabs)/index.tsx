@@ -6,6 +6,7 @@ import { Button, HoldButton, Notice, Row, Screen, Section } from '@/components/f
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
+import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, barry, type DeliveryFailure, type InProgressAdventure } from '@/lib/barry';
 import { formatDuration, formatWhen, refusalText } from '@/lib/wording';
 
@@ -120,6 +121,7 @@ function LiveAdventure({
   onChanged: () => void;
 }) {
   const now = useNow();
+  const trail = useTrailStatus();
   const [adventure, setAdventure] = useState<Adventure>(initial);
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
@@ -200,6 +202,8 @@ function LiveAdventure({
           have signal.
         </Notice>
       )}
+      {trail === 'recording' && <Notice>Barry is recording your Trail. Closing Barry stops the Trail.</Notice>}
+      {trail === 'off' && <Notice>Barry can share only where you started.</Notice>}
       {queuedAt && <Notice tone="warning">Check-in from {formatWhen(queuedAt)} is waiting for signal.</Notice>}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
@@ -221,6 +225,9 @@ function LiveAdventure({
         {adventure.plan.startingPoint && <ThemedText type="small">Starting point: {adventure.plan.startingPoint}</ThemedText>}
         {adventure.plan.notes && <ThemedText type="small">Notes: {adventure.plan.notes}</ThemedText>}
         <ThemedText type="small">Deadline: {formatWhen(adventure.deadline)}</ThemedText>
+        {adventure.lastKnownPosition && (
+          <ThemedText type="small">Last position: {formatWhen(adventure.lastKnownPosition.takenAt)}</ThemedText>
+        )}
         <ThemedText type="small">Contacts: {adventure.contacts.map((c) => c.name).join(', ')}</ThemedText>
         {adventure.stage !== 'alerted' && (
           <Button

@@ -32,7 +32,7 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   created_at: '2026-10-15T08:00:00Z',
   updated_at: '2026-10-15T08:00:00Z',
   adventure_contacts: [{ emergency_contacts: contact }],
-  position_readings: [],
+  last_position: [],
   ...overrides,
 });
 
@@ -61,10 +61,7 @@ describe('parseAdventure', () => {
       row({
         ...started,
         stage: 'overdue',
-        position_readings: [
-          { id: 1, adventure_id: 'a1', taken_at: '2026-10-17T06:00:00Z', latitude: 47, longitude: 8.6, accuracy_m: 20, reason: 'start', minute: null },
-          { id: 2, adventure_id: 'a1', taken_at: '2026-10-17T12:12:00Z', latitude: 47.03, longitude: 8.68, accuracy_m: 12, reason: 'deadline_move', minute: null },
-        ],
+        last_position: [{ taken_at: '2026-10-17T12:12:00Z', latitude: 47.03, longitude: 8.68, accuracy_m: 12 }],
       }),
     );
     expect(adventure).toMatchObject({

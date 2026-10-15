@@ -619,6 +619,12 @@ Four runners (Opus, Fable, Sonnet, Haiku) produced candidates. A cross-judge on 
 ## Implementation reconciliation
 
 - **`record_trail` orders the batch by `taken_at` before the insert.** The design says the first reading in a minute wins. Without an order, `on conflict do nothing` inside one statement keeps whichever row the set happens to yield first. The order makes "first" mean the earliest fix (`supabase/migrations/20261015140000_trail.sql`).
+- **There is no separate `Reading` type.** It had exactly the shape of the existing `Position`, so the Trail uses `Position` (`src/lib/barry/trail-buffer.ts`, `trail.ts`).
+- **`TrailBuffer.drop(adventureId)` became `keepOnly(adventureId | null)`.** `sync()` must forget every Adventure except the live one, and the buffer is the only place that knows which ids it holds. A `refused` batch drops the whole Adventure, not just the batch, because every later batch of that Adventure would be refused too.
+- **`createTrail` takes `recordTrail` returning the raw `{ data, error }`** and maps it with the exported `trailOutcome`. That puts the rule "an auth error is `retry`" inside the tested module instead of in `client.ts`.
+- **`status()` answers from the same conditions as `sync()`** (live Adventure, no queued Check-in, signed in, "Always"), without asking the OS whether updates run.
+- **The foreground catch-up runs `trail.sync()` after the Check-in flush**, not beside it, so a Check-in sent on foreground stops the Trail in the same pass.
+- **The `no_trail` warning has an "Allow Always" button** that calls `requestPermission()` and opens the Settings app when iOS does not show the prompt again. The live screen shows "Last position <time>" in the Plan section.
 - **`message_facts` reads `trail_token` through a left join on `adventure_contacts`** instead of a scalar subquery per branch. The result is the same, null once the contact has left the Adventure.
 
 ## Open questions and risks
