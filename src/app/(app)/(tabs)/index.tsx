@@ -6,10 +6,11 @@ import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { Button, HoldButton, Notice, Row, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
+import { TrailMapView } from '@/components/trail-map-view';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTrailStatus } from '@/hooks/use-trail-status';
-import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure } from '@/lib/barry';
+import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { formatDuration, formatWhen, refusalText } from '@/lib/wording';
 
@@ -231,6 +232,8 @@ function LiveAdventure({
         )}
       </Section>
 
+      <LiveTrail id={adventure.id} />
+
       {failures.length > 0 && (
         <Section title="Messages that did not arrive">
           {failures.map((f, i) => (
@@ -243,4 +246,22 @@ function LiveAdventure({
       )}
     </Screen>
   );
+}
+
+const TRAIL_REFRESH_MS = 60_000;
+
+function LiveTrail({ id }: { id: AdventureId }) {
+  const [trail, setTrail] = useState<Position[]>([]);
+  useEffect(() => {
+    let mounted = true;
+    // A failed reload keeps the last map, so losing signal does not blank it.
+    const load = () => barry.readings(id).then((readings) => mounted && setTrail(readings), () => undefined);
+    load();
+    const timer = setInterval(load, TRAIL_REFRESH_MS);
+    return () => {
+      mounted = false;
+      clearInterval(timer);
+    };
+  }, [id]);
+  return trail.length > 0 ? <TrailMapView trail={trail} last={trail.at(-1)!} /> : null;
 }
