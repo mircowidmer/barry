@@ -114,7 +114,7 @@ function ProfileForm({ initial }: { initial: Form }) {
           kind="secondary"
           onPress={() => supabase.auth.signOut()}
         />
-        <Button title="Delete Account" icon="trash" kind="danger" onPress={deleteAccount} busy={deleting} />
+        <Button title="Delete Account" icon="person.crop.circle.badge.xmark" kind="danger" onPress={deleteAccount} busy={deleting} />
       </Row>
       <ThemedText type="small" themeColor="textSecondary">
         Signed in as {session?.user.email}
