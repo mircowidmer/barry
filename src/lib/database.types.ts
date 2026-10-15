@@ -25,14 +25,14 @@ export type Database = {
           Tables: {
             "adventure_contacts": {
                   Row: {
-                    "added_at": string,"adventure_id": string,"contact_id": string
+                    "added_at": string,"adventure_id": string,"contact_id": string,"trail_token": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "added_at"?: string,"adventure_id": string,"contact_id": string
+                    "added_at"?: string,"adventure_id": string,"contact_id": string,"trail_token"?: string
                   }
                   Update: {
-                    "added_at"?: string,"adventure_id"?: string,"contact_id"?: string
+                    "added_at"?: string,"adventure_id"?: string,"contact_id"?: string,"trail_token"?: string
                   }
                   Relationships: [
                     {
@@ -119,14 +119,14 @@ isOneToOne: false
                   ]
                 },"position_readings": {
                   Row: {
-                    "accuracy_m": number | null,"adventure_id": string,"id": number,"latitude": number,"longitude": number,"reason": string,"taken_at": string
+                    "accuracy_m": number | null,"adventure_id": string,"id": number,"latitude": number,"longitude": number,"minute": string | null,"reason": string,"taken_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "accuracy_m"?: number | null,"adventure_id": string,"id"?: never,"latitude": number,"longitude": number,"reason": string,"taken_at": string
+                    "accuracy_m"?: number | null,"adventure_id": string,"id"?: never,"latitude": number,"longitude": number,"minute"?: never,"reason": string,"taken_at": string
                   }
                   Update: {
-                    "accuracy_m"?: number | null,"adventure_id"?: string,"id"?: never,"latitude"?: number,"longitude"?: number,"reason"?: string,"taken_at"?: string
+                    "accuracy_m"?: number | null,"adventure_id"?: string,"id"?: never,"latitude"?: number,"longitude"?: number,"minute"?: never,"reason"?: string,"taken_at"?: string
                   }
                   Relationships: [
                     {
@@ -222,6 +222,9 @@ isOneToOne: false
 "move_deadline":
 { Args: { "p_accuracy_m"?: number,"p_deadline": string,"p_id": string,"p_latitude"?: number,"p_longitude"?: number,"p_position_taken_at"?: string }; Returns: Database["public"]['Enums']["refusal"]
                            },
+"record_trail":
+{ Args: { "p_id": string,"p_readings": Json }; Returns: Database["public"]['Enums']["refusal"]
+                           },
 "save_adventure":
 { Args: { "p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_id": string,"p_notes": string,"p_route": string,"p_starting_point": string }; Returns: {
               "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
@@ -232,6 +235,9 @@ isOneToOne: false
                            },
 "start_adventure":
 { Args: { "p_accuracy_m"?: number,"p_id": string,"p_latitude"?: number,"p_longitude"?: number,"p_position_taken_at"?: string,"p_time_zone": string }; Returns: Database["public"]['Enums']["refusal"]
+                           },
+"trail_map":
+{ Args: { "p_token": string }; Returns: Json
                            }
           }
           Enums: {
