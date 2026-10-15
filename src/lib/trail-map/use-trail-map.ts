@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { fetchTrailMap, mergeTrailMap, newestReading, tokenFromHash } from './fetch';
 import type { TrailMap, TrailMapState } from './types';
 
-const POLL_MS = 10_000;
+const POLL_MS = 60_000;
 
 const onWeb = Platform.OS === 'web';
 
