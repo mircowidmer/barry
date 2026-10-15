@@ -1,6 +1,6 @@
 # Emergency Contacts
 
-The Contacts tab lists the Adventurer's Emergency Contacts and lets them add, edit and remove contacts. A phone number is marked while text messages are not set up. A contact on a live Adventure cannot be removed.
+The Contacts tab lists the Adventurer's Emergency Contacts and lets them add, edit and remove contacts. A phone number is marked while text messages are switched off. A contact on a live Adventure cannot be removed.
 
 ## Sub-features
 
@@ -21,7 +21,7 @@ Preconditions:
 - Baseline from the index.
 
 - **Add (`contacts-add`).** Paste `Mia` into `Name` and `mia@example.com` into `Email` in the `Add a New Contact` section, then tap `Add Contact`. The notice reads `Mia saved.` and a `Mia` card lists the email.
-- **Marker (`contacts-sms-marker`).** Sara's card reads `+41792222222 · Text messages not set up yet`.
+- **Marker (`contacts-sms-marker`).** With text messages on, Sara's card reads `+41792222222` with no marker. The marker `+41792222222 · Text messages not set up yet` shows only while `sms` is switched off in `private.channel_config`.
 - **In use (`contacts-in-use`).** Run `fixture.mjs live 120`, switch tabs, and tap `Remove` on Luca's card. The notice reads `Luca is a contact of your current Adventure, so they stay until you check in.` Luca is still listed. Run `fixture.mjs end`.
 - **Remove (`contacts-remove`).** Tap `Remove` on Mia's card. The notice reads `Mia removed.` and the card is gone.
 
