@@ -22,7 +22,7 @@ You need a hosted Supabase project. The page fetches the Trail from Supabase in 
 
 Every push to `main` builds and publishes the page. To publish without a push, open **Actions > Trail Map on GitHub Pages** and choose **Run workflow**. The run's summary links to the page.
 
-The workflow exports the web build with the base path `/barry`, set through `BARRY_WEB_BASE_URL` in `app.config.js`, and publishes `trail.html`, `_expo`, `assets` and `favicon.ico`. The app's other web screens, such as sign-in, are not published.
+The workflow exports the web build with the base path `/barry`, set through `BARRY_WEB_BASE_URL` in `app.config.js`, and publishes `trail.html`, `confirmed.html`, `_expo`, `assets` and `favicon.ico`. `confirmed.html` is where Supabase Auth sends a new account after its email confirmation link, so the hosted project's **Site URL** is `https://mircowidmer.github.io/barry/confirmed`. The app's other web screens, such as sign-in, are not published.
 
 ## Try the build locally
 
