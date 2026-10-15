@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(28);
+select plan(29);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -50,9 +50,10 @@ select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'heads_up'),
   array[
     'email luca@example.com pending',
-    'sms +41792222222 failed channel_not_enabled'
+    'sms +41791111111 pending',
+    'sms +41792222222 pending'
   ],
-  'Start: Luca gets a Heads-up by email only, and phone-only Sara gets one failed row'
+  'Start: Luca gets a Heads-up by email and text message, and phone-only Sara by text message'
 );
 
 select is((pg_temp.anna()).stage, 'active'::public.adventure_stage, 'Before the Reminder time the Adventure stays Active');
@@ -61,7 +62,7 @@ select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 16:
 
 select is(
   cardinality(pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'heads_up')),
-  2,
+  3,
   'Running reconcile twice queues no second Heads-up'
 );
 
@@ -74,7 +75,8 @@ select is(
   array[
     'email luca@example.com pending',
     'email mia@example.com pending',
-    'sms +41792222222 failed channel_not_enabled'
+    'sms +41791111111 pending',
+    'sms +41792222222 pending'
   ],
   'A contact added during the Adventure gets a Heads-up'
 );
@@ -145,9 +147,10 @@ select is(
   array[
     'email luca@example.com pending 1',
     'email mia@example.com pending 1',
-    'sms +41792222222 failed channel_not_enabled 1'
+    'sms +41791111111 pending 1',
+    'sms +41792222222 pending 1'
   ],
-  'Alert 1 goes to every contact, and phone-only Sara gets a Delivery Failure'
+  'Alert 1 goes to every channel of every contact'
 );
 
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 21:00+02');
@@ -169,8 +172,8 @@ select is(
 
 select is(
   cardinality(pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'alert')),
-  9,
-  'Each round reached the same three contact rows'
+  12,
+  'Each round reached the same four contact rows'
 );
 
 select is(
@@ -235,6 +238,27 @@ select is(
   pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'reminder'),
   '{}'::text[],
   'With push disabled no Reminder row is queued'
+);
+
+-- Text messages turned off.
+
+update private.channel_config set enabled = false where channel = 'sms';
+insert into public.emergency_contacts (id, adventurer_id, name, email, phone) values
+  ('bbbbbbbb-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'Lea', 'lea@example.com', '+41793333333'),
+  ('bbbbbbbb-0000-0000-0000-000000000003', '22222222-2222-2222-2222-222222222222', 'Tim', null, '+41794444444');
+insert into public.adventure_contacts (adventure_id, contact_id) values
+  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000002'),
+  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000003');
+select private.reconcile('b0000000-0000-0000-0000-000000000001', '2026-10-18 17:45+02');
+
+select is(
+  pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'heads_up'),
+  array[
+    'email lea@example.com pending',
+    'email noah@example.com pending',
+    'sms +41794444444 failed channel_not_enabled'
+  ],
+  'With text messages disabled Lea gets email only, and phone-only Tim gets one failed row'
 );
 
 select lives_ok(
