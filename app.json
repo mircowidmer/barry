@@ -33,7 +33,14 @@
           "imageWidth": 76
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Barry records where you are when you start an Adventure or move its Deadline, so an Alert can tell your Emergency Contacts where to look."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
