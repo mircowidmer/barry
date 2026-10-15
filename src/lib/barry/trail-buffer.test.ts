@@ -39,6 +39,19 @@ describe('the Trail buffer', () => {
     expect(buffer.newest(id('a1'))).toEqual(reading('2026-10-15T09:41:11Z', 47.1));
   });
 
+  it('sends nothing for a reading in 10 seconds it already sent', async () => {
+    const storage = memoryStorage();
+    const { sent, send } = recorder();
+    createTrailBuffer(storage).add(id('a1'), [reading('2026-10-15T09:41:11Z')]);
+    await createTrailBuffer(storage).flush(send);
+    const buffer = createTrailBuffer(storage);
+    buffer.add(id('a1'), [reading('2026-10-15T09:41:13Z'), reading('2026-10-15T09:41:05Z')]);
+    await buffer.flush(send);
+    buffer.add(id('a1'), [reading('2026-10-15T09:41:21Z')]);
+    await buffer.flush(send);
+    expect(sent.map((s) => s.times)).toEqual([['2026-10-15T09:41:11.000Z'], ['2026-10-15T09:41:21.000Z']]);
+  });
+
   it('survives an app restart, because it lives in storage', async () => {
     const storage = memoryStorage();
     createTrailBuffer(storage).add(id('a1'), [reading('2026-10-15T09:41:10Z')]);

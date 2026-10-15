@@ -10,6 +10,7 @@ export type TrailBuffer = {
 };
 
 const KEY = 'barry.trailBuffer';
+const SENT_KEY = 'barry.trailSent';
 const BATCH = 200;
 const MAX_SLOTS = 8_640;
 
@@ -18,6 +19,7 @@ export const slotKey = (reading: Pick<Position, 'takenAt'>): string => `${readin
 
 type Stored = { t: string; lat: number; lon: number; acc: number | null };
 type Contents = Record<string, Record<string, Stored>>;
+type Sent = Record<string, string>;
 
 const toReading = (s: Stored): Position => ({ takenAt: new Date(s.t), latitude: s.lat, longitude: s.lon, accuracyM: s.acc });
 
@@ -27,6 +29,8 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
     return raw ? (JSON.parse(raw) as Contents) : {};
   };
   const write = (contents: Contents) => storage.setItem(KEY, JSON.stringify(contents));
+  const readSent = (): Sent => JSON.parse(storage.getItem(SENT_KEY) ?? '{}') as Sent;
+  const writeSent = (sent: Sent) => storage.setItem(SENT_KEY, JSON.stringify(sent));
   const slots = (contents: Contents, adventureId: string) => Object.keys(contents[adventureId] ?? {}).sort();
 
   let running: Promise<void> | null = null;
@@ -42,9 +46,12 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
         if (outcome === 'retry') return;
         const after = read();
         if (outcome === 'refused') delete after[adventureId];
-        else if (after[adventureId]) {
-          for (const k of batchKeys) delete after[adventureId][k];
-          if (Object.keys(after[adventureId]).length === 0) delete after[adventureId];
+        else {
+          writeSent({ ...readSent(), [adventureId]: batchKeys.at(-1)! });
+          if (after[adventureId]) {
+            for (const k of batchKeys) delete after[adventureId][k];
+            if (Object.keys(after[adventureId]).length === 0) delete after[adventureId];
+          }
         }
         write(after);
       }
@@ -55,9 +62,12 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
     add: (adventureId, readings) => {
       const contents = read();
       const own = (contents[adventureId] ??= {});
+      const sent = readSent()[adventureId] ?? '';
       for (const r of readings) {
-        own[slotKey(r)] ??= { t: r.takenAt.toISOString(), lat: r.latitude, lon: r.longitude, acc: r.accuracyM };
+        const slot = slotKey(r);
+        if (slot > sent) own[slot] ??= { t: r.takenAt.toISOString(), lat: r.latitude, lon: r.longitude, acc: r.accuracyM };
       }
+      if (Object.keys(own).length === 0) delete contents[adventureId];
       for (const k of slots(contents, adventureId).slice(0, -MAX_SLOTS)) delete own[k];
       write(contents);
     },
@@ -70,6 +80,8 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
     keepOnly: (adventureId) => {
       const contents = read();
       write(adventureId && contents[adventureId] ? { [adventureId]: contents[adventureId] } : {});
+      const sent = readSent();
+      writeSent(adventureId && sent[adventureId] ? { [adventureId]: sent[adventureId] } : {});
     },
     newest: (adventureId) => {
       const contents = read();
