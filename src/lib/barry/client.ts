@@ -99,8 +99,10 @@ export const createBarry = ({
   const syncAlarms = () => alarms.sync().catch(() => undefined);
 
   const remember = (row: AdventureWithRelations | null) => {
+    const before = cache.load()?.row.id ?? null;
     cache.save(row);
     syncAlarms();
+    if ((row?.id ?? null) !== before) syncTrail();
   };
 
   const getAdventure = async (id: AdventureId) => {
