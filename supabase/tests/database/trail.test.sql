@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(44);
+select plan(47);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -196,15 +196,19 @@ select is(public.record_trail('a0000000-0000-0000-0000-000000000001', jsonb_buil
 select is(pg_temp.trail_count(), 6, 'The Alerted Trail reading is stored');
 
 select is(public.check_in('a0000000-0000-0000-0000-000000000001', now()), null, 'Anna checks in');
-select is(pg_temp.trail_count(), 0, 'The Check-in deletes the Trail');
+select is(pg_temp.trail_count(), 6, 'The Check-in keeps the Trail');
 select is(public.check_in('a0000000-0000-0000-0000-000000000001', now()), null, 'A resent Check-in is accepted');
 select is(
   (select array_agg(reason order by reason) from public.position_readings where adventure_id = 'a0000000-0000-0000-0000-000000000001'),
-  array['deadline_move', 'start'],
-  'The Check-in keeps the Start and Deadline-move readings');
+  array['deadline_move', 'start', 'trail', 'trail', 'trail', 'trail', 'trail', 'trail'],
+  'The Check-in keeps the Start, Deadline-move and Trail readings');
+select is(
+  (select count(*)::int from public.position_readings where adventure_id = 'a0000000-0000-0000-0000-000000000001'),
+  8,
+  'Anna still reads every reading of her Ended Adventure');
 select is(public.record_trail('a0000000-0000-0000-0000-000000000001', (select readings from batch)), 'wrong_stage',
   'A Trail reading after the Check-in is refused');
-select is(pg_temp.trail_count(), 0, 'A Trail reading after the Check-in stores nothing');
+select is(pg_temp.trail_count(), 6, 'A Trail reading after the Check-in stores nothing');
 
 set local role anon;
 select is(
@@ -212,13 +216,17 @@ select is(
   jsonb_build_object('status', 'checked_in', 'adventurer_name', 'Anna', 'time_zone', 'Europe/Zurich',
     'plan', jsonb_build_object('destination', 'Rigi', 'route', 'North face', 'starting_point', null, 'notes', null)),
   'After the Check-in the Trail Map shows no positions');
+select ok(not (pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ? 'trail'),
+  'After the Check-in the Trail Map has no Trail');
+select ok(not (pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ? 'last_known_position'),
+  'After the Check-in the Trail Map has no Last Known Position');
 select is((pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'checked_in_at')::timestamptz, now(),
   'After the Check-in the Trail Map shows the Check-in time');
 
 reset role;
 select is((public.message_facts(pg_temp.message('alert', 'luca@example.com'))
-    -> 'last_known_position' ->> 'latitude')::numeric, 47.07,
-  'A late Alert retry after the Check-in carries the newest kept reading');
+    -> 'last_known_position' ->> 'latitude')::numeric, 47.08,
+  'A late Alert retry after the Check-in carries the newest reading');
 
 select * from finish();
 rollback;

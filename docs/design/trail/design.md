@@ -631,6 +631,7 @@ Four runners (Opus, Fable, Sonnet, Haiku) produced candidates. A cross-judge on 
 - **The page reloads on `hashchange`**, so a second link opened in the same tab reads its own token. On native the route renders "This link does not work" without touching `window`.
 - **`message_facts` reads `trail_token` through a left join on `adventure_contacts`** instead of a scalar subquery per branch. The result is the same, null once the contact has left the Adventure.
 - **The fence is best-effort and comes after the upload.** In the iOS 27 simulator `startGeofencingAsync` throws, and with the fence before the flush no reading ever reached the server. `moveFence` now swallows the failure, and `sync()` and `onLocations` flush first, taking the fence centre from the buffer before the flush empties it. Found in the simulator run of 15 October; covered by the test "records and uploads when iOS refuses the fence".
+- **The Check-in keeps the Trail.** `20261015150000_keep_trail.sql` replaces `check_in` without the `trail` delete, so the "Trail deleted at Check-in" row above no longer holds. `trail_map` still answers an Ended Adventure with `checked_in_at` and no `trail` or `last_known_position`, and the owner reads the readings through `own_read`. A late Alert retry after the Check-in now carries the newest Trail reading instead of the newest Start or Deadline-move reading, because `message_facts` picks the newest reading of any reason.
 
 ## Open questions and risks
 
