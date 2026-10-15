@@ -7,7 +7,6 @@ alter table public.position_readings
 create unique index position_readings_trail_minute
   on public.position_readings (adventure_id, minute) where reason = 'trail';
 
--- 128 random bits as 22 URL-safe characters: short enough for a text message.
 alter table public.adventure_contacts
   add column trail_token text not null unique
     default translate(rtrim(encode(extensions.gen_random_bytes(16), 'base64'), '='), '+/', '-_');
@@ -44,8 +43,7 @@ end $$;
 revoke execute on function public.record_trail from public, anon;
 grant execute on function public.record_trail to authenticated;
 
--- Null for an unknown token, a removed contact and a Planned Adventure alike. The projection is
--- built by hand so the Deadline, the Overdue Stage and the Profile cannot leak.
+-- Null for an unknown token, a removed contact and a Planned Adventure alike.
 create function public.trail_map(p_token text) returns jsonb
 language sql stable security definer set search_path = '' as $$
   select jsonb_build_object(
@@ -113,9 +111,6 @@ begin
   return null;
 end $$;
 
--- Read at send time, so an Alert carries the latest Plan, Last Known Position and Profile.
--- Only the Alert carries the Profile beyond the name. trail_token is null once the contact has
--- left the Adventure, and the message then goes out without the Trail Map link.
 create or replace function public.message_facts(p_message_id bigint) returns jsonb
 language sql stable security definer set search_path = '' as $$
   select jsonb_build_object(

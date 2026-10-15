@@ -625,6 +625,10 @@ Four runners (Opus, Fable, Sonnet, Haiku) produced candidates. A cross-judge on 
 - **`status()` answers from the same conditions as `sync()`** (live Adventure, no queued Check-in, signed in, "Always"), without asking the OS whether updates run.
 - **The foreground catch-up runs `trail.sync()` after the Check-in flush**, not beside it, so a Check-in sent on foreground stops the Trail in the same pass.
 - **The `no_trail` warning has an "Allow Always" button** that calls `requestPermission()` and opens the Settings app when iOS does not show the prompt again. The live screen shows "Last position <time>" in the Plan section.
+- **`noindex` comes from `generateMetadata()` in `src/app/trail.tsx`, not from `+html.tsx`.** In SDK 58 a custom `+html.tsx` must render `useServerDocumentContext()`'s nodes, and the first one written without them exported pages with no scripts and no stylesheets. `<Head>` from `expo-router/head` adds its tags only after hydration. `generateMetadata()` writes `<title>` and `<meta name="robots" content="noindex, nofollow">` into `dist/trail.html`.
+- **The storage split is `src/lib/storage.ts` and `src/lib/storage.web.ts`**, not `storage.native.ts`. TypeScript resolves the plain `.ts` file for types, so the native variant takes the base name.
+- **`src/lib/barry/trail-task.web.ts` is an empty module.** The custom entry `index.ts` imports `trail-task` on every platform, and the web bundle must not pull in `expo-task-manager`.
+- **The page reloads on `hashchange`**, so a second link opened in the same tab reads its own token. On native the route renders "This link does not work" without touching `window`.
 - **`message_facts` reads `trail_token` through a left join on `adventure_contacts`** instead of a scalar subquery per branch. The result is the same, null once the contact has left the Adventure.
 
 ## Open questions and risks

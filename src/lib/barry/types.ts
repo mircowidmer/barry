@@ -73,13 +73,12 @@ export type StartWarning =
 
 export type StartConditions = { smsEnabled: boolean; pushRegistered: boolean; trailPermitted: boolean };
 
-/** A fix as the OS location task delivers it. */
 export type RawLocation = { timestamp: number; coords: { latitude: number; longitude: number; accuracy: number | null } };
 
 export type TrailStatus = 'recording' | 'off';
 
 export type Trail = {
-  /** Records iff an Adventure is in progress, no Check-in is queued and "Always" is granted. Then flushes. Idempotent. */
+  /** Records iff signed in, an Adventure is in progress, no Check-in is queued and "Always" is granted. Then flushes. Idempotent. */
   sync(): Promise<TrailStatus>;
   status(): Promise<TrailStatus>;
   requestPermission(): Promise<boolean>;

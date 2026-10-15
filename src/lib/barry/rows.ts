@@ -17,7 +17,6 @@ export type PositionRow = Pick<Tables['position_readings']['Row'], 'taken_at' | 
 
 export type AdventureWithRelations = AdventureRow & {
   adventure_contacts: { emergency_contacts: ContactRow | null }[];
-  /** At most the newest reading: every query orders and limits the embed. */
   last_position: PositionRow[];
 };
 
@@ -46,7 +45,6 @@ export const parseProfile = (row: ProfileRow): AdventurerProfile => ({
   medicalNotes: row.medical_notes,
 });
 
-// A cache written by an older build has no last_position.
 const latestPosition = (rows: PositionRow[] | undefined): Position | null => {
   const latest = rows?.[0];
   return latest

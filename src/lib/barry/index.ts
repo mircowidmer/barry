@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 
+import { storage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
 
 import { createBarry } from './client';
@@ -94,7 +95,7 @@ export const barry = createBarry({
   readPosition,
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   now: () => new Date(),
-  storage: localStorage,
+  storage,
   pushPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
   location,
 });
