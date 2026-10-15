@@ -630,11 +630,14 @@ Four runners (Opus, Fable, Sonnet, Haiku) produced candidates. A cross-judge on 
 - **`src/lib/barry/trail-task.web.ts` is an empty module.** The custom entry `index.ts` imports `trail-task` on every platform, and the web bundle must not pull in `expo-task-manager`.
 - **The page reloads on `hashchange`**, so a second link opened in the same tab reads its own token. On native the route renders "This link does not work" without touching `window`.
 - **`message_facts` reads `trail_token` through a left join on `adventure_contacts`** instead of a scalar subquery per branch. The result is the same, null once the contact has left the Adventure.
+- **The fence is best-effort and comes after the upload.** In the iOS 27 simulator `startGeofencingAsync` throws, and with the fence before the flush no reading ever reached the server. `moveFence` now swallows the failure, and `sync()` and `onLocations` flush first, taking the fence centre from the buffer before the flush empties it. Found in the simulator run of 15 October; covered by the test "records and uploads when iOS refuses the fence".
 
 ## Open questions and risks
 
 - Does supabase-js refresh an expired session on demand during a background location wake, with auto-refresh stopped? Simulator step 6 answers it before any UI work; the upload-key alternative is ready if not.
-- Does iOS allow `startLocationUpdatesAsync` from a geofence relaunch through expo-location in SDK 58, and does the custom `index.ts` entry run before the event is delivered? Simulator step 5.
+- Does iOS allow `startLocationUpdatesAsync` from a geofence relaunch through expo-location in SDK 58, and does the custom `index.ts` entry run before the event is delivered? The iOS 27 simulator refuses geofencing, so this needs a real iPhone.
+- Does supabase-js refresh an expired session during a background wake? The simulator run uploaded in the background within the token's first hour only; the expiry case is still unverified.
+- The live screen's "Last position" shows the reading from when the screen loaded. A reading does not update `adventures`, so Realtime does not refresh it.
 - Does Expo Router allow a `_layout.web.tsx` for a group, and does the static export still evaluate the `(app)` screens on web? The `.web.ts` stubs cover the second case either way.
 - How long should an Ended Adventure's link keep showing the Check-in time? The spec does not say. Forever (until account deletion) is the default here; 7 days would be one `and (a.ended_at > now() - interval '7 days')` in `trail_map`.
 - Should the page say "Barry has raised the Alert" in those words, and should it suggest calling the Adventurer? Wording is a product call.
