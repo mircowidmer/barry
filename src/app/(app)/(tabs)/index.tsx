@@ -67,7 +67,7 @@ function Overview({
         Contacts.
       </ThemedText>
       <Button title="Plan an Adventure" onPress={() => router.push('/plan')} />
-      {planned.length > 0 && <ThemedText type="smallBold">Planned</ThemedText>}
+      {planned.length > 0 && <ThemedText type="smallBold">Planned Adventures</ThemedText>}
       {planned.map((a) => (
         <Pressable
           key={a.id}
