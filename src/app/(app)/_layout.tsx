@@ -35,6 +35,7 @@ function Navigation() {
       <Stack.Protected guard={session !== null}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="plan" options={{ title: 'Adventure', headerBackTitle: 'Back' }} />
+        <Stack.Screen name="adventure/[id]" options={{ title: 'Adventure', headerBackTitle: 'Back' }} />
       </Stack.Protected>
       <Stack.Protected guard={session === null}>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />

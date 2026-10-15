@@ -6,7 +6,15 @@ import { createAdventureCache } from './adventure-cache';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { createTrail, type LocationService } from './trail';
 import { createTrailBuffer } from './trail-buffer';
-import { ADVENTURE_SELECT, type AdventureWithRelations, parseAdventure, parseContact, parseProfile } from './rows';
+import {
+  ADVENTURE_SELECT,
+  type AdventureWithRelations,
+  parseAdventure,
+  parseContact,
+  parsePosition,
+  parseProfile,
+  POSITION_SELECT,
+} from './rows';
 import type {
   Adventure,
   AdventureId,
@@ -316,6 +324,16 @@ export const createBarry = ({
           reason: row.failure_reason ?? '',
         }),
       );
+    },
+
+    readings: async (id) => {
+      const { data, error } = await supabase
+        .from('position_readings')
+        .select(POSITION_SELECT)
+        .eq('adventure_id', id)
+        .order('taken_at');
+      if (error) fail('readings', error);
+      return (data ?? []).map(parsePosition);
     },
 
     trail,

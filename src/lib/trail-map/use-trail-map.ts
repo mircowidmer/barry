@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { fetchTrailMap, tokenFromHash } from './fetch';
-import type { TrailMap, TrailMapView } from './types';
+import type { TrailMap, TrailMapState } from './types';
 
 const POLL_MS = 60_000;
 
@@ -14,8 +14,8 @@ const load = fetchTrailMap(
   process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '',
 );
 
-export function useTrailMap(): TrailMapView {
-  const [view, setView] = useState<TrailMapView>(onWeb ? { kind: 'loading' } : { kind: 'not_found' });
+export function useTrailMap(): TrailMapState {
+  const [view, setView] = useState<TrailMapState>(onWeb ? { kind: 'loading' } : { kind: 'not_found' });
 
   useEffect(() => {
     if (!onWeb) return;
