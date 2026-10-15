@@ -79,7 +79,7 @@ If the phone has no signal, the Start is not saved for later. The app shows that
 Before Start, the app shows these warnings when they apply. Start is still allowed.
 
 - The Adventurer has not allowed push notifications, or no phone is registered for push notifications. The app shows "You will get no Reminder or Overdue Notice". The app registers its push token again each time it opens.
-- While text messages are not set up, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
+- While text messages are switched off, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
 - The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started".
 
 ### Move the Deadline
@@ -127,8 +127,9 @@ Barry sends every message from Supabase. The phone never sends a message to an E
 ### Channels
 
 - Barry sends email and text messages. Each message goes to every channel the contact has.
-- Email comes first, because local Supabase catches outgoing email in Mailpit. Text messages must work before the Adventurer relies on Barry outdoors.
-- While text messages are not set up, the contact screen marks each contact's phone number with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number.
+- Barry sends text messages through Twilio. Locally, `scripts/sms-relay.mjs` stands in for Twilio and prints each text message. [How to send real text messages](text-messages.md) sets up a Twilio account.
+- Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
+- A channel can be switched off. While text messages are switched off, the contact screen marks each contact's phone number with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
 
 ### Delivery Failures
 
