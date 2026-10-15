@@ -86,7 +86,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
           '',
           `${name}'s phone: ${facts.profile.phone}`,
           car !== '' && `Car: ${car}`,
-          facts.profile.medicalNotes !== null && `Medical notes: ${facts.profile.medicalNotes}`,
+          facts.profile.medicalNotes !== null && `Medical Notes: ${facts.profile.medicalNotes}`,
         ),
       };
     }

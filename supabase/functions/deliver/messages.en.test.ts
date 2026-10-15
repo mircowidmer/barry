@@ -76,7 +76,7 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
       '',
       "Anna's phone: +41790000001",
       'Car: red Subaru, SZ 12345',
-      'Medical notes: Type 1 diabetic',
+      'Medical Notes: Type 1 diabetic',
     ].join('\n'),
   );
 });

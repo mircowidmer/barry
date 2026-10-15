@@ -76,9 +76,9 @@ function ProfileForm({ initial }: { initial: Form }) {
         <Field label="Colour" value={profile.carColour} onChangeText={set('carColour')} />
         <Field label="Number plate" value={profile.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
       </Section>
-      <Section title="Medical notes (optional)">
+      <Section title="Medical Notes (optional)">
         <Field
-          label="Medical notes"
+          label="Medical Notes"
           value={profile.medicalNotes}
           onChangeText={set('medicalNotes')}
           multiline
