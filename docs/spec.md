@@ -33,6 +33,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 - Barry sends nothing to a person when the Adventurer adds them to the list.
 - Each Adventure uses one or more contacts from the list.
 - A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list.
+- A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned Adventures. If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one.
 
 ## Adventures
 
@@ -63,7 +64,7 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 ### Rules by stage
 
 - **Planned.** The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing. If the Adventurer never taps **Start**, nobody is protected.
-- **Active and Overdue.** The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later. The Adventure cannot be cancelled. A Check-in is the only way to end it.
+- **Active and Overdue.** The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later. At least one contact always remains. The Adventure cannot be cancelled. A Check-in is the only way to end it.
 - **Alerted.** The Adventurer cannot move the Deadline or edit the Adventure. A Check-in is the only way to end it.
 
 ### Start
@@ -75,7 +76,10 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 
 If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start.
 
-If the Adventurer has not allowed push notifications, the app warns that they will get no Reminder and no Overdue Notice. Start is still allowed.
+Before Start, the app shows these warnings when they apply. Start is still allowed.
+
+- The Adventurer has not allowed push notifications, or no phone is registered for push notifications. The app shows "You will get no Reminder or Overdue Notice". The app registers its push token again each time it opens.
+- While text messages are not set up, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
 
 ### Move the Deadline
 
@@ -93,6 +97,7 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 - The Alert always carries the latest Plan.
 - A contact added to the Adventure gets a Heads-up.
 - A contact removed from the Adventure gets no further messages.
+- The Adventure always keeps at least one contact. Removing the last one is refused.
 
 ## Messages
 
@@ -109,6 +114,7 @@ Barry sends every message from Supabase. The phone never sends a message to an E
 ### Message rules
 
 - The Grace Period is 30 minutes. The Reminder lead time is 30 minutes. The Adventurer cannot change either value.
+- If the Adventurer sets a Deadline less than 30 minutes ahead, at Start or with a move, Barry sends no Reminder for it. The Overdue Notice still goes out.
 - The Last Known Position in an Alert gives the time of the reading, the coordinates, and a map link.
 - Every time in a message names its time zone, for example "18:00 Zurich time". Barry uses the Adventurer's time zone at Start.
 - An Alert states facts only. It gives no guidance on what to do.
@@ -120,6 +126,7 @@ Barry sends every message from Supabase. The phone never sends a message to an E
 
 - Barry sends email and text messages. Each message goes to every channel the contact has.
 - Email comes first, because local Supabase catches outgoing email in Mailpit. Text messages must work before the Adventurer relies on Barry outdoors.
+- While text messages are not set up, the contact screen marks each contact's phone number with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number.
 
 ### Delivery Failures
 
@@ -132,7 +139,7 @@ If a Heads-up, an Alert, or an All-clear cannot be delivered, the app shows the 
 
 ## Monitoring
 
-Supabase checks Deadlines on a schedule. Each run reports to an outside monitor, such as Healthchecks.io. If the reports stop for a few minutes, the monitor emails or texts the operator.
+Supabase checks Deadlines every minute. Each run reports to an outside monitor, such as Healthchecks.io. If the reports stop for a few minutes, the monitor emails or texts the operator.
 
 ## Out of scope for the first version
 
@@ -149,3 +156,6 @@ Supabase checks Deadlines on a schedule. Each run reports to an outside monitor,
 - A way for a contact to acknowledge an Alert.
 - Messages in a language other than English.
 - An app warning when the outside monitor has not heard from Supabase.
+- Detecting bounced emails.
+- Push delivery receipts from Expo, and removing expired push tokens. A push notification counts as sent once Expo accepts it.
+- Deleting the account from the app.

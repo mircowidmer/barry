@@ -88,6 +88,15 @@ export type DeliveryFailure = {
   at: Date;
 };
 
+/** What the Start screen shows before Start. None of them blocks Start. */
+export type StartWarning =
+  /** "You will get no Reminder or Overdue Notice". */
+  | { kind: 'no_push'; reason: 'permission_denied' | 'no_device_registered' }
+  /** While text messages are not set up: contacts with a phone number that get email only. */
+  | { kind: 'email_only'; contacts: EmergencyContact[] }
+  /** While text messages are not set up: contacts with only a phone number, who get nothing. */
+  | { kind: 'unreachable'; contacts: EmergencyContact[] };
+
 // ─── Command outcomes ─────────────────────────────────────────────────────────────────
 
 /**
@@ -136,9 +145,10 @@ export type Barry = {
    * A Planned Adventure does not block it: the contact leaves that Adventure.
    */
   removeContact(id: EmergencyContactId): Promise<{ kind: 'removed' } | { kind: 'in_use' }>;
+  /** Called each time the app opens. Upsert, so a repeat is harmless. */
   registerPushDevice(expoPushToken: string): Promise<void>;
-  /** Refused with 'adventure_in_progress' while an Adventure is Active, Overdue or Alerted. */
-  deleteAccount(): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
+  /** The contact screen marks a phone number "Text messages not set up yet" when 'sms' is missing. */
+  enabledChannels(): Promise<ReadonlySet<Channel>>;
 
   // Adventures (reads: tables; writes: RPCs)
   listAdventures(): Promise<Adventure[]>; // newest first, includes Ended history
@@ -149,6 +159,7 @@ export type Barry = {
   saveAdventure(draft: AdventureDraft): Promise<{ kind: 'saved'; adventure: Adventure } | { kind: 'refused'; refusal: Refusal }>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
 
+  startWarnings(id: AdventureId): Promise<StartWarning[]>;
   start(id: AdventureId): Promise<StartResult>;
   moveDeadline(id: AdventureId, deadline: Date): Promise<MoveDeadlineResult>;
   checkIn(id: AdventureId): Promise<CheckInResult>;
@@ -172,6 +183,8 @@ export type BarryDeps = {
   now(): Date;
   /** expo-sqlite localStorage; survives app restarts. */
   storage: Pick<Storage, 'getItem' | 'setItem'>;
+  /** expo-notifications getPermissionsAsync(). */
+  pushPermission(): Promise<'granted' | 'denied' | 'undetermined'>;
 };
 
 export function createBarry(deps: BarryDeps): Barry {
@@ -194,6 +207,15 @@ export function createBarry(deps: BarryDeps): Barry {
   //     refused 'not_found'|'wrong_stage' (Planned) -> remove, log (cannot succeed later)
   //     network error              -> keep, stop the loop
   //
+  // TODO enabledChannels():
+  //   rpc('enabled_channels') -> new Set(data)
+  //
+  // TODO startWarnings(id):
+  //   permission != 'granted'                        -> { kind: 'no_push', reason: 'permission_denied' }
+  //   else no own push_devices row                   -> { kind: 'no_push', reason: 'no_device_registered' }
+  //   'sms' not enabled and contacts with phone and email -> { kind: 'email_only', contacts }
+  //   'sms' not enabled and contacts with phone only      -> { kind: 'unreachable', contacts }
+  //
   // TODO removeContact(id):
   //   update emergency_contacts set removed_at = now(); error 'barry:contact_in_use' -> { kind: 'in_use' }
   //
@@ -206,4 +228,5 @@ export function createBarry(deps: BarryDeps): Barry {
 // src/lib/barry-instance.ts wires the real effects:
 //   export const barry = createBarry({ supabase, readPosition: readOnceWithTimeout(5_000),
 //     timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
-//     now: () => new Date(), storage: localStorage });
+//     now: () => new Date(), storage: localStorage,
+//     pushPermission: async () => (await Notifications.getPermissionsAsync()).status });

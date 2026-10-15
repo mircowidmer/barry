@@ -7,16 +7,17 @@
 --     messages are SELECT-only for the app.
 --   * Every table starts with no privileges for anon and authenticated, and default privileges
 --     are revoked too, so a table or function someone adds later without a grant fails closed.
---   * pg_cron runs private.tick() every 30 seconds INSIDE Postgres. tick() moves Stages and
+--   * pg_cron runs private.tick() every minute INSIDE Postgres. tick() moves Stages and
 --     inserts message rows in the same transaction. No network hop sits between "the Deadline
 --     passed" and "the Alert is owed".
 --   * Messages are rows in public.messages (one row = one message to one address on one
 --     channel). A unique key makes every enqueue idempotent (insert ... on conflict).
 --   * The `deliver` Edge Function drains the table: claim with a lease, render, send, settle.
 --     pg_net kicks it after every command and every tick, and it sends the heartbeat to the
---     outside monitor after checking private.health().
+--     outside monitor after checking public.health(). It reaches Postgres only through
+--     supabase-js with the service role key, calling service_role-only public functions.
 --
--- Requires: pg_cron (30-second schedules), pg_net, supabase_vault. pgTAP for the tests.
+-- Requires: pg_cron, pg_net, supabase_vault. pgTAP for the tests.
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
@@ -54,7 +55,6 @@ create type public.refusal as enum (
   'no_contacts',
   'unknown_contact',               -- a contact id that is not the caller's, or was removed
   'another_adventure_in_progress',
-  'adventure_in_progress',         -- delete_my_account while Active, Overdue or Alerted
   'wrong_stage',                   -- e.g. edit after the Alert, delete after Start, Check-in while Planned
   'invalid_time_zone'
 );
@@ -102,7 +102,7 @@ create function private.reminder_lead()  returns interval language sql immutable
 create function private.alert_interval() returns interval language sql immutable as $$ select interval '1 hour' $$;
 create function private.max_alerts()     returns smallint language sql immutable as $$ select 3::smallint $$;
 
--- Which channels Barry sends on. Invisible to the app.
+-- Which channels Barry sends on. The app reads it only through public.enabled_channels().
 -- Adding text messages = ship an sms sender in deliver's Record<Channel, Sender>, then flip sms to true.
 create table private.channel_config (
   channel  public.channel primary key,
@@ -240,7 +240,7 @@ create view public.delivery_failures with (security_invoker = true) as
   left join public.emergency_contacts c on c.id = m.contact_id
   where m.status = 'failed' and m.kind in ('heads_up', 'alert', 'all_clear');
 
--- Clock liveness and per-Adventure tick errors, read by private.health().
+-- Clock liveness and per-Adventure tick errors, read by public.health().
 create table private.clock_status (
   id            boolean primary key default true check (id),
   last_tick_at  timestamptz not null
@@ -326,8 +326,8 @@ create trigger guard_contact_removal before update of removed_at on public.emerg
   for each row execute function private.guard_contact_removal();
 
 -- An account cannot be deleted while it has an Active, Overdue or Alerted Adventure.
--- Otherwise the delete cascades through every table. Covers delete_my_account() and the
--- Auth admin API alike.
+-- Otherwise the delete cascades through every table. The app has no account delete in v1, so
+-- this covers the Supabase dashboard and the Auth admin API.
 create function private.guard_account_delete() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
@@ -436,7 +436,7 @@ returns void language plpgsql security definer set search_path = '' as $$
 begin raise exception 'not implemented'; end $$;
 
 -- One row per push device of the Adventurer, keyed by the current Deadline, if push is enabled.
--- Zero devices = zero rows; the app warned at Start that Reminders need push.
+-- Zero devices = zero rows; the Start warnings told the Adventurer.
 create function private.enqueue_push(p_adventure_id uuid, p_kind public.message_kind)
 returns void language plpgsql security definer set search_path = '' as $$
 begin raise exception 'not implemented'; end $$;
@@ -491,15 +491,16 @@ begin
   raise exception 'not implemented';
 end $$;
 
-select cron.schedule('barry-tick', '30 seconds', $$select private.tick()$$);
+select cron.schedule('barry-tick', '* * * * *', $$select private.tick()$$);
 
 ------------------------------------------------------------------------------------------
--- deliver's interface (barry_deliverer role only)
+-- deliver's interface: public functions that only service_role may execute. deliver calls
+-- them with supabase.rpc() and the service role key. No direct Postgres connection.
 ------------------------------------------------------------------------------------------
 
 -- Claim up to p_limit due messages with a lease. Crash-safe: an expired lease makes the row
 -- claimable again (at-least-once).
-create function private.claim_messages(p_limit int, p_lease interval default interval '2 minutes')
+create function public.claim_messages(p_limit int, p_lease interval default interval '2 minutes')
 returns setof public.messages language plpgsql security definer set search_path = '' as $$
 begin
   -- TODO pseudocode:
@@ -534,7 +535,7 @@ end $$;
 
 -- Record the outcome of one send. Idempotent per (id, attempt): a late report for an
 -- attempt that already lost its lease is ignored.
-create function private.settle_message(
+create function public.settle_message(
   p_id bigint, p_attempt smallint, p_outcome text,      -- 'sent' | 'retry' | 'failed'
   p_provider_ref text default null, p_reason text default null, p_retry_after interval default null
 ) returns void language plpgsql security definer set search_path = '' as $$
@@ -546,7 +547,7 @@ end $$;
 
 -- Health for the heartbeat: is the clock ticking, is every Adventure reconciling, and is the
 -- outbox draining?
-create function private.health()
+create function public.health()
 returns table (clock_ok boolean, adventures_ok boolean, outbox_ok boolean, detail text)
 language sql security definer set search_path = '' as $$
   -- clock_ok:      last_tick_at > now() - interval '2 minutes'
@@ -557,22 +558,20 @@ $$;
 
 -- Everything a template needs for one message, as one JSON document, read at SEND time so an
 -- Alert always carries the latest Plan, the Last Known Position and the full Profile.
--- Shape (validated by deliver into MessageFacts):
+-- Shape (parsed by deliver into MessageFacts):
 --   { kind, round, time_zone, adventurer_name, plan: {destination, route, starting_point, notes},
 --     deadline, alert_at (Overdue Notice only),
 --     profile: {phone, car_make, car_colour, car_plate, medical_notes} (Alert only),
 --     last_known_position: {taken_at, latitude, longitude, accuracy_m} | null (Alert only),
 --     checked_in_at (All-clear only), contact_name }
 -- Only the Alert carries the full Adventurer Profile. Every other kind gets the name only.
-create function private.message_facts(p_message_id bigint) returns jsonb
+create function public.message_facts(p_message_id bigint) returns jsonb
 language sql stable security definer set search_path = '' as $$ select null::jsonb $$;
 
--- deliver talks to Postgres over a direct connection (SUPABASE_DB_URL, available to Edge
--- Functions), as a dedicated login role. private.* stays off PostgREST entirely.
-create role barry_deliverer nologin;   -- granted to the connecting login role out of band
-grant usage on schema private to barry_deliverer;
-grant execute on function private.claim_messages, private.settle_message, private.health,
-  private.message_facts to barry_deliverer;
+revoke execute on function public.claim_messages, public.settle_message, public.health,
+  public.message_facts from public, anon, authenticated;
+grant execute on function public.claim_messages, public.settle_message, public.health,
+  public.message_facts to service_role;
 
 ------------------------------------------------------------------------------------------
 -- Command RPCs: the ONLY way the app changes an Adventure.
@@ -649,18 +648,24 @@ create function public.check_in(p_id uuid, p_checked_in_at timestamptz) returns 
 language plpgsql security definer set search_path = '' as $$
 begin raise exception 'not implemented'; end $$;
 
--- Returns 'adventure_in_progress' while an Adventure is Active, Overdue or Alerted; otherwise
--- deletes the auth.users row and everything cascades. private.guard_account_delete() is the
--- backstop for a Start that commits between the check and the delete.
-create function public.delete_my_account() returns public.refusal
-language plpgsql security definer set search_path = '' as $$
-begin raise exception 'not implemented'; end $$;
+------------------------------------------------------------------------------------------
+-- Read-only queries for the screens.
+------------------------------------------------------------------------------------------
+
+-- The channels Barry sends on. The contact screen marks a phone number "Text messages not set
+-- up yet" when sms is missing, and the Start warnings list the contacts that get email only.
+--   select channel from private.channel_config where enabled;
+create function public.enabled_channels() returns setof public.channel
+language sql stable security definer set search_path = '' as $$
+  select null::public.channel where false
+$$;
 
 revoke execute on all functions in schema public from public, anon;
 revoke execute on all functions in schema private from public;
 grant execute on function public.save_adventure, public.delete_adventure, public.start_adventure,
-  public.move_deadline, public.check_in, public.delete_my_account to authenticated;
+  public.move_deadline, public.check_in, public.enabled_channels to authenticated;
 
 -- Vault secrets set out of band (supabase/seed.sql locally, dashboard in production):
 --   deliver_url, deliver_secret
 -- Edge Function secrets: DELIVER_SECRET, HEALTHCHECK_URL, EMAIL_*, later TWILIO_*.
+-- SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided to every Edge Function.

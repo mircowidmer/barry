@@ -14,7 +14,7 @@ Barry must raise an Alert when the phone is dead. So Supabase owns the Deadline 
 
 These moments interact with commands the Adventurer can send at any time. Moving the Deadline re-arms the Reminder and turns an Overdue Adventure back into an Active one. A Check-in can race the first Alert. Every path must survive running twice or crashing halfway. A missed Alert is the worst outcome. A duplicate email is acceptable.
 
-The constraints come from the local stack and the spec. Local Supabase runs Postgres 17 with pg_cron 1.6.4 (30-second schedules work), pg_net 0.20.4, supabase_vault 0.3.1 and pgtap 1.3.3. Mail goes to the Mailpit container `supabase_inbucket_barry-local`. The Expo app uses supabase-js with the publishable key. Email comes first and text messages follow as a small change. The scheduled check must report to an outside monitor.
+The constraints come from the local stack and the spec. Local Supabase runs Postgres 17 with pg_cron 1.6.4, pg_net 0.20.4, supabase_vault 0.3.1 and pgtap 1.3.3. Mail goes to the Mailpit container `supabase_inbucket_barry-local`. The Expo app uses supabase-js with the publishable key. Email comes first and text messages follow as a small change. The scheduled check must report to an outside monitor.
 
 ## Usage (caller's view)
 
@@ -22,6 +22,7 @@ The constraints come from the local stack and the spec. Local Supabase runs Post
 import { barry } from '@/lib/barry-instance';
 
 // Start screen
+const warnings = await barry.startWarnings(adventure.id);   // 'no_push', 'email_only', 'unreachable'
 const result = await barry.start(adventure.id);   // reads the location and the time zone itself
 switch (result.kind) {
   case 'protected':   router.replace(`/adventure/${result.adventure.id}`); break;
@@ -38,10 +39,12 @@ await barry.moveDeadline(adventure.id, addHours(adventure.deadline, 2));
 // adventure.stage === 'overdue' -> countdown to adventure.alertAt
 
 // Contacts screen
+const channels = await barry.enabledChannels();   // no 'sms' -> "Text messages not set up yet"
 const removed = await barry.removeContact(contact.id);
 if (removed.kind === 'in_use') showToast('Anna is a contact of your current Adventure.');
 
 // App root
+await barry.registerPushDevice(expoPushToken);   // each time the app opens
 AppState.addEventListener('change', s => s === 'active' && barry.flushPendingCheckIns());
 const failures = await barry.deliveryFailures(adventure.id);   // "Text messages are not set up yet" for Anna
 ```
@@ -52,7 +55,7 @@ On the server, the only thing anyone runs by hand is `select private.tick();` in
 
 ### One rule for writes
 
-The app writes directly only to rows the clock never reads: `adventurer_profiles`, `emergency_contacts` and `push_devices`. The Adventure tables and `messages` are read-only for the app. Five security-definer remote procedure calls (RPCs) change Adventures: `save_adventure`, `delete_adventure`, `start_adventure`, `move_deadline` and `check_in`. Stage rules live in those five functions and nowhere else, per boundary-discipline. A reviewer checks one place.
+The app writes directly only to rows the clock never reads: `adventurer_profiles`, `emergency_contacts` and `push_devices`. The Adventure tables and `messages` are read-only for the app. The app reads `private.channel_config` only through `public.enabled_channels()`. Five security-definer remote procedure calls (RPCs) change Adventures: `save_adventure`, `delete_adventure`, `start_adventure`, `move_deadline` and `check_in`. Stage rules live in those five functions and nowhere else, per boundary-discipline. A reviewer checks one place.
 
 Privileges fail closed. The migration revokes all table privileges from `anon` and `authenticated`, and revokes the default privileges for tables, sequences and functions created later. It then grants exactly what the app needs. A table someone adds without a policy and a grant is invisible to the app, not open to it. `save_adventure` checks that every contact id belongs to `auth.uid()` and is not removed. Otherwise it refuses with `unknown_contact`, so one Adventurer cannot attach another Adventurer's contact.
 
@@ -70,7 +73,7 @@ A Profile row exists only once the name and the phone number are filled in, so "
 
 ### The clock is Postgres
 
-pg_cron runs `private.tick()` every 30 seconds inside the database. The Deadline check never crosses a network hop. If the Edge Runtime is down, Stages still advance and Alerts still pile up in the outbox. They go out when delivery recovers. `tick` selects due Adventures through a partial index on `deadline`. The earliest clock event is always 30 minutes before the Deadline, so no cached "next wake" column has to stay in sync.
+pg_cron runs `private.tick()` every minute inside the database. The Deadline check never crosses a network hop. If the Edge Runtime is down, Stages still advance and Alerts still pile up in the outbox. They go out when delivery recovers. `tick` selects due Adventures through a partial index on `deadline`. The earliest clock event is always 30 minutes before the Deadline, so no cached "next wake" column has to stay in sync.
 
 `tick` runs `reconcile` for each Adventure in its own exception block. If one Adventure throws, `tick` writes the error to `private.tick_error` and moves on to the next one. One bad row cannot stop the Alerts of every other Adventurer.
 
@@ -86,19 +89,23 @@ One row in `messages` is one message to one address on one channel. The constrai
 
 ### Channels are configuration
 
-`private.channel_config(channel, enabled)` says which channels Barry sends on. Email and push are enabled. Text messages are disabled. `private.enqueue_to_contacts` creates one row for each channel that the contact has and Barry has enabled. A contact with no enabled channel gets exactly one row, born `failed` with the reason `channel_not_enabled`. The app shows that row as a Delivery Failure, so a phone-only contact is never dropped in silence. A contact with an email address and a phone number gets only the email row while text messages are disabled.
+`private.channel_config(channel, enabled)` says which channels Barry sends on. Email and push are enabled. Text messages are disabled. `private.enqueue_to_contacts` creates one row for each channel that the contact has and Barry has enabled. A contact with no enabled channel gets exactly one row, born `failed` with the reason `channel_not_enabled`. The app shows that row as a Delivery Failure, so a phone-only contact is never dropped in silence. A contact with an email address and a phone number gets only the email row while text messages are disabled. That contact gets no Delivery Failure for the phone number.
 
-Adding text messages takes two steps. Replace `notEnabled` with a text-message sender in the `Record<Channel, Sender>` in `deliver.ts`. Then set `sms` to enabled in `private.channel_config`. The schema, the clock, the templates and the app do not change.
+The app learns which channels are enabled through `public.enabled_channels()`, a read-only security-definer function. `barry.enabledChannels()` wraps it for the contact screen, which marks a phone number "Text messages not set up yet". `barry.startWarnings()` gives the Start screen every warning in one call. It returns `no_push` when push permission is denied or no `push_devices` row exists, `email_only` with the contacts that get email only, and `unreachable` with the contacts that have only a phone number and get nothing. The app registers its push token each time it opens, so a lost registration heals on the next launch.
+
+Adding text messages takes two steps. Replace `notEnabled` with a text-message sender in the `Record<Channel, Sender>` in `deliver.ts`. Then set `sms` to enabled in `private.channel_config`. The schema, the clock and the templates do not change. The app drops the "not set up" marks and the `email_only` and `unreachable` warnings by itself.
 
 ### Delivery is a plain drain
 
-The `deliver` Edge Function claims rows with `FOR UPDATE SKIP LOCKED` and a 2-minute lease. It reads `private.message_facts(id)` at send time, so the Alert carries the latest Plan, Last Known Position and Adventurer Profile. It renders with `messages.en.ts`, sends through `Record<Channel, Sender>`, and settles the row. Crash safety comes from the lease. A crash between send and settle lets the lease expire, and the row goes out again. Delivery is at least once.
+`deliver` reaches Postgres only through supabase-js with the service role key. It has no direct Postgres connection. It calls four public functions: `claim_messages`, `settle_message`, `message_facts` and `health`. The migration revokes execute on them from `public`, `anon` and `authenticated` and grants it only to `service_role`. They are security-definer functions, so they read `private` tables without exposing the schema.
+
+The `deliver` Edge Function claims rows with `FOR UPDATE SKIP LOCKED` and a 2-minute lease. It reads `message_facts(id)` at send time, so the Alert carries the latest Plan, Last Known Position and Adventurer Profile. It renders with `messages.en.ts`, sends through `Record<Channel, Sender>`, and settles the row. Crash safety comes from the lease. A crash between send and settle lets the lease expire, and the row goes out again. Delivery is at least once.
 
 pg_net kicks `deliver` inside each command's transaction. pg_net queues the request in a table, so a rolled-back Start kicks nothing. The Heads-up leaves seconds after Start, not at the next tick.
 
 ### Ordering and the All-clear rule
 
-The claim query in `private.claim_messages` enforces ordering per address, by kind:
+The claim query in `claim_messages` enforces ordering per address, by kind:
 
 - An Alert waits only for older Alert rounds to the same address. It never waits for a Heads-up, so a Heads-up in retry backoff cannot hold back an Alert.
 - An All-clear waits until every Alert to the same address is `sent` or `failed`.
@@ -120,7 +127,7 @@ A `retry` outcome backs off for up to 6 attempts and then becomes `failed`. A pe
 
 ### The heartbeat proves the whole chain
 
-Each tick kicks `deliver`, so `deliver` runs every 30 seconds whether or not there is mail. After it drains the outbox, it calls `private.health()`, which checks three things:
+Each tick kicks `deliver`, so `deliver` runs every minute whether or not there is mail. After it drains the outbox, it calls `health()`, which checks three things:
 
 - The clock ticked in the last 2 minutes.
 - No `private.tick_error` row is younger than 2 minutes.
@@ -132,13 +139,13 @@ If all three hold, `deliver` pings the healthchecks URL. Otherwise it pings `/fa
 
 Contacts use soft delete, so Ended Adventures and sent messages keep their contact. A trigger refuses the removal while an Active, Overdue or Alerted Adventure uses the contact. A Planned Adventure does not block removal. The contact leaves that Adventure instead, and Start refuses with `no_contacts` if none remain.
 
-`adventures.adventurer_id` cascades on delete. A trigger on `auth.users` raises while the Adventurer has an Active, Overdue or Alerted Adventure. Otherwise the account delete cascades through every table. `delete_my_account()` checks the same rule first and returns `adventure_in_progress` as a typed refusal. The trigger also covers a delete through the Auth admin API.
+The v1 app cannot delete the account. `adventures.adventurer_id` cascades on delete. A trigger on `auth.users` raises while the Adventurer has an Active, Overdue or Alerted Adventure. So a delete from the Supabase dashboard or the Auth admin API is blocked while an Adventure is live. Otherwise the account delete cascades through every table.
 
 ### Types encode the rules
 
 `Adventure` is a union on `stage`. A started Adventure always has `plan.destination`, `deadline` and `timeZone`, and table checks mirror that. `Refusal` and `Channel` come from the generated Postgres enums, so the refusal list exists once, per encode-lessons-in-structure. RPCs return a refusal instead of raising one, so it arrives typed. `StartResult.unconfirmed` makes the "not protected until Supabase confirms" rule hard to forget at the call site. `start_adventure` is idempotent, so Retry is always safe.
 
-Only the Alert carries the full Adventurer Profile. `MessageFacts` in `deliver.ts` is a union on `kind`, and only the `alert` variant has a `profile` field. A Heads-up or All-clear template that prints the phone number or the medical notes does not compile. `private.message_facts` builds the same shape on the server side.
+Only the Alert carries the full Adventurer Profile. `MessageFacts` in `deliver.ts` is a union on `kind`, and only the `alert` variant has a `profile` field. A Heads-up or All-clear template that prints the phone number or the medical notes does not compile. `message_facts` builds the same shape on the server side.
 
 `check_in` takes the phone's gesture time and clamps it into `[started_at, now()]`. A wrong phone clock cannot write a Check-in time before the Start or in the future.
 
@@ -148,7 +155,7 @@ The Last Known Position is the latest `position_readings` row. `alert_at` is a g
 
 ### Interface depth
 
-Screens see one module with about 19 methods, three effect injections and outcome unions. The module hides the location reading, the time zone capture, the offline queue with single-flight flushing, the RPC wire shapes, the row-to-domain parsing and all Stage rules, which live on the server. It does not expose raw table writes for Adventures, any way to send a message, or any clock value that the client could compute differently.
+Screens see one module with about 20 methods, five injected effects and outcome unions. The module hides the location reading, the time zone capture, the offline queue with single-flight flushing, the RPC wire shapes, the row-to-domain parsing and all Stage rules, which live on the server. It does not expose raw table writes for Adventures, any way to send a message, or any clock value that the client could compute differently.
 
 ## Synthesis decision
 
@@ -161,7 +168,7 @@ Grafts from candidate B:
 - Security. `revoke all` on every table plus default-privilege revocation, so a missing policy fails closed. `save_adventure` checks contact ownership. An account-delete guard trigger replaces A's `on delete restrict`, which contradicted A's own `delete_my_account`.
 - Channels. `private.channel_config` and the fan-out that creates rows only for enabled channels, with one row born `failed` for a contact that has none.
 - Re-adding a removed contact revives its cancelled Heads-up.
-- Robustness. A per-Adventure exception block in `tick`, the `private.tick_error` table, and a heartbeat that reports `/fail` when any Adventure errored. The check sits in A's `private.health()`.
+- Robustness. A per-Adventure exception block in `tick`, the `private.tick_error` table, and a heartbeat that reports `/fail` when any Adventure errored. The check sits in A's `health()`.
 - The Check-in time clamp into `[started_at, now()]`.
 - Realtime publication of `adventures`, which A's `watchAdventure` needed.
 
@@ -179,17 +186,36 @@ Rejected from B:
 - Relevance rules duplicated in TypeScript. Who gets what stays in Postgres only.
 - The heartbeat from `tick`. It proves the scheduler but not delivery.
 
+### Answers from 2026-10-15
+
+The user answered the open questions on 2026-10-15:
+
+1. A live Adventure keeps at least one Emergency Contact, and `save_adventure` refuses to remove the last one with `no_contacts`.
+2. Deleting a contact that only Planned Adventures use is allowed, and Start refuses later if a Planned Adventure has no contact left.
+3. A Deadline set less than 30 minutes ahead gets no Reminder, but the Overdue Notice still goes out.
+4. While text messages are not set up, the contact screen and the Start warnings say so, and the unused phone number records no Delivery Failure.
+5. No registered push device shows the same Start warning as denied permission, and the app registers its push token each time it opens.
+6. `deliver` calls service-role-only public functions through supabase-js, with no `SUPABASE_DB_URL` and no `barry_deliverer` role.
+7. Email bounces are out of scope for v1, and `provider_ref` stays for later.
+8. "Accepted by Expo" counts as sent, and Expo receipts and expired-token cleanup are out of scope for v1.
+9. The scheduler runs every minute instead of every 30 seconds.
+10. The v1 app has no account delete, and the `auth.users` guard trigger stays.
+
 ## Tradeoffs accepted
 
 - We accept clock logic written in PL/pgSQL and tested with pgTAP in exchange for state transitions and their messages committing atomically, with no network hop between "Deadline passed" and "Alert owed".
 - We accept at-least-once delivery in exchange for never losing an Alert. A crash between send and settle resends one email. Email providers get `barry-<message id>` as an idempotency key where they support one.
-- We accept a 30-second clock resolution. An Alert can leave up to about 30 seconds after the Grace Period ends.
-- We accept a Deadline move or a Check-in that lands in that 30-second lag. `move_deadline` does not reconcile before the move. The spec allows a move any time before the Alert, and during the lag the Alert has not gone out. So an Overdue Adventure whose Grace Period ended a few seconds ago can still become Active again.
-- We accept `deliver` running every 30 seconds even when idle, in exchange for a heartbeat that proves the full chain.
+- We accept a one-minute clock resolution. An Alert can leave up to about a minute after the Grace Period ends.
+- We accept a Deadline move or a Check-in that lands in that one-minute lag. `move_deadline` does not reconcile before the move. The spec allows a move any time before the Alert, and during the lag the Alert has not gone out. So an Overdue Adventure whose Grace Period ended a few seconds ago can still become Active again.
+- We accept `deliver` running every minute even when idle, about 1,440 calls a day, in exchange for a heartbeat that proves the full chain.
+- We accept public functions that only `service_role` may execute, in exchange for no direct Postgres connection and no pooler setup in `deliver`.
 - We accept snapshotting `to_address` at enqueue. If the Adventurer edits a contact's email during an Adventure, the new address gets a Heads-up and earlier rows keep the old one. That looks like a bug, but it is the honest record of what went where.
 - We accept one Heads-up per address per Adventure once it was sent. A contact removed and re-added after its Heads-up went out gets no second one.
 - We accept that a Heads-up in retry backoff can arrive after an Alert to the same address, in exchange for an Alert that never waits behind it.
 - We accept one Delivery Failure per Alert round for a phone-only contact while text messages are disabled, so up to three for one contact.
+- We accept no Reminder for a Deadline set less than 30 minutes ahead. `decide()` gates the Reminder on `deadline_set_at`. The Overdue Notice still goes out.
+- We accept a bounced email counting as `sent`. Bounces are out of scope for v1. `provider_ref` stays so a later webhook can mark the row `failed`.
+- We accept "accepted by Expo" as `sent` for push. v1 reads no Expo delivery receipts and removes no expired tokens. A stale token produces a `failed` push row that the app never shows.
 
 ## Alternatives considered
 
@@ -204,17 +230,7 @@ Nothing implemented yet.
 
 ## Open questions and risks
 
-- The spec does not say whether an Active or Overdue Adventure may drop to zero contacts. The sketch refuses with `no_contacts`. Is that right?
-- The spec does not say what happens to a Planned Adventure when one of its contacts is removed from the list. The sketch drops the contact from that Adventure. Should removal be refused instead?
-- The spec says a Reminder goes 30 minutes before the Deadline. If the Adventurer sets a Deadline less than 30 minutes ahead, `decide()` sends no Reminder. Is that right, or should a Reminder go at once?
-- The spec says each message goes to every channel the contact has. While text messages are disabled, a contact with an email address and a phone number gets only the email, and the app shows nothing for the phone. Should the app say so, for example on the contact or at Start?
-- Should `deliver` use a direct Postgres connection (`SUPABASE_DB_URL`, as sketched, keeping `private` off PostgREST)? The alternative is claim and settle as service-role-only RPCs. Does the direct connection work in hosted Edge Functions without pooler trouble?
-- Bounces arrive after `sent`, through the provider's webhook. Should a bounce turn the row into `failed` so it shows as a Delivery Failure? The sketch keeps `provider_ref` for that but adds no webhook.
-- Expo push receipts arrive later. Is "accepted by Expo" good enough for the Reminder and the Overdue Notice, given that their failures are never shown?
-- With no push device registered, the Reminder and the Overdue Notice produce zero rows. Is the warning at Start enough?
-- Is a 30-second pg_cron schedule acceptable on hosted Supabase, or is 1 minute enough?
-- `delete_my_account()` is a security-definer function that deletes from `auth.users`. Is that acceptable, or should an Edge Function call the Auth admin API?
-- The Edge Runtime container must reach SMTP on `supabase_inbucket_barry-local` over the Docker network. Check that once before writing `emailSender`.
+- Before writing `emailSender`, check that the Edge Runtime container reaches SMTP on `supabase_inbucket_barry-local` over the Docker network.
 
 ## Next implementation step
 

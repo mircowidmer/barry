@@ -7,9 +7,9 @@
 //
 // deliver holds NO clock logic and NO audience logic. Stages, due times, who gets what,
 // idempotency, cancellation and ordering are decided in Postgres (private.reconcile,
-// private.enqueue_to_contacts, private.claim_messages). deliver only turns rows into sends.
+// private.enqueue_to_contacts, public.claim_messages). deliver only turns rows into sends.
 
-// ─── Rows and facts (parsed at the boundary from private.claim_messages / message_facts) ──
+// ─── Rows and facts (parsed at the boundary from public.claim_messages / message_facts) ───
 
 type Channel = 'email' | 'sms' | 'push';
 type MessageKind = 'heads_up' | 'reminder' | 'overdue_notice' | 'alert' | 'all_clear';
@@ -32,7 +32,7 @@ type ProfileDetails = {
 };
 
 /**
- * What a template may say. Built by private.message_facts at send time.
+ * What a template may say. Built by public.message_facts at send time.
  * The full Adventurer Profile exists only on `kind: 'alert'`, so a Heads-up or All-clear
  * template that tries to print the phone number or medical notes does not compile.
  */
@@ -84,7 +84,10 @@ type Sender = (to: string, message: Rendered, idempotencyKey: string) => Promise
 
 /** Local: SMTP to the Mailpit container (supabase_inbucket_barry-local). Production: provider HTTP API with Idempotency-Key. */
 declare function emailSender(env: { mode: 'smtp' | 'resend' }): Sender;
-/** Expo push API. DeviceNotRegistered -> 'failed' and delete the push_devices row. */
+/**
+ * Expo push API. Accepted by Expo -> 'sent'. DeviceNotRegistered -> 'failed'.
+ * v1 reads no delivery receipts and removes no expired tokens.
+ */
 declare function expoPushSender(): Sender;
 /**
  * No sms row is created while private.channel_config has sms disabled. This sender exists
@@ -106,6 +109,14 @@ export function senders(): Record<Channel, Sender> {
 
 type Health = { clockOk: boolean; adventuresOk: boolean; outboxOk: boolean; detail: string };
 
+/**
+ * Backed by supabase-js with SUPABASE_SERVICE_ROLE_KEY. Each method is one supabase.rpc() call
+ * to a public function that only service_role may execute. No direct Postgres connection.
+ *   claimMessages -> rpc('claim_messages', { p_limit })
+ *   messageFacts  -> rpc('message_facts', { p_message_id })
+ *   settle        -> rpc('settle_message', { p_id, p_attempt, p_outcome, p_provider_ref, p_reason, p_retry_after })
+ *   health        -> rpc('health')
+ */
 type Db = {
   claimMessages(limit: number): Promise<ClaimedMessage[]>;
   messageFacts(id: number): Promise<MessageFacts>;
@@ -115,7 +126,7 @@ type Db = {
 
 /**
  * Invoked by pg_net: after every command that enqueued messages, and after every tick
- * (every 30 s). Overlapping invocations are safe: claims use FOR UPDATE SKIP LOCKED.
+ * (every minute). Overlapping invocations are safe: claims use FOR UPDATE SKIP LOCKED.
  * Auth: Authorization: Bearer DELIVER_SECRET (constant-time compare), else 401.
  */
 export async function deliver(db: Db, send: Record<Channel, Sender>, heartbeat: (ok: boolean, detail: string) => Promise<void>): Promise<void> {
