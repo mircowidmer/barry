@@ -35,7 +35,7 @@ This puts a development build of Barry on a real iPhone. The app talks to the Su
    ```
 
 5. The first time only, trust the certificate on the iPhone. Open **Settings > General > VPN & Device Management**, tap **Apple Development: mirco.widmer@nxt-engineering.com**, and tap **Trust**. Until then iOS refuses to open Barry and step 4 ends with `profile has not been explicitly trusted by the user`.
-6. Open Barry. Allow **Local Network** when it asks; without it the app cannot reach your Mac. If the development launcher shows a list of servers, tap the one on port 8081.
+6. Open Barry. Allow **Local Network** when it asks; without it the app cannot reach your Mac. If Barry shows the development launcher, tap the server on port 8081, or enter `http://Mirook.local:8081`.
 7. Sign in with the test account from `.env.local`, and allow location **Always** so the Trail records in the background.
 
 Later, to use the installed app again, start Supabase and Metro and open Barry:
@@ -46,6 +46,7 @@ npx expo start --dev-client
 
 ## Limits
 
+- While the cable is connected, `Mirook.local` resolves to the cable link, so Supabase traffic goes over the cable and Metro traffic goes over Wi-Fi.
 - Barry works only on the Wi-Fi your Mac is on, and only while the Mac is awake with Supabase and Metro running. On mobile data the app cannot reach the backend.
 - There are no push notifications on the iPhone. The build leaves them out. Barry still asks for notification permission, and then registers no device.
 - The Trail Map links in the emails open only on devices on the same Wi-Fi.
