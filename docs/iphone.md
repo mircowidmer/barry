@@ -44,10 +44,28 @@ Later, to use the installed app again, start Supabase and Metro and open Barry:
 npx expo start --dev-client
 ```
 
+## Install a Release build that runs without Metro
+
+A Release build carries Barry's JavaScript inside the app, so it opens without Metro. It still calls Supabase on your Mac, because `EXPO_PUBLIC_SUPABASE_URL` in `.env.local` is built into the bundle.
+
+1. Build with the iPhone connected and unlocked:
+
+   ```bash
+   xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release -destination 'platform=iOS,name=Mirone' -derivedDataPath ios/build -allowProvisioningUpdates build
+   ```
+
+2. Install it over the development build:
+
+   ```bash
+   xcrun devicectl device install app --device Mirone ios/build/Build/Products/Release-iphoneos/Barry.app
+   ```
+
+The Release build keeps the development build's sign-in and Trail, because both have the bundle identifier `support.barry`. A code change reaches it only through a new build. To go back to the development build, repeat step 4 of [Build and install](#build-and-install).
+
 ## Limits
 
 - While the cable is connected, `Mirook.local` resolves to the cable link, so Supabase traffic goes over the cable and Metro traffic goes over Wi-Fi.
-- Barry works only on the Wi-Fi your Mac is on, and only while the Mac is awake with Supabase and Metro running. On mobile data the app cannot reach the backend.
+- Barry works only on the Wi-Fi your Mac is on, and only while the Mac is awake with Supabase running. The development build also needs Metro. On mobile data the app cannot reach the backend.
 - There are no push notifications on the iPhone. The build leaves them out. Barry still asks for notification permission, because the Reminder and the Overdue Notice are local notifications that the app schedules on the phone. They arrive without push and without signal.
 - The Trail Map links in the emails open only on devices on the same Wi-Fi.
 - Text messages go to `scripts/sms-relay.mjs`, which prints them and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them, and [How to send real text messages](text-messages.md) sets up Twilio.
