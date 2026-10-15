@@ -618,7 +618,8 @@ Four runners (Opus, Fable, Sonnet, Haiku) produced candidates. A cross-judge on 
 
 ## Implementation reconciliation
 
-*Empty until implementation starts.*
+- **`record_trail` orders the batch by `taken_at` before the insert.** The design says the first reading in a minute wins. Without an order, `on conflict do nothing` inside one statement keeps whichever row the set happens to yield first. The order makes "first" mean the earliest fix (`supabase/migrations/20261015140000_trail.sql`).
+- **`message_facts` reads `trail_token` through a left join on `adventure_contacts`** instead of a scalar subquery per branch. The result is the same, null once the contact has left the Adventure.
 
 ## Open questions and risks
 

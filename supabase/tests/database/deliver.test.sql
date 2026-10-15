@@ -120,7 +120,7 @@ create function pg_temp.facts(p_address text, p_kind public.message_kind) return
 $$;
 
 select is(
-  pg_temp.facts('a@example.com', 'heads_up') - 'deadline',
+  pg_temp.facts('a@example.com', 'heads_up') - 'deadline' - 'trail_token',
   jsonb_build_object('kind', 'heads_up', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich',
     'plan', jsonb_build_object('destination', 'Grosser Mythen', 'route', 'East ridge', 'starting_point', null, 'notes', null)),
   'A Heads-up carries the name, the Plan and the Deadline, and nothing from the Profile'
