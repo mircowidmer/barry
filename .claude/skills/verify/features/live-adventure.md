@@ -25,7 +25,7 @@ Preconditions:
 
 - Baseline from the index.
 - `fixture.mjs live 120` created a live Adventure to `Pilatus` with `Luca`, Deadline in two hours, so a journey can start without the Plan screen.
-- The app was brought to the Adventure tab after the fixture, because the overview loads on focus: tap `Contacts` (201, 817), then `Adventure` (115, 817).
+- The app was brought to the Adventure tab after the fixture, because the overview loads on focus: tap `Contacts` (243, 820), then `Adventure` (73, 820).
 
 - **Countdown (`live-countdown`).** Open the Adventure tab. The top notice reads `Barry is watching. Check in by <weekday> <day> <month> at <HH:MM>, in 1 h 59 min` or similar, and the screen shows `Hold to check in`, `Need more time?` and `Edit Plan or contacts`.
 - **Short tap (`live-short-tap`).** Tap `Hold to check in` (201, 243) with `duration: 0.3`. The button may read `Keep holding…` while pressed. After release the screen still shows the countdown. `fixture.mjs state` still prints `adventure | active`.
