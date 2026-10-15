@@ -84,7 +84,7 @@ export default function ContactsScreen() {
           </Row>
         </Section>
       ))}
-      <Section title={draft.id ? `Edit ${draft.name || 'contact'}` : 'Add a contact'}>
+      <Section title={draft.id ? `Edit ${draft.name || 'contact'}` : 'Add a New Contact'}>
         <Field label="Name" value={draft.name} onChangeText={(name) => setDraft((d) => ({ ...d, name }))} />
         <Field
           label="Email"
