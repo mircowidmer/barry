@@ -1,6 +1,7 @@
-import 'expo-sqlite/localStorage/install';
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
+
+import { storage } from '@/lib/storage';
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -19,7 +20,7 @@ export const supabase = createClient(
   {
     global: { fetch: fetchWithTimeout },
     auth: {
-      storage: localStorage,
+      storage,
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,

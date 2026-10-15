@@ -6,13 +6,11 @@ export const TRAIL_FENCE_TASK = 'barry.trail.fence';
 
 const FENCE_MOVE_M = 50;
 
-/** Every OS effect of the Trail. The real one wraps expo-location; tests pass a fake. */
 export type LocationService = {
   backgroundPermitted(): Promise<boolean>;
   requestBackground(): Promise<boolean>;
   startUpdates(): Promise<void>;
   stopUpdates(): Promise<void>;
-  /** null stops geofencing. */
   setFence(center: Position | null): Promise<void>;
   lastReading(): Promise<Position | null>;
 };
@@ -23,13 +21,11 @@ export type TrailDeps = {
   location: LocationService;
   buffer: TrailBuffer;
   signedIn(): Promise<boolean>;
-  /** The Adventure the phone last saw in progress. */
   inProgressId(): AdventureId | null;
   checkInQueued(id: AdventureId): boolean;
   recordTrail(id: AdventureId, batch: readonly Position[]): Promise<RecordTrailResponse>;
 };
 
-// An auth error must never cost readings: an expired session in the background is refreshed later.
 export const trailOutcome = ({ data, error }: RecordTrailResponse): TrailSendOutcome =>
   error ? 'retry' : data === null ? 'accepted' : 'refused';
 
@@ -92,9 +88,7 @@ export const createTrail = ({
   const quietly = async (work: () => Promise<unknown>) => {
     try {
       await work();
-    } catch {
-      // A task body never throws: the next wake, sync or foreground flush catches up.
-    }
+    } catch {}
   };
 
   return {

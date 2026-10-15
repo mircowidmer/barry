@@ -173,8 +173,6 @@ select is(
   'Deleting the account deletes its contacts'
 );
 
--- The Trail Map page, with no account.
-
 select is(
   (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')),

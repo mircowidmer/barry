@@ -1,14 +1,10 @@
 import type { AdventureId, Position } from './types';
 
-/** What uploading one batch did: stored, refused because the Adventure is over, or try again later. */
 export type TrailSendOutcome = 'accepted' | 'refused' | 'retry';
 
 export type TrailBuffer = {
-  /** Saves the readings before anything is sent. Keeps the first reading per UTC minute per Adventure. */
   add(adventureId: AdventureId, readings: readonly Position[]): void;
-  /** Sends oldest first in batches. Concurrent callers share one run. Stops at the first retry. */
   flush(send: (adventureId: AdventureId, batch: readonly Position[]) => Promise<TrailSendOutcome>): Promise<void>;
-  /** Forgets every Adventure except the one given. */
   keepOnly(adventureId: AdventureId | null): void;
   newest(adventureId: AdventureId): Position | null;
 };
@@ -17,7 +13,6 @@ const KEY = 'barry.trailBuffer';
 const BATCH = 200;
 const MAX_MINUTES = 1440;
 
-/** The same bucket as the minute column of position_readings, so the phone and the index agree. */
 export const minuteKey = (reading: Pick<Position, 'takenAt'>): string => reading.takenAt.toISOString().slice(0, 16);
 
 type Stored = { t: string; lat: number; lon: number; acc: number | null };
