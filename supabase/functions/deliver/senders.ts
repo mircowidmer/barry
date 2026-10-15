@@ -19,7 +19,7 @@ const fromHttpStatus = (status: number, detail: string): SendResult =>
     ? { outcome: 'retry', reason: `HTTP ${status}: ${detail}` }
     : { outcome: 'failed', reason: `HTTP ${status}: ${detail}` };
 
-// Mailpit's send API locally. A hosted email provider replaces this sender, not its callers.
+// Mailpit's send API, for local development.
 const mailpitEmail: Sender = async (to, message, messageId) => {
   const response = await fetch(env('EMAIL_API_URL'), {
     method: 'POST',
@@ -73,8 +73,33 @@ export const twilioSms = (config: () => TwilioConfig): Sender => async (to, mess
   return { outcome: 'sent', providerRef: typeof body.sid === 'string' ? body.sid : null };
 };
 
+export type ResendConfig = { apiUrl: string; apiKey: string; from: string };
+
+// The idempotency key is per message, so a retry after a lost response never sends a second email.
+export const resendEmail = (config: () => ResendConfig): Sender => async (to, message, messageId) => {
+  const { apiUrl, apiKey, from } = config();
+  const response = await fetch(`${apiUrl}/emails`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      'content-type': 'application/json',
+      'idempotency-key': `barry-message-${messageId}`,
+    },
+    body: JSON.stringify({ from: `Barry <${from}>`, to: [to], subject: message.subject, text: message.text }),
+  });
+  const body = parseJson(await response.text());
+  if (!response.ok) return fromHttpStatus(response.status, `Resend ${body.name ?? 'error'}: ${body.message ?? response.statusText}`);
+  return { outcome: 'sent', providerRef: typeof body.id === 'string' ? body.id : null };
+};
+
+const resend = resendEmail(() => ({
+  apiUrl: Deno.env.get('RESEND_API_URL') ?? 'https://api.resend.com',
+  apiKey: env('RESEND_API_KEY'),
+  from: env('EMAIL_FROM'),
+}));
+
 export const senders: Record<Channel, Sender> = {
-  email: mailpitEmail,
+  email: (to, message, messageId) => (Deno.env.get('RESEND_API_KEY') ? resend : mailpitEmail)(to, message, messageId),
   sms: twilioSms(() => ({
     apiUrl: Deno.env.get('TWILIO_API_URL') ?? 'https://api.twilio.com',
     accountSid: env('TWILIO_ACCOUNT_SID'),
