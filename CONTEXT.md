@@ -1,0 +1,88 @@
+# Barry
+
+Barry watches over people who go on outdoor outings alone. If an Adventurer fails to check in by the Deadline they set, Barry alerts the people they chose.
+
+## Language
+
+### People
+
+**Adventurer**:
+A Barry user who plans Adventures and checks in from them.
+_Avoid_: User, hiker, member
+
+**Emergency Contact**:
+A person in an Adventurer's saved list, reachable by phone number, email, or both. They don't need Barry or an account. Each Adventure uses some of them.
+_Avoid_: Watcher, guardian, buddy, friend
+
+### Adventures
+
+**Adventure**:
+One solo outing an Adventurer plans in Barry, with a Plan and a Deadline. An Adventurer has at most one Active, Overdue or Alerted Adventure at a time.
+_Avoid_: Trip, outing, tour, activity
+
+**Plan**:
+What an Adventure records about the outing: destination, route, starting point such as where the car is parked, and free-text notes.
+_Avoid_: Itinerary, details
+
+**Deadline**:
+The time by which the Adventurer must Check In before Barry raises an Alert.
+_Avoid_: Due time, return time, ETA
+
+**Grace Period**:
+The wait after a missed Deadline before Barry raises the Alert.
+_Avoid_: Buffer, timeout
+
+**Check-in**:
+The Adventurer's single confirmation that they are back safe, which ends the Adventure.
+_Avoid_: Ping, heartbeat, check-out
+
+**Last Known Position**:
+The Adventurer's most recent location reading, taken when they start an Adventure or move its Deadline.
+_Avoid_: Location, GPS fix, track
+
+### Adventure Stages
+
+**Planned**:
+An Adventure that is saved but not started.
+
+**Active**:
+A started Adventure whose Deadline has not passed.
+_Avoid_: Running, live, in progress
+
+**Overdue**:
+An Adventure whose Deadline has passed and whose Grace Period is still running. Nobody has been told yet.
+_Avoid_: Late, missed
+
+**Alerted**:
+An Adventure whose Alert has gone out.
+_Avoid_: Escalated, emergency
+
+**Ended**:
+An Adventure the Adventurer has checked in from.
+_Avoid_: Closed, finished, completed, cancelled
+
+### Messages
+
+**Reminder**:
+A push notification to the Adventurer shortly before the Deadline.
+_Avoid_: Warning, nudge
+
+**Heads-up**:
+The message to an Adventure's Emergency Contacts when it starts, carrying the Plan and the Deadline.
+_Avoid_: Start notification, invite
+
+**Alert**:
+The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan and the Last Known Position.
+_Avoid_: Notification, alarm, SOS
+
+**All-clear**:
+The message to alerted Emergency Contacts when the Adventurer checks in after an Alert.
+_Avoid_: Cancellation, resolution
+
+**Overdue Notice**:
+A push notification to the Adventurer when their Deadline passes, saying when the Alert will go out.
+_Avoid_: Second reminder, warning
+
+**Delivery Failure**:
+A Heads-up, Alert or All-clear that could not be delivered to an Emergency Contact, which Barry shows to the Adventurer.
+_Avoid_: Bounce, error
