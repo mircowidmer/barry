@@ -23,9 +23,9 @@ const profile = {
   medical_notes: 'Type 1 diabetic',
 };
 
-Deno.test('formatTime names the time zone', () => {
-  assertEquals(formatTime(new Date('2026-10-17T16:00:00Z'), 'Europe/Zurich'), 'Sat 17 Oct, 18:00 Zurich time');
-  assertEquals(formatTime(new Date('2026-10-17T16:00:00Z'), 'America/New_York'), 'Sat 17 Oct, 12:00 New York time');
+Deno.test('formatTime shows the time in the given time zone', () => {
+  assertEquals(formatTime(new Date('2026-10-17T16:00:00Z'), 'Europe/Zurich'), 'Sat 17 Oct, 18:00');
+  assertEquals(formatTime(new Date('2026-10-17T16:00:00Z'), 'America/New_York'), 'Sat 17 Oct, 12:00');
 });
 
 Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Profile', () => {
@@ -40,7 +40,7 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
       'Route: East ridge',
       'Starting point: Brunni car park',
       '',
-      'If Anna has not checked in by Sat 17 Oct, 18:00 Zurich time, Barry will message you again.',
+      'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
       "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
@@ -63,13 +63,13 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
   assertEquals(
     text,
     [
-      'Anna has not checked in from an Adventure. The Deadline was Sat 17 Oct, 18:00 Zurich time.',
+      'Anna has not checked in from an Adventure. The Deadline was Sat 17 Oct, 18:00.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
       'Starting point: Brunni car park',
       '',
-      'Last Known Position at Sat 17 Oct, 14:12 Zurich time: 47.03000, 8.68000 (within 12 m)',
+      'Last Known Position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
       'Map: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68',
       "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
       '',
@@ -93,14 +93,14 @@ Deno.test('the Overdue Notice says when the Alert goes out', () => {
   const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:30:00Z' }), links);
   assertEquals(
     text,
-    'Your Deadline for Grosser Mythen was Sat 17 Oct, 18:00 Zurich time. Barry alerts your Emergency Contacts at Sat 17 Oct, 18:30 Zurich time unless you check in.',
+    'Your Deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your Emergency Contacts at Sat 17 Oct, 18:30 unless you check in.',
   );
 });
 
 Deno.test('the All-clear gives the Check-in time', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links);
   assertEquals(subject, 'Anna is back safe');
-  assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05 Zurich time.');
+  assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05.');
 });
 
 Deno.test('without a link base or a token the Heads-up and the Alert go out without the Trail Map line', () => {

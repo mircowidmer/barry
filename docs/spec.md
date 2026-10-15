@@ -118,7 +118,7 @@ Barry sends every message from Supabase. The phone never sends a message to an E
 - The Grace Period is 1 minute. The Reminder lead time is 30 minutes. The Adventurer cannot change either value.
 - If the Adventurer sets a Deadline less than 30 minutes ahead, at Start or with a move, Barry sends no Reminder for it. The Overdue Notice still goes out.
 - The Last Known Position in an Alert gives the time of the reading, the coordinates, and a map link.
-- Every time in a message names its time zone, for example "18:00 Zurich time". Barry uses the Adventurer's time zone at Start.
+- Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".
 - An Alert states facts only. It gives no guidance on what to do.
 - Messages are in English. All message text is kept in one place so that other languages can be added.
 - After the third Alert, Barry sends nothing more. The Adventure stays Alerted until the Adventurer checks in.
