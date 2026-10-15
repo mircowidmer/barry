@@ -47,6 +47,7 @@ Preconditions:
 - The iOS 27 simulator refuses geofencing (`startGeofencingAsync` throws). The relaunch after a force-quit cannot be verified here; it needs a real iPhone. Report it as unverified.
 - `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's 60-second refresh.
 - `fixture.mjs live` inserts the Adventure without `start_adventure`, so there is no `start` reading. A Check-in then leaves no readings at all.
-- After an app restart Barry has once flooded `record_trail` (about 36 calls a second, every reply `null`) while storing no readings, and a terminate plus launch cleared it. It did not recur in a later restart, clear and walk run, so the cause is unknown. Check with `docker logs --since 60s supabase_kong_barry-local | grep -c rpc/record_trail`: a normal walk makes about 8 calls a minute. If it floods, terminate and launch Barry, and report it.
+- Count uploads with `docker logs --since 60s supabase_kong_barry-local | grep -c rpc/record_trail`. A walk makes at most one call per new 10-second slot, about 6 a minute, and never more calls than new readings. More calls than readings means Barry sends slots it already sent again.
+- A launch on a live Adventure the app has not saved yet, as after `fixture.mjs live`, must start recording without HOME and a relaunch. If the status bar shows no location arrow and the count stays at 0, the Trail missed the Adventure.
 - Background uploads were verified within the session token's first hour only. An expired token during a background wake is unverified.
 - The Trail Map URL in messages comes from `TRAIL_MAP_URL` in `supabase/config.toml`. The edge runtime reads it at start, so a change needs `npx supabase stop` and `npx supabase start`.
