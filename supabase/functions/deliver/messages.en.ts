@@ -36,9 +36,9 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
   switch (facts.kind) {
     case 'heads_up':
       return {
-        subject: `${name} is heading out to ${facts.plan.destination}`,
+        subject: `🐶 ${name} is heading out to ${facts.plan.destination}`,
         text: lines(
-          `${name} is going on an Adventure alone and chose you as an Emergency Contact on Barry.`,
+          `${name} is going on an adventure alone and chose you as an Emergency Contact on Barry. Barry is the watchdog here: he only barks if ${name} does not check in in time.`,
           '',
           ...planLines(facts.plan),
           '',
@@ -50,9 +50,9 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
 
     case 'plan_update':
       return {
-        subject: `${name} changed the Plan for ${facts.plan.destination}`,
+        subject: `🐶 ${name} changed the Plan for ${facts.plan.destination}`,
         text: lines(
-          `${name} changed the Plan of the Adventure you are an Emergency Contact for.`,
+          `${name} changed the Plan, and Barry has sniffed out the new details.`,
           '',
           ...planLines(facts.plan),
           '',
@@ -87,8 +87,8 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
             : `${name} has still not checked in (Alert ${facts.round} of 3)`,
         text: lines(
           facts.round === 1
-            ? `${name} has not checked in from an Adventure. The Deadline was ${time(facts.deadline)}.`
-            : `${name} has still not checked in from an Adventure (Alert ${facts.round} of 3). The Deadline was ${time(facts.deadline)}.`,
+            ? `${name} has not checked in from an adventure. The Deadline was ${time(facts.deadline)}.`
+            : `${name} has still not checked in from an adventure (Alert ${facts.round} of 3). The Deadline was ${time(facts.deadline)}.`,
           '',
           ...planLines(facts.plan),
           '',
@@ -109,8 +109,8 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
 
     case 'all_clear':
       return {
-        subject: `${name} is back safe`,
-        text: `${name} checked in safely at ${time(facts.checkedInAt)}.`,
+        subject: `🐶 ${name} is back safe`,
+        text: `${name} checked in safely at ${time(facts.checkedInAt)}. Barry can stop worrying, and so can you.`,
       };
   }
 };

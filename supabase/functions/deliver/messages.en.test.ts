@@ -30,11 +30,11 @@ Deno.test('formatTime shows the time in the given time zone', () => {
 
 Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Profile', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links);
-  assertEquals(subject, 'Anna is heading out to Grosser Mythen');
+  assertEquals(subject, '🐶 Anna is heading out to Grosser Mythen');
   assertEquals(
     text,
     [
-      'Anna is going on an Adventure alone and chose you as an Emergency Contact on Barry.',
+      'Anna is going on an adventure alone and chose you as an Emergency Contact on Barry. Barry is the watchdog here: he only barks if Anna does not check in in time.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
@@ -49,11 +49,11 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
 
 Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map link', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links);
-  assertEquals(subject, 'Anna changed the Plan for Grosser Mythen');
+  assertEquals(subject, '🐶 Anna changed the Plan for Grosser Mythen');
   assertEquals(
     text,
     [
-      'Anna changed the Plan of the Adventure you are an Emergency Contact for.',
+      'Anna changed the Plan, and Barry has sniffed out the new details.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
@@ -82,7 +82,7 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
   assertEquals(
     text,
     [
-      'Anna has not checked in from an Adventure. The Deadline was Sat 17 Oct, 18:00.',
+      'Anna has not checked in from an adventure. The Deadline was Sat 17 Oct, 18:00.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
@@ -105,7 +105,7 @@ Deno.test('a later Alert says which round it is, and a missing position says so'
     links,
   );
   assertEquals(subject, 'Anna has still not checked in (Alert 2 of 3)');
-  assertStringIncludes(text, 'Anna has still not checked in from an Adventure (Alert 2 of 3).');
+  assertStringIncludes(text, 'Anna has still not checked in from an adventure (Alert 2 of 3).');
   assertStringIncludes(text, 'Last Known Position: not recorded');
 });
 
@@ -119,8 +119,8 @@ Deno.test('the Overdue Notice says when the Alert goes out', () => {
 
 Deno.test('the All-clear gives the Check-in time', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links);
-  assertEquals(subject, 'Anna is back safe');
-  assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05.');
+  assertEquals(subject, '🐶 Anna is back safe');
+  assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05. Barry can stop worrying, and so can you.');
 });
 
 Deno.test('without a link base or a token the Heads-up and the Alert go out without the Trail Map line', () => {
