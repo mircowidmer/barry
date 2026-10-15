@@ -47,3 +47,4 @@ example
 
 # Twilio and other secrets for the local Supabase stack
 supabase/.env
+supabase/.env.hosted
