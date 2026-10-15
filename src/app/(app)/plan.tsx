@@ -1,7 +1,8 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Platform, Pressable, View } from 'react-native';
+import { SymbolView } from 'expo-symbols';
+import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
@@ -241,7 +242,7 @@ function PlanForm({
             You have no contacts yet. Add them in the Contacts tab.
           </ThemedText>
         )}
-        {data.contacts.map((c) => {
+        {data.contacts.map((c, i) => {
           const chosen = form.contactIds.includes(c.id);
           return (
             <Pressable
@@ -250,17 +251,23 @@ function PlanForm({
               accessibilityState={{ checked: chosen }}
               accessibilityLabel={c.name}
               onPress={() => toggle(c.id)}
-              style={{
-                padding: 12,
-                borderRadius: 8,
-                backgroundColor: chosen ? theme.backgroundSelected : theme.background,
-              }}>
-              <ThemedText>
-                {chosen ? '☑' : '☐'} {c.name}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {[c.email, c.phone].filter(Boolean).join(' · ')}
-              </ThemedText>
+              style={({ pressed }) => [styles.contact, pressed && { opacity: 0.5 }]}>
+              <SymbolView
+                name={chosen ? 'checkmark.circle.fill' : 'circle'}
+                tintColor={chosen ? theme.accent : theme.textSecondary}
+                size={24}
+                fallback={<ThemedText style={{ color: chosen ? theme.accent : theme.textSecondary }}>{chosen ? '●' : '○'}</ThemedText>}
+              />
+              <View
+                style={[
+                  styles.contactText,
+                  i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.backgroundSelected },
+                ]}>
+                <ThemedText>{c.name}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+                  {[c.email, c.phone].filter(Boolean).join(' · ')}
+                </ThemedText>
+              </View>
             </Pressable>
           );
         })}
@@ -291,3 +298,8 @@ function PlanForm({
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  contact: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  contactText: { flex: 1, paddingVertical: 10, gap: 2 },
+});
