@@ -53,7 +53,7 @@ export default function HistoryScreen() {
       )}
       {inProgress && (
         <>
-          <ThemedText type="smallBold">Now</ThemedText>
+          <ThemedText type="smallBold">Current Adventure</ThemedText>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Open ${inProgress.plan.destination}`}
