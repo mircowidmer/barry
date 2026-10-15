@@ -226,7 +226,7 @@ function LiveAdventure({
         <ThemedText type="small">Contacts: {adventure.contacts.map((c) => c.name).join(', ')}</ThemedText>
         {adventure.stage !== 'alerted' && (
           <Button
-            title="Edit Plan or contacts"
+            title="Edit Plan or Contacts"
             kind="secondary"
             onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}
           />
