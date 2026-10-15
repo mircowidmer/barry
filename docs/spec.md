@@ -153,6 +153,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. After the first Alert, it shows that the Adventure is Alerted.
 - After the Check-in, the page shows the time of the Check-in and no positions.
+- The link never expires. After the Check-in it keeps showing the Check-in time for as long as the Adventurer's account exists.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.
 - The page is a web route of the Expo app, served by EAS Hosting. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
