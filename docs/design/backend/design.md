@@ -241,6 +241,11 @@ The user answered the open questions on 2026-10-15:
   - `facts.ts` parses the `message_facts` JSON into the typed `MessageFacts` union. `formatTime` builds the time from date parts, because the Edge runtime and Deno on macOS punctuate `Intl` output differently.
   - Local settings live in `config.toml` under `[edge_runtime.secrets]`, and the two Vault secrets in `supabase/seed.sql`. The hosted project sets its own.
   - Not yet proven: the heartbeat ping, because no Healthchecks.io URL is set locally, and the push sender, because no real device is registered.
+- The client module is implemented in `src/lib/barry/`, with Jest tests for row parsing, the offline Check-in queue and the Start warnings. `public.enabled_channels()` is in `supabase/migrations/20261015085353_enabled_channels.sql`. The screens drove a full Adventure in the iOS simulator through Expo Go: sign-up, Profile, two contacts, Start with the warnings, a Deadline move, an Alert that reached the screen through Realtime, and a press-and-hold Check-in that sent the All-clear. Deviations, accepted in this session:
+  - The sketch's single `barry.ts` is a folder. `types.ts`, `rows.ts`, `check-in-queue.ts` and `warnings.ts` hold logic that runs without a phone. `client.ts` builds the API from injected effects, and `index.ts` wires the real ones. Screens import only `@/lib/barry`.
+  - `startWarnings(id)` became `barry.startConditions()` plus a pure `startWarnings(contacts, conditions)`. The Plan screen computes the warnings from the contacts selected on screen, so an Adventure that has not been saved yet also shows them.
+  - The app does not register for push yet. `expo-notifications` needs a development build and project credentials, so every Start warns that there will be no Reminder or Overdue Notice. `registerPushDevice` waits for that step.
+  - `StartResult` and `MoveDeadlineResult` carry an `InProgressAdventure`, because a retried Start can find the Adventure already Overdue.
 
 ## Open questions and risks
 
