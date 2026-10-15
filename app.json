@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Barry",
-    "slug": "barry-local",
+    "slug": "barry",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -58,9 +58,13 @@
     },
     "owner": "mircowidmer",
     "extra": {
-      "router": {},
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
       "eas": {
-        "projectId": "8e4c8a43-b9c9-4c00-b4fd-2ec84c6051fc"
+        "projectId": "8fed6e1c-eaeb-41ea-ba83-eb841d3b08ee"
       }
     }
   }
