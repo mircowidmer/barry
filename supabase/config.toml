@@ -244,6 +244,11 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# The hosted project's dashboard holds its own copy: Authentication > Emails > Templates > Confirm signup.
+[auth.email.template.confirmation]
+subject = "Confirm your email for Barry"
+content_path = "./supabase/templates/confirmation.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

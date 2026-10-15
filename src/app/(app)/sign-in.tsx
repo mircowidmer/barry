@@ -47,7 +47,7 @@ export default function SignInScreen() {
         textContentType="password"
       />
       {error && <Notice tone="danger">{error}</Notice>}
-      {confirmEmail && <Notice>Confirm your email address with the link Supabase sent you, then sign in.</Notice>}
+      {confirmEmail && <Notice>Confirm your email address with the link Barry sent you, then sign in.</Notice>}
       <Button title="Sign in" onPress={() => submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
       <Button
         title="Create account"
