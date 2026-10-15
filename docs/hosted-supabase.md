@@ -19,15 +19,37 @@ npx supabase db push
 npx supabase functions deploy deliver
 ```
 
-## Do not upload the local secrets
+## Set the secrets with the script
 
-`npx supabase secrets set` also uploads every entry of `[edge_runtime.secrets]` in `supabase/config.toml`, including the local-only `EMAIL_API_URL`, `EMAIL_FROM` and `TWILIO_API_URL`. After any `secrets set`, remove them again:
+Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[edge_runtime.secrets]` in `supabase/config.toml`, including the local `DELIVER_SECRET`, which makes `deliver` refuse the clock, and `TWILIO_API_URL`, which sends text messages to the local relay's address.
 
-```bash
-npx supabase secrets unset TWILIO_API_URL EMAIL_API_URL EMAIL_FROM
-```
+1. Put the hosted values in `supabase/.env.hosted`, which git ignores:
 
-With `TWILIO_API_URL` left in place, hosted text messages go to the local relay's address and fail. `DELIVER_SECRET` in `config.toml` is the local value too, so set the hosted one in the same call, or the clock's calls to `deliver` get refused.
+   ```
+   TRAIL_MAP_URL=https://mircowidmer.github.io/barry/trail
+   RESEND_API_KEY=re_...
+   EMAIL_FROM=barry@your-verified-domain
+   TWILIO_ACCOUNT_SID=AC...
+   TWILIO_AUTH_TOKEN=...
+   TWILIO_FROM=Barry
+   ```
+
+2. From the linked checkout, run:
+
+   ```bash
+   node scripts/hosted-secrets.mjs
+   ```
+
+The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO_API_URL`, and rotates `DELIVER_SECRET` in the function secrets and the Vault together. It prints secret names only, and exits with an error if a value did not land.
+
+## Set up Resend
+
+`deliver` sends email through Resend when `RESEND_API_KEY` is set, and through Mailpit otherwise.
+
+1. Create an account at resend.com.
+2. Under **Domains**, add a domain you control, such as `barry.example.ch`, and add the DNS records Resend shows at your DNS provider. Until the domain shows **Verified**, Resend sends only to your own address and refuses every Emergency Contact.
+3. Under **API Keys**, create a key with **Sending access**, limited to that domain.
+4. Put the key in `RESEND_API_KEY` and an address on the verified domain, such as `barry@barry.example.ch`, in `EMAIL_FROM` in `supabase/.env.hosted`, then run the script.
 
 ## Check that it runs
 
@@ -39,7 +61,7 @@ All three values are `true` when the clock ticked in the last two minutes and me
 
 ## Not done yet
 
-- Email. `deliver` sends email only through Mailpit's local API, so every hosted email fails until a real provider's sender is added.
+- Email. Hosted email fails until `RESEND_API_KEY` and `EMAIL_FROM` are set with the script.
 - Text messages. The Twilio account is a trial, which sends only template messages, so hosted text messages fail until it is upgraded.
 - Sign-up. Hosted Auth asks new accounts to confirm their email, and its built-in email service sends only to members of the Supabase team.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.
