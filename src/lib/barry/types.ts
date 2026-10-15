@@ -139,7 +139,8 @@ export type Barry = {
 
   deliveryFailures(id: AdventureId): Promise<DeliveryFailure[]>;
   /** Every reading of the Adventure, oldest first, from Start, Deadline moves and the Trail. */
-  readings(id: AdventureId): Promise<Position[]>;
+  /** Oldest first. With `after`, only the readings taken after it. */
+  readings(id: AdventureId, after?: Date): Promise<Position[]>;
   watchAdventure(id: AdventureId, onChange: (adventure: Adventure) => void): () => void;
 
   trail: Trail;

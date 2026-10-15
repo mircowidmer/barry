@@ -355,12 +355,9 @@ export const createBarry = ({
       );
     },
 
-    readings: async (id) => {
-      const { data, error } = await supabase
-        .from('position_readings')
-        .select(POSITION_SELECT)
-        .eq('adventure_id', id)
-        .order('taken_at');
+    readings: async (id, after) => {
+      const query = supabase.from('position_readings').select(POSITION_SELECT).eq('adventure_id', id);
+      const { data, error } = await (after ? query.gt('taken_at', after.toISOString()) : query).order('taken_at');
       if (error) fail('readings', error);
       return (data ?? []).map(parsePosition);
     },
