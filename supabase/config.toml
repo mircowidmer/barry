@@ -383,8 +383,13 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+DELIVER_SECRET = "local-deliver-secret"
+EMAIL_API_URL = "http://supabase_inbucket_barry-local:8025/api/v1/send"
+EMAIL_FROM = "barry@localhost"
+
+[functions.deliver]
+verify_jwt = false
 
 [analytics]
 enabled = true
