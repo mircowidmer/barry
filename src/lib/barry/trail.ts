@@ -9,7 +9,7 @@ const FENCE_MOVE_M = 50;
 export type LocationService = {
   backgroundPermitted(): Promise<boolean>;
   requestBackground(): Promise<boolean>;
-  startUpdates(): Promise<void>;
+  startUpdates(mode: Exclude<TrailStatus, 'off'>): Promise<void>;
   stopUpdates(): Promise<void>;
   setFence(center: Position | null): Promise<void>;
   lastReading(): Promise<Position | null>;
@@ -22,9 +22,20 @@ export type TrailDeps = {
   buffer: TrailBuffer;
   signedIn(): Promise<boolean>;
   inProgressId(): AdventureId | null;
-  checkInQueued(id: AdventureId): boolean;
+  pendingCheckIn(): boolean;
+  flushCheckIns(): Promise<void>;
   recordTrail(id: AdventureId, batch: readonly Position[]): Promise<RecordTrailResponse>;
 };
+
+export type TrailFacts = {
+  signedIn: boolean;
+  permitted: boolean;
+  pendingCheckIn: boolean;
+  inProgressId: AdventureId | null;
+};
+
+export const trailMode = ({ signedIn, permitted, pendingCheckIn, inProgressId }: TrailFacts): TrailStatus =>
+  !signedIn || !permitted ? 'off' : pendingCheckIn ? 'delivering' : inProgressId ? 'recording' : 'off';
 
 export const trailOutcome = ({ data, error }: RecordTrailResponse): TrailSendOutcome =>
   error ? 'retry' : data === null ? 'accepted' : 'refused';
@@ -49,22 +60,20 @@ export const createTrail = ({
   buffer,
   signedIn,
   inProgressId,
-  checkInQueued,
+  pendingCheckIn,
+  flushCheckIns,
   recordTrail,
 }: TrailDeps): Trail => {
   let fence: Position | null = null;
 
   const flush = () => buffer.flush(async (id, batch) => trailOutcome(await recordTrail(id, batch)));
 
-  const liveId = async (): Promise<AdventureId | null> => {
-    const id = inProgressId();
-    return id && !checkInQueued(id) && (await signedIn()) ? id : null;
-  };
-
-  const recordingFor = async (): Promise<AdventureId | null> => {
-    const id = await liveId();
-    return id && (await location.backgroundPermitted()) ? id : null;
-  };
+  const facts = async (): Promise<TrailFacts> => ({
+    signedIn: await signedIn(),
+    permitted: await location.backgroundPermitted(),
+    pendingCheckIn: pendingCheckIn(),
+    inProgressId: inProgressId(),
+  });
 
   // The fence only brings the Trail back after a force-quit. When iOS refuses it, recording and
   // uploading go on without it.
@@ -76,14 +85,16 @@ export const createTrail = ({
   };
 
   const sync = async (): Promise<TrailStatus> => {
-    const id = await recordingFor();
-    if (id) await location.startUpdates();
-    else await location.stopUpdates();
-    buffer.keepOnly(await liveId());
+    const now = await facts();
+    const mode = trailMode(now);
+    if (mode === 'off') await location.stopUpdates();
+    else await location.startUpdates(mode);
+    buffer.keepOnly(now.signedIn && !now.pendingCheckIn ? now.inProgressId : null);
+    const id = mode === 'recording' ? now.inProgressId : null;
     const center = id ? buffer.newest(id) : null;
     await flush();
     await moveFence(id ? (center ?? (await location.lastReading())) : null);
-    return id ? 'recording' : 'off';
+    return mode;
   };
 
   const quietly = async (work: () => Promise<unknown>) => {
@@ -92,14 +103,21 @@ export const createTrail = ({
     } catch {}
   };
 
+  const wake = async (): Promise<AdventureId | null> => {
+    const now = await facts();
+    const mode = trailMode(now);
+    if (mode === 'delivering') await flushCheckIns().catch(() => undefined);
+    return mode === 'recording' ? now.inProgressId : null;
+  };
+
   return {
     sync,
-    status: async () => ((await recordingFor()) ? 'recording' : 'off'),
+    status: async () => trailMode(await facts()),
     requestPermission: () => location.requestBackground(),
 
     onLocations: (locations) =>
       quietly(async () => {
-        const id = await recordingFor();
+        const id = await wake();
         if (!id) {
           await sync();
           return;
@@ -112,7 +130,7 @@ export const createTrail = ({
 
     onFenceExit: () =>
       quietly(async () => {
-        const id = await recordingFor();
+        const id = await wake();
         const reading = id ? await location.lastReading() : null;
         if (id && reading) buffer.add(id, [reading]);
         await sync();

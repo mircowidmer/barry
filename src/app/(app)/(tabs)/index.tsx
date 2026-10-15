@@ -128,7 +128,7 @@ function LiveAdventure({
   onChanged: () => void;
 }) {
   const now = useNow();
-  const trail = useTrailStatus();
+  const trail = useTrailStatus(queuedAt);
   const [adventure, setAdventure] = useState<Adventure>(initial);
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
@@ -204,7 +204,12 @@ function LiveAdventure({
       )}
       {trail === 'recording' && <Notice>Barry is recording your Trail. Closing Barry stops the Trail.</Notice>}
       {trail === 'off' && <Notice>Barry can share only where you started.</Notice>}
-      {queuedAt && <Notice tone="warning">Check-in from {formatWhen(queuedAt)} is waiting for signal.</Notice>}
+      {queuedAt && (
+        <Notice tone="warning">
+          Check-in from {formatWhen(queuedAt)} is waiting for signal.
+          {trail === 'delivering' && ' Barry keeps trying in the background.'}
+        </Notice>
+      )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
       <HoldButton title="Hold to check in" onComplete={checkIn} />

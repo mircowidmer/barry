@@ -109,12 +109,20 @@ export const createBarry = ({
     return data === null ? 'accepted' : 'refused';
   });
 
+  const flushCheckIns = async () => {
+    const done = await queue.flush();
+    return new Map(await Promise.all([...done].map(async (id) => [id, await getAdventure(id).catch(() => null)] as const)));
+  };
+
   const trail = createTrail({
     location,
     buffer: createTrailBuffer(storage),
     signedIn: async () => (await supabase.auth.getSession()).data.session !== null,
     inProgressId: () => (cache.load()?.row.id as AdventureId | undefined) ?? null,
-    checkInQueued: (id) => queue.pending().some((c) => c.adventureId === id),
+    pendingCheckIn: () => queue.pending().length > 0,
+    flushCheckIns: async () => {
+      await flushCheckIns();
+    },
     recordTrail: async (id, batch) => {
       const { data, error } = await supabase.rpc('record_trail', {
         p_id: id,
@@ -294,8 +302,7 @@ export const createBarry = ({
     checkIn: async (id) => {
       const checkedInAt = now();
       queue.add({ adventureId: id, checkedInAt });
-      const done = await queue.flush();
-      const adventure = done.has(id) ? await getAdventure(id).catch(() => null) : null;
+      const adventure = (await flushCheckIns()).get(id) ?? null;
       syncTrail();
       return adventure?.stage === 'ended'
         ? { kind: 'ended', adventure: adventure as EndedAdventure }
@@ -305,7 +312,7 @@ export const createBarry = ({
     pendingCheckIns: () => queue.pending(),
 
     flushPendingCheckIns: async () => {
-      await queue.flush();
+      await flushCheckIns();
     },
 
     deliveryFailures: async (id) => {

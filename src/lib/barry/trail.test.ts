@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { createTrail, type LocationService, type RecordTrailResponse } from './trail';
+import { createTrail, type LocationService, type RecordTrailResponse, type TrailFacts, trailMode } from './trail';
 import { createTrailBuffer } from './trail-buffer';
-import type { AdventureId, Position, RawLocation } from './types';
+import type { AdventureId, Position, RawLocation, TrailStatus } from './types';
 
 const memoryStorage = () => {
   const items = new Map<string, string>();
@@ -13,29 +13,45 @@ const memoryStorage = () => {
 };
 
 const a1 = 'a1' as AdventureId;
+const a2 = 'a2' as AdventureId;
 const here: Position = { takenAt: new Date('2026-10-15T09:00:00Z'), latitude: 47.0286, longitude: 8.6885, accuracyM: 5 };
 const fix = (iso: string, latitude: number): RawLocation => ({
   timestamp: new Date(iso).getTime(),
   coords: { latitude, longitude: 8.6885, accuracy: 8 },
 });
 
-type World = { permitted?: boolean; inProgress?: AdventureId | null; queued?: boolean; fenceFails?: boolean };
+type World = {
+  permitted?: boolean;
+  inProgress?: AdventureId | null;
+  queued?: boolean;
+  fenceFails?: boolean;
+  signal?: boolean;
+  afterCheckIn?: AdventureId | null;
+};
 
 const setup = (world: World = {}) => {
-  const state = { permitted: true, inProgress: a1 as AdventureId | null, queued: false, fenceFails: false, ...world };
-  const os = { updates: false, fence: null as Position | null, starts: 0 };
+  const state = {
+    permitted: true,
+    inProgress: a1 as AdventureId | null,
+    queued: false,
+    fenceFails: false,
+    signal: false,
+    afterCheckIn: null as AdventureId | null,
+    ...world,
+  };
+  const os = { updates: null as TrailStatus | null, fence: null as Position | null };
+  let flushes = 0;
   const location: LocationService = {
     backgroundPermitted: async () => state.permitted,
     requestBackground: async () => {
       state.permitted = true;
       return true;
     },
-    startUpdates: async () => {
-      if (!os.updates) os.starts += 1;
-      os.updates = true;
+    startUpdates: async (mode) => {
+      os.updates = mode;
     },
     stopUpdates: async () => {
-      os.updates = false;
+      os.updates = null;
     },
     setFence: async (center) => {
       if (state.fenceFails) throw new Error('kCLErrorDomain');
@@ -51,7 +67,13 @@ const setup = (world: World = {}) => {
     buffer,
     signedIn: async () => true,
     inProgressId: () => state.inProgress,
-    checkInQueued: () => state.queued,
+    pendingCheckIn: () => state.queued,
+    flushCheckIns: async () => {
+      flushes += 1;
+      if (!state.signal) return;
+      state.queued = false;
+      state.inProgress = state.afterCheckIn;
+    },
     recordTrail: async (id, batch) => {
       uploads.push({ id, latitudes: batch.map((r) => r.latitude) });
       return response;
@@ -60,33 +82,99 @@ const setup = (world: World = {}) => {
   const respond = (next: RecordTrailResponse) => {
     response = next;
   };
-  return { trail, state, os, uploads, buffer, respond };
+  return { trail, state, os, uploads, buffer, respond, flushes: () => flushes };
 };
 
+describe('trailMode', () => {
+  const facts: TrailFacts = { signedIn: true, permitted: true, pendingCheckIn: false, inProgressId: a1 };
+
+  it.each<[Partial<TrailFacts>, TrailStatus]>([
+    [{}, 'recording'],
+    [{ pendingCheckIn: true }, 'delivering'],
+    [{ pendingCheckIn: true, inProgressId: null }, 'delivering'],
+    [{ inProgressId: null }, 'off'],
+    [{ permitted: false }, 'off'],
+    [{ permitted: false, pendingCheckIn: true }, 'off'],
+    [{ signedIn: false }, 'off'],
+    [{ signedIn: false, pendingCheckIn: true }, 'off'],
+  ])('%j gives %s', (change, mode) => {
+    expect(trailMode({ ...facts, ...change })).toBe(mode);
+  });
+});
+
 describe('the Trail', () => {
-  it('records while an Adventure is in progress and Always is granted, and starts the OS updates once', async () => {
+  it('records while an Adventure is in progress and Always is granted', async () => {
     const { trail, os } = setup();
     expect(await trail.sync()).toBe('recording');
     expect(await trail.sync()).toBe('recording');
-    expect(os).toEqual({ updates: true, fence: here, starts: 1 });
+    expect(os).toEqual({ updates: 'recording', fence: here });
   });
 
   it('stays off without the Always permission', async () => {
     const { trail, os } = setup({ permitted: false });
     expect(await trail.sync()).toBe('off');
-    expect(os.updates).toBe(false);
+    expect(os.updates).toBeNull();
   });
 
-  it('stops once a Check-in is queued, and once the Adventure is no longer in progress', async () => {
+  it('stops once the Adventure is no longer in progress', async () => {
     const { trail, state, os } = setup();
     await trail.sync();
-    state.queued = true;
-    expect(await trail.sync()).toBe('off');
-    expect(os).toMatchObject({ updates: false, fence: null });
-
-    state.queued = false;
     state.inProgress = null;
-    expect(await trail.status()).toBe('off');
+    expect(await trail.sync()).toBe('off');
+    expect(os).toEqual({ updates: null, fence: null });
+  });
+
+  it('switches to delivering once a Check-in is queued, and clears the fence and the readings', async () => {
+    const { trail, state, os, buffer } = setup();
+    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
+    state.queued = true;
+    expect(await trail.sync()).toBe('delivering');
+    expect(await trail.status()).toBe('delivering');
+    expect(os).toEqual({ updates: 'delivering', fence: null });
+    expect(buffer.newest(a1)).toBeNull();
+  });
+
+  it('leaves the updates off for a queued Check-in without the Always permission', async () => {
+    const { trail, os } = setup({ permitted: false, queued: true });
+    expect(await trail.sync()).toBe('off');
+    expect(os.updates).toBeNull();
+  });
+
+  it('tries the queued Check-in on every wake and buffers no readings while there is no signal', async () => {
+    const { trail, os, uploads, buffer, flushes } = setup({ queued: true });
+    await trail.sync();
+    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
+    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.031)]);
+    expect(flushes()).toBe(2);
+    expect(uploads).toEqual([]);
+    expect(buffer.newest(a1)).toBeNull();
+    expect(os).toEqual({ updates: 'delivering', fence: null });
+  });
+
+  it('stops the updates once a wake delivers the Check-in', async () => {
+    const { trail, state, os, uploads } = setup({ queued: true });
+    await trail.sync();
+    state.signal = true;
+    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
+    expect(os).toEqual({ updates: null, fence: null });
+    expect(uploads).toEqual([]);
+  });
+
+  it('records again once a wake delivers the Check-in and another Adventure is in progress', async () => {
+    const { trail, state, os } = setup({ queued: true, afterCheckIn: a2 });
+    await trail.sync();
+    state.signal = true;
+    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
+    expect(os).toEqual({ updates: 'recording', fence: here });
+    expect(await trail.status()).toBe('recording');
+  });
+
+  it('tries the queued Check-in when iOS relaunches Barry for the fence', async () => {
+    const { trail, state, os, flushes } = setup({ queued: true, signal: true });
+    await trail.onFenceExit();
+    expect(flushes()).toBe(1);
+    expect(state.queued).toBe(false);
+    expect(os).toEqual({ updates: null, fence: null });
   });
 
   it('uploads the background readings, one per minute', async () => {
@@ -100,7 +188,7 @@ describe('the Trail', () => {
     expect(await trail.sync()).toBe('recording');
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
     await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.032)]);
-    expect(os).toMatchObject({ updates: true, fence: null });
+    expect(os).toMatchObject({ updates: 'recording', fence: null });
     expect(uploads).toEqual([
       { id: 'a1', latitudes: [47.03] },
       { id: 'a1', latitudes: [47.032] },
@@ -128,10 +216,10 @@ describe('the Trail', () => {
 
   it('buffers nothing and stops when no Adventure is in progress', async () => {
     const { trail, os, uploads } = setup({ inProgress: null });
-    os.updates = true;
+    os.updates = 'recording';
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
     expect(uploads).toEqual([]);
-    expect(os.updates).toBe(false);
+    expect(os.updates).toBeNull();
   });
 
   it('moves the fence to the newest reading once the Adventurer has walked away from it', async () => {
@@ -147,7 +235,7 @@ describe('the Trail', () => {
     const { trail, os, uploads } = setup();
     await trail.onFenceExit();
     expect(uploads).toEqual([{ id: 'a1', latitudes: [47.0286] }]);
-    expect(os.updates).toBe(true);
+    expect(os.updates).toBe('recording');
   });
 
   it('never throws from a task', async () => {
