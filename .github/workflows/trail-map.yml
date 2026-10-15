@@ -23,7 +23,6 @@ jobs:
     env:
       EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-      BARRY_WEB_BASE_URL: /${{ github.event.repository.name }}
     steps:
       # A browser blocks an HTTPS page from calling plain HTTP, so a local Supabase address cannot work here.
       - name: Check the Supabase address
