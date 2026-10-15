@@ -1,7 +1,7 @@
 import { Notice, Screen, Section } from '@/components/form';
 import { TrailMapView } from '@/components/trail-map-view';
 import { ThemedText } from '@/components/themed-text';
-import { formatTime } from '@/lib/trail-map/format';
+import { formatWhen } from '@/lib/wording';
 import type { TrailMap } from '@/lib/trail-map/types';
 import { useTrailMap } from '@/lib/trail-map/use-trail-map';
 
@@ -36,26 +36,25 @@ export default function TrailMapRoute() {
 }
 
 function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date }) {
-  const time = (at: Date) => formatTime(at, map.timeZone);
   return (
     <Screen title={`${map.adventurerName}'s Trail`}>
       {staleSince && (
-        <Notice tone="warning">Barry cannot be reached since {time(staleSince)}. This is the last Trail Map it sent.</Notice>
+        <Notice tone="warning">Barry cannot be reached since {formatWhen(staleSince)}. This is the last Trail Map it sent.</Notice>
       )}
       {map.status === 'alerted' && (
         <Notice tone="danger">{map.adventurerName} has not checked in. Barry has raised the Alert.</Notice>
       )}
       {map.status === 'checked_in' && (
         <Notice tone="success">
-          {map.adventurerName} checked in at {time(map.checkedInAt)}.
+          {map.adventurerName} checked in at {formatWhen(map.checkedInAt)}.
         </Notice>
       )}
       {map.status !== 'checked_in' && (
         <>
-          <TrailMapView trail={map.trail} last={map.lastKnownPosition} timeZone={map.timeZone} />
+          <TrailMapView trail={map.trail} last={map.lastKnownPosition} />
           <ThemedText type="small">
             {map.lastKnownPosition
-              ? `Last Known Position at ${time(map.lastKnownPosition.takenAt)}: ${map.lastKnownPosition.latitude.toFixed(5)}, ${map.lastKnownPosition.longitude.toFixed(5)}` +
+              ? `Last Known Position at ${formatWhen(map.lastKnownPosition.takenAt)}: ${map.lastKnownPosition.latitude.toFixed(5)}, ${map.lastKnownPosition.longitude.toFixed(5)}` +
                 (map.lastKnownPosition.accuracyM === null ? '' : ` (within ${Math.round(map.lastKnownPosition.accuracyM)} m)`)
               : 'Last Known Position: not recorded'}
           </ThemedText>
