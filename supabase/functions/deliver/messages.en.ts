@@ -15,8 +15,7 @@ export const formatTime = (at: Date, timeZone: string): string => {
     hourCycle: 'h23',
   }).formatToParts(at);
   const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)!.value;
-  const place = timeZone.split('/').pop()!.replaceAll('_', ' ');
-  return `${part('weekday')} ${part('day')} ${part('month')}, ${part('hour')}:${part('minute')} ${place} time`;
+  return `${part('weekday')} ${part('day')} ${part('month')}, ${part('hour')}:${part('minute')}`;
 };
 
 const planLines = (plan: Plan): string[] =>
