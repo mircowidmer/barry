@@ -1,7 +1,7 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 
 import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
@@ -45,18 +45,19 @@ const toForm = (a: Adventure | null): Form => ({
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
-const warningText = (w: StartWarning) => {
-  switch (w.kind) {
-    case 'no_push':
-      return 'This phone is not set up for notifications, so you will get no Reminder or Overdue Notice.';
-    case 'email_only':
-      return `Text messages are not set up yet, so ${w.contacts.map((c) => c.name).join(', ')} get email only.`;
-    case 'unreachable':
-      return w.contacts.length === 1
-        ? `Text messages are not set up yet, and ${w.contacts[0].name} only has a phone number, so they will get no message at all.`
-        : `Text messages are not set up yet, and ${w.contacts.map((c) => c.name).join(', ')} only have a phone number, so they will get no message at all.`;
-  }
+const names = (contacts: EmergencyContact[]) => contacts.map((c) => c.name).join(', ');
+
+const warningTexts: { [K in StartWarning['kind']]: (w: Extract<StartWarning, { kind: K }>) => string } = {
+  no_trail: () => 'Barry can share only where you started. Allow location Always to share your Trail.',
+  no_push: () => 'This phone is not set up for notifications, so you will get no Reminder or Overdue Notice.',
+  email_only: (w) => `Text messages are not set up yet, so ${names(w.contacts)} get email only.`,
+  unreachable: (w) =>
+    w.contacts.length === 1
+      ? `Text messages are not set up yet, and ${w.contacts[0].name} only has a phone number, so they will get no message at all.`
+      : `Text messages are not set up yet, and ${names(w.contacts)} only have a phone number, so they will get no message at all.`,
 };
+
+const warningText = (w: StartWarning) => (warningTexts[w.kind] as (w: StartWarning) => string)(w);
 
 export default function PlanScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -141,6 +142,12 @@ function PlanForm({
         reload();
       }
     }
+  };
+
+  const allowTrail = async () => {
+    const granted = await barry.trail.requestPermission().catch(() => false);
+    if (!granted) await Linking.openSettings();
+    reload();
   };
 
   const onStart = async () => {
@@ -269,6 +276,9 @@ function PlanForm({
               {warningText(w)}
             </Notice>
           ))}
+          {warnings.some((w) => w.kind === 'no_trail') && (
+            <Button title="Allow Always" kind="secondary" onPress={allowTrail} />
+          )}
           <Button title="Start Adventure" onPress={onStart} busy={busy === 'start'} />
           <ThemedText type="small" themeColor="textSecondary">
             Starting sends a Heads-up to your contacts with your Plan and Deadline, which is {formatWhen(form.deadline)}.

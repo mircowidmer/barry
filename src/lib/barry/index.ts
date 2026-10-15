@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { supabase } from '@/lib/supabase';
 
 import { createBarry } from './client';
+import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
 import type { Position } from './types';
 
 export type * from './types';
@@ -11,24 +12,81 @@ export { startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;
 
+const toPosition = (reading: Location.LocationObject): Position => ({
+  takenAt: new Date(reading.timestamp),
+  latitude: reading.coords.latitude,
+  longitude: reading.coords.longitude,
+  accuracyM: reading.coords.accuracy,
+});
+
+const currentPosition = async (): Promise<Position | null> => {
+  const reading = await Promise.race([
+    Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), POSITION_TIMEOUT_MS)),
+  ]);
+  return reading ? toPosition(reading) : null;
+};
+
 const readPosition = async (): Promise<Position | null> => {
   try {
     const permission = await Location.requestForegroundPermissionsAsync();
     if (permission.status !== 'granted') return null;
-    const reading = await Promise.race([
-      Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), POSITION_TIMEOUT_MS)),
-    ]);
-    if (!reading) return null;
-    return {
-      takenAt: new Date(reading.timestamp),
-      latitude: reading.coords.latitude,
-      longitude: reading.coords.longitude,
-      accuracyM: reading.coords.accuracy,
-    };
+    return await currentPosition();
   } catch {
     return null;
   }
+};
+
+const location: LocationService = {
+  backgroundPermitted: async () => (await Location.getBackgroundPermissionsAsync()).granted,
+  requestBackground: async () => {
+    const foreground = await Location.requestForegroundPermissionsAsync();
+    if (!foreground.granted) return false;
+    return (await Location.requestBackgroundPermissionsAsync()).granted;
+  },
+  startUpdates: async () => {
+    if (await Location.hasStartedLocationUpdatesAsync(TRAIL_LOCATION_TASK)) return;
+    await Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, {
+      accuracy: Location.Accuracy.BestForNavigation,
+      distanceInterval: 10,
+      deferredUpdatesInterval: 60_000,
+      deferredUpdatesDistance: 0,
+      pausesUpdatesAutomatically: false,
+      activityType: Location.ActivityType.Fitness,
+      showsBackgroundLocationIndicator: true,
+    });
+  },
+  stopUpdates: async () => {
+    if (await Location.hasStartedLocationUpdatesAsync(TRAIL_LOCATION_TASK)) {
+      await Location.stopLocationUpdatesAsync(TRAIL_LOCATION_TASK);
+    }
+  },
+  setFence: async (center) => {
+    if (center) {
+      await Location.startGeofencingAsync(TRAIL_FENCE_TASK, [
+        {
+          identifier: 'trail',
+          latitude: center.latitude,
+          longitude: center.longitude,
+          radius: 200,
+          notifyOnEnter: false,
+          notifyOnExit: true,
+        },
+      ]);
+    } else if (await Location.hasStartedGeofencingAsync(TRAIL_FENCE_TASK)) {
+      await Location.stopGeofencingAsync(TRAIL_FENCE_TASK);
+    }
+  },
+  lastReading: async () => {
+    try {
+      const current = await currentPosition();
+      if (current) return current;
+      const last = await Location.getLastKnownPositionAsync();
+      return last ? toPosition(last) : null;
+    } catch {
+      return null;
+    }
+  },
 };
 
 export const barry = createBarry({
@@ -38,4 +96,5 @@ export const barry = createBarry({
   now: () => new Date(),
   storage: localStorage,
   pushPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
+  location,
 });

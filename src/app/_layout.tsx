@@ -15,13 +15,16 @@ function Navigation() {
 
   useEffect(() => {
     if (!session) return;
-    barry.flushPendingCheckIns();
-    registerForPush();
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state !== 'active') return;
-      barry.flushPendingCheckIns();
+    const catchUp = () => {
+      barry
+        .flushPendingCheckIns()
+        .catch(() => undefined)
+        .then(() => barry.trail.sync())
+        .catch(() => undefined);
       registerForPush();
-    });
+    };
+    catchUp();
+    const subscription = AppState.addEventListener('change', (state) => state === 'active' && catchUp());
     return () => subscription.remove();
   }, [session]);
 
