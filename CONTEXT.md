@@ -41,8 +41,16 @@ The Adventurer's single confirmation that they are back safe, which ends the Adv
 _Avoid_: Ping, heartbeat, check-out
 
 **Last Known Position**:
-The Adventurer's most recent location reading, taken when they start an Adventure or move its Deadline.
+The Adventurer's most recent location reading. Barry takes one when they start an Adventure or move its Deadline, and, if the Adventurer lets Barry read the location in the background, about every minute until they check in.
 _Avoid_: Location, GPS fix, track
+
+**Trail**:
+The location readings Barry takes in the background during an Adventure, about one per minute, until the Check-in deletes them.
+_Avoid_: Track, breadcrumbs, route, live location
+
+**Trail Map**:
+The web page where an Emergency Contact follows an Adventure's Trail through their own link, without an account.
+_Avoid_: Live map, tracking page, share link
 
 ### Adventure Stages
 
@@ -72,11 +80,11 @@ A push notification to the Adventurer shortly before the Deadline.
 _Avoid_: Warning, nudge
 
 **Heads-up**:
-The message to an Adventure's Emergency Contacts when it starts, carrying the Plan and the Deadline.
+The message to an Adventure's Emergency Contacts when it starts, carrying the Plan, the Deadline and the contact's Trail Map link.
 _Avoid_: Start notification, invite
 
 **Alert**:
-The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Last Known Position and the Adventurer Profile.
+The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Last Known Position, the Adventurer Profile and the contact's Trail Map link.
 _Avoid_: Notification, alarm, SOS
 
 **All-clear**:
