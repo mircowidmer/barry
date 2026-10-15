@@ -1,0 +1,104 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f2f4f7;
+  --text: #111418;
+  --muted: #5b6470;
+  --accent: #0b6bcb;
+  --border: #e3e7ec;
+  --warning-bg: #fff6e5;
+  --warning: #8a5a00;
+  --danger-bg: #fdecec;
+  --danger: #a51d1d;
+  --success-bg: #e8f6ec;
+  --success: #1f7a3d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1014;
+    --surface: #181c22;
+    --text: #f2f4f7;
+    --muted: #a3acb8;
+    --accent: #5aa9ff;
+    --border: #262c34;
+    --warning-bg: #2b2210;
+    --warning: #f0c060;
+    --danger-bg: #2d1414;
+    --danger: #ff8a8a;
+    --success-bg: #12261a;
+    --success: #6fd394;
+  }
+}
+html:has(.site) { background: var(--bg); }
+.site, .site * { box-sizing: border-box; }
+.site {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.site.page { flex: 1; height: 100%; overflow-y: auto; }
+.site header {
+  background: linear-gradient(160deg, #34c759, #0088ff);
+  color: #fff;
+  padding: 56px 16px 64px;
+  text-align: center;
+}
+.site header img { width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.2); }
+.site header h1 { margin: 20px 0 8px; font-size: 44px; line-height: 1.15; letter-spacing: -0.02em; }
+.site header p { margin: 0 auto; max-width: 34em; font-size: 20px; opacity: 0.95; }
+.site header .slogan { margin-bottom: 16px; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; opacity: 1; }
+.site header.compact { padding: 32px 16px 40px; }
+.site header.compact img { width: 72px; height: 72px; border-radius: 17px; }
+.site header.compact h1 { margin-top: 14px; font-size: 34px; }
+.site header.compact p { font-size: 18px; }
+.site .status {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+  font-size: 15px;
+}
+.site main { max-width: 760px; margin: 0 auto; padding: 8px 16px 48px; }
+.site h2 { margin: 44px 0 4px; font-size: 26px; letter-spacing: -0.01em; }
+.site .lead { margin: 0 0 16px; color: var(--muted); }
+.site ul.features { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.site ul.features li, .site .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.site ul.features strong { display: block; margin-bottom: 2px; }
+.site .card { margin-top: 24px; }
+.site .card h2 { margin: 0 0 8px; font-size: 20px; }
+.site .card p { margin: 0; }
+.site .card p + p { margin-top: 8px; }
+.site dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.site dt { color: var(--muted); }
+.site dd { margin: 0; }
+.site .map { margin-top: 24px; height: 420px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.site .caption { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+.site .note {
+  margin: 24px 0 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.site main > .note:first-child, .site main > .card:first-child, .site main > .map:first-child { margin-top: 32px; }
+.site .note.danger { background: var(--danger-bg); color: var(--danger); }
+.site .note.success { background: var(--success-bg); color: var(--success); }
+.site .note.important { margin-top: 44px; }
+.site .button {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.site footer { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; color: var(--muted); font-size: 15px; }
+.site a:not(.button) { color: var(--accent); }
