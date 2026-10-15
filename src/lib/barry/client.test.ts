@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 
 import { createAdventureCache } from './adventure-cache';
+import type { NotificationService } from './alarms';
 import { createBarry } from './client';
 import type { AdventureWithRelations } from './rows';
 import type { LocationService } from './trail';
@@ -52,9 +53,11 @@ const setup = () => {
   const query = {
     select: () => query,
     eq: () => query,
+    in: () => query,
     order: () => query,
     limit: () => query,
-    maybeSingle: async () => ({ data: ended, error: null }),
+    maybeSingle: async () =>
+      world.signal ? { data: ended, error: null } : { data: null, error: { message: 'Network request failed' } },
   };
   const supabase = {
     auth: { getSession: async () => ({ data: { session: { user: { id: 'u1' } } } }) },
@@ -69,16 +72,23 @@ const setup = () => {
     setFence: async () => undefined,
     lastReading: async () => null,
   };
+  const scheduled = new Map<string, string>();
+  const notifications: NotificationService = {
+    scheduledIdentifiers: async () => [...scheduled.keys()],
+    schedule: async (alarm) => void scheduled.set(alarm.identifier, alarm.at.toISOString()),
+    cancel: async (id) => void scheduled.delete(id),
+  };
   const barry = createBarry({
     supabase,
     readPosition: async () => null,
     timeZone: () => 'Europe/Zurich',
     now,
     storage,
-    pushPermitted: async () => true,
+    notificationsPermitted: async () => true,
+    notifications,
     location,
   });
-  return { barry, world };
+  return { barry, world, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -91,5 +101,20 @@ describe('flushPendingCheckIns', () => {
     await barry.flushPendingCheckIns();
     expect(barry.pendingCheckIns()).toEqual([]);
     expect(await barry.trail.status()).toBe('off');
+  });
+});
+
+describe('local notifications', () => {
+  it('schedules the Reminder and the Overdue Notice without signal, and a waiting Check-in cancels both', async () => {
+    const { barry, scheduled } = setup();
+    await barry.getInProgressAdventure();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(scheduled()).toEqual({
+      'barry.reminder.a1': '2026-10-17T15:30:00.000Z',
+      'barry.overdue_notice.a1': '2026-10-17T16:00:00.000Z',
+    });
+
+    expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
+    expect(scheduled()).toEqual({});
   });
 });

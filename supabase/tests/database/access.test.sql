@@ -126,7 +126,7 @@ select throws_ok(
 
 select is(
   (select array_agg(c) from public.enabled_channels() c),
-  array['email', 'push']::public.channel[],
+  array['email']::public.channel[],
   'The app can read which channels Barry sends on'
 );
 
