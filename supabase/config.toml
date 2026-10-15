@@ -390,6 +390,8 @@ EMAIL_FROM = "barry@localhost"
 # scripts/push-relay.mjs on the Mac hands pushes to the iOS Simulator. Remove this line to send
 # through Expo once `eas credentials` has set up the Apple push key.
 EXPO_PUSH_URL = "http://host.docker.internal:8787/push"
+# `npx expo start --web` serves the Trail Map page here. On EAS Hosting it is https://<project>.expo.app/trail.
+TRAIL_MAP_URL = "http://localhost:8081/trail"
 
 [functions.deliver]
 verify_jwt = false

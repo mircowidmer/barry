@@ -1,7 +1,11 @@
 import { assertEquals, assertStringIncludes } from 'jsr:@std/assert@1.0.13';
 
 import { parseFacts } from './facts.ts';
+import { trailMapLinks } from './links.ts';
 import { formatTime, render } from './messages.en.ts';
+
+const links = trailMapLinks('http://localhost:8081/trail');
+const token = 'Xk3vQ9pL2mN8rT5wY1zA0b';
 
 const base = {
   adventurer_name: 'Anna',
@@ -25,7 +29,7 @@ Deno.test('formatTime names the time zone', () => {
 });
 
 Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Profile', () => {
-  const { subject, text } = render(parseFacts({ ...base, kind: 'heads_up' }));
+  const { subject, text } = render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links);
   assertEquals(subject, 'Anna is heading out to Grosser Mythen');
   assertEquals(
     text,
@@ -37,6 +41,8 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
       'Starting point: Brunni car park',
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00 Zurich time, Barry will message you again.',
+      '',
+      "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
   );
 });
@@ -47,9 +53,11 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
       ...base,
       kind: 'alert',
       round: 1,
+      trail_token: token,
       profile,
       last_known_position: { taken_at: '2026-10-17T12:12:00Z', latitude: 47.03, longitude: 8.68, accuracy_m: 12 },
     }),
+    links,
   );
   assertEquals(subject, 'Anna has not checked in');
   assertEquals(
@@ -63,6 +71,7 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
       '',
       'Last Known Position at Sat 17 Oct, 14:12 Zurich time: 47.03000, 8.68000 (within 12 m)',
       'Map: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68',
+      "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
       '',
       "Anna's phone: +41790000001",
       'Car: red Subaru, SZ 12345',
@@ -74,13 +83,14 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
 Deno.test('a later Alert says which round it is, and a missing position says so', () => {
   const { subject, text } = render(
     parseFacts({ ...base, kind: 'alert', round: 2, profile: { phone: '+41790000001' }, last_known_position: null }),
+    links,
   );
   assertEquals(subject, 'Anna has still not checked in (Alert 2 of 3)');
   assertStringIncludes(text, 'Last Known Position: not recorded');
 });
 
 Deno.test('the Overdue Notice says when the Alert goes out', () => {
-  const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:30:00Z' }));
+  const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:30:00Z' }), links);
   assertEquals(
     text,
     'Your Deadline for Grosser Mythen was Sat 17 Oct, 18:00 Zurich time. Barry alerts your Emergency Contacts at Sat 17 Oct, 18:30 Zurich time unless you check in.',
@@ -88,7 +98,21 @@ Deno.test('the Overdue Notice says when the Alert goes out', () => {
 });
 
 Deno.test('the All-clear gives the Check-in time', () => {
-  const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }));
+  const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links);
   assertEquals(subject, 'Anna is back safe');
   assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05 Zurich time.');
+});
+
+Deno.test('without a link base or a token the Heads-up and the Alert go out without the Trail Map line', () => {
+  const headsUp = render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), null).text;
+  const removed = render(parseFacts({ ...base, kind: 'heads_up', trail_token: null }), links).text;
+  const alert = render(parseFacts({ ...base, kind: 'alert', round: 1, profile, last_known_position: null, trail_token: null }), links).text;
+  assertEquals(headsUp.endsWith('Barry will message you again.'), true, 'Heads-up without a base ends with the Deadline sentence');
+  assertEquals(removed.endsWith('Barry will message you again.'), true, 'Heads-up without a token ends with the Deadline sentence');
+  assertEquals(alert.includes('Trail'), false, 'Alert without a token has no Trail line');
+});
+
+Deno.test('an unset or invalid TRAIL_MAP_URL gives no links', () => {
+  assertEquals(trailMapLinks(undefined), null);
+  assertEquals(trailMapLinks('not a url'), null);
 });

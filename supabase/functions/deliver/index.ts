@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 
 import { type Channel, parseFacts } from './facts.ts';
+import { trailMapLinks } from './links.ts';
 import { render } from './messages.en.ts';
 import { type SendResult, senders } from './senders.ts';
 
@@ -9,6 +10,8 @@ type Health = { clock_ok: boolean; adventures_ok: boolean; outbox_ok: boolean };
 
 const BATCH = 20;
 const TIME_BUDGET_MS = 20_000;
+
+const links = trailMapLinks(Deno.env.get('TRAIL_MAP_URL'));
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
@@ -23,7 +26,7 @@ const rpc = async <T>(name: string, args: Record<string, unknown> = {}): Promise
 const send = async (row: ClaimedRow): Promise<SendResult> => {
   try {
     const facts = parseFacts(await rpc('message_facts', { p_message_id: row.id }));
-    return await senders[row.channel](row.to_address, render(facts), row.id);
+    return await senders[row.channel](row.to_address, render(facts, links), row.id);
   } catch (error) {
     return { outcome: 'retry', reason: error instanceof Error ? error.message : String(error) };
   }

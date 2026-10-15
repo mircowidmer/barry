@@ -36,6 +36,23 @@ const waitForMail = async (to, subject) => {
 
 const step = (text) => console.log(`- ${text}`);
 
+const expect = (ok, what) => {
+  if (!ok) throw new Error(`expected ${what}`);
+  step(what);
+};
+
+const trailMap = async (token) => {
+  const response = await fetch(`${API}/rest/v1/rpc/trail_map`, {
+    method: 'POST',
+    headers: { apikey: PUBLISHABLE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_token: token }),
+  });
+  if (!response.ok) throw new Error(`trail_map: ${response.status} ${await response.text()}`);
+  return response.json();
+};
+
+const trailLink = (message) => message.Text.match(/Follow Anna's Trail: (\S+)/)?.[1];
+
 const { user: created } = must(
   await admin.auth.admin.createUser({ email, password, email_confirm: true }),
   'create user',
@@ -66,17 +83,32 @@ let t = Date.now();
 const headsUp = await waitForMail(luca, 'Anna is heading out to Grosser Mythen');
 step(`Heads-up reached Luca in ${Math.round((Date.now() - t) / 1000)} s: "${headsUp.Subject}"`);
 
+const link = trailLink(headsUp);
+expect(link?.startsWith('http://localhost:8081/trail#'), `the Heads-up carries Luca's Trail Map link (${link})`);
+const token = new URL(link).hash.slice(1);
+let map = await trailMap(token);
+expect(map?.status === 'underway', 'the Trail Map shows the Adventure underway without an account');
+expect(!('deadline' in map) && map.trail.length === 1, 'the Trail Map shows the Start reading and no Deadline');
+
 must(await admin.from('adventures').update({ deadline: new Date(Date.now() - 31 * 60_000).toISOString() }).eq('id', id), 'move Deadline into the past');
 t = Date.now();
 const alert = await waitForMail(luca, 'Anna has not checked in');
 step(`Alert reached Luca in ${Math.round((Date.now() - t) / 1000)} s after the Grace Period ended:`);
 console.log(alert.Text.split('\n').map((line) => `    ${line}`).join('\n'));
+expect(trailLink(alert) === link, 'the Alert carries the same Trail Map link');
+map = await trailMap(token);
+expect(map?.status === 'alerted', 'the Trail Map shows the Alert');
 
 const checkIn = must(await user.rpc('check_in', { p_id: id, p_checked_in_at: new Date().toISOString() }), 'check_in');
 step(`check_in refusal: ${checkIn ?? 'none'}`);
 t = Date.now();
 const allClear = await waitForMail(luca, 'Anna is back safe');
 step(`All-clear reached Luca in ${Math.round((Date.now() - t) / 1000)} s: "${allClear.Text}"`);
+map = await trailMap(token);
+expect(
+  map?.status === 'checked_in' && typeof map.checked_in_at === 'string' && !('trail' in map) && !('last_known_position' in map),
+  'the Trail Map shows the Check-in time and no positions',
+);
 
 const failures = must(await user.from('delivery_failures').select('contact_name, kind, failure_reason').eq('adventure_id', id), 'failures');
 step(`Delivery Failures shown to Anna: ${failures.map((f) => `${f.contact_name} ${f.kind} (${f.failure_reason})`).join(', ')}`);
