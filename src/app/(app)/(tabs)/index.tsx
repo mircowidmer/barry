@@ -120,7 +120,8 @@ function LiveAdventure({
   onChanged: () => void;
 }) {
   const now = useNow();
-  const trail = useTrailStatus(queuedAt);
+  const trailStatus = useTrailStatus(queuedAt);
+  const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
@@ -144,6 +145,8 @@ function LiveAdventure({
 
   if (adventure.stage === 'planned') return null;
   if (adventure.stage === 'ended') return <EndedAdventureScreen adventure={adventure} onDone={onChanged} />;
+
+  const lastKnown = trail.at(-1) ?? adventure.lastKnownPosition;
 
   const move = async (minutes: number) => {
     setBusy(true);
@@ -191,12 +194,12 @@ function LiveAdventure({
           have signal.
         </Notice>
       )}
-      {trail === 'recording' && <Notice>Barry is recording your Trail. Closing Barry stops the Trail.</Notice>}
-      {trail === 'off' && <Notice>Barry can share only where you started.</Notice>}
+      {trailStatus === 'recording' && <Notice>Barry is recording your Trail. Closing Barry stops the Trail.</Notice>}
+      {trailStatus === 'off' && <Notice>Barry can share only where you started.</Notice>}
       {queuedAt && (
         <Notice tone="warning">
           Check-in from {formatWhen(queuedAt)} is waiting for signal.
-          {trail === 'delivering' && ' Barry keeps trying in the background.'}
+          {trailStatus === 'delivering' && ' Barry keeps trying in the background.'}
         </Notice>
       )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
@@ -219,9 +222,7 @@ function LiveAdventure({
         {adventure.plan.startingPoint && <ThemedText type="small">Starting point: {adventure.plan.startingPoint}</ThemedText>}
         {adventure.plan.notes && <ThemedText type="small">Notes: {adventure.plan.notes}</ThemedText>}
         <ThemedText type="small">Deadline: {formatWhen(adventure.deadline)}</ThemedText>
-        {adventure.lastKnownPosition && (
-          <ThemedText type="small">Last position: {formatWhen(adventure.lastKnownPosition.takenAt)}</ThemedText>
-        )}
+        {lastKnown && <ThemedText type="small">Last Known Position: {formatWhen(lastKnown.takenAt)}</ThemedText>}
         <ThemedText type="small">Contacts: {adventure.contacts.map((c) => c.name).join(', ')}</ThemedText>
         {adventure.stage !== 'alerted' && (
           <Button
@@ -232,7 +233,7 @@ function LiveAdventure({
         )}
       </Section>
 
-      <LiveTrail id={adventure.id} />
+      {trail.length > 0 && <TrailMapView trail={trail} last={trail.at(-1)!} />}
 
       {failures.length > 0 && (
         <Section title="Messages that did not arrive">
@@ -248,14 +249,30 @@ function LiveAdventure({
   );
 }
 
-const TRAIL_REFRESH_MS = 60_000;
+const TRAIL_REFRESH_MS = 10_000;
 
-function LiveTrail({ id }: { id: AdventureId }) {
+/** The Trail so far, growing with the readings that reach the server, so the Plan and the map agree. */
+function useLiveTrail(id: AdventureId): Position[] {
   const [trail, setTrail] = useState<Position[]>([]);
   useEffect(() => {
     let mounted = true;
-    // A failed reload keeps the last map, so losing signal does not blank it.
-    const load = () => barry.readings(id).then((readings) => mounted && setTrail(readings), () => undefined);
+    let loading = false;
+    let newest: Date | undefined;
+    const load = async () => {
+      if (loading) return;
+      loading = true;
+      try {
+        const fresh = await barry.readings(id, newest);
+        if (mounted && fresh.length > 0) {
+          newest = fresh.at(-1)!.takenAt;
+          setTrail((shown) => [...shown, ...fresh]);
+        }
+      } catch {
+        // Keep what is shown, so losing signal does not blank the map.
+      } finally {
+        loading = false;
+      }
+    };
     load();
     const timer = setInterval(load, TRAIL_REFRESH_MS);
     return () => {
@@ -263,5 +280,5 @@ function LiveTrail({ id }: { id: AdventureId }) {
       clearInterval(timer);
     };
   }, [id]);
-  return trail.length > 0 ? <TrailMapView trail={trail} last={trail.at(-1)!} /> : null;
+  return trail;
 }
