@@ -1,13 +1,19 @@
 // End-to-end check of the clock and deliver against the local Supabase stack.
 // Run: node scripts/e2e-deliver.mjs (with `npx supabase start` and `node scripts/sms-relay.mjs` running).
+import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 const API = 'http://127.0.0.1:54321';
 const MAILPIT = 'http://127.0.0.1:54324/api/v1';
 const SMS_RELAY = 'http://localhost:8788/messages';
-const PUBLISHABLE_KEY = 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH';
-const SECRET_KEY = '<local secret key from npx supabase status>';
+const { PUBLISHABLE_KEY, SECRET_KEY } = Object.fromEntries(
+  execFileSync('npx', ['supabase', 'status', '-o', 'env'], { encoding: 'utf8' })
+    .split('\n')
+    .map((line) => line.match(/^(\w+)="(.*)"$/))
+    .filter(Boolean)
+    .map(([, key, value]) => [key, value]),
+);
 
 const admin = createClient(API, SECRET_KEY, { auth: { persistSession: false } });
 const user = createClient(API, PUBLISHABLE_KEY, { auth: { persistSession: false } });
