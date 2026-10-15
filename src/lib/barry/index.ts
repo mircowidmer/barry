@@ -3,12 +3,15 @@ import * as Notifications from 'expo-notifications';
 
 import { storage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
+import { notificationText } from '@/lib/wording';
 
+import type { NotificationService } from './alarms';
 import { createBarry } from './client';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
 import type { Position } from './types';
 
 export type * from './types';
+export type { Alarm } from './alarms';
 export { startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;
@@ -99,12 +102,25 @@ const location: LocationService = {
   },
 };
 
+const notifications: NotificationService = {
+  scheduledIdentifiers: async () => (await Notifications.getAllScheduledNotificationsAsync()).map((n) => n.identifier),
+  schedule: async (alarm) => {
+    await Notifications.scheduleNotificationAsync({
+      identifier: alarm.identifier,
+      content: notificationText(alarm),
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: alarm.at },
+    });
+  },
+  cancel: (identifier) => Notifications.cancelScheduledNotificationAsync(identifier),
+};
+
 export const barry = createBarry({
   supabase,
   readPosition,
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   now: () => new Date(),
   storage,
-  pushPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
+  notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
+  notifications,
   location,
 });

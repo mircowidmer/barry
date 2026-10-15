@@ -5,7 +5,7 @@ description: Drive the Barry iOS app (Expo SDK 58 development build in the iOS S
 
 # Verify Barry
 
-Barry is a solo-adventure safety app. The user touches the iOS app. Everything it does goes through the local Supabase stack, which runs the clock (pg_cron) and sends email to Mailpit and pushes to the simulator through a local relay. Read [features/README.md](features/README.md) before driving, then use the matching feature file as the recipe.
+Barry is a solo-adventure safety app. The user touches the iOS app. Everything it does goes through the local Supabase stack, which runs the clock (pg_cron) and sends email to Mailpit. The app schedules the Reminder and the Overdue Notice as local notifications. Supabase sends no pushes, because its push channel is off. Read [features/README.md](features/README.md) before driving, then use the matching feature file as the recipe.
 
 Helpers live in `.claude/skills/verify/scripts/`, run from the repo root. Shell commands that touch Docker, the simulator or the clipboard need the sandbox disabled.
 
@@ -39,12 +39,12 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
   3. Wait one second, then take a screenshot. A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
   4. Tap `Paste`. Never tap `AutoFill`.
   5. After pasting the password, run `clip.sh clear`.
-- **Sign in.** Paste the email and the password, then tap `Sign in`. The first sign-in shows `"Barry" Would Like to Send You Notifications`. Choose **Allow**, so the app registers its push token.
+- **Sign in.** Paste the email and the password, then tap `Sign in`. The first sign-in shows `"Barry" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
 - **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content.
 - **Hold to check in.** A Check-in needs `tap` with `duration: 2.2` on `Hold to check in`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
 - **Refreshing banner.** A blue `Refreshing…` bar at the top means Metro reloaded after a file in the repo changed, including files in this skill. It does not affect the run.
-- **Messages.** Email lands in Mailpit at http://127.0.0.1:54324. Pushes appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600). The relay's output lists every push it delivered.
+- **Messages.** Email lands in Mailpit at http://127.0.0.1:54324. Notifications appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600).
 
 ## Evidence
 
@@ -52,7 +52,7 @@ Write proof to `.verify-artifacts/<run-id>/`, which git ignores, with `<run-id>`
 
 - Screenshots: `xcrun simctl io booted screenshot .verify-artifacts/<run-id>/<step>.png` after the user action and after the resulting state.
 - Stored state: `.claude/skills/verify/scripts/fixture.mjs state > .verify-artifacts/<run-id>/<step>.state.txt`. Every mutation needs this second, read-only view.
-- Messages: the relay output lines for pushes, and Mailpit subjects for email.
+- Messages: banner screenshots for notifications, and Mailpit subjects for email.
 
 Proof standards: drive the real screens, not the database. Capture the action and the result, not only the final screen. Check side effects (rows, messages, pushes) alongside what is visible. A step you could not reach is reported as unverified with the unmet precondition. It is never passed through a different path.
 

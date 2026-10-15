@@ -3,7 +3,7 @@ import type { EmergencyContact, StartConditions, StartWarning } from './types';
 export const startWarnings = (contacts: EmergencyContact[], conditions: StartConditions): StartWarning[] => {
   const warnings: StartWarning[] = [];
   if (!conditions.trailPermitted) warnings.push({ kind: 'no_trail' });
-  if (!conditions.pushRegistered) warnings.push({ kind: 'no_push' });
+  if (!conditions.notificationsPermitted) warnings.push({ kind: 'no_notifications' });
   if (!conditions.smsEnabled) {
     const withPhone = contacts.filter((c) => c.phone !== null);
     const emailOnly = withPhone.filter((c) => c.email !== null);

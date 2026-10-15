@@ -13,6 +13,9 @@ insert into public.emergency_contacts (id, adventurer_id, name, email, phone) va
   ('aaaaaaaa-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com', null),
   ('bbbbbbbb-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Noah', 'noah@example.com', null);
 
+-- The push path stays testable while the channel is off.
+update private.channel_config set enabled = true where channel = 'push';
+
 insert into public.push_devices (expo_push_token, adventurer_id) values
   ('ExponentPushToken[anna]', '11111111-1111-1111-1111-111111111111'),
   ('ExponentPushToken[ben]', '22222222-2222-2222-2222-222222222222');

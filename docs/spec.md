@@ -78,7 +78,7 @@ If the phone has no signal, the Start is not saved for later. The app shows that
 
 Before Start, the app shows these warnings when they apply. Start is still allowed.
 
-- The Adventurer has not allowed push notifications, or no phone is registered for push notifications. The app shows "You will get no Reminder or Overdue Notice". The app registers its push token again each time it opens.
+- The Adventurer has not allowed notifications. The app shows "You will get no Reminder or Overdue Notice".
 - While text messages are not set up, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
 - The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started".
 
@@ -103,13 +103,13 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 
 ## Messages
 
-Barry sends every message from Supabase. The phone never sends a message to an Emergency Contact.
+Barry sends every message to an Emergency Contact from Supabase. The phone never sends a message to an Emergency Contact. The Reminder and the Overdue Notice go to the Adventurer only, so the phone shows them itself as local notifications.
 
 | Message | Recipient | Channel | Sent when | Content |
 | --- | --- | --- | --- | --- |
 | Heads-up | Each contact of the Adventure | Every channel the contact has | Supabase confirms the Start, or a contact is added to an Active or Overdue Adventure | Adventurer's name, Plan, Deadline, the contact's Trail Map link |
-| Reminder | Adventurer | Push notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
-| Overdue Notice | Adventurer | Push notification | The Deadline passes | The time the Alert will go out |
+| Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
+| Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts in total | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |
 | All-clear | Each contact that received an Alert | Every channel the contact has | The Adventurer checks in from an Alerted Adventure | The time of the Check-in |
 
@@ -120,9 +120,18 @@ Barry sends every message from Supabase. The phone never sends a message to an E
 - The Last Known Position in an Alert gives the time of the reading, the coordinates, and a map link.
 - Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".
 - An Alert states facts only. It gives no guidance on what to do.
-- Messages are in English. All message text is kept in one place so that other languages can be added.
+- Messages are in English. The text of the messages Supabase sends is kept in one place, and the text of the Reminder and the Overdue Notice in another, so that other languages can be added.
 - After the third Alert, Barry sends nothing more. The Adventure stays Alerted until the Adventurer checks in.
 - Barry never contacts a rescue service. The Emergency Contacts decide what to do.
+
+### Reminder and Overdue Notice
+
+- The app schedules both notifications on the phone when Supabase confirms the Start, and again whenever it confirms a Deadline move. They need no signal and no push entitlement, so they also work on an iPhone build signed by a free Apple team.
+- Each Adventure has one scheduled notification per kind. Scheduling again replaces it, so a moved Deadline moves both.
+- A Check-in cancels both, even while it waits for signal. So does any time the app sees that the Adventure is no longer Active, Overdue or Alerted.
+- A notification whose time has already passed is not scheduled. A Deadline set less than 30 minutes ahead therefore gets no Reminder.
+- Supabase does not push either notification. The push channel is turned off, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
+- The phone's clock decides when they show. The Alert still follows the server's clock.
 
 ### Channels
 

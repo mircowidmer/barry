@@ -1,4 +1,4 @@
-import type { Refusal } from '@/lib/barry';
+import type { Alarm, Refusal } from '@/lib/barry';
 
 const refusals: Record<Refusal, string> = {
   not_found: 'This Adventure no longer exists.',
@@ -25,4 +25,24 @@ export const formatDuration = (ms: number) => {
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);
   return minutes % 60 === 0 ? `${hours} h` : `${hours} h ${minutes % 60} min`;
+};
+
+// Built from parts, like the server's messages, because runtimes punctuate format() differently.
+// Hermes types the hour and minute parts as literals, so the clock comes from format().
+export const formatMessageTime = (at: Date, timeZone: string) => {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone, weekday: 'short', day: 'numeric', month: 'short' }).formatToParts(at);
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)!.value;
+  const clock = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(at);
+  return `${part('weekday')} ${part('day')} ${part('month')}, ${clock}`;
+};
+
+export const notificationText = ({ kind, adventure }: Alarm): { title: string; body: string } => {
+  const time = (at: Date) => formatMessageTime(at, adventure.timeZone);
+  const destination = adventure.plan.destination;
+  return kind === 'reminder'
+    ? { title: 'Check in or move your Deadline', body: `Your Deadline for ${destination} is ${time(adventure.deadline)}.` }
+    : {
+        title: 'You are overdue',
+        body: `Your Deadline for ${destination} was ${time(adventure.deadline)}. Barry alerts your Emergency Contacts at ${time(adventure.alertAt)} unless you check in.`,
+      };
 };
