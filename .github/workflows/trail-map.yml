@@ -41,8 +41,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx expo export --platform web
-      - name: Keep only the Trail Map and the email confirmation page
-        run: mkdir site && cp -R dist/trail.html dist/confirmed.html dist/_expo dist/assets dist/favicon.ico site/
+      - name: Keep the Trail Map and the email confirmation page, and add the features page at the root
+        run: |
+          mkdir site
+          cp -R dist/trail.html dist/confirmed.html dist/_expo dist/assets dist/favicon.ico site/
+          cp web/index.html site/index.html
+          cp assets/images/logo.png site/logo.png
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
