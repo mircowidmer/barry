@@ -47,6 +47,25 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
   );
 });
 
+Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map link', () => {
+  const { subject, text } = render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links);
+  assertEquals(subject, 'Anna changed the Plan for Grosser Mythen');
+  assertEquals(
+    text,
+    [
+      'Anna changed the Plan of the Adventure you are an Emergency Contact for.',
+      '',
+      'Destination: Grosser Mythen',
+      'Route: East ridge',
+      'Starting point: Brunni car park',
+      '',
+      'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
+      '',
+      "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
+    ].join('\n'),
+  );
+});
+
 Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', () => {
   const { subject, text } = render(
     parseFacts({
@@ -125,6 +144,7 @@ const GSM_7 =
 Deno.test('every text message body uses only the GSM-7 alphabet, so it is not sent at the UCS-2 rate', () => {
   const bodies = [
     render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links),
+    render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links),
     render(
       parseFacts({
         ...base,

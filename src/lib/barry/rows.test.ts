@@ -26,6 +26,7 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   time_zone: null,
   started_at: null,
   alerts_sent: 0,
+  plan_revision: 0,
   last_alert_at: null,
   checked_in_at: null,
   ended_at: null,

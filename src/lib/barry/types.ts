@@ -58,7 +58,7 @@ export type InProgressAdventure = ActiveAdventure | OverdueAdventure | AlertedAd
 export type Adventure = PlannedAdventure | InProgressAdventure | EndedAdventure;
 
 export type DeliveryFailure = {
-  message: 'heads_up' | 'alert' | 'all_clear';
+  message: 'heads_up' | 'plan_update' | 'alert' | 'all_clear';
   contactName: string;
   channel: Channel;
   address: string;
