@@ -181,7 +181,7 @@ select is(
 );
 select is(has_function_privilege('anon', 'public.record_trail(uuid, jsonb)', 'execute'), false,
   'Without an account no Trail reading can be recorded');
-select is(has_function_privilege('authenticated', 'public.trail_map(text)', 'execute'), false,
+select is(has_function_privilege('authenticated', 'public.trail_map(text, timestamptz)', 'execute'), false,
   'The app does not read the Trail Map');
 select is(has_table_privilege('anon', 'public.adventure_contacts', 'select'), false,
   'Without an account no link token can be listed');

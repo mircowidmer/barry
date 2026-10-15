@@ -62,14 +62,25 @@ export const parseTrailMap = (json: unknown): TrailMap | null => {
   }
 };
 
+export const newestReading = (map: TrailMap | null): Date | null =>
+  map && map.status !== 'checked_in' ? (map.trail.at(-1)?.takenAt ?? null) : null;
+
+/** Adds the readings in an answer for `newestReading(shown)` to the Trail already shown. */
+export const mergeTrailMap = (shown: TrailMap | null, update: TrailMap): TrailMap => {
+  if (!shown || shown.status === 'checked_in' || update.status === 'checked_in') return update;
+  const newest = newestReading(shown);
+  const fresh = newest ? update.trail.filter((p) => p.takenAt > newest) : update.trail;
+  return { ...update, trail: [...shown.trail, ...fresh] };
+};
+
 export const fetchTrailMap =
   (fetchFn: typeof fetch, base: string, key: string) =>
-  async (token: string): Promise<TrailMap | null | 'offline'> => {
+  async (token: string, after: Date | null = null): Promise<TrailMap | null | 'offline'> => {
     try {
       const response = await fetchFn(`${base}/rest/v1/rpc/trail_map`, {
         method: 'POST',
         headers: { apikey: key, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_token: token }),
+        body: JSON.stringify(after ? { p_token: token, p_after: after.toISOString() } : { p_token: token }),
       });
       if (!response.ok) return 'offline';
       return parseTrailMap(await response.json());
