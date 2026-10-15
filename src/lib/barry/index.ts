@@ -38,6 +38,25 @@ const readPosition = async (): Promise<Position | null> => {
   }
 };
 
+const UPDATE_OPTIONS = {
+  recording: {
+    accuracy: Location.Accuracy.BestForNavigation,
+    distanceInterval: 10,
+    deferredUpdatesInterval: 60_000,
+    deferredUpdatesDistance: 0,
+    pausesUpdatesAutomatically: false,
+    activityType: Location.ActivityType.Fitness,
+    showsBackgroundLocationIndicator: true,
+  },
+  delivering: {
+    accuracy: Location.Accuracy.Balanced,
+    distanceInterval: 0,
+    deferredUpdatesInterval: 60_000,
+    pausesUpdatesAutomatically: false,
+    showsBackgroundLocationIndicator: true,
+  },
+} satisfies Record<Parameters<LocationService['startUpdates']>[0], Location.LocationTaskOptions>;
+
 const location: LocationService = {
   backgroundPermitted: async () => (await Location.getBackgroundPermissionsAsync()).granted,
   requestBackground: async () => {
@@ -45,18 +64,8 @@ const location: LocationService = {
     if (!foreground.granted) return false;
     return (await Location.requestBackgroundPermissionsAsync()).granted;
   },
-  startUpdates: async () => {
-    if (await Location.hasStartedLocationUpdatesAsync(TRAIL_LOCATION_TASK)) return;
-    await Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, {
-      accuracy: Location.Accuracy.BestForNavigation,
-      distanceInterval: 10,
-      deferredUpdatesInterval: 60_000,
-      deferredUpdatesDistance: 0,
-      pausesUpdatesAutomatically: false,
-      activityType: Location.ActivityType.Fitness,
-      showsBackgroundLocationIndicator: true,
-    });
-  },
+  // On a running task iOS only reapplies the options, which is how the mode switches.
+  startUpdates: (mode) => Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, UPDATE_OPTIONS[mode]),
   stopUpdates: async () => {
     if (await Location.hasStartedLocationUpdatesAsync(TRAIL_LOCATION_TASK)) {
       await Location.stopLocationUpdatesAsync(TRAIL_LOCATION_TASK);
