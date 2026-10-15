@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(21);
+select plan(22);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -148,6 +148,13 @@ select throws_ok(
   'P0001', 'barry:adventure_in_progress',
   'An account with an Active Adventure cannot be deleted'
 );
+
+set local role service_role;
+select lives_ok(
+  $$update public.adventures set deadline = deadline + interval '1 hour' where id = 'a0000000-0000-0000-0000-000000000001'$$,
+  'The trusted server role can change a Deadline directly'
+);
+reset role;
 
 select lives_ok(
   $$delete from auth.users where id = '22222222-2222-2222-2222-222222222222'$$,
