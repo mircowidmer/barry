@@ -152,8 +152,8 @@ If a Heads-up, an Alert, or an All-clear cannot be delivered, the app shows the 
 
 - Barry reads the location at Start and at each Deadline move. This needs only the "while using the app" location permission.
 - If the Adventurer allows the "Always" location permission, Barry also records the Trail. There is no switch for each Adventure.
-- The Trail keeps about one reading every 10 seconds, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
-- iOS sends background readings when the phone moves, not on a timer. Barry keeps at most one of them per 10 seconds.
+- The Trail keeps about one reading a minute, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
+- iOS sends background readings when the phone moves, not on a timer. Barry keeps the first one of each minute.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Known Position is the newest reading, from Start, a Deadline move, or the Trail.
@@ -166,7 +166,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 
 - Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up and every Alert carry it.
 - The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
-- The page adds new readings every minute while it is open, the same pace as the Adventurer's live screen. The phone still records a reading every 10 seconds.
+- The page adds new readings every minute while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. After the first Alert, it shows that the Adventure is Alerted.
 - After the Check-in, the page shows the time of the Check-in and no positions.
 - The link never expires. After the Check-in it keeps showing the Check-in time for as long as the Adventurer's account exists.

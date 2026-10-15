@@ -16,7 +16,6 @@ const reading = (iso: string, latitude = 47): Position => ({ takenAt: new Date(i
 const every = (seconds: number) => (from: string, count: number) =>
   Array.from({ length: count }, (_, i) => reading(new Date(new Date(from).getTime() + i * seconds * 1000).toISOString()));
 const minutes = every(60);
-const slots = every(10);
 
 const recorder = (outcomes: TrailSendOutcome[] = []) => {
   const sent: { adventureId: string; times: string[] }[] = [];
@@ -28,28 +27,28 @@ const recorder = (outcomes: TrailSendOutcome[] = []) => {
 };
 
 describe('the Trail buffer', () => {
-  it('buckets by the same 10-second UTC window as the database', () => {
-    expect(slotKey(reading('2026-10-15T09:41:59.900Z'))).toBe('2026-10-15T09:41:50');
+  it('buckets by the UTC minute', () => {
+    expect(slotKey(reading('2026-10-15T09:41:59.900Z'))).toBe('2026-10-15T09:41');
   });
 
-  it('keeps the first reading of each 10 seconds', () => {
+  it('keeps the first reading of each minute', () => {
     const buffer = createTrailBuffer(memoryStorage());
-    buffer.add(id('a1'), [reading('2026-10-15T09:41:11Z', 47.1), reading('2026-10-15T09:41:19Z', 47.2)]);
-    buffer.add(id('a1'), [reading('2026-10-15T09:41:13Z', 47.3)]);
+    buffer.add(id('a1'), [reading('2026-10-15T09:41:11Z', 47.1), reading('2026-10-15T09:41:49Z', 47.2)]);
+    buffer.add(id('a1'), [reading('2026-10-15T09:41:30Z', 47.3)]);
     expect(buffer.newest(id('a1'))).toEqual(reading('2026-10-15T09:41:11Z', 47.1));
   });
 
-  it('sends nothing for a reading in 10 seconds it already sent', async () => {
+  it('sends nothing for a reading in a minute it already sent', async () => {
     const storage = memoryStorage();
     const { sent, send } = recorder();
     createTrailBuffer(storage).add(id('a1'), [reading('2026-10-15T09:41:11Z')]);
     await createTrailBuffer(storage).flush(send);
     const buffer = createTrailBuffer(storage);
-    buffer.add(id('a1'), [reading('2026-10-15T09:41:13Z'), reading('2026-10-15T09:41:05Z')]);
+    buffer.add(id('a1'), [reading('2026-10-15T09:41:40Z'), reading('2026-10-15T09:40:05Z')]);
     await buffer.flush(send);
-    buffer.add(id('a1'), [reading('2026-10-15T09:41:21Z')]);
+    buffer.add(id('a1'), [reading('2026-10-15T09:42:10Z')]);
     await buffer.flush(send);
-    expect(sent.map((s) => s.times)).toEqual([['2026-10-15T09:41:11.000Z'], ['2026-10-15T09:41:21.000Z']]);
+    expect(sent.map((s) => s.times)).toEqual([['2026-10-15T09:41:11.000Z'], ['2026-10-15T09:42:10.000Z']]);
   });
 
   it('survives an app restart, because it lives in storage', async () => {
@@ -108,11 +107,11 @@ describe('the Trail buffer', () => {
 
   it('evicts the oldest readings beyond a day of them', async () => {
     const buffer = createTrailBuffer(memoryStorage());
-    buffer.add(id('a1'), slots('2026-10-15T00:00:00Z', 8_641));
+    buffer.add(id('a1'), minutes('2026-10-15T00:00:00Z', 1_441));
     const { sent, send } = recorder();
     await buffer.flush(send);
-    expect(sent.flatMap((s) => s.times)).toHaveLength(8_640);
-    expect(sent[0].times[0]).toBe('2026-10-15T00:00:10.000Z');
+    expect(sent.flatMap((s) => s.times)).toHaveLength(1_440);
+    expect(sent[0].times[0]).toBe('2026-10-15T00:01:00.000Z');
   });
 
   it('forgets every other Adventure', () => {
