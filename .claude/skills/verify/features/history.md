@@ -1,12 +1,12 @@
 # History
 
-The History tab, second in the tab bar, shows the Adventure in progress under `Now` and the Ended Adventures under `Past Adventures`, newest first. Planned Adventures stay on the Adventure tab. The Adventure tab no longer lists past Adventures.
+The History tab, second in the tab bar, shows the Adventure in progress under `Current Adventure` and the Ended Adventures under `Past Adventures`, newest first. Planned Adventures stay on the Adventure tab. The Adventure tab no longer lists past Adventures.
 
 ## Sub-features
 
 - `history-tab` shows four tabs in the order `Adventure`, `History`, `Contacts`, `Profile`, with a list icon on `History`.
 - `history-past` lists Ended Adventures as cards reading `<destination>` and `Checked in <time>`, newest first.
-- `history-now` shows the live Adventure under `Now` with `Back by <time>`, `Overdue since <time>` or `Emergency Contacts alerted`. Tapping it opens the Adventure tab's live screen.
+- `history-now` shows the live Adventure under `Current Adventure` with `Back by <time>`, `Overdue since <time>` or `Emergency Contacts alerted`. Tapping it opens the Adventure tab's live screen.
 - `history-empty` reads `Your Adventures show up here once you start one.` when there is no live or Ended Adventure.
 - Opening an Ended Adventure and deleting it are `trail-history` and `history-delete` in [Trail and Trail Map](./trail.md).
 
@@ -22,7 +22,7 @@ Preconditions:
 
 - **Tabs (`history-tab`).** The tab bar shows `Adventure` (73, 820), `History` (158, 820), `Contacts` (243, 820) and `Profile` (329, 820).
 - **Past (`history-past`).** Tap `History`. The screen titled `History` shows `Past Adventures` and a card per Ended Adventure. The Adventure tab shows `Plan an Adventure` and no `Past Adventures`.
-- **Now (`history-now`).** Run `fixture.mjs live 120`, tap `Profile`, then `History`. A `Now` heading sits above `Past Adventures` with a `Pilatus` card reading `Back by <time>`. Tap it. The Adventure tab opens on the live screen with `Hold to check in`. Run `fixture.mjs end`, tap `History`: the `Now` section is gone and the Adventure is the first card under `Past Adventures`.
+- **Now (`history-now`).** Run `fixture.mjs live 120`, tap `Profile`, then `History`. A `Current Adventure` heading sits above `Past Adventures` with a `Pilatus` card reading `Back by <time>`. Tap it. The Adventure tab opens on the live screen with `Hold to check in`. Run `fixture.mjs end`, tap `History`: the `Current Adventure` section is gone and the Adventure is the first card under `Past Adventures`.
 
 ## Gotchas
 
