@@ -34,6 +34,7 @@ createServer(async (request, response) => {
     return reply(400, { code: 21604, message: "A 'To', 'From' and 'Body' are required", status: 400 });
   }
   messages.push(message);
-  console.log(`texted ${message.to} from ${message.from}: ${message.body.split('\n')[0]}`);
+  const [first, ...rest] = message.body.split('\n');
+  console.log([`texted ${message.to} from ${message.from}: ${first}`, ...rest.map((line) => (line ? `  ${line}` : ''))].join('\n'));
   reply(201, message);
 }).listen(PORT, () => console.log(`sms relay listening on http://localhost:${PORT}`));
