@@ -19,7 +19,7 @@ Barry sends text messages through Twilio's Messaging API. Locally, `scripts/sms-
      ```
 
      Do not set `TWILIO_API_URL`. Without it, `deliver` sends to `https://api.twilio.com`.
-   - Local Supabase: in `[edge_runtime.secrets]` in `supabase/config.toml`, remove `TWILIO_API_URL` and set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM` to the values from step 5. Do not commit the Auth Token. Restart Supabase, because the edge runtime reads secrets only at start.
+   - Local Supabase: put the values in `supabase/.env`, which git ignores. `supabase/config.toml` reads them with `env(...)`. Set `TWILIO_API_URL=https://api.twilio.com` for real texts, or `TWILIO_API_URL=http://host.docker.internal:8788` to send them to `scripts/sms-relay.mjs`. Restart Supabase, because the edge runtime reads secrets only at start.
 
 ## Cost
 
