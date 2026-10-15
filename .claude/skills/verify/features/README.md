@@ -22,7 +22,7 @@ This directory is the maintained source for verifying what a Barry user can do. 
 
 - Save a screenshot after the user action and after the resulting state in `.verify-artifacts/<run-id>/`.
 - Save `fixture.mjs state` output for every change to stored data.
-- Push proof is the relay's `pushed to simulator:` line plus the banner or Notification Center entry.
+- Notification proof is a screenshot of the banner or the Notification Center entry.
 - Report a step you could not reach with the attempted action and the unmet precondition. Never report it as verified through a different path.
 
 ## Feature entry contract
@@ -35,6 +35,6 @@ Each feature file starts with an H1 title and one paragraph describing the user-
 - [Emergency Contacts](./contacts.md) covers adding, editing and removing contacts, and the text-message marker.
 - [Plan and start](./plan-and-start.md) covers planning, Start warnings, Start and the Heads-up.
 - [Live Adventure](./live-adventure.md) covers the countdown, Deadline moves, Overdue, editing, Check-in, the short-tap guard and offline Check-in.
-- [Notifications](./notifications.md) covers the Reminder and the Overdue Notice pushes.
+- [Notifications](./notifications.md) covers the Reminder and the Overdue Notice, which the app schedules as local notifications.
 - [History](./history.md) covers the History tab with the live Adventure and the Ended Adventures.
 - [Trail and Trail Map](./trail.md) covers background recording, offline readings, the contact's Trail Map page, and the Check-in delete.

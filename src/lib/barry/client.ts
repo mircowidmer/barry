@@ -3,6 +3,7 @@ import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 
 import { createAdventureCache } from './adventure-cache';
+import { createAlarms, dueAlarms, type NotificationService } from './alarms';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { createTrail, type LocationService } from './trail';
 import { createTrailBuffer } from './trail-buffer';
@@ -35,7 +36,8 @@ export type BarryDeps = {
   now(): Date;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Whether the system lets Barry show notifications. */
-  pushPermitted(): Promise<boolean>;
+  notificationsPermitted(): Promise<boolean>;
+  notifications: NotificationService;
   location: LocationService;
 };
 
@@ -66,7 +68,8 @@ export const createBarry = ({
   timeZone,
   now,
   storage,
-  pushPermitted,
+  notificationsPermitted,
+  notifications,
   location,
 }: BarryDeps): Barry => {
   const userId = async () => {
@@ -77,6 +80,28 @@ export const createBarry = ({
   };
 
   const cache = createAdventureCache(storage, now);
+
+  const cachedInProgress = () => {
+    const cached = cache.load();
+    const adventure = cached ? parseAdventure(cached.row) : null;
+    return isInProgress(adventure) ? adventure : null;
+  };
+
+  const alarms = createAlarms({
+    notifications,
+    due: () => {
+      const adventure = cachedInProgress();
+      const checkedIn = queue.pending().some((c) => c.adventureId === adventure?.id);
+      return dueAlarms(adventure, checkedIn, now());
+    },
+  });
+
+  const syncAlarms = () => alarms.sync().catch(() => undefined);
+
+  const remember = (row: AdventureWithRelations | null) => {
+    cache.save(row);
+    syncAlarms();
+  };
 
   const getAdventure = async (id: AdventureId) => {
     const { data, error } = await supabase
@@ -89,8 +114,8 @@ export const createBarry = ({
     if (error) fail('getAdventure', error);
     const row = data as unknown as AdventureWithRelations | null;
     const adventure = row ? parseAdventure(row) : null;
-    if (isInProgress(adventure)) cache.save(row);
-    else if (cache.load()?.row.id === id) cache.save(null);
+    if (isInProgress(adventure)) remember(row);
+    else if (cache.load()?.row.id === id) remember(null);
     return adventure;
   };
 
@@ -223,12 +248,11 @@ export const createBarry = ({
         .maybeSingle();
       if (error) {
         if (!isNoSignal(error)) fail('getInProgressAdventure', error);
-        const cached = cache.load();
-        const adventure = cached ? parseAdventure(cached.row) : null;
-        return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: cached?.savedAt ?? now() };
+        syncAlarms();
+        return { adventure: cachedInProgress(), offlineSince: cache.load()?.savedAt ?? now() };
       }
       const row = data as unknown as AdventureWithRelations | null;
-      cache.save(row);
+      remember(row);
       const adventure = row ? parseAdventure(row) : null;
       return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: null };
     },
@@ -254,21 +278,18 @@ export const createBarry = ({
     deleteAdventure: async (id) => {
       const { data, error } = await supabase.rpc('delete_adventure', { p_id: id });
       if (error) fail('deleteAdventure', error);
-      return data ? { kind: 'refused', refusal: data } : { kind: 'deleted' };
+      if (data) return { kind: 'refused', refusal: data };
+      await syncAlarms();
+      return { kind: 'deleted' };
     },
 
     startConditions: async () => {
-      const [channels, devices, permitted, trailPermitted] = await Promise.all([
+      const [channels, notificationsAllowed, trailPermitted] = await Promise.all([
         enabledChannels(),
-        supabase.from('push_devices').select('expo_push_token', { count: 'exact', head: true }),
-        pushPermitted(),
+        notificationsPermitted(),
         location.backgroundPermitted(),
       ]);
-      return {
-        smsEnabled: channels.has('sms'),
-        pushRegistered: permitted && (devices.count ?? 0) > 0,
-        trailPermitted,
-      };
+      return { smsEnabled: channels.has('sms'), notificationsPermitted: notificationsAllowed, trailPermitted };
     },
 
     start: async (id) => {
@@ -302,6 +323,7 @@ export const createBarry = ({
     checkIn: async (id) => {
       const checkedInAt = now();
       queue.add({ adventureId: id, checkedInAt });
+      await syncAlarms();
       const adventure = (await flushCheckIns()).get(id) ?? null;
       syncTrail();
       return adventure?.stage === 'ended'

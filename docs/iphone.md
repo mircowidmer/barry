@@ -48,7 +48,7 @@ npx expo start --dev-client
 
 - While the cable is connected, `Mirook.local` resolves to the cable link, so Supabase traffic goes over the cable and Metro traffic goes over Wi-Fi.
 - Barry works only on the Wi-Fi your Mac is on, and only while the Mac is awake with Supabase and Metro running. On mobile data the app cannot reach the backend.
-- There are no push notifications on the iPhone. The build leaves them out. Barry still asks for notification permission, and then registers no device.
+- There are no push notifications on the iPhone. The build leaves them out. Barry still asks for notification permission, because the Reminder and the Overdue Notice are local notifications that the app schedules on the phone. They arrive without push and without signal.
 - The Trail Map links in the emails open only on devices on the same Wi-Fi.
 - A free team's profile expires after 7 days. When iOS says Barry is no longer available, repeat steps 3 and 4.
 - If the macOS firewall asks whether `node` or Docker may accept incoming connections, allow it.

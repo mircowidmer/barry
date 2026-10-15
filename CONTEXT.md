@@ -76,7 +76,7 @@ _Avoid_: Closed, finished, completed, cancelled
 ### Messages
 
 **Reminder**:
-A push notification to the Adventurer shortly before the Deadline.
+A notification the Adventurer's phone shows shortly before the Deadline.
 _Avoid_: Warning, nudge
 
 **Heads-up**:
@@ -92,7 +92,7 @@ The message to alerted Emergency Contacts when the Adventurer checks in after an
 _Avoid_: Cancellation, resolution
 
 **Overdue Notice**:
-A push notification to the Adventurer when their Deadline passes, saying when the Alert will go out.
+A notification the Adventurer's phone shows when their Deadline passes, saying when the Alert will go out.
 _Avoid_: Second reminder, warning
 
 **Delivery Failure**:

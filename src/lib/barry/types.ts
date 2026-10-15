@@ -66,12 +66,12 @@ export type DeliveryFailure = {
 };
 
 export type StartWarning =
-  | { kind: 'no_push' }
+  | { kind: 'no_notifications' }
   | { kind: 'email_only'; contacts: EmergencyContact[] }
   | { kind: 'unreachable'; contacts: EmergencyContact[] }
   | { kind: 'no_trail' };
 
-export type StartConditions = { smsEnabled: boolean; pushRegistered: boolean; trailPermitted: boolean };
+export type StartConditions = { smsEnabled: boolean; notificationsPermitted: boolean; trailPermitted: boolean };
 
 export type RawLocation = { timestamp: number; coords: { latitude: number; longitude: number; accuracy: number | null } };
 

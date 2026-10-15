@@ -49,7 +49,7 @@ const names = (contacts: EmergencyContact[]) => contacts.map((c) => c.name).join
 
 const warningTexts: { [K in StartWarning['kind']]: (w: Extract<StartWarning, { kind: K }>) => string } = {
   no_trail: () => 'Barry can share only where you started. Allow location Always to share your Trail.',
-  no_push: () => 'This phone is not set up for notifications, so you will get no Reminder or Overdue Notice.',
+  no_notifications: () => 'Notifications are off for Barry, so you will get no Reminder or Overdue Notice.',
   email_only: (w) => `Text messages are not set up yet, so ${names(w.contacts)} get email only.`,
   unreachable: (w) =>
     w.contacts.length === 1
