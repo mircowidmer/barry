@@ -27,6 +27,10 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 
 `.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the text message relay on :8788, Metro on :8081, a booted simulator, the `support.barry` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
 
+## End-to-end suite
+
+`npm run e2e` checks the most important use cases against the running stack in about two minutes: a missed Deadline with its Alert and All-clear, a Check-in in time, a moved Deadline, a Plan Update, the Trail on the Trail Map, and deleting an account. It needs Supabase and `node scripts/sms-relay.mjs` running, and reads emails from Mailpit and texts from the relay. Each file in `e2e/` creates its own account with unique contacts and deletes it afterwards, also when a test fails, so the files run in parallel and never touch the test account. The suite drives the database, the clock and `deliver` directly. It does not tap through the app; that is what the Drive section below is for.
+
 ## Drive
 
 The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `duration` for a long-press), `swipe`, `button HOME`, `open_url`. Coordinates are device points on the iPhone 18 Pro, 402 × 874. A screenshot is shown scaled, so convert with the factor the tool reports.

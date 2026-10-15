@@ -567,7 +567,7 @@ Call chain for any question stays within three files: the task â†’ `trail.ts` â†
 
 **Static export**: `npx expo export -p web` succeeds and writes `dist/trail.html`; grep the web bundle for `expo-task-manager` and `expo-sqlite` to prove the native modules stayed out.
 
-**End to end** (`scripts/e2e-deliver.mjs`): after Start, extract the link from the Heads-up email in Mailpit, `POST /rpc/trail_map` with the anon key, assert `underway`; force the Alert, assert `alerted`; Check-in, assert `checked_in` and no positions.
+**End to end** (`e2e/missed-deadline.e2e.mjs` (formerly `scripts/e2e-deliver.mjs`)): after Start, extract the link from the Heads-up email in Mailpit, `POST /rpc/trail_map` with the anon key, assert `underway`; force the Alert, assert `alerted`; Check-in, assert `checked_in` and no positions.
 
 **iOS Simulator** (verify skill, development build):
 
