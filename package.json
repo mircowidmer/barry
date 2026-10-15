@@ -55,7 +55,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest"
+    "test": "jest",
+    "e2e": "node --test --test-timeout=300000 'e2e/*.e2e.mjs'"
   },
   "private": true,
   "jest": {
@@ -63,7 +64,8 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/supabase/",
-      "/docs/"
+      "/docs/",
+      "/e2e/"
     ]
   }
 }
