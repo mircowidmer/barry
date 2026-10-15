@@ -1,0 +1,48 @@
+# Trail and Trail Map
+
+With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and deletes the Trail at Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up and every Alert. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and only the Check-in time once the Adventurer is back.
+
+## Sub-features
+
+- `trail-off` shows `Barry can share only where you started.` on the live screen without "Always".
+- `trail-recording` shows `Barry is recording your Trail. Closing Barry stops the Trail.` with "Always".
+- `trail-background` keeps uploading readings while Barry is in the background, one per minute.
+- `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
+- `trail-map` shows `<name>'s Trail`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
+- `trail-map-checked-in` shows `<name> checked in at …` and no map after the Check-in.
+- `trail-checkin-delete` deletes every `trail` reading at Check-in and keeps `start` and `deadline_move` readings.
+
+## How to get to it (user POV)
+
+- The Adventurer allows location "Always" (iOS Settings, or the `Allow Always` button under the Start warning), starts an Adventure, and walks.
+- An Emergency Contact opens the link from the Heads-up or Alert email in a browser. Locally the link is `http://localhost:8081/trail#<token>`.
+
+## Driving it with the iOS Simulator
+
+Preconditions:
+
+- Baseline from the index.
+- `xcrun simctl location booted set 47.0286,8.6885` so the phone has a position.
+- For `trail-off`: `xcrun simctl privacy booted revoke location-always support.barry`, then `xcrun simctl privacy booted grant location support.barry`.
+- For the other journeys: `xcrun simctl privacy booted grant location-always support.barry`.
+- After any `privacy` change, `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`, because the app reads the permission on load and on foreground only.
+- `fixture.mjs live 120`, then tap `Contacts` (201, 817) and `Adventure` (115, 817) so the app loads and saves the live Adventure.
+
+- **Off (`trail-off`).** The live screen shows `Barry can share only where you started.` under the countdown.
+- **Recording (`trail-recording`).** The live screen shows `Barry is recording your Trail. Closing Barry stops the Trail.` and the status bar shows the location arrow.
+- **Walk.** `xcrun simctl location booted start --speed=2 --distance=15 47.0286,8.6885 47.0320,8.6960 47.0370,8.7040 47.0420,8.7120 47.0480,8.7200`. Within a minute `fixture.mjs trail` prints a `readings | trail | n | n | …` line, where the two counts are equal (one reading per minute).
+- **Background (`trail-background`).** Press HOME, wait three minutes, run `fixture.mjs trail`. The count grows by about three and the last time is within the last minute.
+- **Offline (`trail-offline`).** While walking, `fixture.mjs offline`, wait two minutes, `fixture.mjs trail` shows no new readings. `fixture.mjs online`, then `xcrun simctl launch booted support.barry`. Within 30 seconds the missing minutes arrive, still one per minute.
+- **Page (`trail-map`).** Take Luca's token from `fixture.mjs trail` (`link | Luca | <token>`) and open `http://localhost:8081/trail#<token>` in the built-in browser. The page reads `Anna's Trail` (or the Profile name), shows a line on the map, `Last Known Position at <time> Zurich time`, and `Destination: Pilatus`. `get_page_text` contains no `Deadline` and no `overdue`. Repeat after `fixture.mjs overdue` and the next tick: the page looks the same.
+- **Check-in (`trail-checkin-delete`, `trail-map-checked-in`).** Hold `Hold to check in` with `duration: 2.2`. `fixture.mjs trail` prints `adventure | ended` and no `trail` readings. Reload the page with `location.reload()`: it reads `Anna checked in at <time> Zurich time.` with no map.
+- **Proof.** Screenshot the live screen notices and the page, and save `fixture.mjs trail` after each step to `.verify-artifacts/<run-id>/`.
+
+## Gotchas
+
+- The simulated route ends. At 2 m/s the route above takes about 25 minutes. Once it ends, Barry gets no readings, because iOS sends updates only on movement. A stalled count after a route ended is not a bug: start a new route.
+- The iOS 27 simulator refuses geofencing (`startGeofencingAsync` throws). The relaunch after a force-quit cannot be verified here; it needs a real iPhone. Report it as unverified.
+- `navigate` to the same `/trail#<token>` URL does not reload the page. Use `location.reload()`, or wait for the page's 60-second refresh.
+- `fixture.mjs live` inserts the Adventure without `start_adventure`, so there is no `start` reading. A Check-in then leaves no readings at all.
+- The live screen's `Last position` is the reading from when the screen loaded. It does not refresh with each reading.
+- Background uploads were verified within the session token's first hour only. An expired token during a background wake is unverified.
+- The Trail Map URL in messages comes from `TRAIL_MAP_URL` in `supabase/config.toml`. The edge runtime reads it at start, so a change needs `npx supabase stop` and `npx supabase start`.
