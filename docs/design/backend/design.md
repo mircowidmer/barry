@@ -233,6 +233,7 @@ The user answered the open questions on 2026-10-15:
   - The command that makes a message stale now cancels it, instead of `claim_messages`. `save_adventure` cancels the pending rows of a removed contact. `move_deadline` cancels the pending Reminder and Overdue Notice for the old Deadline. `check_in` already cancelled the rest. Each cancellation now has one owner, and the rule holds before `deliver` exists. `claim_messages` therefore needs no cancel step.
   - The commands do not call `kick_deliverer()` yet, because `deliver` does not exist. The step that builds `deliver` adds the call.
   - `save_adventure` refuses `destination_missing` when an Active or Overdue Adventure would lose its destination. The table check already forbade it, and the refusal makes it typed. `private.record_position()` is a small helper that Start and a Deadline move share.
+- `private.tick()`, `private.clock_status`, `private.tick_error` and the `barry-tick` pg_cron job are implemented in `supabase/migrations/20261015083131_tick.sql`, checked by `tick.test.sql`. A real pg_cron run on the local stack succeeded and updated `clock_status`. Two local deviations: `tick` takes `p_now` like `reconcile`, so tests drive it at any time, and pg_cron calls it with the default `now()`. `tick` does not call `kick_deliverer()` yet, because `deliver` does not exist.
 
 ## Open questions and risks
 
