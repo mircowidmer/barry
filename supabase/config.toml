@@ -390,6 +390,12 @@ EMAIL_FROM = "barry@localhost"
 # scripts/push-relay.mjs on the Mac hands pushes to the iOS Simulator. Remove this line to send
 # through Expo once `eas credentials` has set up the Apple push key.
 EXPO_PUSH_URL = "http://host.docker.internal:8787/push"
+# scripts/sms-relay.mjs on the Mac prints text messages instead of sending them. For real ones,
+# remove TWILIO_API_URL and set the other three to the Twilio account's values.
+TWILIO_API_URL = "http://host.docker.internal:8788"
+TWILIO_ACCOUNT_SID = "AClocal"
+TWILIO_AUTH_TOKEN = "local"
+TWILIO_FROM = "Barry"
 # `npx expo start --web` serves the Trail Map page here. On EAS Hosting it is https://<project>.expo.app/trail.
 TRAIL_MAP_URL = "http://Mirook.local:8081/trail"
 
