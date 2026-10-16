@@ -29,7 +29,7 @@ Deno.test('an email goes to Resend as JSON with a Bearer key and one idempotency
   assertEquals(request.headers.get('authorization'), 'Bearer re_test');
   assertEquals(request.headers.get('idempotency-key'), 'barry-message-7');
   assertEquals(await request.json(), {
-    from: 'Barry <barry@example.com>',
+    from: '🐶 Barry <barry@example.com>',
     to: ['luca@example.com'],
     subject: 'Anna is back safe',
     text: 'Anna checked in safely at Sat 17 Oct, 19:05.',
