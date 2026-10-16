@@ -205,6 +205,7 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - Guidance in the Alert, such as emergency numbers.
 - Grace Period and Reminder lengths set per Adventure.
 - A way for a contact to acknowledge an Alert.
-- Messages in a language other than English.
+- Messages in a language other than English and German.
+- The app itself in a language other than English. Its messages to contacts and the web pages come in German too.
 - An app warning when the outside monitor has not heard from Supabase.
 - Detecting bounced emails.
