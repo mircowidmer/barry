@@ -49,7 +49,7 @@ Deno.test('Resend rate limiting and outages are retried', async () => {
   assertEquals((await resendAnswering(500, 'internal')).result.outcome, 'retry');
 });
 
-const twilio = { apiUrl: 'http://twilio.test', accountSid: 'ACtest', authToken: 'secret', from: 'Barry' };
+const twilio = { apiUrl: 'http://twilio.test', accountSid: 'ACtest', keySid: 'SKtest', keySecret: 'secret', from: 'Barry' };
 
 const twilioAnswering = async (status: number, reply: unknown) => {
   const realFetch = globalThis.fetch;
@@ -66,12 +66,12 @@ const twilioAnswering = async (status: number, reply: unknown) => {
   }
 };
 
-Deno.test('a text message goes to Twilio as a form with Basic auth, and its sid becomes the provider ref', async () => {
+Deno.test('a text message goes to Twilio as a form signed with the API key, and its sid becomes the provider ref', async () => {
   const { result, request } = await twilioAnswering(201, { sid: 'SM123', status: 'queued' });
   assertEquals(result, { outcome: 'sent', providerRef: 'SM123' });
   assertEquals(request.method, 'POST');
   assertEquals(request.url, 'http://twilio.test/2010-04-01/Accounts/ACtest/Messages.json');
-  assertEquals(request.headers.get('authorization'), `Basic ${btoa('ACtest:secret')}`);
+  assertEquals(request.headers.get('authorization'), `Basic ${btoa('SKtest:secret')}`);
   assertEquals(Object.fromEntries(new URLSearchParams(await request.text())), {
     To: '+41792222222',
     From: 'Barry',

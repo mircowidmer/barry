@@ -59,13 +59,14 @@ const parseJson = (body: string): Record<string, unknown> => {
   }
 };
 
-export type TwilioConfig = { apiUrl: string; accountSid: string; authToken: string; from: string };
+// An API key restricted to creating messages signs the request; the Account SID only names the account in the path.
+export type TwilioConfig = { apiUrl: string; accountSid: string; keySid: string; keySecret: string; from: string };
 
 export const twilioSms = (config: () => TwilioConfig): Sender => async (to, message) => {
-  const { apiUrl, accountSid, authToken, from } = config();
+  const { apiUrl, accountSid, keySid, keySecret, from } = config();
   const response = await fetch(`${apiUrl}/2010-04-01/Accounts/${accountSid}/Messages.json`, {
     method: 'POST',
-    headers: { authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}` },
+    headers: { authorization: `Basic ${btoa(`${keySid}:${keySecret}`)}` },
     body: new URLSearchParams({ To: to, From: from, Body: message.text }),
   });
   const body = parseJson(await response.text());
@@ -101,7 +102,8 @@ const resend = resendEmail(() => ({
 const twilio = twilioSms(() => ({
   apiUrl: Deno.env.get('TWILIO_API_URL') ?? 'https://api.twilio.com',
   accountSid: env('TWILIO_ACCOUNT_SID'),
-  authToken: env('TWILIO_AUTH_TOKEN'),
+  keySid: env('TWILIO_API_KEY_SID'),
+  keySecret: env('TWILIO_API_KEY_SECRET'),
   from: env('TWILIO_FROM'),
 }));
 
