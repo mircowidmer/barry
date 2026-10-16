@@ -203,19 +203,19 @@ function PlanForm({
 
       <Section title="Where are you going?">
         <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Where are you going to?" />
-        <Field label="Route" value={form.route} onChangeText={set('route')} placeholder="Optional" />
         <Field
-          label="Starting Point"
+          label="Starting Point (optional)"
           value={form.startingPoint}
           onChangeText={set('startingPoint')}
-          placeholder="Optional, for example where you park"
+          placeholder="For example where you park"
         />
+        <Field label="Route (optional)" value={form.route} onChangeText={set('route')} />
         <Field
-          label="Notes"
+          label="Notes (optional)"
           value={form.notes}
           onChangeText={set('notes')}
           multiline
-          placeholder="Optional, for example what you are wearing"
+          placeholder="For example what you are wearing"
         />
       </Section>
 
