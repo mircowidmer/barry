@@ -44,11 +44,11 @@ export function Section({ title, children }: { title?: string; children: ReactNo
   );
 }
 
-type Toggle = { value: boolean; onValueChange: (value: boolean) => void };
+type Toggle = { value: boolean; onValueChange: (value: boolean) => void; disabled?: boolean };
 
 export function Field({ label, hint, toggle, ...input }: { label: string; hint?: string; toggle?: Toggle } & TextInputProps) {
   const theme = useTheme();
-  if (toggle && !toggle.value) input = { ...input, editable: false };
+  const dimmed = input.editable === false || (toggle !== undefined && !toggle.value && !toggle.disabled);
   return (
     <View style={styles.field}>
       <View style={styles.label}>
@@ -60,6 +60,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
             accessibilityLabel={`Use ${label}`}
             value={toggle.value}
             onValueChange={toggle.onValueChange}
+            disabled={toggle.disabled}
             trackColor={{ true: theme.success }}
           />
         )}
@@ -70,8 +71,8 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
         style={[
           styles.input,
           {
-            color: input.editable === false ? theme.textSecondary : theme.text,
-            backgroundColor: input.editable === false ? theme.backgroundElement : theme.background,
+            color: dimmed ? theme.textSecondary : theme.text,
+            backgroundColor: dimmed ? theme.backgroundElement : theme.background,
             borderColor: theme.backgroundSelected,
           },
           input.multiline && styles.multiline,
