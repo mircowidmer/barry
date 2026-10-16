@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
   screen: {
     padding: Spacing.three,
     gap: Spacing.three,
-    paddingBottom: Spacing.six * 2,
     width: '100%',
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
