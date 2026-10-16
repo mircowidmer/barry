@@ -142,7 +142,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 ### Channels
 
 - Barry sends email and text messages. Each message goes to every channel the contact has. A text message carries the same text as the email body, without the subject.
-- Barry sends email through Resend, from the sender name "🐶 Barry". Only the All-clear has 🐶 in its subject.
+- Barry sends email through Resend, from the sender name "🐶 Barry".
 - Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.

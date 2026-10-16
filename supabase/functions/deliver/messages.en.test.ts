@@ -119,7 +119,7 @@ Deno.test('the Overdue Notice says when the Alert goes out', () => {
 
 Deno.test('the All-clear gives the Check-in time', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links);
-  assertEquals(subject, '🐶 Anna is back safe');
+  assertEquals(subject, 'Anna is back safe');
   assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05. Barry can stop worrying, and so can you.');
 });
 
