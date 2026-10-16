@@ -1,15 +1,40 @@
 # Text messages
 
-Barry has no text message provider, so text messages are switched off: `sms` is disabled in `private.channel_config`. Barry reaches Emergency Contacts by email only. The Contacts tab marks each phone number with "Text messages not set up yet", and starting an Adventure warns about a contact who has only a phone number, because that contact gets no message at all.
+Barry sends text messages through LINK Mobility's websms REST API (https://app.linkmobility.eu). `deliver` sends each one to `POST https://api.linkmobility.eu/rest/smsmessaging/text` with an access token.
 
-The rest of the text message path stays in place: the `sms` channel, the contact phone numbers, and the message text, which is the same as the email body.
+Text messages stay switched off (`sms` is disabled in `private.channel_config`) until the access token works. While they are off, Barry reaches Emergency Contacts by email only. The Contacts tab marks each phone number with "Text messages not set up yet", and starting an Adventure warns about a contact who has only a phone number.
 
-## Add a provider
+## Set up LINK Mobility
 
-1. Write the provider's sender in `supabase/functions/deliver/senders.ts`, next to `resendEmail`, with tests in `senders.test.ts`, and use it for `sms` in `senders`. Today `sms` fails every message with `No text message provider is set up`.
-2. Add the provider's secrets to `supabase/.env.hosted` and run `node scripts/hosted-secrets.mjs`.
-3. Switch the channel on with a migration: `update private.channel_config set enabled = true where channel = 'sms';`.
-4. Deploy with `npx supabase db push` and `npx supabase functions deploy deliver`.
+1. In the web interface at https://app.linkmobility.eu, create an API access token. LINK Mobility's API documentation says the token is created there.
+2. Check which sender addresses are assigned to the account. For Swiss numbers, use an alphanumeric sender such as `Barry`. If none is assigned, ask LINK Mobility support at support.at@linkmobility.com to assign one.
+3. Add both to `supabase/.env.hosted`, which git ignores:
+
+   ```
+   LINKMOBILITY_ACCESS_TOKEN=...
+   LINKMOBILITY_SENDER=Barry
+   ```
+
+   A sender that is a phone number, such as `+41445551234`, goes out as an international sender.
+4. From the linked checkout, set the secrets and deploy the function:
+
+   ```bash
+   node scripts/hosted-secrets.mjs
+   ```
+
+   ```bash
+   npx supabase functions deploy deliver
+   ```
+
+5. Send one test text message and check it arrives.
+6. Switch the channel on with a migration, `update private.channel_config set enabled = true where channel = 'sms';`, and push it with `npx supabase db push`.
+
+## How `deliver` reads the answer
+
+- `2000` and `2001` count as sent. The `transferId` is stored as the provider reference.
+- Throttling (`4023`, `4025`) and LINK Mobility's own errors (`5000`, `5003`) are retried.
+- Every other code fails at once, with LINK Mobility's status message as the reason, for example `LINK Mobility 4002: INVALID_RECIPIENT`.
+- HTTP 401 means LINK Mobility refused the access token.
 
 ## Segments
 

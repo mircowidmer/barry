@@ -1,6 +1,6 @@
 import { assertEquals } from 'jsr:@std/assert@1.0.13';
 
-import { resendEmail } from './senders.ts';
+import { linkMobilitySms, resendEmail } from './senders.ts';
 
 const message = { subject: 'Anna is back safe', text: 'Anna checked in safely at Sat 17 Oct, 19:05.' };
 
@@ -47,4 +47,59 @@ Deno.test('Resend rate limiting and outages are retried', async () => {
     reason: 'HTTP 429: Resend rate_limit_exceeded: Too many requests',
   });
   assertEquals((await resendAnswering(500, 'internal')).result.outcome, 'retry');
+});
+
+const linkMobility = { apiUrl: 'http://linkmobility.test', accessToken: 'lm-token', sender: 'Barry' };
+
+const linkMobilityAnswering = async (status: number, reply: unknown, sender = linkMobility.sender) => {
+  const realFetch = globalThis.fetch;
+  let request: Request | undefined;
+  globalThis.fetch = (input, init) => {
+    request = new Request(input, init);
+    return Promise.resolve(new Response(JSON.stringify(reply), { status }));
+  };
+  try {
+    const result = await linkMobilitySms(() => ({ ...linkMobility, sender }))('+41792222222', message, 7);
+    return { result, request: request! };
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+};
+
+Deno.test('a text message goes to LINK Mobility from the alphanumeric sender, and its transfer id becomes the provider ref', async () => {
+  const { result, request } = await linkMobilityAnswering(200, { statusCode: 2000, statusMessage: 'OK', transferId: '0059d0b20100a0a8b803', smsCount: 1 });
+  assertEquals(result, { outcome: 'sent', providerRef: '0059d0b20100a0a8b803' });
+  assertEquals(request.method, 'POST');
+  assertEquals(request.url, 'http://linkmobility.test/rest/smsmessaging/text');
+  assertEquals(request.headers.get('authorization'), 'Bearer lm-token');
+  assertEquals(await request.json(), {
+    recipientAddressList: ['41792222222'],
+    messageContent: 'Anna checked in safely at Sat 17 Oct, 19:05.',
+    senderAddress: 'Barry',
+    senderAddressType: 'alphanumeric',
+    contentCategory: 'informational',
+    clientMessageId: 'barry-message-7',
+  });
+});
+
+Deno.test('a phone number as the sender goes out as an international sender', async () => {
+  const { request } = await linkMobilityAnswering(200, { statusCode: 2001, statusMessage: 'OK_QUEUED', transferId: 'q1' }, '+41445551234');
+  const body = await request.json();
+  assertEquals([body.senderAddress, body.senderAddressType], ['41445551234', 'international']);
+});
+
+Deno.test('a refused recipient fails with LINK Mobility\'s status, and throttling is retried', async () => {
+  assertEquals((await linkMobilityAnswering(200, { statusCode: 4002, statusMessage: 'INVALID_RECIPIENT' })).result, {
+    outcome: 'failed',
+    reason: 'LINK Mobility 4002: INVALID_RECIPIENT',
+  });
+  assertEquals((await linkMobilityAnswering(200, { statusCode: 4025, statusMessage: 'THROTTLING' })).result, {
+    outcome: 'retry',
+    reason: 'LINK Mobility 4025: THROTTLING',
+  });
+});
+
+Deno.test('a wrong access token fails, and a LINK Mobility outage is retried', async () => {
+  assertEquals((await linkMobilityAnswering(401, {})).result, { outcome: 'failed', reason: 'HTTP 401: LINK Mobility refused the access token' });
+  assertEquals((await linkMobilityAnswering(503, 'unavailable')).result.outcome, 'retry');
 });
