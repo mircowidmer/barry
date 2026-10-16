@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   TextInput,
   type TextInputProps,
   View,
@@ -43,13 +44,26 @@ export function Section({ title, children }: { title?: string; children: ReactNo
   );
 }
 
-export function Field({ label, hint, ...input }: { label: string; hint?: string } & TextInputProps) {
+type Toggle = { value: boolean; onValueChange: (value: boolean) => void };
+
+export function Field({ label, hint, toggle, ...input }: { label: string; hint?: string; toggle?: Toggle } & TextInputProps) {
   const theme = useTheme();
+  if (toggle && !toggle.value) input = { ...input, editable: false };
   return (
     <View style={styles.field}>
-      <ThemedText type="small" themeColor="textSecondary">
-        {label}
-      </ThemedText>
+      <View style={styles.label}>
+        <ThemedText type="small" themeColor="textSecondary">
+          {label}
+        </ThemedText>
+        {toggle && (
+          <Switch
+            accessibilityLabel={`Use ${label}`}
+            value={toggle.value}
+            onValueChange={toggle.onValueChange}
+            trackColor={{ true: theme.success }}
+          />
+        )}
+      </View>
       <TextInput
         accessibilityLabel={label}
         placeholderTextColor={theme.textSecondary}
@@ -146,6 +160,7 @@ const styles = StyleSheet.create({
   },
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   field: { gap: Spacing.one },
+  label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
   input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
   hold: { minHeight: 64, overflow: 'hidden' },

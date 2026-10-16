@@ -15,7 +15,7 @@ What Barry knows about an Adventurer for rescuers: name, phone number, and optio
 _Avoid_: Account, user details, settings
 
 **Emergency Contact**:
-A person in an Adventurer's saved list, reachable by phone number, email, or both. They don't need Barry or an account. Each Adventure uses some of them.
+A person in an Adventurer's saved list, reachable by phone number, email, or both. The Adventurer can switch each address on and off, and Barry uses only the ones that are on. They don't need Barry or an account. Each Adventure uses some of them.
 _Avoid_: Watcher, guardian, buddy, friend
 
 ### Adventures

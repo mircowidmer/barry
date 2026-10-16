@@ -1,5 +1,6 @@
 import type { Database } from '@/lib/database.types';
 
+import { reachableAddresses } from './reach';
 import type {
   Adventure,
   AdventureId,
@@ -30,10 +31,17 @@ const date = (value: string | null, field: string): Date => {
 };
 
 export const parseContact = (row: ContactRow): EmergencyContact => {
-  const base = { id: row.id as EmergencyContactId, name: row.name };
-  if (row.email !== null) return { ...base, email: row.email, phone: row.phone };
-  if (row.phone !== null) return { ...base, phone: row.phone, email: row.email };
-  throw new Error('contact row: neither phone nor email');
+  const contact: EmergencyContact = {
+    id: row.id as EmergencyContactId,
+    name: row.name,
+    email: row.email,
+    emailEnabled: row.email_enabled,
+    phone: row.phone,
+    phoneEnabled: row.phone_enabled,
+  };
+  const reach = reachableAddresses(contact);
+  if (reach.email === null && reach.phone === null) throw new Error('contact row: no address switched on');
+  return contact;
 };
 
 export const parseProfile = (row: ProfileRow): AdventurerProfile => ({

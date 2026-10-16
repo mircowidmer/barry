@@ -7,7 +7,9 @@ const contact = {
   adventurer_id: 'u1',
   name: 'Luca',
   email: 'luca@example.com',
+  email_enabled: true,
   phone: null,
+  phone_enabled: true,
   removed_at: null,
   created_at: '2026-10-15T08:00:00Z',
 };
@@ -53,7 +55,7 @@ describe('parseAdventure', () => {
       stage: 'planned',
       plan: { destination: undefined, route: null, startingPoint: null, notes: null },
       deadline: null,
-      contacts: [{ id: 'c1', name: 'Luca', email: 'luca@example.com', phone: null }],
+      contacts: [{ id: 'c1', name: 'Luca', email: 'luca@example.com', emailEnabled: true, phone: null, phoneEnabled: true }],
     });
   });
 
@@ -84,7 +86,19 @@ describe('parseAdventure', () => {
 });
 
 describe('parseContact', () => {
-  it('refuses a contact with neither phone nor email', () => {
-    expect(() => parseContact({ ...contact, email: null })).toThrow('neither phone nor email');
+  it('keeps a switched-off address with its switch', () => {
+    expect(parseContact({ ...contact, phone: '+41792222222', phone_enabled: false })).toEqual({
+      id: 'c1',
+      name: 'Luca',
+      email: 'luca@example.com',
+      emailEnabled: true,
+      phone: '+41792222222',
+      phoneEnabled: false,
+    });
+  });
+
+  it('refuses a contact with no address switched on', () => {
+    expect(() => parseContact({ ...contact, email: null })).toThrow('no address switched on');
+    expect(() => parseContact({ ...contact, email_enabled: false })).toThrow('no address switched on');
   });
 });

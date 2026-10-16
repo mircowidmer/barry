@@ -7,11 +7,14 @@ import { useLoad } from '@/hooks/use-load';
 import { barry, type EmergencyContact, type EmergencyContactId } from '@/lib/barry';
 import { askToRemoveContact } from '@/lib/remove-contact';
 
-type Form = { id?: EmergencyContactId; name: string; phone: string; email: string };
+type Form = { id?: EmergencyContactId; name: string; email: string; emailEnabled: boolean; phone: string; phoneEnabled: boolean };
 
-const blank: Form = { name: '', phone: '', email: '' };
+const blank: Form = { name: '', email: '', emailEnabled: true, phone: '', phoneEnabled: true };
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
+
+const reachable = (form: Form) =>
+  (form.emailEnabled && form.email.trim() !== '') || (form.phoneEnabled && form.phone.trim() !== '');
 
 export default function ContactsScreen() {
   const loaded = useLoad(async () => {
@@ -23,7 +26,14 @@ export default function ContactsScreen() {
   const [saving, setSaving] = useState(false);
 
   const edit = (contact: EmergencyContact) => {
-    setDraft({ id: contact.id, name: contact.name, phone: contact.phone ?? '', email: contact.email ?? '' });
+    setDraft({
+      id: contact.id,
+      name: contact.name,
+      email: contact.email ?? '',
+      emailEnabled: contact.emailEnabled,
+      phone: contact.phone ?? '',
+      phoneEnabled: contact.phoneEnabled,
+    });
     setMessage(null);
   };
 
@@ -33,8 +43,10 @@ export default function ContactsScreen() {
       await barry.saveContact({
         id: draft.id,
         name: draft.name.trim(),
-        phone: orNull(draft.phone.replace(/\s/g, '')),
         email: orNull(draft.email),
+        emailEnabled: draft.emailEnabled,
+        phone: orNull(draft.phone.replace(/\s/g, '')),
+        phoneEnabled: draft.phoneEnabled,
       });
       setMessage({ tone: 'success', text: `${draft.name.trim()} saved.` });
       setDraft(blank);
@@ -42,7 +54,7 @@ export default function ContactsScreen() {
     } catch {
       setMessage({
         tone: 'danger',
-        text: 'Could not save. A contact needs a phone number with country code, an email address, or both.',
+        text: 'Could not save. A contact needs an email address or a phone number with country code that is switched on.',
       });
     } finally {
       setSaving(false);
@@ -74,11 +86,16 @@ export default function ContactsScreen() {
         <Section key={contact.id}>
           <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${contact.name}`} onPress={() => edit(contact)}>
             <ThemedText type="smallBold">{contact.name}</ThemedText>
-            {contact.email && <ThemedText type="small">{contact.email}</ThemedText>}
+            {contact.email && (
+              <ThemedText type="small" themeColor={contact.emailEnabled ? undefined : 'textSecondary'}>
+                {contact.email}
+                {!contact.emailEnabled && '  ·  Off'}
+              </ThemedText>
+            )}
             {contact.phone && (
-              <ThemedText type="small">
+              <ThemedText type="small" themeColor={contact.phoneEnabled ? undefined : 'textSecondary'}>
                 {contact.phone}
-                {!loaded.data.smsEnabled && '  ·  Text messages not set up yet'}
+                {!contact.phoneEnabled ? '  ·  Off' : !loaded.data.smsEnabled && '  ·  Text messages not set up yet'}
               </ThemedText>
             )}
           </Pressable>
@@ -93,6 +110,7 @@ export default function ContactsScreen() {
         <Field
           label="Email Address"
           value={draft.email}
+          toggle={{ value: draft.emailEnabled, onValueChange: (emailEnabled) => setDraft((d) => ({ ...d, emailEnabled })) }}
           onChangeText={(email) => setDraft((d) => ({ ...d, email }))}
           autoCapitalize="none"
           keyboardType="email-address"
@@ -100,16 +118,20 @@ export default function ContactsScreen() {
         <Field
           label="Phone Number"
           value={draft.phone}
+          toggle={{ value: draft.phoneEnabled, onValueChange: (phoneEnabled) => setDraft((d) => ({ ...d, phoneEnabled })) }}
           onChangeText={(phone) => setDraft((d) => ({ ...d, phone }))}
           keyboardType="phone-pad"
           hint="With country code, for example +41771234567."
         />
+        <ThemedText type="small" themeColor="textSecondary">
+          Barry only uses the email address and the phone number that are switched on.
+        </ThemedText>
         <Row>
           <Button
             title={draft.id ? 'Save' : 'Add Contact'}
             onPress={save}
             busy={saving}
-            disabled={draft.name.trim() === '' || (draft.email.trim() === '' && draft.phone.trim() === '')}
+            disabled={draft.name.trim() === '' || !reachable(draft)}
           />
           {draft.id && <Button title="Cancel" kind="secondary" onPress={() => setDraft(blank)} />}
         </Row>

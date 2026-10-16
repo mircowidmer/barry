@@ -199,8 +199,8 @@ export const createBarry = ({
       return (data ?? []).map(parseContact);
     },
 
-    saveContact: async ({ id, name, phone, email }) => {
-      const values = { name, phone, email };
+    saveContact: async ({ id, name, email, emailEnabled, phone, phoneEnabled }) => {
+      const values = { name, email, email_enabled: emailEnabled, phone, phone_enabled: phoneEnabled };
       const { data, error } = id
         ? await supabase.from('emergency_contacts').update(values).eq('id', id).select().single()
         : await supabase.from('emergency_contacts').insert(values).select().single();

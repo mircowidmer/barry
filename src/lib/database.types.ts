@@ -79,14 +79,14 @@ isOneToOne: false
                   ]
                 },"emergency_contacts": {
                   Row: {
-                    "adventurer_id": string,"created_at": string,"email": string | null,"id": string,"name": string,"phone": string | null,"removed_at": string | null
+                    "adventurer_id": string,"created_at": string,"email": string | null,"email_enabled": boolean,"id": string,"name": string,"phone": string | null,"phone_enabled": boolean,"removed_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "adventurer_id"?: string,"created_at"?: string,"email"?: string | null,"id"?: string,"name": string,"phone"?: string | null,"removed_at"?: string | null
+                    "adventurer_id"?: string,"created_at"?: string,"email"?: string | null,"email_enabled"?: boolean,"id"?: string,"name": string,"phone"?: string | null,"phone_enabled"?: boolean,"removed_at"?: string | null
                   }
                   Update: {
-                    "adventurer_id"?: string,"created_at"?: string,"email"?: string | null,"id"?: string,"name"?: string,"phone"?: string | null,"removed_at"?: string | null
+                    "adventurer_id"?: string,"created_at"?: string,"email"?: string | null,"email_enabled"?: boolean,"id"?: string,"name"?: string,"phone"?: string | null,"phone_enabled"?: boolean,"removed_at"?: string | null
                   }
                   Relationships: [
                     

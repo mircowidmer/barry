@@ -31,6 +31,8 @@ The name and the phone number must be filled in before the Adventurer starts the
 
 - Each Adventurer keeps a saved list of Emergency Contacts.
 - An Emergency Contact has a name and a phone number, an email address, or both.
+- The Adventurer can switch the email address and the phone number on and off. Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so switching it back on restores it.
+- A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved.
 - Emergency Contacts have no account and do not install Barry.
 - Barry sends nothing to a person when the Adventurer adds them to the list.
 - Each Adventure uses one or more contacts from the list.
@@ -49,7 +51,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 | Starting Point | No | Part of the Plan, for example where the car is parked. |
 | Notes | No | Part of the Plan. Free text, for example clothing and equipment. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
-| Emergency Contacts | Yes, at least one | Each must have a phone number or an email address. |
+| Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
 | Last Known Position | No | Recorded by Barry, not entered. |
 
 ### Stages
@@ -141,7 +143,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Channels
 
-- Barry sends email and text messages. Each message goes to every channel the contact has. A text message carries the same text as the email body, without the subject.
+- Barry sends email and text messages. Each message goes to every channel the contact has, on the addresses that are switched on. "Every channel the contact has" in the table above means the same. A text message carries the same text as the email body, without the subject.
 - Barry sends email through Resend, from the sender name "🐶 Barry".
 - Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
