@@ -51,17 +51,13 @@ function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date })
           {map.adventurerName} checked in at {formatWhen(map.checkedInAt)}.
         </p>
       )}
-      {map.status !== 'checked_in' && (
-        <>
-          <TrailMapView trail={map.trail} last={map.lastKnownPosition} />
-          <p className="caption">
-            {map.lastKnownPosition
-              ? `Last Known Position at ${formatWhen(map.lastKnownPosition.takenAt)}: ${map.lastKnownPosition.latitude.toFixed(5)}, ${map.lastKnownPosition.longitude.toFixed(5)}` +
-                (map.lastKnownPosition.accuracyM === null ? '' : ` (within ${Math.round(map.lastKnownPosition.accuracyM)} m)`)
-              : 'Last Known Position: not recorded'}
-          </p>
-        </>
-      )}
+      <TrailMapView trail={map.trail} last={map.lastKnownPosition} />
+      <p className="caption">
+        {map.lastKnownPosition
+          ? `Last Known Position at ${formatWhen(map.lastKnownPosition.takenAt)}: ${map.lastKnownPosition.latitude.toFixed(5)}, ${map.lastKnownPosition.longitude.toFixed(5)}` +
+            (map.lastKnownPosition.accuracyM === null ? '' : ` (within ${Math.round(map.lastKnownPosition.accuracyM)} m)`)
+          : 'Last Known Position: not recorded'}
+      </p>
       <div className="card">
         <h2>Plan</h2>
         <dl>

@@ -45,7 +45,7 @@ The Adventurer's most recent location reading. Barry takes one when they start a
 _Avoid_: Location, GPS fix, track
 
 **Trail**:
-The location readings Barry takes in the background during an Adventure, about one a minute, until the Check-in. After the Check-in only the Adventurer can see them.
+The location readings Barry takes in the background during an Adventure, about one a minute, until the Check-in. After the Check-in the Adventurer and their Emergency Contacts can still see them.
 _Avoid_: Track, breadcrumbs, route, live location
 
 **Trail Map**:

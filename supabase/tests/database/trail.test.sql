@@ -211,15 +211,12 @@ select is(public.record_trail('a0000000-0000-0000-0000-000000000001', (select re
 select is(pg_temp.trail_count(), 6, 'A Trail reading after the Check-in stores nothing');
 
 set local role anon;
-select is(
-  pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') - 'checked_in_at',
-  jsonb_build_object('status', 'checked_in', 'adventurer_name', 'Anna', 'time_zone', 'Europe/Zurich',
-    'plan', jsonb_build_object('destination', 'Rigi', 'route', 'North face', 'starting_point', null, 'notes', null)),
-  'After the Check-in the Trail Map shows no positions');
-select ok(not (pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ? 'trail'),
-  'After the Check-in the Trail Map has no Trail');
-select ok(not (pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ? 'last_known_position'),
-  'After the Check-in the Trail Map has no Last Known Position');
+select is(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'status', 'checked_in',
+  'After the Check-in the Trail Map says Anna checked in');
+select is(jsonb_array_length(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'trail'), 8,
+  'After the Check-in the Trail Map keeps every reading up to the Check-in');
+select is((pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'last_known_position' ->> 'latitude')::numeric, 47.08,
+  'After the Check-in the Trail Map keeps the Last Known Position');
 select is((pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'checked_in_at')::timestamptz, now(),
   'After the Check-in the Trail Map shows the Check-in time');
 
