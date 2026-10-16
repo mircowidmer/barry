@@ -379,7 +379,7 @@ deno_version = 2
 DELIVER_SECRET = "local-deliver-secret"
 EMAIL_API_URL = "http://supabase_inbucket_barry-local:8025/api/v1/send"
 EMAIL_FROM = "barry@localhost"
-# `npx expo start --web` serves the Trail Map page here. On EAS Hosting it is https://<project>.expo.app/trail.
+# `npx expo start --web` serves the Trail Map page here. Hosted, it is https://barry.support/trail.
 TRAIL_MAP_URL = "http://Mirook.local:8081/trail"
 
 [functions.deliver]
