@@ -4,7 +4,7 @@ From the Adventure tab, an Adventurer plans an Adventure with a destination, an 
 
 ## Sub-features
 
-- `plan-save` saves a Planned Adventure with `Save for later`.
+- `plan-save` saves a Planned Adventure with `Save for Later`.
 - `plan-warnings` shows the no-notifications, no-Trail, email-only and unreachable warnings for the selected contacts.
 - `plan-start` starts the Adventure, records the position and opens the live screen.
 - `plan-headsup` sends the Heads-up to each contact on every channel it has. Locally, a text message fails with `LINKMOBILITY_ACCESS_TOKEN is not set`, because only the hosted project has the LINK Mobility token.
