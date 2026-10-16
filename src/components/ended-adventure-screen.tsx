@@ -58,7 +58,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
       {!onDone && (
         <>
           {deleteError && <Notice tone="danger">{deleteError}</Notice>}
-          <Button title="Delete Adventure" kind="danger" onPress={remove} />
+          <Button title="Delete" kind="danger" onPress={remove} />
         </>
       )}
     </Screen>
