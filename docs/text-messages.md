@@ -49,4 +49,4 @@ The hosted project still holds `LINKMOBILITY_ACCESS_TOKEN` from before. `deliver
 
 Providers charge per segment. A segment holds 160 characters, or 153 when a message has more than one. One character outside the GSM-7 alphabet, such as `’` or `…`, sends the whole message as UCS-2, with 70 characters per segment, or 67 when split. The message text uses only GSM-7 characters, and a test in `supabase/functions/deliver/messages.en.test.ts` checks it. A name, a destination or notes that the Adventurer types with other characters still switch that message to UCS-2.
 
-With the test values in that file, a Heads-up is 3 segments, an Alert 4, and an All-clear 1, in English and in German. The German texts in `messages.de.ts` use only GSM-7 characters too, because ä, ö and ü are in the alphabet. `messages.de.test.ts` checks it.
+With the test values in that file, a Heads-up is 3 segments, an Alert 4, and an All-clear 1, in English and in German. A Deadline Update is 2 segments in English and 3 in German. The German texts in `messages.de.ts` use only GSM-7 characters too, because ä, ö and ü are in the alphabet. `messages.de.test.ts` checks it.

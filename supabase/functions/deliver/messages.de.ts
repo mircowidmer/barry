@@ -65,6 +65,18 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         ),
       };
 
+    case 'deadline_update':
+      return {
+        subject: `${name} braucht mehr Zeit für ${facts.plan.destination}`,
+        text: lines(
+          `${name} braucht mehr Zeit und hat die Rückkehrzeit von ${time(facts.previousDeadline)} auf ${time(facts.deadline)} verschoben. Barry hat die neue Fährte aufgenommen und passt weiter auf.`,
+          '',
+          `Wenn sich ${name} bis ${time(facts.deadline)} nicht zurückgemeldet hat, meldet sich Barry wieder bei dir.`,
+          trailLine(facts.trailToken) && '',
+          trailLine(facts.trailToken),
+        ),
+      };
+
     case 'reminder':
       return {
         subject: 'Melde dich zurück oder verschiebe deine Rückkehrzeit',

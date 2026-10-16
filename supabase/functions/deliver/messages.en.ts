@@ -62,6 +62,18 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         ),
       };
 
+    case 'deadline_update':
+      return {
+        subject: `${name} needs more time for ${facts.plan.destination}`,
+        text: lines(
+          `${name} needs more time and moved the check-in time from ${time(facts.previousDeadline)} to ${time(facts.deadline)}. Barry has picked up the new scent and keeps watching.`,
+          '',
+          `If ${name} has not checked in by ${time(facts.deadline)}, Barry will message you again.`,
+          trailLine(facts.trailToken) && '',
+          trailLine(facts.trailToken),
+        ),
+      };
+
     case 'reminder':
       return {
         subject: 'Check in or move your Deadline',
