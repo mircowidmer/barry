@@ -45,7 +45,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 | --- | --- | --- |
 | Destination | Yes | Part of the Plan. |
 | Route | No | Part of the Plan. |
-| Starting point | No | Part of the Plan, for example where the car is parked. |
+| Starting Point | No | Part of the Plan, for example where the car is parked. |
 | Notes | No | Part of the Plan. Free text, for example clothing and equipment. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address. |

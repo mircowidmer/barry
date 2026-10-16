@@ -219,7 +219,7 @@ function LiveAdventure({
       <Section title="Plan">
         <ThemedText type="small">Destination: {adventure.plan.destination}</ThemedText>
         {adventure.plan.route && <ThemedText type="small">Route: {adventure.plan.route}</ThemedText>}
-        {adventure.plan.startingPoint && <ThemedText type="small">Starting point: {adventure.plan.startingPoint}</ThemedText>}
+        {adventure.plan.startingPoint && <ThemedText type="small">Starting Point: {adventure.plan.startingPoint}</ThemedText>}
         {adventure.plan.notes && <ThemedText type="small">Notes: {adventure.plan.notes}</ThemedText>}
         <ThemedText type="small">Deadline: {formatWhen(adventure.deadline)}</ThemedText>
         {lastKnown && <ThemedText type="small">Last Known Position: {formatWhen(lastKnown.takenAt)}</ThemedText>}

@@ -22,7 +22,7 @@ const planLines = (plan: Plan): string[] =>
   [
     `Destination: ${plan.destination}`,
     plan.route && `Route: ${plan.route}`,
-    plan.startingPoint && `Starting point: ${plan.startingPoint}`,
+    plan.startingPoint && `Starting Point: ${plan.startingPoint}`,
     plan.notes && `Notes: ${plan.notes}`,
   ].filter((line): line is string => Boolean(line));
 
