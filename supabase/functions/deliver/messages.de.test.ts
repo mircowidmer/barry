@@ -92,6 +92,24 @@ Deno.test('the German All-clear gives the Check-in time', () => {
   assertEquals(text, 'Anna hat sich am Sa, 17. Okt. um 19:05 sicher zurückgemeldet. Barry muss sich keine Sorgen mehr machen, und du auch nicht.');
 });
 
+Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit and the link, without the Plan', () => {
+  const { subject, text } = render(
+    parseFacts({ ...base, kind: 'deadline_update', deadline: '2026-10-17T18:00:00Z', previous_deadline: '2026-10-17T16:00:00Z', trail_token: token }),
+    links,
+  );
+  assertEquals(subject, 'Anna braucht mehr Zeit für Grosser Mythen');
+  assertEquals(
+    text,
+    [
+      'Anna braucht mehr Zeit und hat die Rückkehrzeit von Sa, 17. Okt. um 18:00 auf Sa, 17. Okt. um 20:00 verschoben. Barry hat die neue Fährte aufgenommen und passt weiter auf.',
+      '',
+      'Wenn sich Anna bis Sa, 17. Okt. um 20:00 nicht zurückgemeldet hat, meldet sich Barry wieder bei dir.',
+      '',
+      'Hier siehst du, wo Anna unterwegs ist: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b',
+    ].join('\n'),
+  );
+});
+
 const GSM_7 =
   '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà' +
   '^{}\\[~]|€';
@@ -100,6 +118,7 @@ Deno.test('every German text message body uses only the GSM-7 alphabet, so it is
   const bodies = [
     render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links),
     render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links),
+    render(parseFacts({ ...base, kind: 'deadline_update', previous_deadline: '2026-10-17T14:00:00Z', trail_token: token }), links),
     render(
       parseFacts({
         ...base,

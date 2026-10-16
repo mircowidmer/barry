@@ -87,6 +87,10 @@ _Avoid_: Start notification, invite
 The message to an Adventure's Emergency Contacts when the Adventurer changes the Plan of an Active or Overdue Adventure, carrying the new Plan, the Deadline and the contact's Trail Map link.
 _Avoid_: Change notification, edit message
 
+**Deadline Update**:
+The message to an Adventure's Emergency Contacts a few minutes after the Adventurer moves the Deadline, carrying the Deadline the contact knew, the new one and the contact's Trail Map link. Quick moves in a row send one.
+_Avoid_: Extension notice, delay message
+
 **Alert**:
 The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Deadline, the Last Known Position, the Adventurer Profile and the contact's Trail Map link.
 _Avoid_: Notification, alarm, SOS
@@ -100,5 +104,5 @@ A notification the Adventurer's phone shows when their Deadline passes, saying w
 _Avoid_: Second reminder, warning
 
 **Delivery Failure**:
-A Heads-up, Plan Update, Alert or All-clear that could not be delivered to an Emergency Contact, which Barry shows to the Adventurer.
+A Heads-up, Plan Update, Deadline Update, Alert or All-clear that could not be delivered to an Emergency Contact, which Barry shows to the Adventurer.
 _Avoid_: Bounce, error

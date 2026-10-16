@@ -137,6 +137,24 @@ Deno.test('an unset or invalid TRAIL_MAP_URL gives no links', () => {
   assertEquals(trailMapLinks('not a url'), null);
 });
 
+Deno.test('a Deadline Update gives the earlier and the new check-in time and the Trail Map link, without the Plan', () => {
+  const { subject, text } = render(
+    parseFacts({ ...base, kind: 'deadline_update', deadline: '2026-10-17T18:00:00Z', previous_deadline: '2026-10-17T16:00:00Z', trail_token: token }),
+    links,
+  );
+  assertEquals(subject, 'Anna needs more time for Grosser Mythen');
+  assertEquals(
+    text,
+    [
+      'Anna needs more time and moved the check-in time from Sat 17 Oct, 18:00 to Sat 17 Oct, 20:00. Barry has picked up the new scent and keeps watching.',
+      '',
+      'If Anna has not checked in by Sat 17 Oct, 20:00, Barry will message you again.',
+      '',
+      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
+    ].join('\n'),
+  );
+});
+
 const GSM_7 =
   '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà' +
   '^{}\\[~]|€';
@@ -145,6 +163,7 @@ Deno.test('every text message body uses only the GSM-7 alphabet, so it is not se
   const bodies = [
     render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links),
     render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links),
+    render(parseFacts({ ...base, kind: 'deadline_update', previous_deadline: '2026-10-17T14:00:00Z', trail_token: token }), links),
     render(
       parseFacts({
         ...base,

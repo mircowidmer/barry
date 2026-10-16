@@ -20,7 +20,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 
 | Field | Required | Sent in |
 | --- | --- | --- |
-| Name | Yes | Heads-up, Plan Update, Alert, All-clear, Trail Map |
+| Name | Yes | Heads-up, Plan Update, Deadline Update, Alert, All-clear, Trail Map |
 | Phone number | Yes | Alert |
 | Car make, colour, and number plate | No | Alert |
 | Medical notes | No | Alert |
@@ -90,7 +90,11 @@ Before Start, the app shows these warnings when they apply. Start is still allow
 
 ### Move the Deadline
 
-The Adventurer can move the Deadline later at any time before the Alert. Each move records a new Last Known Position. Moving the Deadline of an Overdue Adventure makes it Active again. Emergency Contacts are not told that the Deadline moved.
+The Adventurer can move the Deadline later at any time before the Alert. Each move records a new Last Known Position. Moving the Deadline of an Overdue Adventure makes it Active again.
+
+- A move sends a Deadline Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets none, because the Heads-up carries the new Deadline.
+- The Deadline Update waits 3 minutes. Another move in that time replaces it, so quick moves in a row send one Deadline Update, from the time the contact knew to the latest one.
+- A Deadline Update still waiting at the Check-in or when the Alert goes out is not sent.
 
 ### Check-in
 
@@ -117,6 +121,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | --- | --- | --- | --- | --- |
 | Heads-up | Each contact of the Adventure | Every channel the contact has | Supabase confirms the Start, or a contact is added to an Active or Overdue Adventure | Adventurer's name, Plan, Deadline, the contact's Trail Map link |
 | Plan Update | Each contact whose Heads-up went out | Every channel the contact has | The Adventurer changes the Plan of an Active or Overdue Adventure | Adventurer's name, the new Plan, Deadline, the contact's Trail Map link |
+| Deadline Update | Each contact whose Heads-up went out | Every channel the contact has | 3 minutes after the Adventurer moves the Deadline | Adventurer's name, destination, the Deadline the contact knew, the new Deadline, the contact's Trail Map link |
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts in total | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |
@@ -154,7 +159,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Delivery Failures
 
-If a Heads-up, a Plan Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer.
+If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer.
 
 ## Location
 
@@ -172,7 +177,7 @@ If a Heads-up, a Plan Update, an Alert, or an All-clear cannot be delivered, the
 
 The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
 
-- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update and every Alert carry it.
+- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update and every Alert carry it.
 - The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
 - The page adds new readings every minute while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. After the first Alert, it shows that the Adventure is Alerted.
@@ -196,7 +201,6 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - A scheduled start. Every Adventure starts when the Adventurer taps **Start Adventure**.
 - A reminder to start a Planned Adventure.
 - Cancelling an Active, Overdue, or Alerted Adventure.
-- Telling contacts that a Deadline moved.
 - Guidance in the Alert, such as emergency numbers.
 - Grace Period and Reminder lengths set per Adventure.
 - A way for a contact to acknowledge an Alert.

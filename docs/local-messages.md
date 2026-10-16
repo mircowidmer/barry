@@ -28,4 +28,4 @@ The app shows these on the phone itself, as notifications at the right time. Not
 
 ## Every message at once
 
-Supabase Studio at http://127.0.0.1:54323 shows the `messages` table. Each row is one message to one address on one channel. Two contacts who share an address get one message. `kind` is `heads_up`, `plan_update`, `alert` or `all_clear`. Older rows can also say `reminder` or `overdue_notice`, from before the phone showed those itself. `status` is `pending`, `sending`, `sent`, `failed` or `cancelled`, and `failure_reason` says why it failed. The text itself is not stored, because Barry writes it at the moment it sends.
+Supabase Studio at http://127.0.0.1:54323 shows the `messages` table. Each row is one message to one address on one channel. Two contacts who share an address get one message. `kind` is `heads_up`, `plan_update`, `deadline_update`, `alert` or `all_clear`. Older rows can also say `reminder` or `overdue_notice`, from before the phone showed those itself. `status` is `pending`, `sending`, `sent`, `failed` or `cancelled`, and `failure_reason` says why it failed. The text itself is not stored, because Barry writes it at the moment it sends.
