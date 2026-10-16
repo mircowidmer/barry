@@ -13,8 +13,8 @@ const accountRefusals: Partial<Record<Refusal, string>> = {
 const confirmed = () =>
   new Promise<boolean>((resolve) =>
     Alert.alert(
-      'Delete your account?',
-      'Your Profile, your emergency contacts and every Adventure with its Trail are deleted. Links your emergency contacts got stop working. This cannot be undone.',
+      'Delete Your Account?',
+      'Your profile, your emergency contacts and every adventure with its trail are deleted. Links your emergency contacts got stop working. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
         { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
