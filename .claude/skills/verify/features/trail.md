@@ -1,6 +1,6 @@
 # Trail and Trail Map
 
-With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and keeps the Trail for the Adventurer after the Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up and every Alert. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and adds the Check-in time once the Adventurer is back. The app shows the Adventurer the map of the Trail on the Check-in screen and on each Past Adventure.
+With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and keeps the Trail for the Adventurer after the Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up, every Plan Update and every Alert. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and adds the Check-in time once the Adventurer is back. The app shows the Adventurer the map of the Trail on the Check-in screen and on each Past Adventure.
 
 ## Sub-features
 
@@ -8,7 +8,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-recording` shows `Barry is recording your Trail. Closing Barry stops the Trail.` with "Always".
 - `trail-background` keeps uploading readings while Barry is in the background, at most one per minute.
 - `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
-- `trail-map` shows `<name>'s Trail`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
+- `trail-map` shows `<name>'s Adventure`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
 - `trail-map-checked-in` shows `<name> checked in at …` above the map of the Trail after the Check-in.
 - `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every minute, and the Plan's `Last Known Position: <time>` always shows the same time as the marker.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.

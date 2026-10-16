@@ -59,7 +59,7 @@ The confirmation email that Supabase Auth sends after **Create account** lives o
 npx supabase db query --linked "select * from public.health()"
 ```
 
-All three values are `true` when the clock ticked in the last two minutes and messages are not piling up.
+All three values are `true` when the clock ticked in the last two minutes without an error and messages are not piling up.
 
 ## Not done yet
 

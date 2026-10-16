@@ -67,7 +67,7 @@ The Release build keeps the development build's sign-in and Trail, because both 
 - While the cable is connected, `Mirook.local` resolves to the cable link, so Supabase traffic goes over the cable and Metro traffic goes over Wi-Fi.
 - Barry works only on the Wi-Fi your Mac is on, and only while the Mac is awake with Supabase running. The development build also needs Metro. On mobile data the app cannot reach the backend.
 - There are no push notifications on the iPhone. The build leaves them out. Barry still asks for notification permission, because the Reminder and the Overdue Notice are local notifications that the app schedules on the phone. They arrive without push and without signal.
-- The Trail Map links in the emails open only on devices on the same Wi-Fi.
+- The Adventure page links in the emails open only on devices on the same Wi-Fi.
 - Text messages fail locally, because the local stack has no LINK Mobility access token. [How to see what Barry sends locally](local-messages.md) shows where to read the emails.
 - A free team's profile expires after 7 days. When iOS says Barry is no longer available, repeat steps 3 and 4.
 - If the macOS firewall asks whether `node` or Docker may accept incoming connections, allow it.

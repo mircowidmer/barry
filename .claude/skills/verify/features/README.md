@@ -37,4 +37,4 @@ Each feature file starts with an H1 title and one paragraph describing the user-
 - [Live Adventure](./live-adventure.md) covers the countdown, Deadline moves, Overdue, editing, Check-in, the short-tap guard and offline Check-in.
 - [Notifications](./notifications.md) covers the Reminder and the Overdue Notice, which the app schedules as local notifications.
 - [History](./history.md) covers the History tab with the live Adventure and the Ended Adventures.
-- [Trail and Trail Map](./trail.md) covers background recording, offline readings, the contact's Trail Map page, and the Check-in delete.
+- [Trail and Trail Map](./trail.md) covers background recording, offline readings, the live map, the contact's Trail Map page, the Trail after the Check-in, and deleting an Ended Adventure.

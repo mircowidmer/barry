@@ -11,6 +11,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 ## Accounts
 
 - An Adventurer signs in with an email address and a password through Supabase Auth.
+- A new account confirms its email address with a link that Barry sends from help@barry.support. The link opens a page on `https://barry.support/confirmed` that asks the Adventurer to sign in.
 - Each account has one Adventurer Profile.
 - The Adventurer deletes the account from the Profile tab with **Delete**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
 - An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
@@ -19,7 +20,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 
 | Field | Required | Sent in |
 | --- | --- | --- |
-| Name | Yes | Heads-up, Alert, All-clear, Trail Map |
+| Name | Yes | Heads-up, Plan Update, Alert, All-clear, Trail Map |
 | Phone number | Yes | Alert |
 | Car make, colour, and number plate | No | Alert |
 | Medical notes | No | Alert |
@@ -33,7 +34,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 - Emergency Contacts have no account and do not install Barry.
 - Barry sends nothing to a person when the Adventurer adds them to the list.
 - Each Adventure uses one or more contacts from the list.
-- The Adventurer removes a contact from the list with **Remove**, after confirming.
+- The Adventurer deletes a contact from the list with **Delete**, after confirming.
 - A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list.
 - A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned Adventures. If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one.
 
@@ -61,26 +62,26 @@ The name and the phone number must be filled in before the Adventurer starts the
 | Alerted | The Grace Period ends without a Check-in. | Ended |
 | Ended | The Adventurer checks in. | Nothing |
 
-An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. The Adventure tab lists the Planned Adventures. The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first. Opening an Ended Adventure shows its Plan, its Check-in time, and a map of its readings. The Adventurer can delete a Planned or an Ended Adventure after confirming, from its screen or by swiping its card left. Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
+An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. The Adventure tab lists the Planned Adventures, or shows the Adventure in progress. The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first. Opening an Ended Adventure shows its Plan, its Check-in time, and a map of its readings. The Adventurer can delete a Planned or an Ended Adventure after confirming, from its screen or by swiping its card left. Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
 
 ### Rules by stage
 
-- **Planned.** The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing. If the Adventurer never taps **Start**, nobody is protected.
+- **Planned.** The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing. If the Adventurer never taps **Start Adventure**, nobody is protected.
 - **Active and Overdue.** The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later. At least one contact always remains. The Adventure cannot be cancelled. A Check-in is the only way to end it.
 - **Alerted.** The Adventurer cannot move the Deadline or edit the Adventure. A Check-in is the only way to end it.
 
 ### Start
 
-1. The Adventurer taps **Start**.
+1. The Adventurer taps **Start Adventure**.
 2. The app records the Last Known Position.
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
 
-If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start.
+If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, the Plan screen says why right above the buttons.
 
 Before Start, the app shows these warnings when they apply. Start is still allowed.
 
-- The Adventurer has not allowed notifications. The app shows "You will get no Reminder or Overdue Notice".
+- The Adventurer has not allowed notifications. The app shows "you will get no Reminder or Overdue Notice".
 - While text messages are switched off, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
 - The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started".
 
@@ -90,7 +91,7 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 
 ### Check-in
 
-- A Check-in needs a deliberate gesture, such as press and hold. One tap is not enough.
+- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**. One tap is not enough.
 - A Check-in from an Active or Overdue Adventure ends it without a message to anyone.
 - A Check-in from an Alerted Adventure ends it and sends an All-clear.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows the Check-in.
@@ -142,7 +143,9 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 ### Channels
 
 - Barry sends email and text messages. Each message goes to every channel the contact has. A text message carries the same text as the email body, without the subject.
+- Barry sends email through Resend, from the sender name "🐶 Barry". Only the All-clear has 🐶 in its subject.
 - Barry sends text messages through LINK Mobility. [Text messages](text-messages.md) sets it up.
+- Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
 - A channel can be switched off. While text messages are switched off, the contact screen marks each contact's phone number with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
 
@@ -166,15 +169,16 @@ If a Heads-up, a Plan Update, an Alert, or an All-clear cannot be delivered, the
 
 The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
 
-- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up and every Alert carry it.
+- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update and every Alert carry it.
 - The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
 - The page adds new readings every minute while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. After the first Alert, it shows that the Adventure is Alerted.
 - After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Known Position. Barry records no readings after the Check-in.
-- The link never expires. After the Check-in it keeps showing the Check-in time and the Trail for as long as the Adventurer's account exists.
+- The link never expires. After the Check-in it keeps showing the Check-in time and the Trail until the Adventurer deletes the Adventure or the account.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.
 - The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
+- Any other address on `barry.support`, such as an old `/trail` link, opens the landing page.
 
 ## Monitoring
 
@@ -186,7 +190,7 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - Checkpoints during an Adventure. The only Check-in is the final one.
 - Sign-in with a magic link, Apple, or Google.
 - A message to a contact when they are added to the saved list, and contact confirmation.
-- A scheduled start. Every Adventure starts when the Adventurer taps **Start**.
+- A scheduled start. Every Adventure starts when the Adventurer taps **Start Adventure**.
 - A reminder to start a Planned Adventure.
 - Cancelling an Active, Overdue, or Alerted Adventure.
 - Telling contacts that a Deadline moved.
