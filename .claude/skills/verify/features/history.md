@@ -22,7 +22,7 @@ Preconditions:
 
 - **Tabs (`history-tab`).** The tab bar shows `Adventure` (73, 820), `History` (158, 820), `Contacts` (243, 820) and `Profile` (329, 820).
 - **Past (`history-past`).** Tap `History`. The screen titled `History` shows `Past Adventures` and a card per Ended Adventure. The Adventure tab shows `Plan an Adventure` and no `Past Adventures`.
-- **Now (`history-now`).** Run `fixture.mjs live 120`, tap `Profile`, then `History`. A `Current Adventure` heading sits above `Past Adventures` with a `Pilatus` card reading `Back by <time>`. Tap it. The Adventure tab opens on the live screen with `Hold to check in`. Run `fixture.mjs end`, tap `History`: the `Current Adventure` section is gone and the Adventure is the first card under `Past Adventures`.
+- **Now (`history-now`).** Run `fixture.mjs live 120`, tap `Profile`, then `History`. A `Current Adventure` heading sits above `Past Adventures` with a `Pilatus` card reading `Back by <time>`. Tap it. The Adventure tab opens on the live screen with `Hold to Check In`. Run `fixture.mjs end`, tap `History`: the `Current Adventure` section is gone and the Adventure is the first card under `Past Adventures`.
 
 ## Gotchas
 
