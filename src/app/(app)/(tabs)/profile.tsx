@@ -6,7 +6,7 @@ import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
 import { useSession } from '@/lib/session';
-import { supabase } from '@/lib/supabase';
+import { askToLogOut } from '@/lib/log-out';
 
 type Form = Record<keyof AdventurerProfile, string>;
 
@@ -108,7 +108,7 @@ function ProfileForm({ initial }: { initial: Form }) {
           busy={status === 'saving'}
           disabled={profile.name.trim() === '' || profile.phone.trim() === ''}
         />
-        <Button title="Log Out" kind="secondary" onPress={() => supabase.auth.signOut()} />
+        <Button title="Log Out" kind="secondary" onPress={askToLogOut} />
         <Button title="Delete" kind="danger" onPress={deleteAccount} busy={deleting} />
       </Row>
     </Screen>
