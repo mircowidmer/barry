@@ -17,6 +17,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export { Button } from '@/components/button';
+export { Choice } from '@/components/choice';
 
 export function Screen({ title, children }: { title?: string; children: ReactNode }) {
   const theme = useTheme();
@@ -80,52 +81,6 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
         ]}
         {...input}
       />
-      {hint && (
-        <ThemedText type="small" themeColor="textSecondary">
-          {hint}
-        </ThemedText>
-      )}
-    </View>
-  );
-}
-
-type Option<T extends string> = { value: T; title: string };
-
-export function Choice<T extends string>({
-  label,
-  hint,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  hint?: string;
-  options: Option<T>[];
-  value: T;
-  onChange: (value: T) => void;
-}) {
-  const theme = useTheme();
-  return (
-    <View style={styles.field}>
-      <ThemedText type="small" themeColor="textSecondary">
-        {label}
-      </ThemedText>
-      <View accessibilityRole="radiogroup" accessibilityLabel={label} style={[styles.choice, { borderColor: theme.backgroundSelected }]}>
-        {options.map((option) => {
-          const selected = option.value === value;
-          return (
-            <Pressable
-              key={option.value}
-              accessibilityRole="radio"
-              accessibilityLabel={option.title}
-              accessibilityState={{ checked: selected }}
-              onPress={() => onChange(option.value)}
-              style={[styles.choiceOption, { backgroundColor: selected ? theme.accent : theme.background }]}>
-              <ThemedText style={{ color: selected ? theme.onAccent : theme.text, fontWeight: 600 }}>{option.title}</ThemedText>
-            </Pressable>
-          );
-        })}
-      </View>
       {hint && (
         <ThemedText type="small" themeColor="textSecondary">
           {hint}
@@ -211,8 +166,6 @@ const styles = StyleSheet.create({
   label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
   input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
-  choice: { flexDirection: 'row', borderWidth: 1, borderRadius: Spacing.two, overflow: 'hidden' },
-  choiceOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   hold: { minHeight: 64, overflow: 'hidden' },
   capsule: { borderRadius: 32 },
   holdTarget: { flex: 1, minHeight: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
