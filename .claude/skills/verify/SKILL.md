@@ -16,8 +16,8 @@ From the repo root, in this order:
 1. `npx supabase start`. Ready when `.claude/skills/verify/scripts/doctor.sh` shows the database, Kong and the Edge runtime up. A fresh database needs `npx supabase db reset --local`, which applies every migration and `supabase/seed.sql` (the Vault secrets `deliver` needs). A reset deletes the test account too: create it again through the app's **Create account** with the values in `.env.local`.
 2. `node scripts/sms-relay.mjs` as a background process. Ready when it prints `sms relay listening on http://localhost:8788`.
 3. The app:
-   - If `ios/` is missing or a native dependency changed: `LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
-   - Otherwise: `npx expo start --dev-client --port 8081` as a background process, then `xcrun simctl launch booted support.barry`. Ready when Metro prints `iOS Bundled`.
+   - If `ios/` is missing or a native dependency changed: `APP_VARIANT=development LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. If `ios/` was generated for another variant, run `APP_VARIANT=development LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios` first. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
+   - Otherwise: `npm start` as a background process, then `xcrun simctl launch booted support.barry.dev`. Ready when Metro prints `iOS Bundled`.
    - If iOS shows `Open in "Barry"?`, choose **Open**.
 4. Run the doctor. Every line must say `ok`.
 

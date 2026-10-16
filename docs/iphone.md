@@ -1,6 +1,6 @@
 # How to run Barry on your iPhone
 
-This puts a development build of Barry on a real iPhone. The app talks to the Supabase stack and the Metro bundler on your Mac, so the iPhone and the Mac must be on the same Wi-Fi.
+This puts the development build of Barry, Barry Dev with the bundle identifier `support.barry.dev`, on a real iPhone. It talks to the Supabase stack and the Metro bundler on your Mac, so the iPhone and the Mac must be on the same Wi-Fi.
 
 ## Before you start
 
@@ -16,10 +16,10 @@ This puts a development build of Barry on a real iPhone. The app talks to the Su
    npx supabase start
    ```
 
-2. Generate the iOS project without push notifications. A free team cannot sign the Push Notifications capability, and `BARRY_WITHOUT_PUSH=1` makes `plugins/without-push.js` leave it out:
+2. Generate the iOS project for the development variant, without push notifications. A free team cannot sign the Push Notifications capability, and `BARRY_WITHOUT_PUSH=1` makes `plugins/without-push.js` leave it out. CocoaPods needs a UTF-8 locale:
 
    ```bash
-   BARRY_WITHOUT_PUSH=1 npx expo prebuild --clean --platform ios
+   APP_VARIANT=development BARRY_WITHOUT_PUSH=1 LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios
    ```
 
 3. Connect the iPhone with a cable and unlock it. Build once with Xcode's automatic signing allowed, so Xcode creates the provisioning profile (`expo run:ios` cannot):
@@ -31,36 +31,46 @@ This puts a development build of Barry on a real iPhone. The app talks to the Su
 4. Install the app and start Metro:
 
    ```bash
-   BARRY_WITHOUT_PUSH=1 npx expo run:ios --device Mirone
+   APP_VARIANT=development BARRY_WITHOUT_PUSH=1 npx expo run:ios --device Mirone
    ```
 
-5. The first time only, trust the certificate on the iPhone. Open **Settings > General > VPN & Device Management**, tap **Apple Development: mirco.widmer@nxt-engineering.com**, and tap **Trust**. Until then iOS refuses to open Barry and step 4 ends with `profile has not been explicitly trusted by the user`.
-6. Open Barry. Allow **Local Network** when it asks; without it the app cannot reach your Mac. If Barry shows the development launcher, tap the server on port 8081, or enter `http://Mirook.local:8081`.
+5. The first time only, trust the certificate on the iPhone. Open **Settings > General > VPN & Device Management**, tap **Apple Development: mirco.widmer@nxt-engineering.com**, and tap **Trust**. Until then iOS refuses to open Barry Dev and step 4 ends with `profile has not been explicitly trusted by the user`.
+6. Open Barry Dev. Allow **Local Network** when it asks; without it the app cannot reach your Mac. If Barry shows the development launcher, tap the server on port 8081, or enter `http://Mirook.local:8081`.
 7. Sign in with the test account from `.env.local`, and allow location **Always** so the Trail records in the background.
 
-Later, to use the installed app again, start Supabase and Metro and open Barry:
+Later, to use the installed app again, start Supabase and Metro and open Barry Dev:
 
 ```bash
-npx expo start --dev-client
+npm start
 ```
 
-## Install a Release build that runs without Metro
+## Install the production app
 
-A Release build carries Barry's JavaScript inside the app, so it opens without Metro. It still calls Supabase on your Mac, because `EXPO_PUBLIC_SUPABASE_URL` in `.env.local` is built into the bundle.
+The production app, Barry with the bundle identifier `support.barry`, carries its JavaScript and talks to the hosted Supabase project. It installs next to Barry Dev. With a paid Apple team, `npm run build:production` builds it in the cloud instead, as [Builds](builds.md) describes.
 
-1. Build with the iPhone connected and unlocked:
+1. Generate the iOS project for the production variant:
 
    ```bash
-   xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release -destination 'platform=iOS,name=Mirone' -derivedDataPath ios/build -allowProvisioningUpdates build
+   APP_VARIANT=production BARRY_WITHOUT_PUSH=1 LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios
    ```
 
-2. Install it over the development build:
+2. Build with the iPhone connected and unlocked. The first command takes the hosted Supabase URL and publishable key from the production profile in `eas.json`:
+
+   ```bash
+   eval "$(node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log('export ' + k + '=' + JSON.stringify(v))")"
+   ```
+
+   ```bash
+   LANG=en_US.UTF-8 xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release -destination 'platform=iOS,name=Mirone' -derivedDataPath ios/build -allowProvisioningUpdates build
+   ```
+
+3. Install it:
 
    ```bash
    xcrun devicectl device install app --device Mirone ios/build/Build/Products/Release-iphoneos/Barry.app
    ```
 
-The Release build keeps the development build's sign-in and Trail, because both have the bundle identifier `support.barry`. A code change reaches it only through a new build. To go back to the development build, repeat step 4 of [Build and install](#build-and-install).
+A code change reaches it only through a new build. `ios/` now belongs to the production variant, so repeat step 2 of [Build and install](#build-and-install) before the next development build.
 
 ## Limits
 

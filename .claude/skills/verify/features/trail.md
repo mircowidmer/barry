@@ -26,16 +26,16 @@ Preconditions:
 
 - Baseline from the index.
 - `xcrun simctl location booted set 47.0286,8.6885` so the phone has a position.
-- For `trail-off`: `xcrun simctl privacy booted revoke location-always support.barry`, then `xcrun simctl privacy booted grant location support.barry`.
-- For the other journeys: `xcrun simctl privacy booted grant location-always support.barry`.
-- After any `privacy` change, `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`, because the app reads the permission on load and on foreground only.
+- For `trail-off`: `xcrun simctl privacy booted revoke location-always support.barry.dev`, then `xcrun simctl privacy booted grant location support.barry.dev`.
+- For the other journeys: `xcrun simctl privacy booted grant location-always support.barry.dev`.
+- After any `privacy` change, `xcrun simctl terminate booted support.barry.dev` and `xcrun simctl launch booted support.barry.dev`, because the app reads the permission on load and on foreground only.
 - `fixture.mjs live 120`, then tap `Contacts` (243, 820) and `Adventure` (73, 820) so the app loads and saves the live Adventure.
 
 - **Off (`trail-off`).** The live screen shows `Barry can share only where you started.` under the countdown.
 - **Recording (`trail-recording`).** The live screen shows `Barry is recording your Trail. Closing Barry stops the Trail.` and the status bar shows the location arrow.
 - **Walk.** `xcrun simctl location booted start --speed=2 --distance=15 47.0286,8.6885 47.0320,8.6960 47.0370,8.7040 47.0420,8.7120 47.0480,8.7200`. Within a minute `fixture.mjs trail` prints a `readings | trail | n | n | …` line, where the two counts are equal. Expect one reading per minute, the first one iOS reports in that minute.
 - **Background (`trail-background`).** Press HOME, wait three minutes, run `fixture.mjs trail`. The count grows by roughly 3 (one per minute while moving) and the last time is within the last minute.
-- **Offline (`trail-offline`).** While walking, `fixture.mjs offline`, wait two minutes, `fixture.mjs trail` shows no new readings. `fixture.mjs online`, then `xcrun simctl launch booted support.barry`. Within 30 seconds the missing readings arrive, still at most one per minute.
+- **Offline (`trail-offline`).** While walking, `fixture.mjs offline`, wait two minutes, `fixture.mjs trail` shows no new readings. `fixture.mjs online`, then `xcrun simctl launch booted support.barry.dev`. Within 30 seconds the missing readings arrive, still at most one per minute.
 - **Page (`trail-map`).** Take Luca's token from `fixture.mjs trail` (`link | Luca | <token>`) and open `http://localhost:8081/adventure#<token>` in the built-in browser. The page reads `Anna's Adventure` (or the Profile name), shows a line on the map, `Last Known Position at <time>` (no time zone), and a `Plan` card with `Destination` and `Pilatus`. `get_page_text` contains no `Deadline` and no `overdue`. Repeat after `fixture.mjs overdue` and the next tick: the page looks the same.
 - **Check-in (`trail-after-checkin`, `trail-map-checked-in`).** Hold `Hold to Check In` with `duration: 2.2`. The app reads `You checked in at … Welcome back.` with a `Done` button and an Apple map below it: a blue line, a blue dot per reading and a red marker on the newest one. `fixture.mjs trail` prints `adventure | ended` and the same `trail` count as before. Reload the page with `location.reload()`: it reads `Anna checked in at <time>.` above the same map and Last Known Position as before.
 - **History (`trail-history`).** Tap `Done`, tap `History` (158, 820), then the Adventure's card under `Past Adventures`. The pushed screen has a `Back` button and shows the Plan, `You checked in at …` and the same map. An Ended Adventure without readings shows `No positions were recorded.`

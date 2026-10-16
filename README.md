@@ -7,12 +7,12 @@ Barry is an iPhone app for adventures alone. You tell Barry where you are going 
 ```bash
 npm install
 npx supabase start
-npx expo start --dev-client
+npm start
 ```
 
 Copy `.env.example` to `.env.local` first, and set `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the publishable key that `npx supabase start` prints.
 
-The app needs a development build in the iOS Simulator or on an iPhone. [How to run Barry on your iPhone](docs/iphone.md) covers the build.
+The app needs the development build, Barry Dev, in the iOS Simulator or on an iPhone. [How to run Barry on your iPhone](docs/iphone.md) covers the local build, and [Builds](docs/builds.md) the variants and the cloud builds with EAS.
 
 ## Check it
 
@@ -31,6 +31,7 @@ npm run e2e
 
 - [Barry specification](docs/spec.md)
 - [How to run Barry on your iPhone](docs/iphone.md)
+- [Builds](docs/builds.md)
 - [How to see what Barry sends locally](docs/local-messages.md)
 - [The hosted Supabase project](docs/hosted-supabase.md)
 - [How to host the Adventure page on GitHub Pages](docs/trail-map-hosting.md)

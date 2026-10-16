@@ -14,7 +14,7 @@ check "pg_cron ticked in the last 2 minutes"   "[ \"\$(docker exec supabase_db_b
 check "Text message relay listens on :8788"    "lsof -nP -iTCP:8788 -sTCP:LISTEN"
 check "Metro listens on :8081"                "lsof -nP -iTCP:8081 -sTCP:LISTEN"
 check "A simulator is booted"                  "xcrun simctl list devices booted | grep -q Booted"
-check "Development build support.barry is installed" "xcrun simctl listapps booted | grep -q support.barry"
+check "Development build support.barry.dev is installed" "xcrun simctl listapps booted | grep -q support.barry.dev"
 check "Test account in .env.local"             "grep -q '^BARRY_TEST_EMAIL=' .env.local && grep -q '^BARRY_TEST_PASSWORD=' .env.local"
 
 exit $fail
