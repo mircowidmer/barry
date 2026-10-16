@@ -6,7 +6,6 @@ import { createClient } from '@supabase/supabase-js';
 
 export const API = 'http://127.0.0.1:54321';
 const MAILPIT = 'http://127.0.0.1:54324/api/v1';
-const SMS_RELAY = 'http://localhost:8788/messages';
 
 const keys = Object.fromEntries(
   execFileSync('npx', ['supabase', 'status', '-o', 'env'], { encoding: 'utf8' })
@@ -17,10 +16,6 @@ const keys = Object.fromEntries(
 );
 const options = { auth: { persistSession: false } };
 export const admin = createClient(API, keys.SECRET_KEY, options);
-
-await fetch(SMS_RELAY).catch(() => {
-  throw new Error('The text message relay is not running. Start it with: node scripts/sms-relay.mjs');
-});
 
 export const must = ({ data, error }, what) => {
   if (error) throw new Error(`${what}: ${error.message}`);
@@ -52,11 +47,6 @@ export const waitForMail = (to, subject) =>
   });
 
 export const mailCount = async (to, subject) => (await mails(to, subject)).length;
-
-export const textsTo = async (to) => (await fetch(SMS_RELAY).then((r) => r.json())).filter((m) => m.to === to);
-
-export const waitForText = (to, start) =>
-  poll(`text message starting "${start}" to ${to}`, async () => (await textsTo(to)).find((m) => m.body.startsWith(start)));
 
 export const trailMap = async (token, after) => {
   const response = await fetch(`${API}/rest/v1/rpc/trail_map`, {

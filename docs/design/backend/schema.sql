@@ -667,5 +667,5 @@ grant execute on function public.save_adventure, public.delete_adventure, public
 
 -- Vault secrets set out of band (supabase/seed.sql locally, dashboard in production):
 --   deliver_url, deliver_secret
--- Edge Function secrets: DELIVER_SECRET, HEALTHCHECK_URL, EMAIL_*, later TWILIO_*.
+-- Edge Function secrets: DELIVER_SECRET, HEALTHCHECK_URL, EMAIL_*, later a text message provider's.
 -- SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided to every Edge Function.

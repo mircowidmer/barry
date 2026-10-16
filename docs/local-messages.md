@@ -8,19 +8,7 @@ Mailpit catches every email. Open http://127.0.0.1:54324 to read the Heads-ups, 
 
 ## Text messages
 
-`scripts/sms-relay.mjs` catches every text message, as long as `TWILIO_API_URL=http://host.docker.internal:8788` is set in `supabase/.env`.
-
-1. Start the relay in a terminal:
-
-   ```bash
-   node scripts/sms-relay.mjs
-   ```
-
-   Each text message prints `texted <to> from Barry: <first line>`, for example `texted +41792222222 from Barry: Anna has not checked in from an adventure. The Deadline was Thu 15 Oct, 18:00.`, followed by the rest of the text indented, including the Trail Map link. A text message carries the same text as the email body, without the subject.
-
-2. Open http://localhost:8788/messages to read them in full. The page lists each text message's recipient, sender and body.
-
-The relay keeps text messages in memory only, so the list is empty after it restarts.
+Barry sends no text messages, locally or hosted, because it has no text message provider. [Text messages](text-messages.md) says what adding one takes.
 
 ## The Reminder and the Overdue Notice
 

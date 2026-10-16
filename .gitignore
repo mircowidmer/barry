@@ -45,6 +45,6 @@ example
 # verification proof (see .claude/skills/verify)
 .verify-artifacts/
 
-# Twilio and other secrets for the local Supabase stack
+# Secrets for the local Supabase stack
 supabase/.env
 supabase/.env.hosted

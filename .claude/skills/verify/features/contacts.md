@@ -21,9 +21,9 @@ Preconditions:
 - Baseline from the index.
 
 - **Add (`contacts-add`).** Paste `Mia` into `Name` and `mia@example.com` into `Email Address` in the `Add a New Contact` section, then tap `Add Contact`. The notice reads `Mia saved.` and a `Mia` card lists the email.
-- **Marker (`contacts-sms-marker`).** With text messages on, Sara's card reads `+41792222222` with no marker. The marker `+41792222222 · Text messages not set up yet` shows only while `sms` is switched off in `private.channel_config`.
-- **In use (`contacts-in-use`).** Run `fixture.mjs live 120`, switch tabs, and tap `Remove` on Luca's card. The notice reads `Luca is a contact of your current Adventure, so they stay until you check in.` Luca is still listed. Run `fixture.mjs end`.
-- **Remove (`contacts-remove`).** Tap `Remove` on Mia's card. The notice reads `Mia removed.` and the card is gone.
+- **Marker (`contacts-sms-marker`).** Text messages are off, because Barry has no text message provider, so Sara's card reads `+41792222222 · Text messages not set up yet`.
+- **In use (`contacts-in-use`).** Run `fixture.mjs live 120`, switch tabs, tap `Remove` on Luca's card, and tap `Remove` in the `Remove Luca?` alert. The notice reads `Luca is a contact of your current Adventure, so they stay until you check in.` Luca is still listed. Run `fixture.mjs end`.
+- **Remove (`contacts-remove`).** Tap `Remove` on Mia's card. The alert `Remove Mia?` offers `Cancel` and `Remove`. `Cancel` keeps the card. Tap `Remove`: the notice reads `Mia removed.` and the card is gone.
 
 ## Gotchas
 
