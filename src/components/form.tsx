@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { useSegments } from 'expo-router';
 import {
   Animated,
   Pressable,
@@ -18,12 +19,14 @@ export { Button } from '@/components/button';
 
 export function Screen({ title, children }: { title?: string; children: ReactNode }) {
   const theme = useTheme();
+  // The tab bar needs a gap above it. Without one, the home indicator inset is gap enough.
+  const aboveTabBar = (useSegments() as string[]).includes('(tabs)');
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.screen}>
+      contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }]}>
       {title && <ThemedText type="subtitle">{title}</ThemedText>}
       {children}
     </ScrollView>
