@@ -1,5 +1,7 @@
 export type Channel = 'email' | 'sms' | 'push';
 
+export type Language = 'en' | 'de';
+
 export type Plan = {
   destination: string;
   route: string | null;
@@ -19,6 +21,7 @@ export type ProfileDetails = {
 
 // The Profile beyond the name exists only on the Alert, so no other template can print it.
 export type MessageFacts = {
+  language: Language;
   adventurerName: string;
   timeZone: string;
   plan: Plan;
@@ -64,6 +67,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
   const f = raw as Json;
   const plan = (f.plan ?? {}) as Json;
   const base = {
+    language: f.language === 'de' ? ('de' as const) : ('en' as const),
     adventurerName: text(f.adventurer_name, 'adventurer_name'),
     timeZone: text(f.time_zone, 'time_zone'),
     plan: {

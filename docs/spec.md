@@ -24,6 +24,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 | Phone number | Yes | Alert |
 | Car make, colour, and number plate | No | Alert |
 | Medical notes | No | Alert |
+| Message language | Yes, English unless the Adventurer picks Deutsch | Decides the language of every message to the contacts |
 
 The name and the phone number must be filled in before the Adventurer starts their first Adventure. Only the Alert carries the full Profile.
 
@@ -145,6 +146,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 - Barry sends email and text messages. Each message goes to every channel the contact has, on the addresses that are switched on. "Every channel the contact has" in the table above means the same. A text message carries the same text as the email body, without the subject.
 - Barry sends email through Resend, from the sender name "🐶 Barry".
+- Barry writes every message to the contacts in the language the Adventurer picks in the Profile: English or German. The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du".
 - Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.

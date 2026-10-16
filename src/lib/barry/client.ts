@@ -184,6 +184,7 @@ export const createBarry = ({
         car_colour: profile.carColour,
         car_plate: profile.carPlate,
         medical_notes: profile.medicalNotes,
+        message_language: profile.messageLanguage,
         updated_at: now().toISOString(),
       });
       if (error) fail('saveProfile', error);

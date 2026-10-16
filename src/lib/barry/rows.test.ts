@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { type AdventureWithRelations, parseAdventure, parseContact } from './rows';
+import { type AdventureWithRelations, parseAdventure, parseContact, parseProfile } from './rows';
 
 const contact = {
   id: 'c1',
@@ -100,5 +100,25 @@ describe('parseContact', () => {
   it('refuses a contact with no address switched on', () => {
     expect(() => parseContact({ ...contact, email: null })).toThrow('no address switched on');
     expect(() => parseContact({ ...contact, email_enabled: false })).toThrow('no address switched on');
+  });
+});
+
+describe('parseProfile', () => {
+  const profile = {
+    id: 'u1',
+    name: 'Anna',
+    phone: '+41790000001',
+    car_make: null,
+    car_colour: null,
+    car_plate: null,
+    medical_notes: null,
+    message_language: 'de',
+    created_at: '2026-10-15T08:00:00Z',
+    updated_at: '2026-10-15T08:00:00Z',
+  };
+
+  it('reads the message language', () => {
+    expect(parseProfile(profile).messageLanguage).toBe('de');
+    expect(parseProfile({ ...profile, message_language: 'en' }).messageLanguage).toBe('en');
   });
 });

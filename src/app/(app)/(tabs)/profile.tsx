@@ -1,16 +1,22 @@
 import { useState } from 'react';
 
-import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
+import { Button, Choice, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
-import { type AdventurerProfile, barry } from '@/lib/barry';
+import { type AdventurerProfile, barry, type MessageLanguage } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
 import { useSession } from '@/lib/session';
 import { askToLogOut } from '@/lib/log-out';
 
-type Form = Record<keyof AdventurerProfile, string>;
+type TextField = Exclude<keyof AdventurerProfile, 'messageLanguage'>;
+type Form = Record<TextField, string> & { messageLanguage: MessageLanguage };
 
-const empty: Form = { name: '', phone: '', carMake: '', carColour: '', carPlate: '', medicalNotes: '' };
+const empty: Form = { name: '', phone: '', carMake: '', carColour: '', carPlate: '', medicalNotes: '', messageLanguage: 'en' };
+
+const languages: { value: MessageLanguage; title: string }[] = [
+  { value: 'en', title: 'English' },
+  { value: 'de', title: 'Deutsch' },
+];
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
@@ -21,6 +27,7 @@ const toForm = (p: AdventurerProfile): Form => ({
   carColour: p.carColour ?? '',
   carPlate: p.carPlate ?? '',
   medicalNotes: p.medicalNotes ?? '',
+  messageLanguage: p.messageLanguage,
 });
 
 export default function ProfileScreen() {
@@ -43,8 +50,13 @@ function ProfileForm({ initial }: { initial: Form }) {
     if (outcome.kind === 'failed') setDeleteError(outcome.message);
   };
 
-  const set = (field: keyof AdventurerProfile) => (text: string) => {
+  const set = (field: TextField) => (text: string) => {
     setProfile((p) => ({ ...p, [field]: text }));
+    setStatus('idle');
+  };
+
+  const setLanguage = (messageLanguage: MessageLanguage) => {
+    setProfile((p) => ({ ...p, messageLanguage }));
     setStatus('idle');
   };
 
@@ -58,6 +70,7 @@ function ProfileForm({ initial }: { initial: Form }) {
         carColour: orNull(profile.carColour),
         carPlate: orNull(profile.carPlate),
         medicalNotes: orNull(profile.medicalNotes),
+        messageLanguage: profile.messageLanguage,
       });
       setStatus('saved');
     } catch {
@@ -94,6 +107,15 @@ function ProfileForm({ initial }: { initial: Form }) {
           onChangeText={set('medicalNotes')}
           multiline
           hint="Only sent in an alert, never in a heads-up."
+        />
+      </Section>
+      <Section title="Messages to Your Contacts">
+        <Choice
+          label="Language"
+          options={languages}
+          value={profile.messageLanguage}
+          onChange={setLanguage}
+          hint="Barry writes the Heads-up, Plan Update, Alert and All-clear in this language."
         />
       </Section>
       {status === 'saved' && <Notice tone="success">Profile saved.</Notice>}
