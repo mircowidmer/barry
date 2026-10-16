@@ -80,7 +80,7 @@ export default function ContactsScreen() {
           </Pressable>
           <Row>
             <Button title="Edit" kind="secondary" onPress={() => edit(contact)} />
-            <Button title="Remove" kind="secondary" onPress={() => remove(contact)} />
+            <Button title="Remove" kind="danger" onPress={() => remove(contact)} />
           </Row>
         </Section>
       ))}
