@@ -18,7 +18,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 ## How to get to it (user POV)
 
 - The Adventurer allows location "Always" (iOS Settings, or the `Allow Always` button under the Start warning), starts an Adventure, and walks.
-- An Emergency Contact opens the link from the Heads-up or Alert email in a browser. Locally the link is `http://Mirook.local:8081/adventure#<token>`, so it opens on a phone on the same Wi-Fi. On the Mac `http://localhost:8081/adventure#<token>` shows the same page, and so does the old `/trail#<token>`.
+- An Emergency Contact opens the link from the Heads-up or Alert email in a browser. Locally the link is `http://Mirook.local:8081/adventure#<token>`, so it opens on a phone on the same Wi-Fi. On the Mac `http://localhost:8081/adventure#<token>` shows the same page.
 
 ## Driving it with the iOS Simulator
 

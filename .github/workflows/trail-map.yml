@@ -41,10 +41,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx expo export --platform web
-      - name: Keep the Adventure page, its old /trail address and the email confirmation page, and add the features page at the root
+      - name: Keep the Adventure page and the email confirmation page, and add the features page at the root
         run: |
           mkdir site
-          cp -R dist/adventure.html dist/trail.html dist/confirmed.html dist/_expo dist/assets dist/favicon.ico site/
+          cp -R dist/adventure.html dist/confirmed.html dist/_expo dist/assets dist/favicon.ico site/
           cp web/index.html web/site.css site/
           cp assets/images/logo.png site/logo.png
       - uses: actions/configure-pages@v5

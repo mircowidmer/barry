@@ -1,6 +1,6 @@
 # How to host the Trail Map on GitHub Pages
 
-The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Trail Map page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. The page's old address, `https://barry.support/trail#<token>`, shows the same page, so links already sent keep working.
+The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Trail Map page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. The page's old address, `https://barry.support/trail#<token>`, no longer works, so links sent before the move show a 404.
 
 ## Before you start
 
@@ -28,7 +28,7 @@ The workflow exports the web build and publishes `trail.html`, `confirmed.html`,
 npx expo export --platform web
 ```
 
-The files in `dist` expect to be served at the root of a domain, and the page expects the path `/adventure` or `/trail`, without `.html`, as GitHub Pages serves it. `npx expo serve` serves them that way.
+The files in `dist` expect to be served at the root of a domain, and the page expects the path `/adventure`, without `.html`, as GitHub Pages serves it. `npx expo serve` serves them that way.
 
 ## Limits
 
