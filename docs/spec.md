@@ -144,7 +144,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 - Barry sends email and text messages. Each message goes to every channel the contact has. A text message carries the same text as the email body, without the subject.
 - Barry sends email through Resend, from the sender name "🐶 Barry". Only the All-clear has 🐶 in its subject.
-- Barry sends text messages through LINK Mobility. [Text messages](text-messages.md) sets it up.
+- Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
 - A channel can be switched off. While text messages are switched off, the contact screen marks each contact's phone number with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.

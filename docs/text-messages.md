@@ -1,24 +1,28 @@
 # Text messages
 
-Barry sends text messages through LINK Mobility's websms REST API (https://app.linkmobility.eu). `deliver` sends each one to `POST https://api.linkmobility.eu/rest/smsmessaging/text` with an access token.
+Barry sends text messages through Twilio's Messaging API. `deliver` sends each one to `POST https://api.twilio.com/2010-04-01/Accounts/<Account SID>/Messages.json` with the Account SID and the Auth Token.
 
-Text messages are switched on in `private.channel_config`. Locally, `deliver` has no access token, so each text message fails at once with `LINKMOBILITY_ACCESS_TOKEN is not set` and shows up as a Delivery Failure.
+Text messages are switched on in `private.channel_config`. Locally, `supabase/config.toml` points `TWILIO_API_URL` at `scripts/sms-relay.mjs`, which prints each text message and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them.
 
-A LINK Mobility test account sends only to the phone number verified when the account was created. Text messages to any other number fail until the account leaves the test period.
+## Set up Twilio
 
-## Set up LINK Mobility
-
-1. In the web interface at https://app.linkmobility.eu, create an API access token. LINK Mobility's API documentation says the token is created there.
-2. Check which sender addresses are assigned to the account. For Swiss numbers, use an alphanumeric sender such as `Barry`. If none is assigned, ask LINK Mobility support at support.at@linkmobility.com to assign one.
-3. Add the token, and the sender once LINK Mobility has assigned it, to `supabase/.env.hosted`, which git ignores:
+1. Create a Twilio account at https://www.twilio.com/try-twilio.
+2. Upgrade the account in the Twilio Console. A trial account sends only Twilio's predefined templates, and only to verified numbers, so it cannot send Barry's messages.
+3. In **Messaging > Settings > Geo permissions**, enable every country your Emergency Contacts' phone numbers are in.
+4. Choose the sender:
+   - For Swiss numbers, use the alphanumeric sender `Barry`. Twilio's guidelines for Switzerland list it as supported without registration, so you buy nothing. Contacts cannot reply to it.
+   - For a country without alphanumeric senders, buy an SMS-capable number in **Phone Numbers > Manage > Buy a number** and use it in E.164 form, for example `+41445551234`.
+5. Copy the **Account SID** and the **Auth Token** from the Console's account dashboard.
+6. Add them to `supabase/.env.hosted`, which git ignores, and remove any `LINKMOBILITY_*` lines:
 
    ```
-   LINKMOBILITY_ACCESS_TOKEN=...
-   LINKMOBILITY_SENDER=Barry
+   TWILIO_ACCOUNT_SID=AC...
+   TWILIO_AUTH_TOKEN=...
+   TWILIO_FROM=Barry
    ```
 
-   Without `LINKMOBILITY_SENDER`, LINK Mobility sends from the account's default sender. A sender that is not assigned to the account fails every text message with `LINK Mobility 4003: sender address or type is invalid`, even though a request with `test: true` accepts it. A sender that is a phone number, such as `+41445551234`, goes out as an international sender.
-4. From the linked checkout, set the secrets and deploy the function:
+   Leave `TWILIO_API_URL` out. Without it, `deliver` sends to `https://api.twilio.com`.
+7. From the linked checkout, set the secrets and deploy the function:
 
    ```bash
    node scripts/hosted-secrets.mjs
@@ -28,15 +32,16 @@ A LINK Mobility test account sends only to the phone number verified when the ac
    npx supabase functions deploy deliver
    ```
 
-5. Send one test text message and check it arrives.
-6. Switch the channel on with a migration and push it with `npx supabase db push`. `supabase/migrations/20261016083000_enable_sms.sql` already does this with `update private.channel_config set enabled = true where channel = 'sms';`.
+8. Send one test text message and check it arrives.
+
+The hosted project still holds `LINKMOBILITY_ACCESS_TOKEN` from before. `deliver` ignores it. Remove it with `npx supabase secrets unset LINKMOBILITY_ACCESS_TOKEN`.
 
 ## How `deliver` reads the answer
 
-- `2000` and `2001` count as sent. The `transferId` is stored as the provider reference.
-- Throttling (`4023`, `4025`) and LINK Mobility's own errors (`5000`, `5003`) are retried.
-- Every other code fails at once, with LINK Mobility's status message as the reason, for example `LINK Mobility 4002: INVALID_RECIPIENT`.
-- HTTP 401 means LINK Mobility refused the access token.
+- A `2xx` answer counts as sent. The message `sid` is stored as the provider reference.
+- Rate limiting (HTTP 429) and Twilio outages (HTTP 5xx) are retried.
+- Every other answer fails at once, with Twilio's error code and message as the reason, for example `HTTP 400: Twilio 21211: The 'To' number is not a valid phone number.`
+- Without `TWILIO_ACCOUNT_SID`, each text message fails with `TWILIO_ACCOUNT_SID is not set`.
 
 ## Segments
 

@@ -381,6 +381,11 @@ EMAIL_API_URL = "http://supabase_inbucket_barry-local:8025/api/v1/send"
 EMAIL_FROM = "barry@localhost"
 # `npx expo start --web` serves the Adventure page here. Hosted, it is https://barry.support/adventure.
 TRAIL_MAP_URL = "http://Mirook.local:8081/adventure"
+# Locally, text messages go to scripts/sms-relay.mjs, which prints them and sends nothing.
+TWILIO_API_URL = "http://host.docker.internal:8788"
+TWILIO_ACCOUNT_SID = "AClocal"
+TWILIO_AUTH_TOKEN = "local"
+TWILIO_FROM = "Barry"
 
 [functions.deliver]
 verify_jwt = false
