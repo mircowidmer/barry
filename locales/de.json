@@ -1,0 +1,9 @@
+{
+  "ios": {
+    "NSLocationWhenInUseUsageDescription": "Barry hält fest, wo du bist, wenn du ein Abenteuer startest oder seine Rückkehrzeit verschiebst, damit ein Alarm deinen Notfallkontakten sagen kann, wo sie suchen sollen.",
+    "NSLocationAlwaysAndWhenInUseUsageDescription": "Mit «Immer» zeichnet Barry deine Spur etwa einmal pro Minute auf, bis du dich zurückmeldest, damit deine Notfallkontakte ihr folgen können und ein Alarm zeigt, wo du zuletzt warst.",
+    "NSLocationAlwaysUsageDescription": "Mit «Immer» zeichnet Barry deine Spur etwa einmal pro Minute auf, bis du dich zurückmeldest, damit deine Notfallkontakte ihr folgen können und ein Alarm zeigt, wo du zuletzt warst.",
+    "NSMotionUsageDescription": "Barry nutzt die Bewegungsdaten deines Telefons, um deine Spur genauer aufzuzeichnen.",
+    "NSLocalNetworkUsageDescription": "Barry verbindet sich mit deinem Entwicklungs-Mac in diesem Netzwerk, während du die App testest."
+  }
+}

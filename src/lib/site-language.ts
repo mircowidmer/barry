@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
-import { formatWhen } from '@/lib/wording';
+import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
 export type SiteLanguage = 'en' | 'de';
 
@@ -25,14 +25,6 @@ export const useSiteLanguage = (): SiteLanguage => {
   }, [language]);
   return language;
 };
-
-const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-const MONTHS = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'];
-const twoDigits = (n: number) => String(n).padStart(2, '0');
-
-/** Like the German messages to the contacts: Sa, 17. Okt. um 18:00. */
-export const formatWhenGerman = (at: Date) =>
-  `${WEEKDAYS[at.getDay()]}, ${at.getDate()}. ${MONTHS[at.getMonth()]} um ${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
 
 const position = (coordinates: { latitude: number; longitude: number }) =>
   `${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}`;
@@ -90,7 +82,7 @@ export const siteText = {
     startingPoint: 'Startpunkt',
     notes: 'Notizen',
     linkFailed: 'Dieser Link hat nicht funktioniert',
-    newLink: 'Öffne Barry und tippe nochmals auf «Create account», um einen neuen Link zu erhalten.',
+    newLink: 'Öffne Barry und tippe nochmals auf «Konto erstellen», um einen neuen Link zu erhalten.',
     emailConfirmed: 'Deine E-Mail-Adresse ist bestätigt',
     welcome: 'Willkommen bei Barry. Allein los, sicher heim.',
     signInHint: 'Öffne Barry auf deinem iPhone und melde dich mit deiner E-Mail-Adresse und deinem Passwort an.',

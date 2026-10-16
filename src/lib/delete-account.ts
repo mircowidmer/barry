@@ -1,33 +1,35 @@
 import { Alert } from 'react-native';
 
 import { barry, type Refusal } from '@/lib/barry';
-import { refusalText } from '@/lib/wording';
+import { currentTexts, refusalText } from '@/lib/texts';
 
 export type DeleteAccountOutcome = { kind: 'cancelled' } | { kind: 'deleted' } | { kind: 'failed'; message: string };
 
-const accountRefusals: Partial<Record<Refusal, string>> = {
-  adventure_in_progress: 'Check in from your Adventure before you delete your account.',
-  messages_pending: 'Barry is still sending messages for one of your Adventures. Try again in a few minutes.',
-};
+const accountRefusals = (): Partial<Record<Refusal, string>> => ({
+  adventure_in_progress: currentTexts().dialogs.accountInProgress,
+  messages_pending: currentTexts().dialogs.accountMessagesPending,
+});
 
-const confirmed = () =>
-  new Promise<boolean>((resolve) =>
+const confirmed = () => {
+  const t = currentTexts();
+  return new Promise<boolean>((resolve) =>
     Alert.alert(
-      'Delete Your Account?',
-      'Your profile, your emergency contacts and every adventure with its trail are deleted. Links your emergency contacts got stop working. This cannot be undone.',
+      t.dialogs.deleteAccountTitle,
+      t.dialogs.deleteAccountMessage,
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
+        { text: t.common.delete, style: 'destructive', onPress: () => resolve(true) },
       ],
       { cancelable: true, onDismiss: () => resolve(false) },
     ),
   );
+};
 
 export const askToDeleteAccount = async (onConfirmed: () => void): Promise<DeleteAccountOutcome> => {
   if (!(await confirmed())) return { kind: 'cancelled' };
   onConfirmed();
   const result = await barry.deleteAccount().catch(() => null);
   if (result?.kind === 'deleted') return { kind: 'deleted' };
-  if (!result) return { kind: 'failed', message: 'Could not delete your account. Try again with signal.' };
-  return { kind: 'failed', message: accountRefusals[result.refusal] ?? refusalText(result.refusal) };
+  if (!result) return { kind: 'failed', message: currentTexts().dialogs.couldNotDeleteAccount };
+  return { kind: 'failed', message: accountRefusals()[result.refusal] ?? refusalText(result.refusal) };
 };

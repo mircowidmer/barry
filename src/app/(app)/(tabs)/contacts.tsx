@@ -7,6 +7,7 @@ import { useLoad } from '@/hooks/use-load';
 import { barry, type EmergencyContact, type EmergencyContactId, isEmailAddress, isPhoneNumber } from '@/lib/barry';
 import { formatPhoneNumber, phoneInput } from '@/lib/phone';
 import { askToRemoveContact } from '@/lib/remove-contact';
+import { useTexts } from '@/lib/texts';
 
 type Form = { id?: EmergencyContactId; name: string; email: string; emailEnabled: boolean; phone: string; phoneEnabled: boolean };
 
@@ -25,6 +26,7 @@ export default function ContactsScreen() {
   const [draft, setDraft] = useState<Form>(blank);
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const t = useTexts();
 
   const edit = (contact: EmergencyContact) => {
     setDraft({
@@ -49,13 +51,13 @@ export default function ContactsScreen() {
         phone: orNull(draft.phone.replace(/\s/g, '')),
         phoneEnabled: phoneOn(draft),
       });
-      setMessage({ tone: 'success', text: `${draft.name.trim()} saved.` });
+      setMessage({ tone: 'success', text: t.contacts.saved(draft.name.trim()) });
       setDraft(blank);
       loaded.reload();
     } catch {
       setMessage({
         tone: 'danger',
-        text: 'Could not save. A contact needs an email address or a phone number with country code that is switched on.',
+        text: t.contacts.couldNotSave,
       });
     } finally {
       setSaving(false);
@@ -67,49 +69,47 @@ export default function ContactsScreen() {
     if (outcome.kind === 'cancelled') return;
     setMessage(
       outcome.kind === 'removed'
-        ? { tone: 'success', text: `${contact.name} deleted.` }
+        ? { tone: 'success', text: t.contacts.deleted(contact.name) }
         : outcome.kind === 'in_use'
-          ? { tone: 'danger', text: `${contact.name} is a contact of your current Adventure, so they stay until you check in.` }
-          : { tone: 'danger', text: `Could not delete ${contact.name}. Try again.` },
+          ? { tone: 'danger', text: t.contacts.inUse(contact.name) }
+          : { tone: 'danger', text: t.contacts.couldNotDelete(contact.name) },
     );
     if (draft.id === contact.id) setDraft(blank);
     loaded.reload();
   };
 
   return (
-    <Screen title="Emergency Contacts">
-      <ThemedText themeColor="textSecondary">
-        Barry can tell these contacts when you start an adventure, and again if you don’t check in on time. They don’t need to use Barry.
-      </ThemedText>
+    <Screen title={t.contacts.title}>
+      <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
-      {loaded.status === 'error' && <Notice tone="danger">Could not load your contacts.</Notice>}
+      {loaded.status === 'error' && <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>}
       {loaded.data?.contacts.map((contact) => (
         <Section key={contact.id}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${contact.name}`} onPress={() => edit(contact)}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t.contacts.editLabel(contact.name)} onPress={() => edit(contact)}>
             <ThemedText type="smallBold">{contact.name}</ThemedText>
             {contact.email && (
               <ThemedText type="small" themeColor={contact.emailEnabled ? undefined : 'textSecondary'}>
                 {contact.email}
-                {!contact.emailEnabled && '  ·  Off'}
+                {!contact.emailEnabled && `  ·  ${t.contacts.off}`}
               </ThemedText>
             )}
             {contact.phone && (
               <ThemedText type="small" themeColor={contact.phoneEnabled ? undefined : 'textSecondary'}>
                 {formatPhoneNumber(contact.phone)}
-                {!contact.phoneEnabled ? '  ·  Off' : !loaded.data.smsEnabled && '  ·  Text messages not set up yet'}
+                {!contact.phoneEnabled ? `  ·  ${t.contacts.off}` : !loaded.data.smsEnabled && `  ·  ${t.contacts.smsNotSetUp}`}
               </ThemedText>
             )}
           </Pressable>
           <Row>
-            <Button title="Edit" kind="secondary" onPress={() => edit(contact)} />
-            <Button title="Delete" kind="danger" onPress={() => remove(contact)} />
+            <Button title={t.contacts.edit} kind="secondary" onPress={() => edit(contact)} />
+            <Button title={t.common.delete} kind="danger" onPress={() => remove(contact)} />
           </Row>
         </Section>
       ))}
-      <Section title={draft.id ? `Edit ${draft.name || 'contact'}` : 'Add a New Contact'}>
-        <Field label="Name" value={draft.name} onChangeText={(name) => setDraft((d) => ({ ...d, name }))} />
+      <Section title={draft.id ? t.contacts.editTitle(draft.name) : t.contacts.add}>
+        <Field label={t.contacts.name} value={draft.name} onChangeText={(name) => setDraft((d) => ({ ...d, name }))} />
         <Field
-          label="Email Address"
+          label={t.contacts.email}
           value={draft.email}
           toggle={{
             value: emailOn(draft),
@@ -121,7 +121,7 @@ export default function ContactsScreen() {
           keyboardType="email-address"
         />
         <Field
-          label="Phone Number"
+          label={t.contacts.phone}
           value={draft.phone}
           toggle={{
             value: phoneOn(draft),
@@ -130,19 +130,19 @@ export default function ContactsScreen() {
           }}
           onChangeText={(phone) => setDraft((d) => ({ ...d, phone: phoneInput(phone) }))}
           keyboardType="phone-pad"
-          hint="With country code, for example +41 77 123 45 67."
+          hint={t.contacts.phoneHint}
         />
         <ThemedText type="small" themeColor="textSecondary">
-          Barry only uses the email address and the phone number that are switched on.
+          {t.contacts.switchesHint}
         </ThemedText>
         <Row>
           <Button
-            title={draft.id ? 'Save' : 'Add Contact'}
+            title={draft.id ? t.common.save : t.contacts.addButton}
             onPress={save}
             busy={saving}
             disabled={draft.name.trim() === '' || !(emailOn(draft) || phoneOn(draft))}
           />
-          {draft.id && <Button title="Cancel" kind="secondary" onPress={() => setDraft(blank)} />}
+          {draft.id && <Button title={t.common.cancel} kind="secondary" onPress={() => setDraft(blank)} />}
         </Row>
       </Section>
     </Screen>

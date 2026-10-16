@@ -6,6 +6,7 @@ import Animated, { type SharedValue, useAnimatedStyle } from 'react-native-reani
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useTexts } from '@/lib/texts';
 
 export function SwipeToDelete({
   label,
@@ -41,6 +42,7 @@ function DeleteAction({
   onDelete: () => void;
 }) {
   const theme = useTheme();
+  const t = useTexts();
   // Without this the red action shows through the card's rounded corners while the card is closed.
   const visible = useAnimatedStyle(() => ({ opacity: progress.value > 0 ? 1 : 0 }));
   return (
@@ -53,7 +55,7 @@ function DeleteAction({
           onDelete();
         }}
         style={[styles.action, { backgroundColor: theme.danger }]}>
-        <ThemedText style={{ color: theme.onAccent, fontWeight: 600 }}>Delete</ThemedText>
+        <ThemedText style={{ color: theme.onAccent, fontWeight: 600 }}>{t.common.delete}</ThemedText>
       </Pressable>
     </Animated.View>
   );

@@ -37,6 +37,7 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
 
 - **Wait after every tap.** The debug build reacts one to three seconds late. Wait 2 to 3 seconds after a tap before the next screenshot, or the screenshot shows the old screen and the next tap lands on the new one.
 - **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign in`, `Plan an Adventure`, `Start Adventure`, `Hold to Check In`, `+1 hour`, `Edit Plan or Contacts`, `Save`. Coordinates in the feature files are hints for an unscrolled screen only.
+- **Language.** The app follows the simulator's language, and every recipe quotes the English texts, so keep the simulator in English. To check the German texts, run `xcrun simctl spawn booted defaults write -g AppleLanguages -array de-CH en`, then `xcrun simctl shutdown booted` and boot it again. Set it back with `-array en-CH` the same way.
 - **Text entry.** The `text` action does not reach the field. Use the clipboard:
   1. `.claude/skills/verify/scripts/clip.sh set "Grosser Mythen"` (or `clip.sh email`, `clip.sh password`).
   2. Long-press the field: `tap` at its centre with `duration: 0.9`.

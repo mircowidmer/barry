@@ -188,6 +188,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 - Any other address on `barry.support`, such as an old `/trail` link, opens the landing page.
 - The landing page, the Adventure page and the email confirmation page are in German when the browser's first preferred language is German, and in English otherwise.
+- The iOS app is in German when the phone's first language is German, and in English otherwise. Settings › Barry › Language can pick either for Barry alone. The language of the messages to the contacts is set separately, in the Profile.
 
 ## Monitoring
 
@@ -206,6 +207,6 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - Grace Period and Reminder lengths set per Adventure.
 - A way for a contact to acknowledge an Alert.
 - Messages in a language other than English and German.
-- The app itself in a language other than English. Its messages to contacts and the web pages come in German too.
+- The app in a language other than English and German.
 - An app warning when the outside monitor has not heard from Supabase.
 - Detecting bounced emails.

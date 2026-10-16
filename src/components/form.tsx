@@ -15,6 +15,7 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
 export { Choice } from '@/components/choice';
@@ -50,6 +51,7 @@ type Toggle = { value: boolean; onValueChange: (value: boolean) => void; disable
 
 export function Field({ label, hint, toggle, ...input }: { label: string; hint?: string; toggle?: Toggle } & TextInputProps) {
   const theme = useTheme();
+  const t = useTexts();
   const dimmed = input.editable === false || (toggle !== undefined && !toggle.value && !toggle.disabled);
   return (
     <View style={styles.field}>
@@ -59,7 +61,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
         </ThemedText>
         {toggle && (
           <Switch
-            accessibilityLabel={`Use ${label}`}
+            accessibilityLabel={t.common.useLabel(label)}
             value={toggle.value}
             onValueChange={toggle.onValueChange}
             disabled={toggle.disabled}
@@ -95,6 +97,7 @@ const HOLD_MS = 1500;
 /** Completes only after a deliberate hold, so a pocket press cannot end protection. */
 export function HoldButton({ title, onComplete }: { title: string; onComplete: () => void }) {
   const theme = useTheme();
+  const t = useTexts();
   const [progress] = useState(() => new Animated.Value(0));
   const [holding, setHolding] = useState(false);
 
@@ -121,7 +124,7 @@ export function HoldButton({ title, onComplete }: { title: string; onComplete: (
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={title}
-        accessibilityHint="Press and hold"
+        accessibilityHint={t.adventure.holdHint}
         onPressIn={start}
         onPressOut={cancel}
         style={styles.holdTarget}>
@@ -131,7 +134,7 @@ export function HoldButton({ title, onComplete }: { title: string; onComplete: (
             { backgroundColor: theme.onAccent, opacity: 0.25, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) },
           ]}
         />
-        <ThemedText style={{ color: theme.onAccent, fontWeight: 700 }}>{holding ? 'Keep holding…' : title}</ThemedText>
+        <ThemedText style={{ color: theme.onAccent, fontWeight: 700 }}>{holding ? t.adventure.keepHolding : title}</ThemedText>
       </Pressable>
     </GlassView>
   );

@@ -4,16 +4,18 @@ import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { Button, Notice, Screen } from '@/components/form';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventureId, barry } from '@/lib/barry';
+import { useTexts } from '@/lib/texts';
 
 export default function PastAdventureRoute() {
   const { id } = useLocalSearchParams<{ id: AdventureId }>();
   const loaded = useLoad(() => barry.getAdventure(id));
+  const t = useTexts();
 
   if (loaded.status === 'error') {
     return (
       <Screen>
-        <Notice tone="danger">Could not reach Barry. {loaded.error.message}</Notice>
-        <Button title="Try again" onPress={loaded.reload} />
+        <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
+        <Button title={t.common.tryAgain} onPress={loaded.reload} />
       </Screen>
     );
   }
@@ -21,7 +23,7 @@ export default function PastAdventureRoute() {
   if (loaded.data?.stage !== 'ended') {
     return (
       <Screen>
-        <Notice tone="warning">This Adventure is not in your history.</Notice>
+        <Notice tone="warning">{t.ended.notInHistory}</Notice>
       </Screen>
     );
   }

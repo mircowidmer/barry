@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "support.barry",
-      "appleTeamId": "4GNTKX8XTQ"
+      "appleTeamId": "4GNTKX8XTQ",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -50,11 +53,21 @@
         {
           "locationWhenInUsePermission": "Barry records where you are when you start an Adventure or move its Deadline, so an Alert can tell your Emergency Contacts where to look.",
           "locationAlwaysAndWhenInUsePermission": "With Always, Barry records your Trail about once a minute until you check in, so your Emergency Contacts can follow it and an Alert can show where you were last.",
+          "locationAlwaysPermission": "With Always, Barry records your Trail about once a minute until you check in, so your Emergency Contacts can follow it and an Alert can show where you were last.",
           "isIosBackgroundLocationEnabled": true
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": ["en", "de"]
+        }
+      ]
     ],
+    "locales": {
+      "de": "./locales/de.json"
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

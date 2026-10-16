@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { AdventureId, Alarm, InProgressAdventure } from '@/lib/barry';
 
-import { notificationText } from './wording';
+import { formatDurationGerman, formatMessageTimeGerman, notificationText } from './wording';
 
 const adventure = {
   id: 'a1' as AdventureId,
@@ -20,16 +20,38 @@ const alarm = (kind: Alarm['kind']): Alarm => ({ identifier: `barry.${kind}.a1`,
 
 describe('notificationText', () => {
   it('words the Reminder like the server did, in the time zone of the Start', () => {
-    expect(notificationText(alarm('reminder'))).toEqual({
+    expect(notificationText(alarm('reminder'), 'en')).toEqual({
       title: 'Check in or move your Deadline',
       body: 'Your Deadline for Pilatus is Sat 17 Oct, 18:00.',
     });
   });
 
   it('gives the Alert time in the Overdue Notice', () => {
-    expect(notificationText(alarm('overdue_notice'))).toEqual({
+    expect(notificationText(alarm('overdue_notice'), 'en')).toEqual({
       title: 'You are overdue',
       body: 'Your Deadline for Pilatus was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:01 unless you check in.',
     });
+  });
+
+  it('words both notifications in German on a German phone', () => {
+    expect(notificationText(alarm('reminder'), 'de')).toEqual({
+      title: 'Melde dich zurück oder verschiebe deine Rückkehrzeit',
+      body: 'Deine Rückkehrzeit für Pilatus ist am Sa, 17. Okt. um 18:00.',
+    });
+    expect(notificationText(alarm('overdue_notice'), 'de').body).toBe(
+      'Deine Rückkehrzeit für Pilatus war am Sa, 17. Okt. um 18:00. Barry alarmiert deine Notfallkontakte am Sa, 17. Okt. um 18:01, ausser du meldest dich vorher zurück.',
+    );
+  });
+});
+
+describe('German formats', () => {
+  it('writes the time in the Adventure’s time zone like the German messages', () => {
+    expect(formatMessageTimeGerman(new Date('2026-03-02T08:05:00Z'), 'Europe/Zurich')).toBe('Mo, 2. März um 09:05');
+  });
+
+  it('writes durations with Min. and Std.', () => {
+    expect(formatDurationGerman(25 * 60_000)).toBe('25 Min.');
+    expect(formatDurationGerman(2 * 3600_000)).toBe('2 Std.');
+    expect(formatDurationGerman(90 * 60_000)).toBe('1 Std. 30 Min.');
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { formatWhenGerman, preferredLanguage, siteText } from './site-language';
+import { formatWhenGerman } from './wording';
+import { preferredLanguage, siteText } from './site-language';
 
 describe('preferredLanguage', () => {
   it('is German when the first preferred language is any German', () => {
