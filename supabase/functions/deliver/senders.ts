@@ -25,7 +25,7 @@ const mailpitEmail: Sender = async (to, message, messageId) => {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      From: { Email: env('EMAIL_FROM'), Name: 'Barry' },
+      From: { Email: env('EMAIL_FROM'), Name: '🐶 Barry' },
       To: [{ Email: to }],
       Subject: message.subject,
       Text: message.text,
@@ -103,7 +103,7 @@ export const resendEmail = (config: () => ResendConfig): Sender => async (to, me
       'content-type': 'application/json',
       'idempotency-key': `barry-message-${messageId}`,
     },
-    body: JSON.stringify({ from: `Barry <${from}>`, to: [to], subject: message.subject, text: message.text }),
+    body: JSON.stringify({ from: `🐶 Barry <${from}>`, to: [to], subject: message.subject, text: message.text }),
   });
   const body = parseJson(await response.text());
   if (!response.ok) return fromHttpStatus(response.status, `Resend ${body.name ?? 'error'}: ${body.message ?? response.statusText}`);

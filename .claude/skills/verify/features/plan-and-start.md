@@ -25,7 +25,7 @@ Preconditions:
 - **Refusal (`plan-refusals`).** Tick `Luca`, scroll, and tap `Start Adventure` without a destination. The notice reads `Add a destination.`
 - **Warnings (`plan-warnings`).** Tick `Sara` as well. With text messages on, no warning names Sara. While `sms` is switched off in `private.channel_config`, the warning reads `Text messages are not set up yet, and Sara only has a phone number, so they will get no message at all.`
 - **Start (`plan-start`).** Paste `Grosser Mythen` into `Destination` and tap `Start Adventure`. On first use iOS asks for location: choose `Allow While Using App`. The live screen opens with `Barry is watching.` `fixture.mjs state` prints `adventure | active | Grosser Mythen`.
-- **Heads-up (`plan-headsup`).** Within a few seconds Mailpit at http://127.0.0.1:54324 has `🐶 Anna is heading out to Grosser Mythen` for `luca@example.com`. `fixture.mjs state` lists `heads_up | email | luca@example.com | sent`, and for a contact with a phone number `heads_up | sms | <number> | failed | LINKMOBILITY_ACCESS_TOKEN is not set`.
+- **Heads-up (`plan-headsup`).** Within a few seconds Mailpit at http://127.0.0.1:54324 has `Anna is heading out to Grosser Mythen` from `🐶 Barry` for `luca@example.com`. `fixture.mjs state` lists `heads_up | email | luca@example.com | sent`, and for a contact with a phone number `heads_up | sms | <number> | failed | LINKMOBILITY_ACCESS_TOKEN is not set`.
 
 ## Gotchas
 
