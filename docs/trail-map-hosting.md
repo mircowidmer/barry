@@ -1,6 +1,6 @@
 # How to host the Trail Map on GitHub Pages
 
-The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Trail Map page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/trail#<token>`.
+The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Trail Map page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. The page's old address, `https://barry.support/trail#<token>`, shows the same page, so links already sent keep working.
 
 ## Before you start
 
@@ -13,7 +13,7 @@ You need a hosted Supabase project. The page fetches the Trail from Supabase in 
 3. Open **Settings > Secrets and variables > Actions > Variables** and add two repository variables:
    - `EXPO_PUBLIC_SUPABASE_URL`, the hosted project's URL, for example `https://abcd.supabase.co`.
    - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, the hosted project's publishable key. It is public by design, so a variable is enough.
-4. Point the links in Heads-ups and Alerts at the page. Set `TRAIL_MAP_URL=https://barry.support/trail` in `supabase/.env.hosted` and run `node scripts/hosted-secrets.mjs`, as [The hosted Supabase project](hosted-supabase.md) describes. Do not run `npx supabase secrets set` by hand.
+4. Point the links in Heads-ups and Alerts at the page. Set `TRAIL_MAP_URL=https://barry.support/adventure` in `supabase/.env.hosted` and run `node scripts/hosted-secrets.mjs`, as [The hosted Supabase project](hosted-supabase.md) describes. Do not run `npx supabase secrets set` by hand.
 5. In the Supabase dashboard, open **Authentication > URL Configuration** and set **Site URL** to `https://barry.support/confirmed`.
 
 ## Deploy
@@ -28,7 +28,7 @@ The workflow exports the web build and publishes `trail.html`, `confirmed.html`,
 npx expo export --platform web
 ```
 
-The files in `dist` expect to be served at the root of a domain, and the page expects the path `/trail`, without `.html`, as GitHub Pages serves it. `npx expo serve` serves them that way.
+The files in `dist` expect to be served at the root of a domain, and the page expects the path `/adventure` or `/trail`, without `.html`, as GitHub Pages serves it. `npx expo serve` serves them that way.
 
 ## Limits
 
