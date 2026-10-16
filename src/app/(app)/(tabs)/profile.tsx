@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry, type MessageLanguage } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
+import { formatPhoneNumber, phoneInput } from '@/lib/phone';
 import { useSession } from '@/lib/session';
 import { askToLogOut } from '@/lib/log-out';
 
@@ -22,7 +23,7 @@ const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
 const toForm = (p: AdventurerProfile): Form => ({
   name: p.name,
-  phone: p.phone,
+  phone: formatPhoneNumber(p.phone),
   carMake: p.carMake ?? '',
   carColour: p.carColour ?? '',
   carPlate: p.carPlate ?? '',
@@ -89,10 +90,10 @@ function ProfileForm({ initial }: { initial: Form }) {
         <Field
           label="Phone Number"
           value={profile.phone}
-          onChangeText={set('phone')}
+          onChangeText={(text) => set('phone')(phoneInput(text))}
           keyboardType="phone-pad"
           autoComplete="tel"
-          hint="With country code, for example +41771234567."
+          hint="With country code, for example +41 77 123 45 67."
         />
       </Section>
       <Section title="Car (optional)">

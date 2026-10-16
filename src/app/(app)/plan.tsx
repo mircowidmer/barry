@@ -20,6 +20,7 @@ import {
   startWarnings,
 } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
+import { formatPhoneNumber } from '@/lib/phone';
 import { formatWhen, refusalText } from '@/lib/wording';
 
 type Form = {
@@ -61,6 +62,11 @@ const warningTexts: { [K in StartWarning['kind']]: (w: Extract<StartWarning, { k
 };
 
 const warningText = (w: StartWarning) => (warningTexts[w.kind] as (w: StartWarning) => string)(w);
+
+const addresses = (contact: EmergencyContact) => {
+  const { email, phone } = reachableAddresses(contact);
+  return [email, phone && formatPhoneNumber(phone)].filter(Boolean).join(' · ');
+};
 
 export default function PlanScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -271,7 +277,7 @@ function PlanForm({
                 ]}>
                 <ThemedText>{c.name}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-                  {Object.values(reachableAddresses(c)).filter(Boolean).join(' · ')}
+                  {addresses(c)}
                 </ThemedText>
               </View>
             </Pressable>
