@@ -280,7 +280,7 @@ function PlanForm({
 
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
       {live ? (
-        <Button title="Save Changes" onPress={onSave} busy={busy === 'save'} />
+        <Button title="Save" onPress={onSave} busy={busy === 'save'} />
       ) : (
         <>
           {warnings.map((w) => (
