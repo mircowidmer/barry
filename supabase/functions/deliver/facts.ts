@@ -20,7 +20,6 @@ export type ProfileDetails = {
 // The Profile beyond the name exists only on the Alert, so no other template can print it.
 export type MessageFacts = {
   adventurerName: string;
-  contactName: string | null;
   timeZone: string;
   plan: Plan;
   deadline: Date;
@@ -66,7 +65,6 @@ export const parseFacts = (raw: unknown): MessageFacts => {
   const plan = (f.plan ?? {}) as Json;
   const base = {
     adventurerName: text(f.adventurer_name, 'adventurer_name'),
-    contactName: optionalText(f.contact_name),
     timeZone: text(f.time_zone, 'time_zone'),
     plan: {
       destination: text(plan.destination, 'plan.destination'),
