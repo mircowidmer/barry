@@ -70,7 +70,7 @@ function ProfileForm({ initial }: { initial: Form }) {
       <ThemedText themeColor="textSecondary">
         An Alert gives your emergency contacts this information, so rescuers know who and what to look for.
       </ThemedText>
-      <Section title="About you">
+      <Section title="About You">
         <Field label="Name" value={profile.name} onChangeText={set('name')} autoComplete="name" />
         <Field label="Email Address" value={session?.user.email ?? ''} editable={false} hint="You sign in with this address." />
         <Field
