@@ -51,7 +51,7 @@ Deno.test('Resend rate limiting and outages are retried', async () => {
 
 const linkMobility = { apiUrl: 'http://linkmobility.test', accessToken: 'lm-token', sender: 'Barry' };
 
-const linkMobilityAnswering = async (status: number, reply: unknown, sender = linkMobility.sender) => {
+const linkMobilityAnswering = async (status: number, reply: unknown, sender: string | null = linkMobility.sender) => {
   const realFetch = globalThis.fetch;
   let request: Request | undefined;
   globalThis.fetch = (input, init) => {
@@ -80,6 +80,12 @@ Deno.test('a text message goes to LINK Mobility from the alphanumeric sender, an
     contentCategory: 'informational',
     clientMessageId: 'barry-message-7',
   });
+});
+
+Deno.test('without a sender, LINK Mobility sends from the account default', async () => {
+  const { request } = await linkMobilityAnswering(200, { statusCode: 2000, statusMessage: 'OK', transferId: 't1' }, null);
+  const body = await request.json();
+  assertEquals(['senderAddress' in body, 'senderAddressType' in body], [false, false]);
 });
 
 Deno.test('a phone number as the sender goes out as an international sender', async () => {
