@@ -287,7 +287,7 @@ function PlanForm({
           )}
           <Button title="Start Adventure" onPress={onStart} busy={busy === 'start'} />
           <ThemedText type="small" themeColor="textSecondary">
-            Starting sends a Heads-up to your contacts with your Plan and Deadline, which is {formatWhen(form.deadline)}.
+            Starting sends a heads-up to your contacts with your plan and deadline, which is {formatWhen(form.deadline)}.
           </ThemedText>
           <Row>
             <Button title="Save for later" kind="secondary" onPress={onSave} busy={busy === 'save'} />
