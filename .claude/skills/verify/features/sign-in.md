@@ -14,7 +14,7 @@ The app opens on the sign-in screen until an Adventurer signs in or creates an a
 ## How to get to it (user POV)
 
 - Open the app while signed out. The screen titled `Barry` shows `Email Address`, `Password`, `Sign in` and `Create account`.
-- Tap `Log Out` on the Profile tab.
+- Tap `Log Out` on the Profile tab, then `Log Out` in the `Log out?` alert.
 
 ## Driving it with the iOS Simulator
 
@@ -26,7 +26,7 @@ Preconditions:
 - **Sign in (`signin-password`).** Tap `Sign in` (201, 390). The Adventure tab opens with `Plan an Adventure`.
 - **Push (`signin-push`).** On a fresh install the prompt `"Barry" Would Like to Send You Notifications` appears. Tap `Allow`. Within 10 seconds the database has a row in `push_devices` for the test account starting with `ExponentPushToken[`.
 - **Persist (`signin-persist`).** Run `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`. The app opens signed in on the Adventure tab.
-- **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Log Out`. The sign-in screen returns.
+- **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Log Out`. The alert `Log out?` offers `Cancel` and `Log Out`. `Cancel` keeps you signed in. Tap `Log Out` and the sign-in screen returns.
 - **Delete account (`account-delete`).** Never on the test account. Sign out, paste a new address such as `delete-test-<time>@barry.test` and a generated password, and tap `Create account`. Tap `Profile`, scroll down, tap `Delete`. The alert `Delete your account?` offers `Cancel` and `Delete`. Tap `Delete`. The sign-in screen returns, and `auth.users` has no row for that address. Sign in to the test account again afterwards.
 
 ## Gotchas
