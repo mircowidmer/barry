@@ -200,7 +200,7 @@ function PlanForm({
         <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Where are you going to?" />
         <Field label="Route" value={form.route} onChangeText={set('route')} placeholder="Optional" />
         <Field
-          label="Starting point"
+          label="Starting Point"
           value={form.startingPoint}
           onChangeText={set('startingPoint')}
           placeholder="Optional, for example where you park"
