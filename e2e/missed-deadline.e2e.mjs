@@ -32,6 +32,7 @@ test('a missed Deadline alerts every contact, and the Check-in sends the All-cle
   await waitForText(anna.sara.phone, 'Anna checked in safely');
   const checkedIn = await trailMap(token);
   assert.equal(checkedIn.status, 'checked_in');
-  assert.equal('trail' in checkedIn, false, 'the Trail Map shows no positions after the Check-in');
+  assert.ok(checkedIn.trail?.length > 0, 'the Trail Map keeps the Trail after the Check-in');
+  assert.equal(checkedIn.last_known_position?.latitude, 47.03, 'the Trail Map keeps the Last Known Position after the Check-in');
   assert.deepEqual(must(await anna.client.from('delivery_failures').select('kind').eq('adventure_id', id), 'Delivery Failures'), []);
 });
