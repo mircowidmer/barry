@@ -19,7 +19,7 @@ test('a Check-in before the Deadline means no Alert and no All-clear, even after
       ['heads_up', anna.sara.phone, 'failed'],
       ['heads_up', anna.luca.email, 'sent'],
     ].sort(),
-    'Luca got the Heads-up and nothing else, and Sara, with only a phone number, could not be reached while text messages are off',
+    'Luca got the Heads-up and nothing else, and Sara, with only a phone number, could not be reached, because the local stack has no LINK Mobility access token',
   );
   assert.equal(await mailCount(anna.luca.email, 'has not checked in'), 0);
 });
