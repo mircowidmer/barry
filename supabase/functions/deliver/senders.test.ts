@@ -1,6 +1,6 @@
 import { assertEquals } from 'jsr:@std/assert@1.0.13';
 
-import { linkMobilitySms, resendEmail } from './senders.ts';
+import { resendEmail, twilioSms } from './senders.ts';
 
 const message = { subject: 'Anna is back safe', text: 'Anna checked in safely at Sat 17 Oct, 19:05.' };
 
@@ -49,9 +49,9 @@ Deno.test('Resend rate limiting and outages are retried', async () => {
   assertEquals((await resendAnswering(500, 'internal')).result.outcome, 'retry');
 });
 
-const linkMobility = { apiUrl: 'http://linkmobility.test', accessToken: 'lm-token', sender: 'Barry' };
+const twilio = { apiUrl: 'http://twilio.test', accountSid: 'ACtest', authToken: 'secret', from: 'Barry' };
 
-const linkMobilityAnswering = async (status: number, reply: unknown, sender: string | null = linkMobility.sender) => {
+const twilioAnswering = async (status: number, reply: unknown) => {
   const realFetch = globalThis.fetch;
   let request: Request | undefined;
   globalThis.fetch = (input, init) => {
@@ -59,53 +59,35 @@ const linkMobilityAnswering = async (status: number, reply: unknown, sender: str
     return Promise.resolve(new Response(JSON.stringify(reply), { status }));
   };
   try {
-    const result = await linkMobilitySms(() => ({ ...linkMobility, sender }))('+41792222222', message, 7);
+    const result = await twilioSms(() => twilio)('+41792222222', message, 7);
     return { result, request: request! };
   } finally {
     globalThis.fetch = realFetch;
   }
 };
 
-Deno.test('a text message goes to LINK Mobility from the alphanumeric sender, and its transfer id becomes the provider ref', async () => {
-  const { result, request } = await linkMobilityAnswering(200, { statusCode: 2000, statusMessage: 'OK', transferId: '0059d0b20100a0a8b803', smsCount: 1 });
-  assertEquals(result, { outcome: 'sent', providerRef: '0059d0b20100a0a8b803' });
+Deno.test('a text message goes to Twilio as a form with Basic auth, and its sid becomes the provider ref', async () => {
+  const { result, request } = await twilioAnswering(201, { sid: 'SM123', status: 'queued' });
+  assertEquals(result, { outcome: 'sent', providerRef: 'SM123' });
   assertEquals(request.method, 'POST');
-  assertEquals(request.url, 'http://linkmobility.test/rest/smsmessaging/text');
-  assertEquals(request.headers.get('authorization'), 'Bearer lm-token');
-  assertEquals(await request.json(), {
-    recipientAddressList: ['41792222222'],
-    messageContent: 'Anna checked in safely at Sat 17 Oct, 19:05.',
-    senderAddress: 'Barry',
-    senderAddressType: 'alphanumeric',
-    contentCategory: 'informational',
-    clientMessageId: 'barry-message-7',
+  assertEquals(request.url, 'http://twilio.test/2010-04-01/Accounts/ACtest/Messages.json');
+  assertEquals(request.headers.get('authorization'), `Basic ${btoa('ACtest:secret')}`);
+  assertEquals(Object.fromEntries(new URLSearchParams(await request.text())), {
+    To: '+41792222222',
+    From: 'Barry',
+    Body: 'Anna checked in safely at Sat 17 Oct, 19:05.',
   });
 });
 
-Deno.test('without a sender, LINK Mobility sends from the account default', async () => {
-  const { request } = await linkMobilityAnswering(200, { statusCode: 2000, statusMessage: 'OK', transferId: 't1' }, null);
-  const body = await request.json();
-  assertEquals(['senderAddress' in body, 'senderAddressType' in body], [false, false]);
+Deno.test('a rejected number fails with the Twilio error code and message', async () => {
+  const { result } = await twilioAnswering(400, { code: 21211, message: "The 'To' number is not a valid phone number." });
+  assertEquals(result, { outcome: 'failed', reason: "HTTP 400: Twilio 21211: The 'To' number is not a valid phone number." });
 });
 
-Deno.test('a phone number as the sender goes out as an international sender', async () => {
-  const { request } = await linkMobilityAnswering(200, { statusCode: 2001, statusMessage: 'OK_QUEUED', transferId: 'q1' }, '+41445551234');
-  const body = await request.json();
-  assertEquals([body.senderAddress, body.senderAddressType], ['41445551234', 'international']);
-});
-
-Deno.test('a refused recipient fails with LINK Mobility\'s status, and throttling is retried', async () => {
-  assertEquals((await linkMobilityAnswering(200, { statusCode: 4002, statusMessage: 'INVALID_RECIPIENT' })).result, {
-    outcome: 'failed',
-    reason: 'LINK Mobility 4002: INVALID_RECIPIENT',
-  });
-  assertEquals((await linkMobilityAnswering(200, { statusCode: 4025, statusMessage: 'THROTTLING' })).result, {
+Deno.test('rate limiting and Twilio outages are retried', async () => {
+  assertEquals((await twilioAnswering(429, { code: 20429, message: 'Too Many Requests' })).result, {
     outcome: 'retry',
-    reason: 'LINK Mobility 4025: THROTTLING',
+    reason: 'HTTP 429: Twilio 20429: Too Many Requests',
   });
-});
-
-Deno.test('a wrong access token fails, and a LINK Mobility outage is retried', async () => {
-  assertEquals((await linkMobilityAnswering(401, {})).result, { outcome: 'failed', reason: 'HTTP 401: LINK Mobility refused the access token' });
-  assertEquals((await linkMobilityAnswering(503, 'unavailable')).result.outcome, 'retry');
+  assertEquals((await twilioAnswering(503, 'unavailable')).result.outcome, 'retry');
 });

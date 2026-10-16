@@ -59,36 +59,18 @@ const parseJson = (body: string): Record<string, unknown> => {
   }
 };
 
-// Without a sender, LINK Mobility sends from the account's default sender.
-export type LinkMobilityConfig = { apiUrl: string; accessToken: string; sender: string | null };
+export type TwilioConfig = { apiUrl: string; accountSid: string; authToken: string; from: string };
 
-const LINK_MOBILITY_SENT = new Set([2000, 2001]);
-// Throttling (4023, 4025) and LINK Mobility's own errors (5000, 5003) clear up on their own.
-const LINK_MOBILITY_RETRY = new Set([4023, 4025, 5000, 5003]);
-
-export const linkMobilitySms = (config: () => LinkMobilityConfig): Sender => async (to, message, messageId) => {
-  const { apiUrl, accessToken, sender } = config();
-  const response = await fetch(`${apiUrl}/rest/smsmessaging/text`, {
+export const twilioSms = (config: () => TwilioConfig): Sender => async (to, message) => {
+  const { apiUrl, accountSid, authToken, from } = config();
+  const response = await fetch(`${apiUrl}/2010-04-01/Accounts/${accountSid}/Messages.json`, {
     method: 'POST',
-    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
-    body: JSON.stringify({
-      recipientAddressList: [to.replace(/^\+/, '')],
-      messageContent: message.text,
-      ...(sender && {
-        senderAddress: sender.replace(/^\+/, ''),
-        senderAddressType: /^\+?\d+$/.test(sender) ? 'international' : 'alphanumeric',
-      }),
-      contentCategory: 'informational',
-      clientMessageId: `barry-message-${messageId}`,
-    }),
+    headers: { authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}` },
+    body: new URLSearchParams({ To: to, From: from, Body: message.text }),
   });
   const body = parseJson(await response.text());
-  if (response.status === 401) return { outcome: 'failed', reason: 'HTTP 401: LINK Mobility refused the access token' };
-  if (!response.ok) return fromHttpStatus(response.status, `LINK Mobility: ${body.statusMessage ?? response.statusText}`);
-  const code = Number(body.statusCode);
-  if (LINK_MOBILITY_SENT.has(code)) return { outcome: 'sent', providerRef: typeof body.transferId === 'string' ? body.transferId : null };
-  const reason = `LINK Mobility ${code}: ${body.statusMessage ?? 'unknown status'}`;
-  return LINK_MOBILITY_RETRY.has(code) ? { outcome: 'retry', reason } : { outcome: 'failed', reason };
+  if (!response.ok) return fromHttpStatus(response.status, `Twilio ${body.code ?? 'error'}: ${body.message ?? response.statusText}`);
+  return { outcome: 'sent', providerRef: typeof body.sid === 'string' ? body.sid : null };
 };
 
 export type ResendConfig = { apiUrl: string; apiKey: string; from: string };
@@ -116,17 +98,18 @@ const resend = resendEmail(() => ({
   from: env('EMAIL_FROM'),
 }));
 
-const linkMobility = linkMobilitySms(() => ({
-  apiUrl: Deno.env.get('LINKMOBILITY_API_URL') ?? 'https://api.linkmobility.eu',
-  accessToken: env('LINKMOBILITY_ACCESS_TOKEN'),
-  sender: Deno.env.get('LINKMOBILITY_SENDER') || null,
+const twilio = twilioSms(() => ({
+  apiUrl: Deno.env.get('TWILIO_API_URL') ?? 'https://api.twilio.com',
+  accountSid: env('TWILIO_ACCOUNT_SID'),
+  authToken: env('TWILIO_AUTH_TOKEN'),
+  from: env('TWILIO_FROM'),
 }));
 
 export const senders: Record<Channel, Sender> = {
   email: (to, message, messageId) => (Deno.env.get('RESEND_API_KEY') ? resend : mailpitEmail)(to, message, messageId),
   sms: (to, message, messageId) =>
-    Deno.env.get('LINKMOBILITY_ACCESS_TOKEN')
-      ? linkMobility(to, message, messageId)
-      : Promise.resolve({ outcome: 'failed', reason: 'LINKMOBILITY_ACCESS_TOKEN is not set' }),
+    Deno.env.get('TWILIO_ACCOUNT_SID')
+      ? twilio(to, message, messageId)
+      : Promise.resolve({ outcome: 'failed', reason: 'TWILIO_ACCOUNT_SID is not set' }),
   push: expoPush,
 };

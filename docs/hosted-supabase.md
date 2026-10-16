@@ -6,7 +6,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 
 - Every migration in `supabase/migrations`. `supabase/seed.sql` is for local development only and is never pushed.
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
-- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM` and `LINKMOBILITY_ACCESS_TOKEN`. Email goes through Resend from `barry@barry.support`, and text messages go through LINK Mobility. `TRAIL_MAP_URL` is `https://barry.support/adventure`.
+- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`, and text messages go through Twilio. [Text messages](text-messages.md) sets up Twilio. `TRAIL_MAP_URL` is `https://barry.support/adventure`.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
 - Auth sends sign-up confirmation emails through Resend's SMTP server, `smtp.resend.com`, from `help@barry.support`. This is set under Authentication, Emails, SMTP Settings in the dashboard.
 
@@ -22,7 +22,7 @@ npx supabase functions deploy deliver
 
 ## Set the secrets with the script
 
-Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[edge_runtime.secrets]` in `supabase/config.toml`, including the local `DELIVER_SECRET`, which makes `deliver` refuse the clock.
+Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[edge_runtime.secrets]` in `supabase/config.toml`, including the local `DELIVER_SECRET`, which makes `deliver` refuse the clock, and `TWILIO_API_URL`, which sends text messages to the local relay's address.
 
 1. Put the hosted values in `supabase/.env.hosted`, which git ignores:
 
@@ -30,6 +30,9 @@ Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[
    TRAIL_MAP_URL=https://barry.support/adventure
    RESEND_API_KEY=re_...
    EMAIL_FROM=barry@your-verified-domain
+   TWILIO_ACCOUNT_SID=AC...
+   TWILIO_AUTH_TOKEN=...
+   TWILIO_FROM=Barry
    ```
 
 2. From the linked checkout, run:
@@ -38,7 +41,7 @@ Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[
    node scripts/hosted-secrets.mjs
    ```
 
-The script sets these values, removes the local-only `EMAIL_API_URL`, and rotates `DELIVER_SECRET` in the function secrets and the Vault together. It prints secret names only, and exits with an error if a value did not land.
+The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO_API_URL`, and rotates `DELIVER_SECRET` in the function secrets and the Vault together. It prints secret names only, and exits with an error if a value did not land.
 
 ## Set up Resend
 
@@ -63,5 +66,5 @@ All three values are `true` when the clock ticked in the last two minutes withou
 
 ## Not done yet
 
-- Text messages. They go through LINK Mobility with `LINKMOBILITY_ACCESS_TOKEN`. While the LINK Mobility account is a test account, they reach only the phone number it verified. [Text messages](text-messages.md) has the details.
+- Text messages. They need a Twilio account and its secrets. [Text messages](text-messages.md) sets it up.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.

@@ -8,7 +8,19 @@ Mailpit catches every email. Open http://127.0.0.1:54324 to read the Heads-ups, 
 
 ## Text messages
 
-Locally, `deliver` has no LINK Mobility access token, so each text message fails with `LINKMOBILITY_ACCESS_TOKEN is not set` and shows up in the app as a message that did not arrive. [Text messages](text-messages.md) sets up LINK Mobility.
+`scripts/sms-relay.mjs` catches every text message. `supabase/config.toml` points `TWILIO_API_URL` at it.
+
+1. Start the relay in a terminal:
+
+   ```bash
+   node scripts/sms-relay.mjs
+   ```
+
+   Each text message prints `texted <to> from Barry: <first line>`, for example `texted +41792222222 from Barry: Anna has not checked in from an adventure. The Deadline was Thu 15 Oct, 18:00.`, followed by the rest of the text indented, including the Adventure page link. A text message carries the same text as the email body, without the subject.
+
+2. Open http://localhost:8788/messages to read them in full. The page lists each text message's recipient, sender and body.
+
+The relay keeps text messages in memory only, so the list is empty after it restarts. While it is not running, each text message is retried until it runs again.
 
 ## The Reminder and the Overdue Notice
 

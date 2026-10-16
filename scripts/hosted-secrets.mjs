@@ -18,9 +18,10 @@ const parseEnv = (text) =>
   );
 
 const hosted = parseEnv(readFileSync('supabase/.env.hosted', 'utf8'));
-for (const key of ['TRAIL_MAP_URL', 'RESEND_API_KEY', 'EMAIL_FROM']) {
+for (const key of ['TRAIL_MAP_URL', 'RESEND_API_KEY', 'EMAIL_FROM', 'TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM']) {
   if (!hosted[key]) throw new Error(`supabase/.env.hosted has no ${key}`);
 }
+if ('TWILIO_API_URL' in hosted) throw new Error('Leave TWILIO_API_URL out of supabase/.env.hosted: deliver then sends to https://api.twilio.com');
 if ('DELIVER_SECRET' in hosted) throw new Error('Leave DELIVER_SECRET out of supabase/.env.hosted: this script rotates it');
 
 // `secrets set` also uploads every [edge_runtime.secrets] entry of config.toml, so the local-only ones come out again.

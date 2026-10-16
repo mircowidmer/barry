@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export const API = 'http://127.0.0.1:54321';
 const MAILPIT = 'http://127.0.0.1:54324/api/v1';
+const SMS_RELAY = 'http://localhost:8788/messages';
 
 const keys = Object.fromEntries(
   execFileSync('npx', ['supabase', 'status', '-o', 'env'], { encoding: 'utf8' })
@@ -14,6 +15,10 @@ const keys = Object.fromEntries(
     .filter(Boolean)
     .map(([, key, value]) => [key, value]),
 );
+await fetch(SMS_RELAY).catch(() => {
+  throw new Error('The text message relay is not running. Start it with: node scripts/sms-relay.mjs');
+});
+
 const options = { auth: { persistSession: false } };
 export const admin = createClient(API, keys.SECRET_KEY, options);
 
@@ -47,6 +52,11 @@ export const waitForMail = (to, subject) =>
     const [first] = await mails(to, subject);
     return first && fetch(`${MAILPIT}/message/${first.ID}`).then((r) => r.json());
   });
+
+export const textsTo = async (to) => (await fetch(SMS_RELAY).then((r) => r.json())).filter((m) => m.to === to);
+
+export const waitForText = (to, start) =>
+  poll(`text message starting "${start}" to ${to}`, async () => (await textsTo(to)).find((m) => m.body.startsWith(start)));
 
 export const mailCount = async (to, subject) => (await mails(to, subject)).length;
 
