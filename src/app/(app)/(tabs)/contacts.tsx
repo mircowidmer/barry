@@ -5,6 +5,7 @@ import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { barry, type EmergencyContact, type EmergencyContactId, isEmailAddress, isPhoneNumber } from '@/lib/barry';
+import { formatPhoneNumber, phoneInput } from '@/lib/phone';
 import { askToRemoveContact } from '@/lib/remove-contact';
 
 type Form = { id?: EmergencyContactId; name: string; email: string; emailEnabled: boolean; phone: string; phoneEnabled: boolean };
@@ -31,7 +32,7 @@ export default function ContactsScreen() {
       name: contact.name,
       email: contact.email ?? '',
       emailEnabled: contact.emailEnabled,
-      phone: contact.phone ?? '',
+      phone: contact.phone ? formatPhoneNumber(contact.phone) : '',
       phoneEnabled: contact.phoneEnabled,
     });
     setMessage(null);
@@ -94,7 +95,7 @@ export default function ContactsScreen() {
             )}
             {contact.phone && (
               <ThemedText type="small" themeColor={contact.phoneEnabled ? undefined : 'textSecondary'}>
-                {contact.phone}
+                {formatPhoneNumber(contact.phone)}
                 {!contact.phoneEnabled ? '  ·  Off' : !loaded.data.smsEnabled && '  ·  Text messages not set up yet'}
               </ThemedText>
             )}
@@ -127,9 +128,9 @@ export default function ContactsScreen() {
             disabled: !isPhoneNumber(draft.phone),
             onValueChange: (phoneEnabled) => setDraft((d) => ({ ...d, phoneEnabled })),
           }}
-          onChangeText={(phone) => setDraft((d) => ({ ...d, phone }))}
+          onChangeText={(phone) => setDraft((d) => ({ ...d, phone: phoneInput(phone) }))}
           keyboardType="phone-pad"
-          hint="With country code, for example +41771234567."
+          hint="With country code, for example +41 77 123 45 67."
         />
         <ThemedText type="small" themeColor="textSecondary">
           Barry only uses the email address and the phone number that are switched on.
