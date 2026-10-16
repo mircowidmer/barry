@@ -16,9 +16,6 @@ export function SitePage({ title, lead, children }: { title: string; lead?: stri
         {lead && <p>{lead}</p>}
       </header>
       <main>{children}</main>
-      <footer>
-        <a href="/">Barry</a>. Go alone, get home.
-      </footer>
     </div>
   );
 }
