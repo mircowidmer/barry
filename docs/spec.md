@@ -33,6 +33,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 - Emergency Contacts have no account and do not install Barry.
 - Barry sends nothing to a person when the Adventurer adds them to the list.
 - Each Adventure uses one or more contacts from the list.
+- The Adventurer removes a contact from the list with **Remove**, after confirming.
 - A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list.
 - A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned Adventures. If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one.
 
