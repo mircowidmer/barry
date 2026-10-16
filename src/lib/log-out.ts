@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 const confirmed = () =>
   new Promise<boolean>((resolve) =>
     Alert.alert(
-      'Log out?',
+      'Log Out?',
       'You need your email address and password to sign in again.',
       [
         { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
