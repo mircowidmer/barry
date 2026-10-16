@@ -2,6 +2,8 @@
 
 # dependencies
 node_modules/
+# Deno writes it when it runs the deliver tests; their imports pin exact versions
+deno.lock
 
 # Expo
 .expo/
