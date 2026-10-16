@@ -73,7 +73,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
           styles.input,
           {
             color: dimmed ? theme.textSecondary : theme.text,
-            backgroundColor: dimmed ? theme.backgroundElement : theme.background,
+            backgroundColor: input.editable === false ? theme.backgroundElement : theme.background,
             borderColor: theme.backgroundSelected,
           },
           input.multiline && styles.multiline,
