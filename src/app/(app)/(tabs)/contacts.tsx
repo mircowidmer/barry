@@ -5,6 +5,7 @@ import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { barry, type EmergencyContact, type EmergencyContactId } from '@/lib/barry';
+import { askToRemoveContact } from '@/lib/remove-contact';
 
 type Form = { id?: EmergencyContactId; name: string; phone: string; email: string };
 
@@ -49,11 +50,14 @@ export default function ContactsScreen() {
   };
 
   const remove = async (contact: EmergencyContact) => {
-    const result = await barry.removeContact(contact.id);
+    const outcome = await askToRemoveContact(contact);
+    if (outcome.kind === 'cancelled') return;
     setMessage(
-      result.kind === 'removed'
+      outcome.kind === 'removed'
         ? { tone: 'success', text: `${contact.name} removed.` }
-        : { tone: 'danger', text: `${contact.name} is a contact of your current Adventure, so they stay until you check in.` },
+        : outcome.kind === 'in_use'
+          ? { tone: 'danger', text: `${contact.name} is a contact of your current Adventure, so they stay until you check in.` }
+          : { tone: 'danger', text: `Could not remove ${contact.name}. Try again.` },
     );
     if (draft.id === contact.id) setDraft(blank);
     loaded.reload();
