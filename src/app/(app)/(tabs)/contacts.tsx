@@ -54,10 +54,10 @@ export default function ContactsScreen() {
     if (outcome.kind === 'cancelled') return;
     setMessage(
       outcome.kind === 'removed'
-        ? { tone: 'success', text: `${contact.name} removed.` }
+        ? { tone: 'success', text: `${contact.name} deleted.` }
         : outcome.kind === 'in_use'
           ? { tone: 'danger', text: `${contact.name} is a contact of your current Adventure, so they stay until you check in.` }
-          : { tone: 'danger', text: `Could not remove ${contact.name}. Try again.` },
+          : { tone: 'danger', text: `Could not delete ${contact.name}. Try again.` },
     );
     if (draft.id === contact.id) setDraft(blank);
     loaded.reload();
@@ -84,7 +84,7 @@ export default function ContactsScreen() {
           </Pressable>
           <Row>
             <Button title="Edit" kind="secondary" onPress={() => edit(contact)} />
-            <Button title="Remove" kind="danger" onPress={() => remove(contact)} />
+            <Button title="Delete" kind="danger" onPress={() => remove(contact)} />
           </Row>
         </Section>
       ))}
