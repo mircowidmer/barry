@@ -59,7 +59,8 @@ const parseJson = (body: string): Record<string, unknown> => {
   }
 };
 
-export type LinkMobilityConfig = { apiUrl: string; accessToken: string; sender: string };
+// Without a sender, LINK Mobility sends from the account's default sender.
+export type LinkMobilityConfig = { apiUrl: string; accessToken: string; sender: string | null };
 
 const LINK_MOBILITY_SENT = new Set([2000, 2001]);
 // Throttling (4023, 4025) and LINK Mobility's own errors (5000, 5003) clear up on their own.
@@ -73,8 +74,10 @@ export const linkMobilitySms = (config: () => LinkMobilityConfig): Sender => asy
     body: JSON.stringify({
       recipientAddressList: [to.replace(/^\+/, '')],
       messageContent: message.text,
-      senderAddress: sender.replace(/^\+/, ''),
-      senderAddressType: /^\+?\d+$/.test(sender) ? 'international' : 'alphanumeric',
+      ...(sender && {
+        senderAddress: sender.replace(/^\+/, ''),
+        senderAddressType: /^\+?\d+$/.test(sender) ? 'international' : 'alphanumeric',
+      }),
       contentCategory: 'informational',
       clientMessageId: `barry-message-${messageId}`,
     }),
@@ -116,7 +119,7 @@ const resend = resendEmail(() => ({
 const linkMobility = linkMobilitySms(() => ({
   apiUrl: Deno.env.get('LINKMOBILITY_API_URL') ?? 'https://api.linkmobility.eu',
   accessToken: env('LINKMOBILITY_ACCESS_TOKEN'),
-  sender: env('LINKMOBILITY_SENDER'),
+  sender: Deno.env.get('LINKMOBILITY_SENDER') || null,
 }));
 
 export const senders: Record<Channel, Sender> = {
