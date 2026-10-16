@@ -36,7 +36,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
   switch (facts.kind) {
     case 'heads_up':
       return {
-        subject: `🐶 ${name} is heading out to ${facts.plan.destination}`,
+        subject: `${name} is heading out to ${facts.plan.destination}`,
         text: lines(
           `${name} is going on an adventure alone and chose you as an Emergency Contact on Barry. Barry is the watchdog here: he only barks if ${name} does not check in in time.`,
           '',
@@ -50,7 +50,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
 
     case 'plan_update':
       return {
-        subject: `🐶 ${name} changed the Plan for ${facts.plan.destination}`,
+        subject: `${name} changed the Plan for ${facts.plan.destination}`,
         text: lines(
           `${name} changed the Plan, and Barry has sniffed out the new details.`,
           '',

@@ -30,7 +30,7 @@ Deno.test('formatTime shows the time in the given time zone', () => {
 
 Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Profile', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'heads_up', trail_token: token }), links);
-  assertEquals(subject, '🐶 Anna is heading out to Grosser Mythen');
+  assertEquals(subject, 'Anna is heading out to Grosser Mythen');
   assertEquals(
     text,
     [
@@ -49,7 +49,7 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
 
 Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map link', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links);
-  assertEquals(subject, '🐶 Anna changed the Plan for Grosser Mythen');
+  assertEquals(subject, 'Anna changed the Plan for Grosser Mythen');
   assertEquals(
     text,
     [
