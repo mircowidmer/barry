@@ -135,7 +135,11 @@ function PlanForm({
 
   const onSave = async () => {
     setBusy('save');
-    const saved = await save().catch(() => null);
+    setNotice(null);
+    const saved = await save().catch(() => {
+      setNotice({ tone: 'danger', text: 'Could not save the Adventure. Try again.' });
+      return null;
+    });
     setBusy(null);
     if (saved) {
       if (live) router.back();
@@ -155,12 +159,14 @@ function PlanForm({
   const onStart = async () => {
     setBusy('start');
     setNotice(null);
-    const saved = await save().catch(() => null);
-    const result = saved ? await barry.start(saved) : null;
+    const result = await save()
+      .then((saved) => saved && barry.start(saved))
+      .catch(() => 'failed' as const);
     setBusy(null);
-    if (result?.kind === 'protected') router.back();
+    if (result === 'failed') setNotice({ tone: 'danger', text: 'Could not start the Adventure. Try again.' });
+    else if (result?.kind === 'protected') router.back();
     else if (result?.kind === 'refused') setNotice({ tone: 'danger', text: refusalText(result.refusal) });
-    else if (saved) {
+    else if (result) {
       setNotice({
         tone: 'warning',
         text: 'You are not protected yet. Barry did not confirm the Start. Try again when you have signal.',
@@ -194,7 +200,6 @@ function PlanForm({
   return (
     <Screen>
       <Stack.Screen options={{ title: live ? 'Edit Adventure' : id ? 'Planned Adventure' : 'Plan an Adventure' }} />
-      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
       <Section title="Where are you going?">
         <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Where are you going to?" />
@@ -273,6 +278,7 @@ function PlanForm({
         })}
       </Section>
 
+      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
       {live ? (
         <Button title="Save Changes" onPress={onSave} busy={busy === 'save'} />
       ) : (
