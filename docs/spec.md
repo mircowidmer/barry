@@ -174,7 +174,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The link never expires. After the Check-in it keeps showing the Check-in time and the Trail for as long as the Adventurer's account exists.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.
-- The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/trail`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
+- The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Links sent while it was at `https://barry.support/trail` show the same page. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 
 ## Monitoring
 

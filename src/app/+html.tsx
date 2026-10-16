@@ -1,7 +1,7 @@
 import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
-// GitHub Pages also serves /trail as /trail.html; Expo Router matches no route for that path, so hydration would fail.
+// GitHub Pages also serves /adventure as /adventure.html; Expo Router matches no route for that path, so hydration would fail.
 const dropHtmlExtension = `if (location.pathname.endsWith('.html')) history.replaceState(history.state, '', location.pathname.replace(/(index)?\\.html$/, '') + location.search + location.hash);`;
 
 export default function Root({ children }: PropsWithChildren) {
