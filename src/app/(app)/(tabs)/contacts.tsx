@@ -106,7 +106,7 @@ export default function ContactsScreen() {
         />
         <Row>
           <Button
-            title={draft.id ? 'Save Changes' : 'Add Contact'}
+            title={draft.id ? 'Save' : 'Add Contact'}
             onPress={save}
             busy={saving}
             disabled={draft.name.trim() === '' || (draft.email.trim() === '' && draft.phone.trim() === '')}
