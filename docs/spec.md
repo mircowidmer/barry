@@ -142,7 +142,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 ### Channels
 
 - Barry sends email and text messages. Each message goes to every channel the contact has. A text message carries the same text as the email body, without the subject.
-- Barry has no text message provider yet, so text messages are switched off. [Text messages](text-messages.md) says what adding one takes.
+- Barry sends text messages through LINK Mobility. They stay switched off until its access token is set up. [Text messages](text-messages.md) sets it up.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
 - A channel can be switched off. While text messages are switched off, the contact screen marks each contact's phone number with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
 

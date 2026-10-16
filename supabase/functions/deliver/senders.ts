@@ -59,6 +59,35 @@ const parseJson = (body: string): Record<string, unknown> => {
   }
 };
 
+export type LinkMobilityConfig = { apiUrl: string; accessToken: string; sender: string };
+
+const LINK_MOBILITY_SENT = new Set([2000, 2001]);
+// Throttling (4023, 4025) and LINK Mobility's own errors (5000, 5003) clear up on their own.
+const LINK_MOBILITY_RETRY = new Set([4023, 4025, 5000, 5003]);
+
+export const linkMobilitySms = (config: () => LinkMobilityConfig): Sender => async (to, message, messageId) => {
+  const { apiUrl, accessToken, sender } = config();
+  const response = await fetch(`${apiUrl}/rest/smsmessaging/text`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      recipientAddressList: [to.replace(/^\+/, '')],
+      messageContent: message.text,
+      senderAddress: sender.replace(/^\+/, ''),
+      senderAddressType: /^\+?\d+$/.test(sender) ? 'international' : 'alphanumeric',
+      contentCategory: 'informational',
+      clientMessageId: `barry-message-${messageId}`,
+    }),
+  });
+  const body = parseJson(await response.text());
+  if (response.status === 401) return { outcome: 'failed', reason: 'HTTP 401: LINK Mobility refused the access token' };
+  if (!response.ok) return fromHttpStatus(response.status, `LINK Mobility: ${body.statusMessage ?? response.statusText}`);
+  const code = Number(body.statusCode);
+  if (LINK_MOBILITY_SENT.has(code)) return { outcome: 'sent', providerRef: typeof body.transferId === 'string' ? body.transferId : null };
+  const reason = `LINK Mobility ${code}: ${body.statusMessage ?? 'unknown status'}`;
+  return LINK_MOBILITY_RETRY.has(code) ? { outcome: 'retry', reason } : { outcome: 'failed', reason };
+};
+
 export type ResendConfig = { apiUrl: string; apiKey: string; from: string };
 
 // The idempotency key is per message, so a retry after a lost response never sends a second email.
@@ -84,9 +113,17 @@ const resend = resendEmail(() => ({
   from: env('EMAIL_FROM'),
 }));
 
+const linkMobility = linkMobilitySms(() => ({
+  apiUrl: Deno.env.get('LINKMOBILITY_API_URL') ?? 'https://api.linkmobility.eu',
+  accessToken: env('LINKMOBILITY_ACCESS_TOKEN'),
+  sender: env('LINKMOBILITY_SENDER'),
+}));
+
 export const senders: Record<Channel, Sender> = {
   email: (to, message, messageId) => (Deno.env.get('RESEND_API_KEY') ? resend : mailpitEmail)(to, message, messageId),
-  // The sms channel stays off in channel_config until a provider is added, so no text message reaches here.
-  sms: () => Promise.resolve({ outcome: 'failed', reason: 'No text message provider is set up' }),
+  sms: (to, message, messageId) =>
+    Deno.env.get('LINKMOBILITY_ACCESS_TOKEN')
+      ? linkMobility(to, message, messageId)
+      : Promise.resolve({ outcome: 'failed', reason: 'LINKMOBILITY_ACCESS_TOKEN is not set' }),
   push: expoPush,
 };
