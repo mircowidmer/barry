@@ -4,9 +4,9 @@ Barry sends text messages from the `deliver` function. It uses Azure Communicati
 
 ## Send with Azure Communication Services
 
-1. In the Azure portal, open the Communication Services resource and get a sender under **Telephony and SMS**:
-   - An alphanumeric sender ID such as `Barry`, if the countries of your Emergency Contacts support it. Contacts cannot reply to it.
-   - Otherwise a phone number with SMS enabled, in E.164 form, for example `+41445551234`.
+1. In the Azure portal, open the Communication Services resource and get a sender. `ACS_SMS_FROM` must name a sender this resource owns.
+   - An alphanumeric sender ID such as `Barry`: open **Alphanumeric Sender ID** in the resource menu, choose the **Dynamic** tab and click **Enable Alphanumeric Sender ID**. Some countries need the **Preregistered** tab instead, which takes weeks. Contacts cannot reply to it.
+   - A phone number: open **Phone numbers** in the resource menu and get one with SMS enabled. Use it in E.164 form, for example `+41445551234`.
 2. Copy the **Connection string** from **Settings > Keys**. It looks like `endpoint=https://<name>.communication.azure.com/;accesskey=...`.
 3. Add both to `supabase/.env.hosted`, which git ignores:
 
