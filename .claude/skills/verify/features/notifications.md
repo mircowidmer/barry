@@ -1,6 +1,6 @@
 # Notifications
 
-The Adventurer gets a Reminder 30 minutes before the Deadline and an Overdue Notice when the Deadline passes. Both are local notifications that the app schedules on the phone with `expo-notifications` (`src/lib/barry/alarms.ts`). They need no signal and no push, so the relay plays no part. Supabase has the push channel turned off and queues no push rows for them.
+The Adventurer gets a Reminder 30 minutes before the Deadline and an Overdue Notice when the Deadline passes. Both are local notifications that the app schedules on the phone with `expo-notifications` (`src/lib/barry/alarms.ts`). They need no signal and no push. Supabase has the push channel turned off and queues no push rows for them.
 
 ## Sub-features
 
@@ -16,7 +16,7 @@ The Adventurer gets a Reminder 30 minutes before the Deadline and an Overdue Not
 
 Preconditions:
 
-- Baseline from the index. No push relay runs, so every notification that appears is local.
+- Baseline from the index. Supabase sends no pushes, so every notification that appears is local.
 
 - **Overdue Notice (`local-overdue`).** Run `fixture.mjs live 2`, then `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`, so the app loads the Adventure and schedules the notification. Wait until the live screen shows the countdown, then press `button HOME`. At the Deadline, a banner from `Barry` reads `You are overdue. Your Deadline for Pilatus was <weekday> <day> <month>, <HH:MM>. Barry alerts your emergency contacts at …`. Take `xcrun simctl io booted screenshot` about once a second from one second before the Deadline, because the banner stays for about 5 seconds. `fixture.mjs state` lists no `reminder` or `overdue_notice` message rows.
 - **Reminder (`local-reminder`).** Run `fixture.mjs live 31`, then relaunch the app as above and press `button HOME`. About a minute later the banner reads `Check in or move your Deadline. Your Deadline for Pilatus is …`.

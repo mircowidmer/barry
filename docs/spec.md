@@ -148,7 +148,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Delivery Failures
 
-If a Heads-up, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer.
+If a Heads-up, a Plan Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer.
 
 ## Location
 
@@ -174,7 +174,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The link never expires. After the Check-in it keeps showing the Check-in time for as long as the Adventurer's account exists.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.
-- The page is a web route of the Expo app, served by EAS Hosting. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
+- The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/trail`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 
 ## Monitoring
 
@@ -196,4 +196,3 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - Messages in a language other than English.
 - An app warning when the outside monitor has not heard from Supabase.
 - Detecting bounced emails.
-- Push delivery receipts from Expo, and removing expired push tokens. A push notification counts as sent once Expo accepts it.

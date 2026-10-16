@@ -6,8 +6,9 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 
 - Every migration in `supabase/migrations`. `supabase/seed.sql` is for local development only and is never pushed.
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
-- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY` and `EMAIL_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://barry.support/trail`. Barry sends no text messages, because it has no text message provider.
+- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM` and `LINKMOBILITY_ACCESS_TOKEN`. Email goes through Resend from `barry@barry.support`, and text messages go through LINK Mobility. `TRAIL_MAP_URL` is `https://barry.support/trail`.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
+- Auth sends sign-up confirmation emails through Resend's SMTP server, `smtp.resend.com`, from `help@barry.support`. This is set under Authentication, Emails, SMTP Settings in the dashboard.
 
 ## Ship a change
 
@@ -63,5 +64,4 @@ All three values are `true` when the clock ticked in the last two minutes and me
 ## Not done yet
 
 - Text messages. They go through LINK Mobility with `LINKMOBILITY_ACCESS_TOKEN`. While the LINK Mobility account is a test account, they reach only the phone number it verified. [Text messages](text-messages.md) has the details.
-- Sign-up. Hosted Auth asks new accounts to confirm their email, and its built-in email service sends only to members of the Supabase team.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.

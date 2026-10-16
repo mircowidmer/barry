@@ -1,6 +1,6 @@
 # Sign in
 
-The app opens on the sign-in screen until an Adventurer signs in or creates an account. After the first sign-in it asks for notification permission and registers the phone for push. The session survives app restarts.
+The app opens on the sign-in screen until an Adventurer signs in or creates an account. After the first sign-in it asks for notification permission, so the phone can show the Reminder and the Overdue Notice. The session survives app restarts.
 
 ## Sub-features
 

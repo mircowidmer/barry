@@ -45,7 +45,7 @@ The Adventurer's most recent location reading. Barry takes one when they start a
 _Avoid_: Location, GPS fix, track
 
 **Trail**:
-The location readings Barry takes in the background during an Adventure, about one every 10 seconds, until the Check-in. After the Check-in only the Adventurer can see them.
+The location readings Barry takes in the background during an Adventure, about one a minute, until the Check-in. After the Check-in only the Adventurer can see them.
 _Avoid_: Track, breadcrumbs, route, live location
 
 **Trail Map**:
@@ -100,5 +100,5 @@ A notification the Adventurer's phone shows when their Deadline passes, saying w
 _Avoid_: Second reminder, warning
 
 **Delivery Failure**:
-A Heads-up, Alert or All-clear that could not be delivered to an Emergency Contact, which Barry shows to the Adventurer.
+A Heads-up, Plan Update, Alert or All-clear that could not be delivered to an Emergency Contact, which Barry shows to the Adventurer.
 _Avoid_: Bounce, error

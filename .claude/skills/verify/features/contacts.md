@@ -27,5 +27,5 @@ Preconditions:
 
 ## Gotchas
 
-- A phone number without `+` and a country code fails the database check, and the screen shows `Could not save.`
+- A phone number without `+` and a country code fails the database check, and the screen shows `Could not save. A contact needs a phone number with country code, an email address, or both.`
 - Removing is a soft delete. A removed contact no longer appears, but past messages still name them.

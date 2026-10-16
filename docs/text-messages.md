@@ -29,7 +29,7 @@ A LINK Mobility test account sends only to the phone number verified when the ac
    ```
 
 5. Send one test text message and check it arrives.
-6. Switch the channel on with a migration, `update private.channel_config set enabled = true where channel = 'sms';`, and push it with `npx supabase db push`.
+6. Switch the channel on with a migration and push it with `npx supabase db push`. `supabase/migrations/20261016083000_enable_sms.sql` already does this with `update private.channel_config set enabled = true where channel = 'sms';`.
 
 ## How `deliver` reads the answer
 
