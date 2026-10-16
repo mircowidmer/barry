@@ -1,8 +1,34 @@
 # How to send real text messages
 
-Barry sends text messages through Twilio's Messaging API. Locally, `scripts/sms-relay.mjs` stands in for Twilio: it prints each text message and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them. Follow these steps to send real text messages to Emergency Contacts.
+Barry sends text messages from the `deliver` function. It uses Azure Communication Services (ACS) when `ACS_CONNECTION_STRING` is set, and Twilio otherwise. Locally, `scripts/sms-relay.mjs` stands in for Twilio: it prints each text message and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them.
 
-## Steps
+## Send with Azure Communication Services
+
+1. In the Azure portal, open the Communication Services resource and get a sender under **Telephony and SMS**:
+   - An alphanumeric sender ID such as `Barry`, if the countries of your Emergency Contacts support it. Contacts cannot reply to it.
+   - Otherwise a phone number with SMS enabled, in E.164 form, for example `+41445551234`.
+2. Copy the **Connection string** from **Settings > Keys**. It looks like `endpoint=https://<name>.communication.azure.com/;accesskey=...`.
+3. Add both to `supabase/.env.hosted`, which git ignores:
+
+   ```
+   ACS_CONNECTION_STRING=endpoint=https://<name>.communication.azure.com/;accesskey=...
+   ACS_SMS_FROM=Barry
+   ```
+
+   Remove the `TWILIO_*` lines. `deliver` ignores them while `ACS_CONNECTION_STRING` is set.
+4. From the linked checkout, set the secrets and deploy the function:
+
+   ```bash
+   node scripts/hosted-secrets.mjs
+   ```
+
+   ```bash
+   npx supabase functions deploy deliver
+   ```
+
+`deliver` signs each request with the access key. A refused number fails at once with Azure's error message, and throttling or an Azure outage is retried.
+
+## Send with Twilio
 
 1. Create a Twilio account at https://www.twilio.com/try-twilio.
 2. Upgrade the account in the Twilio Console. A trial account sends only Twilio's predefined templates, and only to verified numbers, so it cannot send Barry's messages.
@@ -12,17 +38,11 @@ Barry sends text messages through Twilio's Messaging API. Locally, `scripts/sms-
    - For a country without alphanumeric senders, buy an SMS-capable number in **Phone Numbers > Manage > Buy a number** and use it in E.164 form, for example `+41445551234`.
 5. Copy the **Account SID** and the **Auth Token** from the Console's account dashboard.
 6. Set the secrets:
-   - Hosted Supabase:
-
-     ```bash
-     npx supabase secrets set TWILIO_ACCOUNT_SID=AC... TWILIO_AUTH_TOKEN=... TWILIO_FROM=Barry
-     ```
-
-     Do not set `TWILIO_API_URL`. Without it, `deliver` sends to `https://api.twilio.com`.
+   - Hosted Supabase: put `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM` in `supabase/.env.hosted`, leave `ACS_CONNECTION_STRING` out, and run `node scripts/hosted-secrets.mjs`. Do not set `TWILIO_API_URL`. Without it, `deliver` sends to `https://api.twilio.com`.
    - Local Supabase: put the values in `supabase/.env`, which git ignores. `supabase/config.toml` reads them with `env(...)`. Set `TWILIO_API_URL=https://api.twilio.com` for real texts, or `TWILIO_API_URL=http://host.docker.internal:8788` to send them to `scripts/sms-relay.mjs`. Restart Supabase, because the edge runtime reads secrets only at start.
 
 ## Cost
 
-Twilio charges per segment. A segment holds 160 characters, or 153 when a message has more than one. One character outside the GSM-7 alphabet, such as `’` or `…`, sends the whole message as UCS-2, with 70 characters per segment, or 67 when split. The message text uses only GSM-7 characters, and a test in `supabase/functions/deliver/messages.en.test.ts` checks it. A name, a destination or notes that the Adventurer types with other characters still switch that message to UCS-2.
+Both providers charge per segment. A segment holds 160 characters, or 153 when a message has more than one. One character outside the GSM-7 alphabet, such as `’` or `…`, sends the whole message as UCS-2, with 70 characters per segment, or 67 when split. The message text uses only GSM-7 characters, and a test in `supabase/functions/deliver/messages.en.test.ts` checks it. A name, a destination or notes that the Adventurer types with other characters still switch that message to UCS-2.
 
 With the test values in that file, a Heads-up is 3 segments, an Alert 4, and an All-clear 1.
