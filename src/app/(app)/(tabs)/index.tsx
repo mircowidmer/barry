@@ -207,7 +207,7 @@ function LiveAdventure({
       <HoldButton title="Hold to Check In" onComplete={checkIn} />
 
       {adventure.stage !== 'alerted' && (
-        <Section title="Need more time?">
+        <Section title="Need More Time?">
           <Row>
             {MOVES.map((m) => (
               <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => move(m.minutes)} />

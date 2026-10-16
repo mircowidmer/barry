@@ -28,7 +28,7 @@ Preconditions:
 - `fixture.mjs live 120` created a live Adventure to `Pilatus` with `Luca`, Deadline in two hours, so a journey can start without the Plan screen.
 - The app was brought to the Adventure tab after the fixture, because the overview loads on focus: tap `Contacts` (243, 820), then `Adventure` (73, 820).
 
-- **Countdown (`live-countdown`).** Open the Adventure tab. The top notice reads `Barry is watching. Check in by <weekday> <day> <month> at <HH:MM>, in 1 h 59 min` or similar, and the screen shows `Hold to Check In`, `Need more time?` and `Edit Plan or Contacts`.
+- **Countdown (`live-countdown`).** Open the Adventure tab. The top notice reads `Barry is watching. Check in by <weekday> <day> <month> at <HH:MM>, in 1 h 59 min` or similar, and the screen shows `Hold to Check In`, `Need More Time?` and `Edit Plan or Contacts`.
 - **Short tap (`live-short-tap`).** Tap `Hold to Check In` (201, 243) with `duration: 0.3`. The button may read `Keep holding…` while pressed. After release the screen still shows the countdown. `fixture.mjs state` still prints `adventure | active`.
 - **Overdue (`live-overdue`).** Run `fixture.mjs overdue` and wait for the next pg_cron tick, up to 60 seconds, without touching the app. The notice turns orange and reads `You are overdue. Barry alerts your emergency contacts at <HH:MM>, in 1 min, unless you check in.` or `in 0 min`. The alert time is the Deadline plus 1 minute. `fixture.mjs state` prints `adventure | overdue`. Look within one tick: the next tick sends Alert 1 and the screen turns to `Your emergency contacts were alerted`.
 - **Move the Deadline (`live-move`).** Tap `+1 hour`. A notice reads `New Deadline: …`, the countdown returns, and `fixture.mjs state` shows the new Deadline and `active`.
@@ -48,4 +48,4 @@ Preconditions:
 - `fixture.mjs offline` stops the whole API gateway, so Realtime and every screen lose the server too. Always run `fixture.mjs online` before the next journey.
 - With "Always", a queued Check-in is sent on the next background location wake (the screen shows `Barry keeps trying in the background.`). Without "Always", it is sent only when the app comes to the foreground or another Check-in starts.
 - **Background Check-in (`live-background-checkin`).** Start a simulated walk with `xcrun simctl location booted start --speed=2 --distance=15 <waypoints>` so iOS delivers wakes. `fixture.mjs offline`, hold `Hold to Check In`, press `button HOME`, `fixture.mjs online`, and do not open Barry. Within about a minute the latest Adventure is `ended`, with `checked_in_at` at the hold and `ended_at` at a location wake after `online`. Verified on 15 October: hold 14:35:54, delivered 14:37:17.
-- While Alerted, `Need more time?` and `Edit Plan or Contacts` are hidden by design.
+- While Alerted, `Need More Time?` and `Edit Plan or Contacts` are hidden by design.
