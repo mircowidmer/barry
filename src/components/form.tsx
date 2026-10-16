@@ -27,6 +27,7 @@ export function Screen({ title, children }: { title?: string; children: ReactNod
       style={{ backgroundColor: theme.background }}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
       contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }]}>
       {title && <ThemedText type="subtitle">{title}</ThemedText>}
       {children}
