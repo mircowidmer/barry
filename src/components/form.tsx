@@ -70,15 +70,17 @@ export function Field({ label, hint, ...input }: { label: string; hint?: string 
   );
 }
 
+const HOLD_MS = 1500;
+
 /** Completes only after a deliberate hold, so a pocket press cannot end protection. */
-export function HoldButton({ title, onComplete, holdMs = 1500 }: { title: string; onComplete: () => void; holdMs?: number }) {
+export function HoldButton({ title, onComplete }: { title: string; onComplete: () => void }) {
   const theme = useTheme();
   const [progress] = useState(() => new Animated.Value(0));
   const [holding, setHolding] = useState(false);
 
   const start = () => {
     setHolding(true);
-    Animated.timing(progress, { toValue: 1, duration: holdMs, useNativeDriver: false }).start(({ finished }) => {
+    Animated.timing(progress, { toValue: 1, duration: HOLD_MS, useNativeDriver: false }).start(({ finished }) => {
       setHolding(false);
       progress.setValue(0);
       if (finished) onComplete();

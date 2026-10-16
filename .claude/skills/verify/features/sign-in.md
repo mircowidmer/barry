@@ -6,7 +6,7 @@ The app opens on the sign-in screen until an Adventurer signs in or creates an a
 
 - `signin-password` signs in with email and password.
 - `signin-create` creates an account with email and password.
-- `signin-push` asks for notification permission and registers a push token.
+- `signin-push` asks for notification permission, for the Reminder and the Overdue Notice.
 - `signin-persist` keeps the session after the app restarts.
 - `signin-signout` signs out from the Profile tab.
 - `account-delete` deletes the account from the Profile tab with `Delete`.
@@ -24,7 +24,7 @@ Preconditions:
 
 - **Enter credentials.** `clip.sh email`, long-press `Email Address` (201, 247), tap `Paste`. `clip.sh password`, long-press `Password` (201, 329), tap `Paste`, then `clip.sh clear`. `Sign in` turns solid blue.
 - **Sign in (`signin-password`).** Tap `Sign in` (201, 390). The Adventure tab opens with `Plan an Adventure`.
-- **Push (`signin-push`).** On a fresh install the prompt `"Barry" Would Like to Send You Notifications` appears. Tap `Allow`. Within 10 seconds the database has a row in `push_devices` for the test account starting with `ExponentPushToken[`.
+- **Push (`signin-push`).** On a fresh install the prompt `"Barry" Would Like to Send You Notifications` appears. Tap `Allow`. Barry needs it only for the Reminder and the Overdue Notice, which the phone schedules itself, so nothing is stored on the server.
 - **Persist (`signin-persist`).** Run `xcrun simctl terminate booted support.barry` and `xcrun simctl launch booted support.barry`. The app opens signed in on the Adventure tab.
 - **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Log Out`. The alert `Log out?` offers `Cancel` and `Log Out`. `Cancel` keeps you signed in. Tap `Log Out` and the sign-in screen returns.
 - **Delete account (`account-delete`).** Never on the test account. Sign out, paste a new address such as `delete-test-<time>@barry.test` and a generated password, and tap `Create account`. Tap `Profile`, scroll down, tap `Delete`. The alert `Delete your account?` offers `Cancel` and `Delete`. Tap `Delete`. The sign-in screen returns, and `auth.users` has no row for that address. Sign in to the test account again afterwards.

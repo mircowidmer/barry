@@ -5,7 +5,7 @@ import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { barry } from '@/lib/barry';
-import { registerForPush } from '@/lib/push';
+import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
 
 SplashScreen.preventAutoHideAsync();
@@ -21,7 +21,7 @@ function Navigation() {
         .catch(() => undefined)
         .then(() => barry.trail.sync())
         .catch(() => undefined);
-      registerForPush();
+      askForNotifications();
     };
     catchUp();
     const subscription = AppState.addEventListener('change', (state) => state === 'active' && catchUp());

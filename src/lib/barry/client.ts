@@ -220,13 +220,6 @@ export const createBarry = ({
 
     enabledChannels,
 
-    registerPushDevice: async (expoPushToken) => {
-      const { error } = await supabase
-        .from('push_devices')
-        .upsert({ expo_push_token: expoPushToken, adventurer_id: await userId(), updated_at: now().toISOString() });
-      if (error) fail('registerPushDevice', error);
-    },
-
     listAdventures: async () => {
       const { data, error } = await supabase
         .from('adventures')

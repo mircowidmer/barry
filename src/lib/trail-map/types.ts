@@ -3,7 +3,7 @@ export type Plan = { destination: string; route: string | null; startingPoint: s
 export type TrailPoint = { latitude: number; longitude: number; takenAt: Date };
 export type LastKnown = TrailPoint & { accuracyM: number | null };
 
-type Base = { adventurerName: string; plan: Plan; timeZone: string };
+type Base = { adventurerName: string; plan: Plan };
 
 export type TrailMap =
   | (Base & { status: 'underway' | 'alerted'; trail: TrailPoint[]; lastKnownPosition: LastKnown | null })

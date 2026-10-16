@@ -121,8 +121,6 @@ export type Barry = {
   saveContact(contact: ContactDraft): Promise<EmergencyContact>;
   removeContact(id: EmergencyContactId): Promise<{ kind: 'removed' } | { kind: 'in_use' }>;
   enabledChannels(): Promise<ReadonlySet<Channel>>;
-  /** Called each time the app opens. Upsert, so a repeat is harmless. */
-  registerPushDevice(expoPushToken: string): Promise<void>;
 
   listAdventures(): Promise<Adventure[]>;
   getAdventure(id: AdventureId): Promise<Adventure | null>;
@@ -140,8 +138,7 @@ export type Barry = {
   flushPendingCheckIns(): Promise<void>;
 
   deliveryFailures(id: AdventureId): Promise<DeliveryFailure[]>;
-  /** Every reading of the Adventure, oldest first, from Start, Deadline moves and the Trail. */
-  /** Oldest first. With `after`, only the readings taken after it. */
+  /** Every reading of the Adventure, from Start, Deadline moves and the Trail, oldest first. With `after`, only the readings taken after it. */
   readings(id: AdventureId, after?: Date): Promise<Position[]>;
   watchAdventure(id: AdventureId, onChange: (adventure: Adventure) => void): () => void;
 
