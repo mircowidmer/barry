@@ -296,7 +296,7 @@ function PlanForm({
             Starting sends a heads-up to your contacts with your plan and deadline, which is {formatWhen(form.deadline)}.
           </ThemedText>
           <Row>
-            <Button title="Save for later" kind="secondary" onPress={onSave} busy={busy === 'save'} />
+            <Button title="Save for Later" kind="secondary" onPress={onSave} busy={busy === 'save'} />
             {id && <Button title="Delete" kind="danger" onPress={onDelete} />}
           </Row>
         </>
