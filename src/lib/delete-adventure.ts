@@ -9,7 +9,7 @@ export type DeletableStage = 'planned' | 'ended';
 
 const CONSEQUENCES: Record<DeletableStage, string> = {
   planned: 'Its Plan is removed. Nobody was told about it yet.',
-  ended: 'Its Plan, its Trail and its messages are removed. Links your Emergency Contacts got stop working.',
+  ended: 'Its Plan, its Trail and its messages are removed. Links your emergency contacts got stop working.',
 };
 
 const confirmed = (stage: DeletableStage) =>

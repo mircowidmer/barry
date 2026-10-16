@@ -30,7 +30,7 @@ export default function SignInScreen() {
         Barry tells the people you choose when you don’t check in from an Adventure.
       </ThemedText>
       <Field
-        label="Email"
+        label="Email Address"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"

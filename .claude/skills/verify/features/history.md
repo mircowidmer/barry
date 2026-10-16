@@ -7,7 +7,7 @@ The History tab, second in the tab bar, shows the Adventure in progress under `C
 - `history-tab` shows four tabs in the order `Adventure`, `History`, `Contacts`, `Profile`, with a list icon on `History`.
 - `history-past` lists Ended Adventures as cards reading `<destination>` and `Checked in <time>`, newest first.
 - `history-now` shows the live Adventure under `Current Adventure` with `Back by <time>`, `Overdue since <time>` or `Emergency Contacts alerted`. Tapping it opens the Adventure tab's live screen.
-- `history-empty` reads `Your Adventures show up here once you start one.` when there is no live or Ended Adventure.
+- `history-empty` reads `Your adventures show up here once you start one.` when there is no live or Ended Adventure.
 - Opening an Ended Adventure and deleting it are `trail-history` and `history-delete` in [Trail and Trail Map](./trail.md).
 
 ## How to get to it (user POV)

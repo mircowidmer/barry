@@ -14,7 +14,7 @@ const confirmed = () =>
   new Promise<boolean>((resolve) =>
     Alert.alert(
       'Delete your account?',
-      'Your Profile, your Emergency Contacts and every Adventure with its Trail are deleted. Links your Emergency Contacts got stop working. This cannot be undone.',
+      'Your Profile, your emergency contacts and every Adventure with its Trail are deleted. Links your emergency contacts got stop working. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
         { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },

@@ -49,7 +49,7 @@ export default function HistoryScreen() {
   return (
     <Screen title="History">
       {!inProgress && ended.length === 0 && (
-        <ThemedText themeColor="textSecondary">Your Adventures show up here once you start one.</ThemedText>
+        <ThemedText themeColor="textSecondary">Your adventures show up here once you start one.</ThemedText>
       )}
       {inProgress && (
         <>

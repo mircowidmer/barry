@@ -113,7 +113,7 @@ Deno.test('the Overdue Notice says when the Alert goes out', () => {
   const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:30:00Z' }), links);
   assertEquals(
     text,
-    'Your Deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your Emergency Contacts at Sat 17 Oct, 18:30 unless you check in.',
+    'Your Deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:30 unless you check in.',
   );
 });
 
