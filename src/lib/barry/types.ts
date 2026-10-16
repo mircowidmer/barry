@@ -7,6 +7,8 @@ export type EmergencyContactId = Brand<string, 'EmergencyContactId'>;
 export type Refusal = Database['public']['Enums']['refusal'];
 export type Channel = Database['public']['Enums']['channel'];
 
+export type MessageLanguage = 'en' | 'de';
+
 export type AdventurerProfile = {
   name: string;
   phone: string;
@@ -14,6 +16,8 @@ export type AdventurerProfile = {
   carColour: string | null;
   carPlate: string | null;
   medicalNotes: string | null;
+  /** The language of the messages to the Emergency Contacts. */
+  messageLanguage: MessageLanguage;
 };
 
 /** An address that is switched off is kept, but Barry does not use it. */

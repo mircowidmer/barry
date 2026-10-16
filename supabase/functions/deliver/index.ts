@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 
 import { type Channel, parseFacts } from './facts.ts';
 import { trailMapLinks } from './links.ts';
-import { render } from './messages.en.ts';
+import { render } from './messages.ts';
 import { type SendResult, senders } from './senders.ts';
 
 type ClaimedRow = { id: number; attempts: number; channel: Channel; to_address: string };

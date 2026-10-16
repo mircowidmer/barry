@@ -93,7 +93,7 @@ select is(
      from public.messages m
     where m.adventure_id = 'a0000000-0000-0000-0000-000000000001' and m.kind = 'plan_update' and m.status = 'pending'),
   jsonb_build_object(
-    'kind', 'plan_update', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich',
+    'kind', 'plan_update', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich', 'language', 'en',
     'plan', jsonb_build_object('destination', 'Pilatus', 'route', 'West ridge', 'starting_point', null, 'notes', 'Back by 18:00'),
     'trail_token', (select trail_token from public.adventure_contacts
                      where adventure_id = 'a0000000-0000-0000-0000-000000000001'

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(35);
+select plan(36);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone, car_make, car_colour, car_plate, medical_notes)
@@ -121,7 +121,7 @@ $$;
 
 select is(
   pg_temp.facts('a@example.com', 'heads_up') - 'deadline' - 'trail_token',
-  jsonb_build_object('kind', 'heads_up', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich',
+  jsonb_build_object('kind', 'heads_up', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich', 'language', 'en',
     'plan', jsonb_build_object('destination', 'Grosser Mythen', 'route', 'East ridge', 'starting_point', null, 'notes', null)),
   'A Heads-up carries the name, the Plan and the Deadline, and nothing from the Profile'
 );
@@ -136,6 +136,9 @@ select is(
   'An Alert carries the latest position reading'
 );
 select is((pg_temp.facts('e@example.com', 'alert') ->> 'round')::int, 1, 'An Alert carries its round');
+update public.adventurer_profiles set message_language = 'de';
+select is(pg_temp.facts('e@example.com', 'alert') ->> 'language', 'de', 'A message carries the language the Adventurer chose');
+update public.adventurer_profiles set message_language = 'en';
 select is(
   (pg_temp.facts('i@example.com', 'all_clear') ->> 'checked_in_at') is null and (pg_temp.facts('i@example.com', 'all_clear') ? 'checked_in_at'),
   true,
