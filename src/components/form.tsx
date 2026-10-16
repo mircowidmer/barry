@@ -52,7 +52,11 @@ export function Field({ label, hint, ...input }: { label: string; hint?: string 
         placeholderTextColor={theme.textSecondary}
         style={[
           styles.input,
-          { color: theme.text, backgroundColor: theme.background, borderColor: theme.backgroundSelected },
+          {
+            color: input.editable === false ? theme.textSecondary : theme.text,
+            backgroundColor: input.editable === false ? theme.backgroundElement : theme.background,
+            borderColor: theme.backgroundSelected,
+          },
           input.multiline && styles.multiline,
         ]}
         {...input}
