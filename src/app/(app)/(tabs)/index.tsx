@@ -204,7 +204,7 @@ function LiveAdventure({
       )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
-      <HoldButton title="Hold to check in" onComplete={checkIn} />
+      <HoldButton title="Hold to Check In" onComplete={checkIn} />
 
       {adventure.stage !== 'alerted' && (
         <Section title="Need more time?">
