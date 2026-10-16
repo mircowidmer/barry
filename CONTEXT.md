@@ -11,7 +11,7 @@ A Barry user who plans Adventures and checks in from them.
 _Avoid_: User, hiker, member
 
 **Adventurer Profile**:
-What Barry knows about an Adventurer for rescuers: name, phone number, car make, colour and number plate, and optional medical notes.
+What Barry knows about an Adventurer for rescuers: name, phone number, and optionally car make, colour and number plate, and medical notes.
 _Avoid_: Account, user details, settings
 
 **Emergency Contact**:
@@ -88,7 +88,7 @@ The message to an Adventure's Emergency Contacts when the Adventurer changes the
 _Avoid_: Change notification, edit message
 
 **Alert**:
-The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Last Known Position, the Adventurer Profile and the contact's Trail Map link.
+The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Deadline, the Last Known Position, the Adventurer Profile and the contact's Trail Map link.
 _Avoid_: Notification, alarm, SOS
 
 **All-clear**:
