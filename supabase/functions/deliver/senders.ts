@@ -38,7 +38,7 @@ const mailpitEmail: Sender = async (to, message, messageId) => {
 };
 
 const expoPush: Sender = async (to, message) => {
-  const response = await fetch(Deno.env.get('EXPO_PUSH_URL') ?? 'https://exp.host/--/api/v2/push/send', {
+  const response = await fetch('https://exp.host/--/api/v2/push/send', {
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: 'application/json' },
     body: JSON.stringify({ to, title: message.subject, body: message.text, sound: 'default', priority: 'high' }),
@@ -108,7 +108,7 @@ export const resendEmail = (config: () => ResendConfig): Sender => async (to, me
 };
 
 const resend = resendEmail(() => ({
-  apiUrl: Deno.env.get('RESEND_API_URL') ?? 'https://api.resend.com',
+  apiUrl: 'https://api.resend.com',
   apiKey: env('RESEND_API_KEY'),
   from: env('EMAIL_FROM'),
 }));

@@ -25,14 +25,16 @@ export const must = ({ data, error }, what) => {
 export const sleep = (seconds) => new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
 // The clock ticks once a minute, so anything it does shows up within about two minutes.
-const poll = async (what, find, seconds = 150) => {
-  const deadline = Date.now() + seconds * 1000;
+const POLL_SECONDS = 150;
+
+const poll = async (what, find) => {
+  const deadline = Date.now() + POLL_SECONDS * 1000;
   while (Date.now() < deadline) {
     const found = await find();
     if (found) return found;
     await sleep(2);
   }
-  throw new Error(`no ${what} within ${seconds} seconds`);
+  throw new Error(`no ${what} within ${POLL_SECONDS} seconds`);
 };
 
 const mails = async (to, subject) => {
@@ -91,12 +93,12 @@ export const adventurer = async () => {
   const luca = await contact({ name: 'Luca', email: `luca-${run}@example.com` });
   const sara = await contact({ name: 'Sara', phone: `+4179${String(randomInt(1e7)).padStart(7, '0')}` });
 
-  const start = async (contacts = [luca, sara], plan = {}) => {
+  const start = async () => {
     const [saved] = must(
       await client.rpc('save_adventure', {
         p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_starting_point: 'Brunni car park',
         p_notes: null, p_deadline: new Date(Date.now() + 2 * 3600_000).toISOString(),
-        p_contact_ids: contacts.map((c) => c.id), ...plan,
+        p_contact_ids: [luca.id, sara.id],
       }),
       'save_adventure',
     );
