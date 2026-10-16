@@ -71,7 +71,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
     case 'overdue_notice':
       return {
         subject: 'You are overdue',
-        text: `Your Deadline for ${facts.plan.destination} was ${time(facts.deadline)}. Barry alerts your Emergency Contacts at ${time(facts.alertAt)} unless you check in.`,
+        text: `Your Deadline for ${facts.plan.destination} was ${time(facts.deadline)}. Barry alerts your emergency contacts at ${time(facts.alertAt)} unless you check in.`,
       };
 
     case 'alert': {

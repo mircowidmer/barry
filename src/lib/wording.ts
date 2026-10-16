@@ -44,6 +44,6 @@ export const notificationText = ({ kind, adventure }: Alarm): { title: string; b
     ? { title: 'Check in or move your Deadline', body: `Your Deadline for ${destination} is ${time(adventure.deadline)}.` }
     : {
         title: 'You are overdue',
-        body: `Your Deadline for ${destination} was ${time(adventure.deadline)}. Barry alerts your Emergency Contacts at ${time(adventure.alertAt)} unless you check in.`,
+        body: `Your Deadline for ${destination} was ${time(adventure.deadline)}. Barry alerts your emergency contacts at ${time(adventure.alertAt)} unless you check in.`,
       };
 };

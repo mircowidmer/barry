@@ -71,8 +71,8 @@ function Overview({
         </>
       )}
       <ThemedText themeColor="textSecondary">
-        Plan where you are going and when you will be back. If you don’t check in by then, Barry tells your Emergency
-        Contacts.
+        Plan where you are going and when you will be back. If you don’t check in by then, Barry tells your emergency
+        contacts.
       </ThemedText>
       <Button title="Plan an Adventure" onPress={() => router.push('/plan')} />
       {planned.length > 0 && <ThemedText type="smallBold">Planned Adventures</ThemedText>}
@@ -179,13 +179,13 @@ function LiveAdventure({
       )}
       {adventure.stage === 'overdue' && (
         <Notice tone="warning">
-          You are overdue. Barry alerts your Emergency Contacts at {formatWhen(adventure.alertAt)}, in{' '}
+          You are overdue. Barry alerts your emergency contacts at {formatWhen(adventure.alertAt)}, in{' '}
           {formatDuration(adventure.alertAt.getTime() - now.getTime())}, unless you check in.
         </Notice>
       )}
       {adventure.stage === 'alerted' && (
         <Notice tone="danger">
-          Your Emergency Contacts were alerted ({adventure.alertsSent} of 3). Check in to send them the All-clear.
+          Your emergency contacts were alerted ({adventure.alertsSent} of 3). Check in to send them the All-clear.
         </Notice>
       )}
       {offlineSince && (

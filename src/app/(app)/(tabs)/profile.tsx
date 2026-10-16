@@ -69,12 +69,12 @@ function ProfileForm({ initial }: { initial: Form }) {
   return (
     <Screen title="Profile">
       <ThemedText themeColor="textSecondary">
-        An Alert gives your Emergency Contacts this information, so rescuers know who and what to look for.
+        An Alert gives your emergency contacts this information, so rescuers know who and what to look for.
       </ThemedText>
       <Section title="About you">
         <Field label="Name" value={profile.name} onChangeText={set('name')} autoComplete="name" />
         <Field
-          label="Phone number"
+          label="Phone Number"
           value={profile.phone}
           onChangeText={set('phone')}
           keyboardType="phone-pad"
@@ -85,7 +85,7 @@ function ProfileForm({ initial }: { initial: Form }) {
       <Section title="Car (optional)">
         <Field label="Make" value={profile.carMake} onChangeText={set('carMake')} />
         <Field label="Colour" value={profile.carColour} onChangeText={set('carColour')} />
-        <Field label="Number plate" value={profile.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
+        <Field label="Number Plate" value={profile.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
       </Section>
       <Section title="Medical Notes (optional)">
         <Field

@@ -29,7 +29,7 @@ describe('notificationText', () => {
   it('gives the Alert time in the Overdue Notice', () => {
     expect(notificationText(alarm('overdue_notice'))).toEqual({
       title: 'You are overdue',
-      body: 'Your Deadline for Pilatus was Sat 17 Oct, 18:00. Barry alerts your Emergency Contacts at Sat 17 Oct, 18:01 unless you check in.',
+      body: 'Your Deadline for Pilatus was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:01 unless you check in.',
     });
   });
 });

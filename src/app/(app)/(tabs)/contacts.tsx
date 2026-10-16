@@ -91,14 +91,14 @@ export default function ContactsScreen() {
       <Section title={draft.id ? `Edit ${draft.name || 'contact'}` : 'Add a New Contact'}>
         <Field label="Name" value={draft.name} onChangeText={(name) => setDraft((d) => ({ ...d, name }))} />
         <Field
-          label="Email"
+          label="Email Address"
           value={draft.email}
           onChangeText={(email) => setDraft((d) => ({ ...d, email }))}
           autoCapitalize="none"
           keyboardType="email-address"
         />
         <Field
-          label="Phone number"
+          label="Phone Number"
           value={draft.phone}
           onChangeText={(phone) => setDraft((d) => ({ ...d, phone }))}
           keyboardType="phone-pad"
