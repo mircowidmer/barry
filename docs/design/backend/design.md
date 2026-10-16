@@ -66,7 +66,7 @@ Privileges fail closed. The migration revokes all table privileges from `anon` a
 | `save_adventure` | Plan, Deadline and contacts. Destination, Deadline and contacts may be missing. | Plan and contacts. At least one contact remains. | `wrong_stage` | `wrong_stage` |
 | `move_deadline` | `wrong_stage` | Later than the current Deadline and the current time. Overdue becomes Active. | `wrong_stage` | `wrong_stage` |
 | `start_adventure` | Needs a Profile, a destination, a future Deadline and one contact. | Returns success (idempotent). | Returns success. | `wrong_stage` |
-| `check_in` | `wrong_stage` | Ends it. No message. | Ends it. All-clear. | Returns success (idempotent). |
+| `check_in` | `wrong_stage` | Ends it. All-clear. | Ends it. All-clear. | Returns success (idempotent). |
 | `delete_adventure` | Deletes it. | `wrong_stage` | `wrong_stage` | `wrong_stage` |
 
 A Profile row exists only once the name and the phone number are filled in, so "Profile complete" means "the row exists". Every Emergency Contact has a phone number or an email address by table check, so one contact satisfies the Start rule for reachability.
@@ -111,15 +111,14 @@ The claim query in `claim_messages` enforces ordering per address, by kind:
 - An All-clear waits until every Alert to the same address is `sent` or `failed`.
 - A Heads-up, a Reminder and an Overdue Notice wait for nothing.
 
-The All-clear audience is the set of addresses whose Alert may have reached them when the Check-in commits. That is an Alert row that is `sent`, `sending`, or `pending` after at least one attempt. A retry after a timed-out attempt counts, because the earlier attempt may have been delivered. `check_in` builds that set in three steps under the Adventure row lock:
+Every Check-in sends the All-clear to every contact address of the Adventure, whether it comes before the Deadline, while Overdue, or after the Alert. `check_in` works in two steps under the Adventure row lock:
 
 1. It cancels every `pending` row of the Adventure, except an Alert with at least one attempt. It never touches a `sending` row.
-2. It calls `private.enqueue_all_clear`, which reads the Alert rows in a later statement.
-3. It kicks `deliver`.
+2. It calls `private.enqueue_to_contacts` with `all_clear`, which queues one All-clear per contact address on every enabled channel.
 
-The race works out because Postgres runs these statements at READ COMMITTED. Suppose `deliver` has claimed an Alert row but not committed. The cancel in step 1 waits for that row lock, rereads the row, sees `sending` and leaves it. Step 2 then sees the row as `sending` and includes its address. Suppose instead the cancel commits first. Then `deliver` never claims the row, and the address gets no All-clear because it got no Alert.
+An Alert with an attempt may already have reached its contact, so `check_in` leaves it, and `deliver` never cancels an Alert either. Such an Alert stays in the queue until it is sent or fails, and the All-clear to its address waits for it. An All-clear goes out also when the Alert to its address failed.
 
-`deliver` never cancels an Alert. The cancel step in `claim_messages` touches only `pending` Heads-up, Reminder and Overdue Notice rows. So an Alert that was `sending` at the Check-in and then settles as `retry` stays in the queue until it is sent or fails. Its All-clear waits for it. If every Alert to an address fails, the claim step cancels that address's All-clear with `no_alert_delivered`. No contact gets an All-clear without its Alert.
+Until 16 Oct 2026 the All-clear went only to addresses whose Alert may have reached them, through `private.enqueue_all_clear`, and `claim_messages` cancelled an All-clear without a delivered Alert as `no_alert_delivered`. `supabase/migrations/20261016170000_all_clear_on_every_check_in.sql` replaced both.
 
 ### Delivery Failure is a status, not a table
 
@@ -248,6 +247,7 @@ The user answered the open questions on 2026-10-15:
   - `StartResult` and `MoveDeadlineResult` carry an `InProgressAdventure`, because a retried Start can find the Adventure already Overdue.
 - Push is implemented. `src/lib/push.ts` asks for notification permission and registers the Expo push token each time the app opens, and `startConditions()` also reads the permission, so revoking it later brings the warning back. The project is linked to EAS as `@mircowidmer/barry-local` with bundle ID `support.barry`. Locally, `EXPO_PUSH_URL` in `config.toml` points `deliver` at `scripts/push-relay.mjs`, which shows each push in the booted iOS Simulator through `xcrun simctl push`. In the SDK 58 development build on the iOS 27 simulator, the app registered a real Expo push token, and the Reminder and the Overdue Notice both appeared on screen. Not yet proven: delivery through Expo's push service, which needs an Apple push key from `eas credentials`. To switch over, remove `EXPO_PUSH_URL` from `config.toml`.
 - `delete_adventure` also deletes an Ended Adventure, in `supabase/migrations/20261015160000_delete_ended.sql`, checked by `commands.test.sql`. It refuses with the new `messages_pending` refusal while any message for the Adventure is `pending` or `sending`, because the delete cascades to `messages` and would drop an All-clear still on its way.
+- Every Check-in sends the All-clear, also before the Deadline, in `supabase/migrations/20261016170000_all_clear_on_every_check_in.sql`, checked by `commands.test.sql`, `deliver.test.sql` and `e2e/check-in-in-time.e2e.mjs`. `private.enqueue_all_clear()` is gone. Because an All-clear is now pending right after every Check-in, `delete_account` refuses with `messages_pending` for the few seconds until it is out.
 
 ## Open questions and risks
 
