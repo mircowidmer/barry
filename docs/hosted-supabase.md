@@ -6,7 +6,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 
 - Every migration in `supabase/migrations`. `supabase/seed.sql` is for local development only and is never pushed.
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
-- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, and either `ACS_CONNECTION_STRING` and `ACS_SMS_FROM` or `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://barry.support/trail`. Text messages go through Azure Communication Services when `ACS_CONNECTION_STRING` is set, and through Twilio otherwise. [How to send real text messages](text-messages.md) sets up either one.
+- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY` and `EMAIL_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://barry.support/trail`. Barry sends no text messages, because it has no text message provider.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
 
 ## Ship a change
@@ -21,7 +21,7 @@ npx supabase functions deploy deliver
 
 ## Set the secrets with the script
 
-Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[edge_runtime.secrets]` in `supabase/config.toml`, including the local `DELIVER_SECRET`, which makes `deliver` refuse the clock, and `TWILIO_API_URL`, which sends text messages to the local relay's address.
+Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[edge_runtime.secrets]` in `supabase/config.toml`, including the local `DELIVER_SECRET`, which makes `deliver` refuse the clock.
 
 1. Put the hosted values in `supabase/.env.hosted`, which git ignores:
 
@@ -29,11 +29,7 @@ Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[
    TRAIL_MAP_URL=https://barry.support/trail
    RESEND_API_KEY=re_...
    EMAIL_FROM=barry@your-verified-domain
-   ACS_CONNECTION_STRING=endpoint=https://<name>.communication.azure.com/;accesskey=...
-   ACS_SMS_FROM=Barry
    ```
-
-   For Twilio instead, put `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM` in place of the two `ACS_` lines.
 
 2. From the linked checkout, run:
 
@@ -41,7 +37,7 @@ Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[
    node scripts/hosted-secrets.mjs
    ```
 
-The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO_API_URL`, and rotates `DELIVER_SECRET` in the function secrets and the Vault together. It prints secret names only, and exits with an error if a value did not land.
+The script sets these values, removes the local-only `EMAIL_API_URL`, and rotates `DELIVER_SECRET` in the function secrets and the Vault together. It prints secret names only, and exits with an error if a value did not land.
 
 ## Set up Resend
 
@@ -66,6 +62,6 @@ All three values are `true` when the clock ticked in the last two minutes and me
 
 ## Not done yet
 
-- Text messages. They need `ACS_CONNECTION_STRING` and `ACS_SMS_FROM` in the hosted secrets, or an upgraded Twilio account. A Twilio trial sends only template messages.
+- Text messages. Barry has no text message provider, so text messages are switched off. [Text messages](text-messages.md) says what adding one takes.
 - Sign-up. Hosted Auth asks new accounts to confirm their email, and its built-in email service sends only to members of the Supabase team.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.

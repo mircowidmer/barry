@@ -95,7 +95,7 @@ declare function expoPushSender(): Sender;
  */
 const notEnabled: Sender = async () => ({ kind: 'failed', reason: 'channel_not_enabled' });
 
-// Adding text messages: replace `notEnabled` with `twilioSender()`, set TWILIO_* secrets, and
+// Adding text messages: replace `notEnabled` with a provider's sender, set its secrets, and
 // set sms to enabled in private.channel_config. The clock, the templates and the app do not change.
 export function senders(): Record<Channel, Sender> {
   return {
