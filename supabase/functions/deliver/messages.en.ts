@@ -109,7 +109,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
 
     case 'all_clear':
       return {
-        subject: `🐶 ${name} is back safe`,
+        subject: `${name} is back safe`,
         text: `${name} checked in safely at ${time(facts.checkedInAt)}. Barry can stop worrying, and so can you.`,
       };
   }
