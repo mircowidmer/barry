@@ -93,7 +93,7 @@ function ProfileForm({ initial }: { initial: Form }) {
           value={profile.medicalNotes}
           onChangeText={set('medicalNotes')}
           multiline
-          hint="Only sent in an Alert, never in a Heads-up."
+          hint="Only sent in an alert, never in a heads-up."
         />
       </Section>
       {status === 'saved' && <Notice tone="success">Profile saved.</Notice>}
