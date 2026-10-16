@@ -1,19 +1,22 @@
 import { Alert } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
+import { currentTexts } from '@/lib/texts';
 
-const confirmed = () =>
-  new Promise<boolean>((resolve) =>
+const confirmed = () => {
+  const t = currentTexts();
+  return new Promise<boolean>((resolve) =>
     Alert.alert(
-      'Log Out?',
-      'You need your email address and password to sign in again.',
+      t.dialogs.logOutTitle,
+      t.dialogs.logOutMessage,
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-        { text: 'Log Out', style: 'destructive', onPress: () => resolve(true) },
+        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
+        { text: t.profile.logOut, style: 'destructive', onPress: () => resolve(true) },
       ],
       { cancelable: true, onDismiss: () => resolve(false) },
     ),
   );
+};
 
 export const askToLogOut = async () => {
   if (await confirmed()) await supabase.auth.signOut();

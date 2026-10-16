@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button, Field, Notice, Screen } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { supabase } from '@/lib/supabase';
+import { useTexts } from '@/lib/texts';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ export default function SignInScreen() {
   const [busy, setBusy] = useState<'sign_in' | 'sign_up' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmEmail, setConfirmEmail] = useState(false);
+  const t = useTexts();
 
   const submit = async (mode: 'sign_in' | 'sign_up') => {
     setBusy(mode);
@@ -27,10 +29,10 @@ export default function SignInScreen() {
   return (
     <Screen title="Barry">
       <ThemedText themeColor="textSecondary">
-        Barry tells the people you choose when you don’t check in from an Adventure.
+        {t.signIn.intro}
       </ThemedText>
       <Field
-        label="Email Address"
+        label={t.signIn.email}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -39,7 +41,7 @@ export default function SignInScreen() {
         textContentType="emailAddress"
       />
       <Field
-        label="Password"
+        label={t.signIn.password}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -47,10 +49,10 @@ export default function SignInScreen() {
         textContentType="password"
       />
       {error && <Notice tone="danger">{error}</Notice>}
-      {confirmEmail && <Notice>Confirm your email address with the link Barry sent you, then sign in.</Notice>}
-      <Button title="Sign in" onPress={() => submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
+      {confirmEmail && <Notice>{t.signIn.confirmEmail}</Notice>}
+      <Button title={t.signIn.signIn} onPress={() => submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
       <Button
-        title="Create account"
+        title={t.signIn.createAccount}
         kind="secondary"
         onPress={() => submit('sign_up')}
         busy={busy === 'sign_up'}

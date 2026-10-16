@@ -12,7 +12,7 @@ import { useNow } from '@/hooks/use-now';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
-import { formatDuration, formatWhen, refusalText } from '@/lib/wording';
+import { refusalText, useTexts } from '@/lib/texts';
 
 export default function AdventureScreen() {
   const loaded = useLoad(async () => {
@@ -20,16 +20,17 @@ export default function AdventureScreen() {
     const adventures = inProgress || offlineSince ? [] : await barry.listAdventures();
     return { inProgress, offlineSince, adventures, pending: barry.pendingCheckIns() };
   });
+  const t = useTexts();
 
   if (loaded.status === 'error') {
     return (
-      <Screen title="Adventure">
-        <Notice tone="danger">Could not reach Barry. {loaded.error.message}</Notice>
-        <Button title="Try again" onPress={loaded.reload} />
+      <Screen title={t.adventure.title}>
+        <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
+        <Button title={t.common.tryAgain} onPress={loaded.reload} />
       </Screen>
     );
   }
-  if (!loaded.data) return <Screen title="Adventure">{null}</Screen>;
+  if (!loaded.data) return <Screen title={t.adventure.title}>{null}</Screen>;
 
   const { inProgress, offlineSince, adventures, pending } = loaded.data;
   const queued = inProgress && pending.find((c) => c.adventureId === inProgress.id);
@@ -56,39 +57,37 @@ function Overview({
   offlineSince: Date | null;
   onReload: () => void;
 }) {
+  const t = useTexts();
   const planned = adventures.filter((a) => a.stage === 'planned');
   const remove = async (id: AdventureId) => {
     const outcome = await askToDeleteAdventure(id, 'planned');
     if (outcome.kind === 'deleted') onReload();
-    else if (outcome.kind === 'failed') Alert.alert('Could not delete', outcome.message);
+    else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
   return (
-    <Screen title="Adventure">
+    <Screen title={t.adventure.title}>
       {offlineSince && (
         <>
-          <Notice tone="warning">No signal. Barry cannot load your Adventures right now.</Notice>
-          <Button title="Try again" kind="secondary" onPress={onReload} />
+          <Notice tone="warning">{t.adventure.noSignal}</Notice>
+          <Button title={t.common.tryAgain} kind="secondary" onPress={onReload} />
         </>
       )}
-      <ThemedText themeColor="textSecondary">
-        Plan where you are going and when you will be back. If you don’t check in by then, Barry tells your emergency
-        contacts.
-      </ThemedText>
-      <Button title="Plan an Adventure" onPress={() => router.push('/plan')} />
-      {planned.length > 0 && <ThemedText type="smallBold">Planned Adventures</ThemedText>}
+      <ThemedText themeColor="textSecondary">{t.adventure.intro}</ThemedText>
+      <Button title={t.adventure.plan} onPress={() => router.push('/plan')} />
+      {planned.length > 0 && <ThemedText type="smallBold">{t.adventure.planned}</ThemedText>}
       {planned.map((a) => (
         <SwipeToDelete
           key={a.id}
-          label={`Delete ${a.plan.destination ?? 'Adventure'}`}
+          label={t.common.deleteLabel(a.plan.destination ?? t.adventure.fallbackName)}
           onDelete={() => remove(a.id)}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Open ${a.plan.destination ?? 'Adventure'}`}
+            accessibilityLabel={t.common.openLabel(a.plan.destination ?? t.adventure.fallbackName)}
             onPress={() => router.push({ pathname: '/plan', params: { id: a.id } })}>
             <Section>
-              <ThemedText type="smallBold">{a.plan.destination ?? 'No destination yet'}</ThemedText>
+              <ThemedText type="smallBold">{a.plan.destination ?? t.adventure.noDestination}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {a.deadline ? `Back by ${formatWhen(a.deadline)}` : 'No Deadline yet'}
+                {a.deadline ? t.adventure.backBy(t.when(a.deadline)) : t.adventure.noDeadline}
               </ThemedText>
             </Section>
           </Pressable>
@@ -102,12 +101,6 @@ function Overview({
 const movedDeadline = (deadline: Date, minutes: number) =>
   new Date(Math.max(deadline.getTime(), Date.now()) + minutes * 60_000);
 
-const MOVES = [
-  { label: '+30 min', minutes: 30 },
-  { label: '+1 hour', minutes: 60 },
-  { label: '+2 hours', minutes: 120 },
-];
-
 function LiveAdventure({
   adventure: initial,
   offlineSince,
@@ -120,6 +113,7 @@ function LiveAdventure({
   onChanged: () => void;
 }) {
   const now = useNow();
+  const t = useTexts();
   const trailStatus = useTrailStatus(queuedAt);
   const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
@@ -154,11 +148,11 @@ function LiveAdventure({
     setBusy(false);
     if (result?.kind === 'moved') {
       setAdventure(result.adventure);
-      setNotice({ tone: 'success', text: `New Deadline: ${formatWhen(result.adventure.deadline)}.` });
+      setNotice({ tone: 'success', text: t.adventure.newDeadline(t.when(result.adventure.deadline)) });
     } else if (result?.kind === 'refused') {
       setNotice({ tone: 'danger', text: refusalText(result.refusal) });
     } else {
-      setNotice({ tone: 'warning', text: 'No confirmation from Barry. Your Deadline has not moved. Try again when you have signal.' });
+      setNotice({ tone: 'warning', text: t.adventure.notMoved });
     }
   };
 
@@ -174,59 +168,53 @@ function LiveAdventure({
     <Screen title={adventure.plan.destination}>
       {adventure.stage === 'active' && (
         <Notice tone="success">
-          Barry is watching. Check in by {formatWhen(adventure.deadline)}, in {formatDuration(adventure.deadline.getTime() - now.getTime())}.
+          {t.adventure.watching(t.when(adventure.deadline), t.duration(adventure.deadline.getTime() - now.getTime()))}
         </Notice>
       )}
       {adventure.stage === 'overdue' && (
         <Notice tone="warning">
-          You are overdue. Barry alerts your emergency contacts at {formatWhen(adventure.alertAt)}, in{' '}
-          {formatDuration(adventure.alertAt.getTime() - now.getTime())}, unless you check in.
+          {t.adventure.overdue(t.when(adventure.alertAt), t.duration(adventure.alertAt.getTime() - now.getTime()))}
         </Notice>
       )}
       {adventure.stage === 'alerted' && (
-        <Notice tone="danger">
-          Your emergency contacts were alerted ({adventure.alertsSent} of 3). Check in to send them the All-clear.
-        </Notice>
+        <Notice tone="danger">{t.adventure.alerted(adventure.alertsSent)}</Notice>
       )}
       {offlineSince && (
-        <Notice tone="warning">
-          No signal. This is your Adventure as of {formatWhen(offlineSince)}. Check-in still works and is sent when you
-          have signal.
-        </Notice>
+        <Notice tone="warning">{t.adventure.offline(t.when(offlineSince))}</Notice>
       )}
-      {trailStatus === 'recording' && <Notice>Barry is recording your Trail. Closing Barry stops the Trail.</Notice>}
-      {trailStatus === 'off' && <Notice>Barry can share only where you started.</Notice>}
+      {trailStatus === 'recording' && <Notice>{t.adventure.recording}</Notice>}
+      {trailStatus === 'off' && <Notice>{t.adventure.trailOff}</Notice>}
       {queuedAt && (
         <Notice tone="warning">
-          Check-in from {formatWhen(queuedAt)} is waiting for signal.
-          {trailStatus === 'delivering' && ' Barry keeps trying in the background.'}
+          {t.adventure.queued(t.when(queuedAt))}
+          {trailStatus === 'delivering' && t.adventure.keepsTrying}
         </Notice>
       )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
-      <HoldButton title="Hold to Check In" onComplete={checkIn} />
+      <HoldButton title={t.adventure.hold} onComplete={checkIn} />
 
       {adventure.stage !== 'alerted' && (
-        <Section title="Need More Time?">
+        <Section title={t.adventure.needMoreTime}>
           <Row>
-            {MOVES.map((m) => (
+            {t.adventure.moves.map((m) => (
               <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => move(m.minutes)} />
             ))}
           </Row>
         </Section>
       )}
 
-      <Section title="Plan">
-        <ThemedText type="small">Destination: {adventure.plan.destination}</ThemedText>
-        {adventure.plan.route && <ThemedText type="small">Route: {adventure.plan.route}</ThemedText>}
-        {adventure.plan.startingPoint && <ThemedText type="small">Starting Point: {adventure.plan.startingPoint}</ThemedText>}
-        {adventure.plan.notes && <ThemedText type="small">Notes: {adventure.plan.notes}</ThemedText>}
-        <ThemedText type="small">Deadline: {formatWhen(adventure.deadline)}</ThemedText>
-        {lastKnown && <ThemedText type="small">Last Known Position: {formatWhen(lastKnown.takenAt)}</ThemedText>}
-        <ThemedText type="small">Contacts: {adventure.contacts.map((c) => c.name).join(', ')}</ThemedText>
+      <Section title={t.adventure.planSection}>
+        <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
+        {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
+        {adventure.plan.startingPoint && <ThemedText type="small">{t.adventure.startingPoint(adventure.plan.startingPoint)}</ThemedText>}
+        {adventure.plan.notes && <ThemedText type="small">{t.adventure.notes(adventure.plan.notes)}</ThemedText>}
+        <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
+        {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
+        <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>
         {adventure.stage !== 'alerted' && (
           <Button
-            title="Edit Plan or Contacts"
+            title={t.adventure.edit}
             kind="secondary"
             onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}
           />
@@ -236,11 +224,10 @@ function LiveAdventure({
       {trail.length > 0 && <TrailMapView trail={trail} last={trail.at(-1)!} />}
 
       {failures.length > 0 && (
-        <Section title="Messages that did not arrive">
+        <Section title={t.adventure.failuresTitle}>
           {failures.map((f, i) => (
             <ThemedText key={i} type="small">
-              {f.contactName}: {f.message.replace('_', '-')} by {f.channel === 'sms' ? 'text message' : f.channel}
-              {f.reason === 'channel_not_enabled' ? ' (text messages are not set up yet)' : ` (${f.reason})`}
+              {t.adventure.failure(f)}
             </ThemedText>
           ))}
         </Section>

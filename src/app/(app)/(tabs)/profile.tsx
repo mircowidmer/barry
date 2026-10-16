@@ -8,6 +8,7 @@ import { askToDeleteAccount } from '@/lib/delete-account';
 import { formatPhoneNumber, phoneInput } from '@/lib/phone';
 import { useSession } from '@/lib/session';
 import { askToLogOut } from '@/lib/log-out';
+import { useTexts } from '@/lib/texts';
 
 type TextField = Exclude<keyof AdventurerProfile, 'messageLanguage'>;
 type Form = Record<TextField, string> & { messageLanguage: MessageLanguage };
@@ -33,12 +34,14 @@ const toForm = (p: AdventurerProfile): Form => ({
 
 export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
-  if (loaded.status === 'loading') return <Screen title="Profile">{null}</Screen>;
+  const t = useTexts();
+  if (loaded.status === 'loading') return <Screen title={t.profile.title}>{null}</Screen>;
   return <ProfileForm initial={loaded.data ? toForm(loaded.data) : empty} />;
 }
 
 function ProfileForm({ initial }: { initial: Form }) {
   const { session } = useSession();
+  const t = useTexts();
   const [profile, setProfile] = useState<Form>(initial);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [deleting, setDeleting] = useState(false);
@@ -80,59 +83,55 @@ function ProfileForm({ initial }: { initial: Form }) {
   };
 
   return (
-    <Screen title="Profile">
-      <ThemedText themeColor="textSecondary">
-        An Alert gives your emergency contacts this information, so rescuers know who and what to look for.
-      </ThemedText>
-      <Section title="About You">
-        <Field label="Name" value={profile.name} onChangeText={set('name')} autoComplete="name" />
-        <Field label="Email Address" value={session?.user.email ?? ''} editable={false} hint="You sign in with this address." />
+    <Screen title={t.profile.title}>
+      <ThemedText themeColor="textSecondary">{t.profile.intro}</ThemedText>
+      <Section title={t.profile.about}>
+        <Field label={t.profile.name} value={profile.name} onChangeText={set('name')} autoComplete="name" />
+        <Field label={t.profile.email} value={session?.user.email ?? ''} editable={false} hint={t.profile.emailHint} />
         <Field
-          label="Phone Number"
+          label={t.profile.phone}
           value={profile.phone}
           onChangeText={(text) => set('phone')(phoneInput(text))}
           keyboardType="phone-pad"
           autoComplete="tel"
-          hint="With country code, for example +41 77 123 45 67."
+          hint={t.profile.phoneHint}
         />
       </Section>
-      <Section title="Car (optional)">
-        <Field label="Make" value={profile.carMake} onChangeText={set('carMake')} />
-        <Field label="Colour" value={profile.carColour} onChangeText={set('carColour')} />
-        <Field label="Number Plate" value={profile.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
+      <Section title={t.profile.car}>
+        <Field label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} />
+        <Field label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} />
+        <Field label={t.profile.plate} value={profile.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
       </Section>
-      <Section title="Medical Notes (optional)">
+      <Section title={t.profile.medical}>
         <Field
-          label="Medical Notes"
+          label={t.profile.medicalLabel}
           value={profile.medicalNotes}
           onChangeText={set('medicalNotes')}
           multiline
-          hint="Only sent in an alert, never in a heads-up."
+          hint={t.profile.medicalHint}
         />
       </Section>
-      <Section title="Messages to Your Contacts">
+      <Section title={t.profile.messages}>
         <Choice
-          label="Language"
+          label={t.profile.language}
           options={languages}
           value={profile.messageLanguage}
           onChange={setLanguage}
-          hint="Barry writes the heads-up, plan update, alert and all-clear in this language."
+          hint={t.profile.languageHint}
         />
       </Section>
-      {status === 'saved' && <Notice tone="success">Profile saved.</Notice>}
-      {status === 'error' && (
-        <Notice tone="danger">Could not save. Check that the phone number starts with + and the country code.</Notice>
-      )}
+      {status === 'saved' && <Notice tone="success">{t.profile.saved}</Notice>}
+      {status === 'error' && <Notice tone="danger">{t.profile.couldNotSave}</Notice>}
       {deleteError && <Notice tone="danger">{deleteError}</Notice>}
       <Row>
         <Button
-          title="Save"
+          title={t.common.save}
           onPress={save}
           busy={status === 'saving'}
           disabled={profile.name.trim() === '' || profile.phone.trim() === ''}
         />
-        <Button title="Log Out" kind="secondary" onPress={askToLogOut} />
-        <Button title="Delete" kind="danger" onPress={deleteAccount} busy={deleting} />
+        <Button title={t.profile.logOut} kind="secondary" onPress={askToLogOut} />
+        <Button title={t.common.delete} kind="danger" onPress={deleteAccount} busy={deleting} />
       </Row>
     </Screen>
   );

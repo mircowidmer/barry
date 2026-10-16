@@ -21,7 +21,7 @@ import {
 } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { formatPhoneNumber } from '@/lib/phone';
-import { formatWhen, refusalText } from '@/lib/wording';
+import { refusalText, type Texts, useTexts } from '@/lib/texts';
 
 type Form = {
   destination: string;
@@ -51,17 +51,18 @@ const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
 const names = (contacts: EmergencyContact[]) => contacts.map((c) => c.name).join(', ');
 
-const warningTexts: { [K in StartWarning['kind']]: (w: Extract<StartWarning, { kind: K }>) => string } = {
-  no_trail: () => 'Barry can share only where you started. Allow location Always to share your Trail.',
-  no_notifications: () => 'Notifications are off for Barry, so you will get no Reminder or Overdue Notice.',
-  email_only: (w) => `Text messages are not set up yet, so ${names(w.contacts)} get email only.`,
-  unreachable: (w) =>
-    w.contacts.length === 1
-      ? `Text messages are not set up yet, and ${w.contacts[0].name} only has a phone number, so they will get no message at all.`
-      : `Text messages are not set up yet, and ${names(w.contacts)} only have a phone number, so they will get no message at all.`,
+const warningText = (w: StartWarning, t: Texts) => {
+  switch (w.kind) {
+    case 'no_trail':
+      return t.plan.noTrail;
+    case 'no_notifications':
+      return t.plan.noNotifications;
+    case 'email_only':
+      return t.plan.emailOnly(names(w.contacts));
+    case 'unreachable':
+      return w.contacts.length === 1 ? t.plan.unreachableOne(w.contacts[0].name) : t.plan.unreachableMany(names(w.contacts));
+  }
 };
-
-const warningText = (w: StartWarning) => (warningTexts[w.kind] as (w: StartWarning) => string)(w);
 
 const addresses = (contact: EmergencyContact) => {
   const { email, phone } = reachableAddresses(contact);
@@ -79,10 +80,11 @@ export default function PlanScreen() {
     ]);
     return { contacts, adventure, conditions };
   });
+  const t = useTexts();
 
   if (!loaded.data) {
     return (
-      <Screen>{loaded.status === 'error' && <Notice tone="danger">Could not load the Adventure.</Notice>}</Screen>
+      <Screen>{loaded.status === 'error' && <Notice tone="danger">{t.plan.couldNotLoad}</Notice>}</Screen>
     );
   }
   return <PlanForm data={loaded.data} id={id} setId={setId} reload={loaded.reload} />;
@@ -103,6 +105,7 @@ function PlanForm({
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [busy, setBusy] = useState<'save' | 'start' | null>(null);
   const theme = useTheme();
+  const t = useTexts();
 
   const adventure = data.adventure;
   const warnings = startWarnings(
@@ -144,14 +147,14 @@ function PlanForm({
     setBusy('save');
     setNotice(null);
     const saved = await save().catch(() => {
-      setNotice({ tone: 'danger', text: 'Could not save the Adventure. Try again.' });
+      setNotice({ tone: 'danger', text: t.plan.couldNotSave });
       return null;
     });
     setBusy(null);
     if (saved) {
       if (live) router.back();
       else {
-        setNotice({ tone: 'success', text: 'Saved. Start it when you head out.' });
+        setNotice({ tone: 'success', text: t.plan.saved });
         reload();
       }
     }
@@ -170,13 +173,13 @@ function PlanForm({
       .then((saved) => saved && barry.start(saved))
       .catch(() => 'failed' as const);
     setBusy(null);
-    if (result === 'failed') setNotice({ tone: 'danger', text: 'Could not start the Adventure. Try again.' });
+    if (result === 'failed') setNotice({ tone: 'danger', text: t.plan.couldNotStart });
     else if (result?.kind === 'protected') router.back();
     else if (result?.kind === 'refused') setNotice({ tone: 'danger', text: refusalText(result.refusal) });
     else if (result) {
       setNotice({
         tone: 'warning',
-        text: 'You are not protected yet. Barry did not confirm the Start. Try again when you have signal.',
+        text: t.plan.notProtected,
       });
     }
   };
@@ -206,30 +209,30 @@ function PlanForm({
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: live ? 'Edit Adventure' : id ? 'Planned Adventure' : 'Plan an Adventure' }} />
+      <Stack.Screen options={{ title: live ? t.plan.titleEdit : id ? t.plan.titlePlanned : t.plan.titleNew }} />
 
-      <Section title="Where are you going?">
-        <Field label="Destination" value={form.destination} onChangeText={set('destination')} placeholder="Where are you going to?" />
+      <Section title={t.plan.where}>
+        <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} placeholder={t.plan.destinationPlaceholder} />
         <Field
-          label="Starting Point (optional)"
+          label={t.plan.startingPoint}
           value={form.startingPoint}
           onChangeText={set('startingPoint')}
-          placeholder="For example where you park"
+          placeholder={t.plan.startingPointPlaceholder}
         />
-        <Field label="Route (optional)" value={form.route} onChangeText={set('route')} />
+        <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
         <Field
-          label="Notes (optional)"
+          label={t.plan.notes}
           value={form.notes}
           onChangeText={set('notes')}
           multiline
-          placeholder="For example what you are wearing"
+          placeholder={t.plan.notesPlaceholder}
         />
       </Section>
 
       {!live && (
-        <Section title="Deadline">
+        <Section title={t.plan.deadline}>
           <ThemedText type="small" themeColor="textSecondary">
-            If you have not checked in by then, Barry waits 1 minute and then alerts your contacts.
+            {t.plan.deadlineHint}
           </ThemedText>
           {Platform.OS === 'ios' ? (
             <View style={{ alignItems: 'flex-start' }}>
@@ -239,19 +242,19 @@ function PlanForm({
                 display="compact"
                 minimumDate={new Date()}
                 onChange={(_, date) => date && setForm((f) => ({ ...f, deadline: date }))}
-                accessibilityLabel="Deadline"
+                accessibilityLabel={t.plan.deadline}
               />
             </View>
           ) : (
-            <Button title={formatWhen(form.deadline)} kind="secondary" onPress={pickAndroid} />
+            <Button title={t.when(form.deadline)} kind="secondary" onPress={pickAndroid} />
           )}
         </Section>
       )}
 
-      <Section title="Emergency Contacts">
+      <Section title={t.plan.contacts}>
         {data.contacts.length === 0 && (
           <ThemedText type="small" themeColor="textSecondary">
-            You have no contacts yet. Add them in the Contacts tab.
+            {t.plan.noContacts}
           </ThemedText>
         )}
         {data.contacts.map((c, i) => {
@@ -287,24 +290,24 @@ function PlanForm({
 
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
       {live ? (
-        <Button title="Save" onPress={onSave} busy={busy === 'save'} />
+        <Button title={t.common.save} onPress={onSave} busy={busy === 'save'} />
       ) : (
         <>
           {warnings.map((w) => (
             <Notice key={w.kind} tone="warning">
-              {warningText(w)}
+              {warningText(w, t)}
             </Notice>
           ))}
           {warnings.some((w) => w.kind === 'no_trail') && (
-            <Button title="Allow Always" kind="secondary" onPress={allowTrail} />
+            <Button title={t.plan.allowAlways} kind="secondary" onPress={allowTrail} />
           )}
-          <Button title="Start Adventure" onPress={onStart} busy={busy === 'start'} />
+          <Button title={t.plan.start} onPress={onStart} busy={busy === 'start'} />
           <ThemedText type="small" themeColor="textSecondary">
-            Starting sends a heads-up to your contacts with your plan and deadline, which is {formatWhen(form.deadline)}.
+            {t.plan.startHint(t.when(form.deadline))}
           </ThemedText>
           <Row>
-            <Button title="Save for Later" kind="secondary" onPress={onSave} busy={busy === 'save'} />
-            {id && <Button title="Delete" kind="danger" onPress={onDelete} />}
+            <Button title={t.plan.saveForLater} kind="secondary" onPress={onSave} busy={busy === 'save'} />
+            {id && <Button title={t.common.delete} kind="danger" onPress={onDelete} />}
           </Row>
         </>
       )}
