@@ -59,7 +59,7 @@ $$;
 
 select is(
   (select array_agg(to_address || ' ' || kind order by to_address, kind) from claimed),
-  array['a@example.com heads_up', 'e@example.com alert', 'f@example.com alert', 'k@example.com alert'],
+  array['a@example.com heads_up', 'e@example.com alert', 'f@example.com alert', 'i@example.com all_clear', 'k@example.com alert'],
   'claim takes exactly the due rows that nothing ahead of them blocks'
 );
 select is(pg_temp.status('a@example.com', 'heads_up'), 'sending', 'A claimed row is sending');
@@ -77,7 +77,7 @@ select is((select attempts from public.messages where to_address = 'f@example.co
 select is(pg_temp.status('g@example.com', 'alert'), 'sending', 'A row with a live lease is left alone');
 select is((select count(*)::int from claimed where to_address = 'g@example.com'), 0, 'A row with a live lease is not claimed twice');
 select is(pg_temp.status('h@example.com', 'alert'), 'failed retries_exhausted', 'An expired lease after the last attempt fails the row');
-select is(pg_temp.status('i@example.com', 'all_clear'), 'cancelled no_alert_delivered', 'An All-clear whose Alert failed is cancelled');
+select is(pg_temp.status('i@example.com', 'all_clear'), 'sending', 'An All-clear goes out even when the Alert to its address failed');
 select is(pg_temp.status('mia@example.com', 'heads_up'), 'cancelled', 'A Heads-up for a contact no longer on the Adventure is cancelled');
 select is(pg_temp.status('ExponentPushToken[anna]', 'reminder'), 'cancelled', 'A Reminder for an old Deadline is cancelled');
 select is(pg_temp.status('j@example.com', 'heads_up'), 'cancelled', 'A Heads-up retry after the Check-in is cancelled');

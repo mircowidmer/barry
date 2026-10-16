@@ -92,7 +92,7 @@ The message to an Adventure's Emergency Contacts when the Grace Period ends with
 _Avoid_: Notification, alarm, SOS
 
 **All-clear**:
-The message to alerted Emergency Contacts when the Adventurer checks in after an Alert.
+The message to every Emergency Contact of the Adventure when the Adventurer checks in, before or after an Alert.
 _Avoid_: Cancellation, resolution
 
 **Overdue Notice**:

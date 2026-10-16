@@ -331,8 +331,8 @@ select is(
 );
 select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000015', 'all_clear'),
-  '{}'::text[],
-  'A Check-in before any Alert sends no All-clear'
+  array['luca@example.com pending'],
+  'A Check-in before any Alert still sends the All-clear to every contact'
 );
 select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000015', 'reminder'),
@@ -353,8 +353,8 @@ select is(
 );
 select is(
   pg_temp.messages('b0000000-0000-0000-0000-000000000021', 'all_clear'),
-  array['noah@example.com pending', 'paul@example.com pending'],
-  'The All-clear goes to Noah, whose Alert was sent, and Paul, whose Alert was attempted'
+  array['noah@example.com pending', 'olga@example.com pending', 'paul@example.com pending'],
+  'The All-clear goes to every contact, also Olga, whose Alert was never attempted'
 );
 select is(
   pg_temp.messages('b0000000-0000-0000-0000-000000000021', 'alert'),

@@ -92,9 +92,8 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 ### Check-in
 
 - A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**. One tap is not enough.
-- A Check-in from an Active or Overdue Adventure ends it without a message to anyone.
-- A Check-in from an Alerted Adventure ends it and sends an All-clear.
-- If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows the Check-in.
+- A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
+- If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
 - With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
 
 ### Edit an Active or Overdue Adventure
@@ -118,7 +117,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts in total | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |
-| All-clear | Each contact that received an Alert | Every channel the contact has | The Adventurer checks in from an Alerted Adventure | The time of the Check-in |
+| All-clear | Each contact of the Adventure | Every channel the contact has | The Adventurer checks in | The time of the Check-in |
 
 ### Message rules
 
