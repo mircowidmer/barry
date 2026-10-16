@@ -72,6 +72,7 @@ function ProfileForm({ initial }: { initial: Form }) {
       </ThemedText>
       <Section title="About you">
         <Field label="Name" value={profile.name} onChangeText={set('name')} autoComplete="name" />
+        <Field label="Email Address" value={session?.user.email ?? ''} editable={false} hint="You sign in with this address." />
         <Field
           label="Phone Number"
           value={profile.phone}
@@ -100,9 +101,6 @@ function ProfileForm({ initial }: { initial: Form }) {
         <Notice tone="danger">Could not save. Check that the phone number starts with + and the country code.</Notice>
       )}
       {deleteError && <Notice tone="danger">{deleteError}</Notice>}
-      <ThemedText type="small" themeColor="textSecondary">
-        Signed in as {session?.user.email}
-      </ThemedText>
       <Row>
         <Button
           title="Save"
