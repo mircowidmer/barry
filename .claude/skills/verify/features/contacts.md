@@ -9,6 +9,7 @@ The Contacts tab lists the Adventurer's Emergency Contacts and lets them add, ed
 - `contacts-remove` removes a contact that no live Adventure uses.
 - `contacts-in-use` refuses to remove a contact of the live Adventure.
 - `contacts-sms-marker` marks phone numbers with `Text messages not set up yet`.
+- `contacts-switches` switches a contact's email address or phone number off and on. Barry uses only the addresses that are on, and a contact needs at least one.
 
 ## How to get to it (user POV)
 
@@ -22,10 +23,11 @@ Preconditions:
 
 - **Add (`contacts-add`).** Paste `Mia` into `Name` and `mia@example.com` into `Email Address` in the `Add a New Contact` section, then tap `Add Contact`. The notice reads `Mia saved.` and a `Mia` card lists the email.
 - **Marker (`contacts-sms-marker`).** Text messages are on, so Sara's card reads `+41792222222` with no marker. The marker `+41792222222  ·  Text messages not set up yet` shows only while `sms` is switched off in `private.channel_config`.
+- **Switches (`contacts-switches`).** Tap `Edit` on Luca's card. `Email Address` and `Phone Number` each have a switch beside the label, both on. Paste `+41791111111` into `Phone Number`, turn its switch off, and tap `Save`. Luca's card reads `+41791111111  ·  Off` in grey. Edit Luca again and turn the `Email Address` switch off as well: the field greys out and `Save` is disabled. Turn it back on and tap `Cancel`.
 - **In use (`contacts-in-use`).** Run `fixture.mjs live 120`, switch tabs, tap `Delete` on Luca's card, and tap `Delete` in the `Delete Luca?` alert. The notice reads `Luca is a contact of your current Adventure, so they stay until you check in.` Luca is still listed. Run `fixture.mjs end`.
 - **Remove (`contacts-remove`).** Tap `Delete` on Mia's card. The alert `Delete Mia?` offers `Cancel` and `Delete`. `Cancel` keeps the card. Tap `Delete`: the notice reads `Mia deleted.` and the card is gone.
 
 ## Gotchas
 
-- A phone number without `+` and a country code fails the database check, and the screen shows `Could not save. A contact needs a phone number with country code, an email address, or both.`
+- A phone number without `+` and a country code fails the database check, and the screen shows `Could not save. A contact needs an email address or a phone number with country code that is switched on.`
 - Removing is a soft delete. A removed contact no longer appears, but past messages still name them.

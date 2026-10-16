@@ -12,6 +12,7 @@ import type { Position } from './types';
 
 export type * from './types';
 export type { Alarm } from './alarms';
+export { reachableAddresses } from './reach';
 export { startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;

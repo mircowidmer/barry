@@ -14,6 +14,7 @@ import {
   barry,
   type EmergencyContact,
   type EmergencyContactId,
+  reachableAddresses,
   type StartConditions,
   type StartWarning,
   startWarnings,
@@ -270,7 +271,7 @@ function PlanForm({
                 ]}>
                 <ThemedText>{c.name}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-                  {[c.email, c.phone].filter(Boolean).join(' · ')}
+                  {Object.values(reachableAddresses(c)).filter(Boolean).join(' · ')}
                 </ThemedText>
               </View>
             </Pressable>

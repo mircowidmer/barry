@@ -16,12 +16,17 @@ export type AdventurerProfile = {
   medicalNotes: string | null;
 };
 
+/** An address that is switched off is kept, but Barry does not use it. */
 export type EmergencyContact = {
   id: EmergencyContactId;
   name: string;
-} & ({ phone: string; email: string | null } | { phone: string | null; email: string });
+  email: string | null;
+  emailEnabled: boolean;
+  phone: string | null;
+  phoneEnabled: boolean;
+};
 
-export type ContactDraft = { id?: EmergencyContactId; name: string; phone: string | null; email: string | null };
+export type ContactDraft = Omit<EmergencyContact, 'id'> & { id?: EmergencyContactId };
 
 export type Plan = {
   destination: string;
