@@ -3,12 +3,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { AppState, useColorScheme } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ fade: true, duration: 300 });
 
 function Navigation() {
   const { session, loading } = useSession();
@@ -27,6 +27,10 @@ function Navigation() {
     const subscription = AppState.addEventListener('change', (state) => state === 'active' && catchUp());
     return () => subscription.remove();
   }, [session]);
+
+  useEffect(() => {
+    if (!loading) SplashScreen.hideAsync();
+  }, [loading]);
 
   if (loading) return null;
 
@@ -49,7 +53,6 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <SessionProvider>
-        <AnimatedSplashOverlay />
         <Navigation />
       </SessionProvider>
     </ThemeProvider>
