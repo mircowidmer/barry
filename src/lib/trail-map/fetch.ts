@@ -40,33 +40,30 @@ export const parseTrailMap = (json: unknown): TrailMap | null => {
   if (!isObject(json) || FORBIDDEN.some((key) => key in json)) return null;
   const adventurerName = text(json.adventurer_name);
   const p = plan(json.plan);
-  if (!adventurerName || !p) return null;
-  const base = { adventurerName, plan: p };
+  if (!adventurerName || !p || !Array.isArray(json.trail)) return null;
+  const trail = json.trail.map(point);
+  const last = lastKnown(json.last_known_position ?? null);
+  if (trail.some((t) => t === null) || last === undefined) return null;
+  const base = { adventurerName, plan: p, trail: trail as TrailPoint[], lastKnownPosition: last };
 
   switch (json.status) {
     case 'underway':
-    case 'alerted': {
-      if (!Array.isArray(json.trail)) return null;
-      const trail = json.trail.map(point);
-      const last = lastKnown(json.last_known_position ?? null);
-      if (trail.some((t) => t === null) || last === undefined) return null;
-      return { ...base, status: json.status, trail: trail as TrailPoint[], lastKnownPosition: last };
-    }
+    case 'alerted':
+      return { ...base, status: json.status };
     case 'checked_in': {
       const checkedInAt = date(json.checked_in_at);
-      return checkedInAt && !('trail' in json) ? { ...base, status: 'checked_in', checkedInAt } : null;
+      return checkedInAt ? { ...base, status: 'checked_in', checkedInAt } : null;
     }
     default:
       return null;
   }
 };
 
-export const newestReading = (map: TrailMap | null): Date | null =>
-  map && map.status !== 'checked_in' ? (map.trail.at(-1)?.takenAt ?? null) : null;
+export const newestReading = (map: TrailMap | null): Date | null => map?.trail.at(-1)?.takenAt ?? null;
 
 /** Adds the readings in an answer for `newestReading(shown)` to the Trail already shown. */
 export const mergeTrailMap = (shown: TrailMap | null, update: TrailMap): TrailMap => {
-  if (!shown || shown.status === 'checked_in' || update.status === 'checked_in') return update;
+  if (!shown) return update;
   const newest = newestReading(shown);
   const fresh = newest ? update.trail.filter((p) => p.takenAt > newest) : update.trail;
   return { ...update, trail: [...shown.trail, ...fresh] };

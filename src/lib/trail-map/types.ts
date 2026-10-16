@@ -3,11 +3,9 @@ export type Plan = { destination: string; route: string | null; startingPoint: s
 export type TrailPoint = { latitude: number; longitude: number; takenAt: Date };
 export type LastKnown = TrailPoint & { accuracyM: number | null };
 
-type Base = { adventurerName: string; plan: Plan };
+type Base = { adventurerName: string; plan: Plan; trail: TrailPoint[]; lastKnownPosition: LastKnown | null };
 
-export type TrailMap =
-  | (Base & { status: 'underway' | 'alerted'; trail: TrailPoint[]; lastKnownPosition: LastKnown | null })
-  | (Base & { status: 'checked_in'; checkedInAt: Date });
+export type TrailMap = Base & ({ status: 'underway' | 'alerted' } | { status: 'checked_in'; checkedInAt: Date });
 
 export type TrailMapState =
   | { kind: 'loading' }

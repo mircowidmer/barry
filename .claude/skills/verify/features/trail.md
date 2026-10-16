@@ -1,6 +1,6 @@
 # Trail and Trail Map
 
-With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and keeps the Trail for the Adventurer after the Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up and every Alert. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and only the Check-in time once the Adventurer is back. The app shows the Adventurer the map of the Trail on the Check-in screen and on each Past Adventure.
+With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and keeps the Trail for the Adventurer after the Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up and every Alert. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and adds the Check-in time once the Adventurer is back. The app shows the Adventurer the map of the Trail on the Check-in screen and on each Past Adventure.
 
 ## Sub-features
 
@@ -9,7 +9,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-background` keeps uploading readings while Barry is in the background, at most one per minute.
 - `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
 - `trail-map` shows `<name>'s Trail`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
-- `trail-map-checked-in` shows `<name> checked in at …` and no map after the Check-in.
+- `trail-map-checked-in` shows `<name> checked in at …` above the map of the Trail after the Check-in.
 - `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every minute, and the Plan's `Last Known Position: <time>` always shows the same time as the marker.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.
 - `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
@@ -37,7 +37,7 @@ Preconditions:
 - **Background (`trail-background`).** Press HOME, wait three minutes, run `fixture.mjs trail`. The count grows by roughly 3 (one per minute while moving) and the last time is within the last minute.
 - **Offline (`trail-offline`).** While walking, `fixture.mjs offline`, wait two minutes, `fixture.mjs trail` shows no new readings. `fixture.mjs online`, then `xcrun simctl launch booted support.barry`. Within 30 seconds the missing readings arrive, still at most one per minute.
 - **Page (`trail-map`).** Take Luca's token from `fixture.mjs trail` (`link | Luca | <token>`) and open `http://localhost:8081/trail#<token>` in the built-in browser. The page reads `Anna's Trail` (or the Profile name), shows a line on the map, `Last Known Position at <time>` (no time zone), and a `Plan` card with `Destination` and `Pilatus`. `get_page_text` contains no `Deadline` and no `overdue`. Repeat after `fixture.mjs overdue` and the next tick: the page looks the same.
-- **Check-in (`trail-after-checkin`, `trail-map-checked-in`).** Hold `Hold to check in` with `duration: 2.2`. The app reads `You checked in at … Welcome back.` with a `Done` button and an Apple map below it: a blue line, a blue dot per reading and a red marker on the newest one. `fixture.mjs trail` prints `adventure | ended` and the same `trail` count as before. Reload the page with `location.reload()`: it reads `Anna checked in at <time>.` with no map.
+- **Check-in (`trail-after-checkin`, `trail-map-checked-in`).** Hold `Hold to check in` with `duration: 2.2`. The app reads `You checked in at … Welcome back.` with a `Done` button and an Apple map below it: a blue line, a blue dot per reading and a red marker on the newest one. `fixture.mjs trail` prints `adventure | ended` and the same `trail` count as before. Reload the page with `location.reload()`: it reads `Anna checked in at <time>.` above the same map and Last Known Position as before.
 - **History (`trail-history`).** Tap `Done`, tap `History` (158, 820), then the Adventure's card under `Past Adventures`. The pushed screen has a `Back` button and shows the Plan, `You checked in at …` and the same map. An Ended Adventure without readings shows `No positions were recorded.`
 - **Proof.** Screenshot the live screen notices and the page, and save `fixture.mjs trail` after each step to `.verify-artifacts/<run-id>/`.
 

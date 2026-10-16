@@ -44,21 +44,24 @@ describe('parseTrailMap', () => {
     });
   });
 
-  it('parses a checked-in Adventure with the Check-in time only', () => {
-    expect(
-      parseTrailMap({ status: 'checked_in', adventurer_name: 'Anna', time_zone: 'Europe/Zurich', plan, checked_in_at: '2026-10-15T16:05:00Z' }),
-    ).toEqual({
+  it('parses a checked-in Adventure with its Trail and the Check-in time', () => {
+    expect(parseTrailMap({ ...underway, status: 'checked_in', checked_in_at: '2026-10-15T16:05:00Z' })).toEqual({
       status: 'checked_in',
       adventurerName: 'Anna',
       plan: { destination: 'Rigi', route: 'North face', startingPoint: null, notes: null },
+      lastKnownPosition: { latitude: 47.03, longitude: 8.68, accuracyM: 12, takenAt: new Date('2026-10-15T09:41:00Z') },
+      trail: [
+        { latitude: 47.0, longitude: 8.6, takenAt: new Date('2026-10-15T08:00:00Z') },
+        { latitude: 47.03, longitude: 8.68, takenAt: new Date('2026-10-15T09:41:00Z') },
+      ],
       checkedInAt: new Date('2026-10-15T16:05:00Z'),
     });
   });
 
-  it('rejects a payload that carries the Deadline, an unknown status, or positions after the Check-in', () => {
+  it('rejects a payload that carries the Deadline, an unknown status, or a Check-in without its time', () => {
     expect(parseTrailMap({ ...underway, deadline: '2026-10-15T16:00:00Z' })).toBeNull();
     expect(parseTrailMap({ ...underway, status: 'overdue' })).toBeNull();
-    expect(parseTrailMap({ ...underway, status: 'checked_in', checked_in_at: '2026-10-15T16:05:00Z' })).toBeNull();
+    expect(parseTrailMap({ ...underway, status: 'checked_in' })).toBeNull();
     expect(parseTrailMap({ ...underway, trail: [[47, 'east', '2026-10-15T08:00:00Z']] })).toBeNull();
     expect(parseTrailMap(null)).toBeNull();
   });
@@ -120,13 +123,13 @@ describe('mergeTrailMap', () => {
       trail: [[47.04, 8.69, '2026-10-15T09:41:10Z']],
     });
     const merged = mergeTrailMap(shown, update);
-    expect(merged.status === 'underway' && merged.trail.map((p) => p.takenAt.toISOString())).toEqual([
+    expect(merged.trail.map((p) => p.takenAt.toISOString())).toEqual([
       '2026-10-15T08:00:00.000Z',
       '2026-10-15T09:41:00.000Z',
       '2026-10-15T09:41:10.000Z',
     ]);
     expect(merged.plan.route).toBe('West ridge');
-    expect(merged.status === 'underway' && merged.lastKnownPosition?.latitude).toBe(47.04);
+    expect(merged.lastKnownPosition?.latitude).toBe(47.04);
   });
 
   it('keeps the Trail when nothing new arrived, and drops a reading it already has', () => {
@@ -135,15 +138,9 @@ describe('mergeTrailMap', () => {
     expect(mergeTrailMap(shown, map({ trail: [[47.03, 8.68, '2026-10-15T09:41:00Z']] }))).toEqual(shown);
   });
 
-  it('shows the answer as it is after the Check-in, or when it shows nothing yet', () => {
-    const checkedIn = parseTrailMap({
-      status: 'checked_in',
-      adventurer_name: 'Anna',
-      time_zone: 'Europe/Zurich',
-      plan,
-      checked_in_at: '2026-10-15T10:00:00Z',
-    })!;
-    expect(mergeTrailMap(map({}), checkedIn)).toEqual(checkedIn);
+  it('keeps the Trail it shows when the answer says Anna checked in, and shows the first answer as it is', () => {
+    const checkedIn = map({ status: 'checked_in', checked_in_at: '2026-10-15T10:00:00Z', trail: [] });
+    expect(mergeTrailMap(map({}), checkedIn)).toEqual({ ...checkedIn, trail: map({}).trail });
     expect(mergeTrailMap(null, map({}))).toEqual(map({}));
   });
 
