@@ -1,11 +1,11 @@
-import { Host, HStack, Image, ProgressView, Button as SwiftUIButton, Text } from '@expo/ui/swift-ui';
+import { Host, HStack, ProgressView, Button as SwiftUIButton, Text } from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, controlSize, disabled as disable, frame, tint } from '@expo/ui/swift-ui/modifiers';
 
 import { useTheme } from '@/hooks/use-theme';
 
 import type { ButtonProps } from './button';
 
-export function Button({ title, onPress, kind = 'primary', disabled, busy, icon }: ButtonProps) {
+export function Button({ title, onPress, kind = 'primary', disabled, busy }: ButtonProps) {
   const theme = useTheme();
   return (
     // flexGrow shares a Row's width between its buttons; in a column the Host stretches to full width.
@@ -22,7 +22,7 @@ export function Button({ title, onPress, kind = 'primary', disabled, busy, icon 
         ]}>
         <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity })]}>
           {busy && <ProgressView />}
-          {icon ? <Image systemName={icon} /> : <Text>{title}</Text>}
+          <Text>{title}</Text>
         </HStack>
       </SwiftUIButton>
     </Host>

@@ -12,7 +12,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 
 - An Adventurer signs in with an email address and a password through Supabase Auth.
 - Each account has one Adventurer Profile.
-- The Adventurer deletes the account from the Profile tab with **Delete Account**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
+- The Adventurer deletes the account from the Profile tab with **Delete**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
 - An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
 
 ## Adventurer Profile
