@@ -1,6 +1,6 @@
 # How to host the Trail Map on GitHub Pages
 
-The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Trail Map page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. The page's old address, `https://barry.support/trail#<token>`, no longer works, so links sent before the move show a 404.
+The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Trail Map page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. Any other address on `barry.support` goes to the landing page, because `web/404.html` sends the visitor there.
 
 ## Before you start
 
