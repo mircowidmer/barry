@@ -31,6 +31,6 @@ test('a missed Deadline alerts every contact, and the Check-in sends the All-cle
   assert.deepEqual(
     must(await anna.client.from('delivery_failures').select('kind').eq('adventure_id', id), 'Delivery Failures').map((f) => f.kind).sort(),
     ['alert', 'heads_up'],
-    'Sara, with only a phone number, is a Delivery Failure for the Heads-up and the Alert while text messages are off',
+    'Sara, with only a phone number, is a Delivery Failure for the Heads-up and the Alert, because the local stack has no LINK Mobility access token',
   );
 });

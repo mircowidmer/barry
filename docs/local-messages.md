@@ -8,7 +8,7 @@ Mailpit catches every email. Open http://127.0.0.1:54324 to read the Heads-ups, 
 
 ## Text messages
 
-Text messages are switched off. Locally, `deliver` has no LINK Mobility access token, so it would fail every text message. [Text messages](text-messages.md) sets up LINK Mobility.
+Locally, `deliver` has no LINK Mobility access token, so each text message fails with `LINKMOBILITY_ACCESS_TOKEN is not set` and shows up in the app as a message that did not arrive. [Text messages](text-messages.md) sets up LINK Mobility.
 
 ## The Reminder and the Overdue Notice
 

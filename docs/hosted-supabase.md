@@ -62,6 +62,6 @@ All three values are `true` when the clock ticked in the last two minutes and me
 
 ## Not done yet
 
-- Text messages. They need `LINKMOBILITY_ACCESS_TOKEN` and `LINKMOBILITY_SENDER` in the hosted secrets, then the `sms` channel switched on. [Text messages](text-messages.md) has the steps.
+- Text messages. They go through LINK Mobility with `LINKMOBILITY_ACCESS_TOKEN`. While the LINK Mobility account is a test account, they reach only the phone number it verified. [Text messages](text-messages.md) has the details.
 - Sign-up. Hosted Auth asks new accounts to confirm their email, and its built-in email service sends only to members of the Supabase team.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.
