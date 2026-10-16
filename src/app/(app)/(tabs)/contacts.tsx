@@ -4,7 +4,7 @@ import { Pressable } from 'react-native';
 import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
-import { barry, type EmergencyContact, type EmergencyContactId } from '@/lib/barry';
+import { barry, type EmergencyContact, type EmergencyContactId, isEmailAddress, isPhoneNumber } from '@/lib/barry';
 import { askToRemoveContact } from '@/lib/remove-contact';
 
 type Form = { id?: EmergencyContactId; name: string; email: string; emailEnabled: boolean; phone: string; phoneEnabled: boolean };
@@ -13,8 +13,8 @@ const blank: Form = { name: '', email: '', emailEnabled: true, phone: '', phoneE
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
-const reachable = (form: Form) =>
-  (form.emailEnabled && form.email.trim() !== '') || (form.phoneEnabled && form.phone.trim() !== '');
+const emailOn = (form: Form) => form.emailEnabled && isEmailAddress(form.email);
+const phoneOn = (form: Form) => form.phoneEnabled && isPhoneNumber(form.phone);
 
 export default function ContactsScreen() {
   const loaded = useLoad(async () => {
@@ -44,9 +44,9 @@ export default function ContactsScreen() {
         id: draft.id,
         name: draft.name.trim(),
         email: orNull(draft.email),
-        emailEnabled: draft.emailEnabled,
+        emailEnabled: emailOn(draft),
         phone: orNull(draft.phone.replace(/\s/g, '')),
-        phoneEnabled: draft.phoneEnabled,
+        phoneEnabled: phoneOn(draft),
       });
       setMessage({ tone: 'success', text: `${draft.name.trim()} saved.` });
       setDraft(blank);
@@ -110,7 +110,11 @@ export default function ContactsScreen() {
         <Field
           label="Email Address"
           value={draft.email}
-          toggle={{ value: draft.emailEnabled, onValueChange: (emailEnabled) => setDraft((d) => ({ ...d, emailEnabled })) }}
+          toggle={{
+            value: emailOn(draft),
+            disabled: !isEmailAddress(draft.email),
+            onValueChange: (emailEnabled) => setDraft((d) => ({ ...d, emailEnabled })),
+          }}
           onChangeText={(email) => setDraft((d) => ({ ...d, email }))}
           autoCapitalize="none"
           keyboardType="email-address"
@@ -118,7 +122,11 @@ export default function ContactsScreen() {
         <Field
           label="Phone Number"
           value={draft.phone}
-          toggle={{ value: draft.phoneEnabled, onValueChange: (phoneEnabled) => setDraft((d) => ({ ...d, phoneEnabled })) }}
+          toggle={{
+            value: phoneOn(draft),
+            disabled: !isPhoneNumber(draft.phone),
+            onValueChange: (phoneEnabled) => setDraft((d) => ({ ...d, phoneEnabled })),
+          }}
           onChangeText={(phone) => setDraft((d) => ({ ...d, phone }))}
           keyboardType="phone-pad"
           hint="With country code, for example +41771234567."
@@ -131,7 +139,7 @@ export default function ContactsScreen() {
             title={draft.id ? 'Save' : 'Add Contact'}
             onPress={save}
             busy={saving}
-            disabled={draft.name.trim() === '' || !reachable(draft)}
+            disabled={draft.name.trim() === '' || !(emailOn(draft) || phoneOn(draft))}
           />
           {draft.id && <Button title="Cancel" kind="secondary" onPress={() => setDraft(blank)} />}
         </Row>
