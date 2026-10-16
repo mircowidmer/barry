@@ -73,6 +73,61 @@ export const twilioSms = (config: () => TwilioConfig): Sender => async (to, mess
   return { outcome: 'sent', providerRef: typeof body.sid === 'string' ? body.sid : null };
 };
 
+export type AcsConfig = { endpoint: string; accessKey: string; from: string; now?: () => Date };
+
+export const parseAcsConnectionString = (value: string): { endpoint: string; accessKey: string } => {
+  const parts = Object.fromEntries(
+    value
+      .split(';')
+      .filter((part) => part.includes('='))
+      .map((part) => [part.slice(0, part.indexOf('=')).trim().toLowerCase(), part.slice(part.indexOf('=') + 1).trim()]),
+  );
+  if (!parts.endpoint || !parts.accesskey) throw new Error('ACS_CONNECTION_STRING needs endpoint=... and accesskey=...');
+  return { endpoint: parts.endpoint.replace(/\/+$/, ''), accessKey: parts.accesskey };
+};
+
+const base64 = (bytes: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(bytes)));
+
+// Azure Communication Services' access-key scheme: an HMAC-SHA256 over the method, path, date, host and body hash.
+export const acsAuthHeaders = async (url: URL, body: string, accessKey: string, date: string) => {
+  const contentHash = base64(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body)));
+  const key = await crypto.subtle.importKey(
+    'raw',
+    Uint8Array.from(atob(accessKey), (c) => c.charCodeAt(0)),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const signed = `POST\n${url.pathname}${url.search}\n${date};${url.host};${contentHash}`;
+  const signature = base64(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signed)));
+  return {
+    'x-ms-date': date,
+    'x-ms-content-sha256': contentHash,
+    authorization: `HMAC-SHA256 SignedHeaders=x-ms-date;host;x-ms-content-sha256&Signature=${signature}`,
+  };
+};
+
+type AcsResult = { successful?: boolean; messageId?: string; httpStatusCode?: number; errorMessage?: string };
+
+export const acsSms = (config: () => AcsConfig): Sender => async (to, message) => {
+  const { endpoint, accessKey, from, now = () => new Date() } = config();
+  const url = new URL(`${endpoint}/sms?api-version=2021-03-07`);
+  const body = JSON.stringify({ from, smsRecipients: [{ to }], message: message.text });
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...(await acsAuthHeaders(url, body, accessKey, now().toUTCString())) },
+    body,
+  });
+  const reply = parseJson(await response.text());
+  if (!response.ok) {
+    const error = reply.error as { code?: string; message?: string } | undefined;
+    return fromHttpStatus(response.status, `Azure ${error?.code ?? 'error'}: ${error?.message ?? response.statusText}`);
+  }
+  const [result] = (reply.value as AcsResult[] | undefined) ?? [];
+  if (result?.successful) return { outcome: 'sent', providerRef: result.messageId ?? null };
+  return fromHttpStatus(result?.httpStatusCode ?? 502, `Azure: ${result?.errorMessage ?? 'no result for the recipient'}`);
+};
+
 export type ResendConfig = { apiUrl: string; apiKey: string; from: string };
 
 // The idempotency key is per message, so a retry after a lost response never sends a second email.
@@ -98,13 +153,17 @@ const resend = resendEmail(() => ({
   from: env('EMAIL_FROM'),
 }));
 
+const twilio = twilioSms(() => ({
+  apiUrl: Deno.env.get('TWILIO_API_URL') ?? 'https://api.twilio.com',
+  accountSid: env('TWILIO_ACCOUNT_SID'),
+  authToken: env('TWILIO_AUTH_TOKEN'),
+  from: env('TWILIO_FROM'),
+}));
+
+const acs = acsSms(() => ({ ...parseAcsConnectionString(env('ACS_CONNECTION_STRING')), from: env('ACS_SMS_FROM') }));
+
 export const senders: Record<Channel, Sender> = {
   email: (to, message, messageId) => (Deno.env.get('RESEND_API_KEY') ? resend : mailpitEmail)(to, message, messageId),
-  sms: twilioSms(() => ({
-    apiUrl: Deno.env.get('TWILIO_API_URL') ?? 'https://api.twilio.com',
-    accountSid: env('TWILIO_ACCOUNT_SID'),
-    authToken: env('TWILIO_AUTH_TOKEN'),
-    from: env('TWILIO_FROM'),
-  })),
+  sms: (to, message, messageId) => (Deno.env.get('ACS_CONNECTION_STRING') ? acs : twilio)(to, message, messageId),
   push: expoPush,
 };

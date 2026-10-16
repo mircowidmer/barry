@@ -6,7 +6,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 
 - Every migration in `supabase/migrations`. `supabase/seed.sql` is for local development only and is never pushed.
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
-- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://barry.support/trail`. Without `TWILIO_API_URL`, text messages go to `https://api.twilio.com`.
+- The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, and either `ACS_CONNECTION_STRING` and `ACS_SMS_FROM` or `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM`. Email goes through Resend from `barry@barry.support`. `TRAIL_MAP_URL` is `https://barry.support/trail`. Text messages go through Azure Communication Services when `ACS_CONNECTION_STRING` is set, and through Twilio otherwise. [How to send real text messages](text-messages.md) sets up either one.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
 
 ## Ship a change
@@ -29,10 +29,11 @@ Do not run `npx supabase secrets set` by hand. It also uploads every entry of `[
    TRAIL_MAP_URL=https://barry.support/trail
    RESEND_API_KEY=re_...
    EMAIL_FROM=barry@your-verified-domain
-   TWILIO_ACCOUNT_SID=AC...
-   TWILIO_AUTH_TOKEN=...
-   TWILIO_FROM=Barry
+   ACS_CONNECTION_STRING=endpoint=https://<name>.communication.azure.com/;accesskey=...
+   ACS_SMS_FROM=Barry
    ```
+
+   For Twilio instead, put `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM` in place of the two `ACS_` lines.
 
 2. From the linked checkout, run:
 
@@ -65,6 +66,6 @@ All three values are `true` when the clock ticked in the last two minutes and me
 
 ## Not done yet
 
-- Text messages. The Twilio account is a trial, which sends only template messages, so hosted text messages fail until it is upgraded.
+- Text messages. They need `ACS_CONNECTION_STRING` and `ACS_SMS_FROM` in the hosted secrets, or an upgraded Twilio account. A Twilio trial sends only template messages.
 - Sign-up. Hosted Auth asks new accounts to confirm their email, and its built-in email service sends only to members of the Supabase team.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.
