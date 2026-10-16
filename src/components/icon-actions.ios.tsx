@@ -22,7 +22,7 @@ export function IconActions({ actions }: { actions: IconAction[] }) {
               buttonStyle(action.kind === 'primary' ? 'glassProminent' : 'glass'),
               buttonBorderShape('circle'),
               controlSize('extraLarge'),
-              ...(action.kind === 'primary' ? [tint(theme.accent)] : []),
+              ...(action.kind === 'secondary' ? [] : [tint(action.kind === 'primary' ? theme.accent : theme.danger)]),
               disabled(Boolean(action.disabled || action.busy)),
             ]}
           />
