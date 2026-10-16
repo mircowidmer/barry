@@ -1,7 +1,6 @@
-import { type SymbolViewProps, SymbolView } from 'expo-symbols';
 import { type ReactNode, useState } from 'react';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import {
-  ActivityIndicator,
   Animated,
   Pressable,
   ScrollView,
@@ -14,6 +13,8 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+
+export { Button } from '@/components/button';
 
 export function Screen({ title, children }: { title?: string; children: ReactNode }) {
   const theme = useTheme();
@@ -65,52 +66,6 @@ export function Field({ label, hint, ...input }: { label: string; hint?: string 
   );
 }
 
-type ButtonKind = 'primary' | 'secondary' | 'danger';
-
-export function Button({
-  title,
-  onPress,
-  kind = 'primary',
-  disabled,
-  busy,
-  icon,
-}: {
-  title: string;
-  onPress: () => void;
-  kind?: ButtonKind;
-  disabled?: boolean;
-  busy?: boolean;
-  icon?: SymbolViewProps['name'];
-}) {
-  const theme = useTheme();
-  const background = kind === 'primary' ? theme.accent : kind === 'danger' ? theme.danger : theme.backgroundSelected;
-  const color = kind === 'secondary' ? theme.text : theme.onAccent;
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      disabled={disabled || busy}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        icon && styles.iconButton,
-        { backgroundColor: background, opacity: disabled ? 0.4 : pressed ? 0.7 : 1 },
-      ]}>
-      {busy ? (
-        <ActivityIndicator color={color} />
-      ) : icon ? (
-        <SymbolView name={icon} tintColor={color} size={24} fallback={<ButtonTitle title={title} color={color} />} />
-      ) : (
-        <ButtonTitle title={title} color={color} />
-      )}
-    </Pressable>
-  );
-}
-
-function ButtonTitle({ title, color }: { title: string; color: string }) {
-  return <ThemedText style={{ color, fontWeight: 600 }}>{title}</ThemedText>;
-}
-
 /** Completes only after a deliberate hold, so a pocket press cannot end protection. */
 export function HoldButton({ title, onComplete, holdMs = 1500 }: { title: string; onComplete: () => void; holdMs?: number }) {
   const theme = useTheme();
@@ -131,22 +86,28 @@ export function HoldButton({ title, onComplete, holdMs = 1500 }: { title: string
     setHolding(false);
   };
 
+  const glass = isLiquidGlassAvailable();
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      accessibilityHint="Press and hold"
-      onPressIn={start}
-      onPressOut={cancel}
-      style={[styles.button, styles.hold, { backgroundColor: theme.success }]}>
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: theme.onAccent, opacity: 0.25, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) },
-        ]}
-      />
-      <ThemedText style={{ color: theme.onAccent, fontWeight: 700 }}>{holding ? 'Keep holding…' : title}</ThemedText>
-    </Pressable>
+    <GlassView
+      isInteractive
+      tintColor={theme.success}
+      style={[styles.hold, glass ? styles.capsule : { backgroundColor: theme.success, borderRadius: Spacing.two }]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityHint="Press and hold"
+        onPressIn={start}
+        onPressOut={cancel}
+        style={styles.holdTarget}>
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: theme.onAccent, opacity: 0.25, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) },
+          ]}
+        />
+        <ThemedText style={{ color: theme.onAccent, fontWeight: 700 }}>{holding ? 'Keep holding…' : title}</ThemedText>
+      </Pressable>
+    </GlassView>
   );
 }
 
@@ -179,15 +140,9 @@ const styles = StyleSheet.create({
   field: { gap: Spacing.one },
   input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
-  button: {
-    minHeight: 48,
-    borderRadius: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconButton: { flex: 1 },
   hold: { minHeight: 64, overflow: 'hidden' },
+  capsule: { borderRadius: 32 },
+  holdTarget: { flex: 1, minHeight: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
   notice: { borderLeftWidth: 4, paddingLeft: Spacing.two, paddingVertical: Spacing.one },
   row: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap' },
 });
