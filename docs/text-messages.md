@@ -7,6 +7,8 @@ Barry sends text messages from the `deliver` function. It uses Azure Communicati
 1. In the Azure portal, open the Communication Services resource and get a sender. `ACS_SMS_FROM` must name a sender this resource owns.
    - An alphanumeric sender ID such as `Barry`: open **Alphanumeric Sender ID** in the resource menu, choose the **Dynamic** tab and click **Enable Alphanumeric Sender ID**. Some countries need the **Preregistered** tab instead, which takes weeks. Contacts cannot reply to it.
    - A phone number: open **Phone numbers** in the resource menu and get one with SMS enabled. Use it in E.164 form, for example `+41445551234`.
+
+   For Swiss numbers, only the alphanumeric sender ID can send: Swiss local and toll-free numbers from ACS have no SMS. It also needs a paid subscription, such as Pay-As-You-Go. On a free trial or free credits, **Enable Alphanumeric Sender ID** stays greyed out, and Azure answers each text with `401 Unauthorized`.
 2. Copy the **Connection string** from **Settings > Keys**. It looks like `endpoint=https://<name>.communication.azure.com/;accesskey=...`.
 3. Add both to `supabase/.env.hosted`, which git ignores:
 
