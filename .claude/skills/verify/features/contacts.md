@@ -5,7 +5,7 @@ The Contacts tab lists the Adventurer's Emergency Contacts and lets them add, ed
 ## Sub-features
 
 - `contacts-add` adds a contact with a name and an email, a phone number, or both.
-- `contacts-edit` changes a contact through `Edit` and `Save Changes`.
+- `contacts-edit` changes a contact through `Edit` and `Save`.
 - `contacts-remove` removes a contact that no live Adventure uses.
 - `contacts-in-use` refuses to remove a contact of the live Adventure.
 - `contacts-sms-marker` marks phone numbers with `Text messages not set up yet`.
