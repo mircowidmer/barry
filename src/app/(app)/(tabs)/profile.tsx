@@ -115,7 +115,7 @@ function ProfileForm({ initial }: { initial: Form }) {
           options={languages}
           value={profile.messageLanguage}
           onChange={setLanguage}
-          hint="Barry writes the Heads-up, Plan Update, Alert and All-clear in this language."
+          hint="Barry writes the heads-up, plan update, alert and all-clear in this language."
         />
       </Section>
       {status === 'saved' && <Notice tone="success">Profile saved.</Notice>}
