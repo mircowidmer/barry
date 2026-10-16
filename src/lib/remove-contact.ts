@@ -7,11 +7,11 @@ export type RemoveOutcome = { kind: 'cancelled' } | { kind: 'removed' } | { kind
 const confirmed = (name: string) =>
   new Promise<boolean>((resolve) =>
     Alert.alert(
-      `Remove ${name}?`,
+      `Delete ${name}?`,
       `${name} is no longer offered as an emergency contact for new adventures.`,
       [
         { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-        { text: 'Remove', style: 'destructive', onPress: () => resolve(true) },
+        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
       ],
       { cancelable: true, onDismiss: () => resolve(false) },
     ),
