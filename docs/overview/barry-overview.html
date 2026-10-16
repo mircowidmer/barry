@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Barry Overview</title>
+<style>
+  @page { size: 1512px 982px; margin: 0; }
+  :root {
+    --text: #111418; --muted: #5b6470; --surface: #f2f4f7; --border: #e3e7ec;
+    --accent: #0b6bcb; --green: #34c759; --blue: #0088ff; --danger: #a51d1d; --success: #1f7a3d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif; color: var(--text); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { width: 1512px; height: 982px; position: relative; overflow: hidden; page-break-after: always; break-after: page; background: #fff; }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+
+  .band { background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; padding: 56px 80px 48px; display: flex; align-items: center; gap: 28px; }
+  .band img { width: 76px; height: 76px; border-radius: 18px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.2); }
+  .band .kicker { font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+  .band h1 { font-size: 52px; line-height: 1.1; letter-spacing: -0.01em; }
+  .body { padding: 48px 80px 0; }
+  .lead { font-size: 25px; color: var(--muted); margin-bottom: 30px; max-width: 1200px; }
+  .foot { position: absolute; left: 80px; right: 80px; bottom: 30px; display: flex; justify-content: space-between; color: var(--muted); font-size: 15px; }
+
+  .grid { display: grid; gap: 22px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--surface); border-radius: 22px; padding: 26px 28px; }
+  .card h3 { font-size: 25px; margin-bottom: 8px; }
+  .card p, .card li { font-size: 19px; line-height: 1.45; color: #2a3038; }
+  .card ul { padding-left: 18px; }
+  .card li + li { margin-top: 3px; }
+  .card .tag { display: inline-block; font-size: 14px; font-weight: 600; color: var(--accent); background: #e6f0fb; border-radius: 999px; padding: 3px 10px; margin-bottom: 10px; }
+  .group { font-size: 17px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 4px 0 12px; }
+  .group + .grid { margin-bottom: 30px; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 0.9em; background: #e4e8ee; border-radius: 6px; padding: 1px 6px; }
+
+  .title { background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .title img { width: 260px; height: 260px; border-radius: 58px; box-shadow: 0 24px 60px rgb(0 0 0 / 0.25); margin-bottom: 44px; }
+  .title h1 { font-size: 120px; letter-spacing: -0.02em; line-height: 1; }
+  .title .slogan { font-size: 46px; font-weight: 600; margin-top: 18px; }
+  .title .sub { position: absolute; bottom: 44px; font-size: 18px; opacity: 0.85; }
+
+  .stats { display: flex; gap: 22px; margin-bottom: 30px; }
+  .stat { flex: 1; background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; border-radius: 20px; padding: 18px 22px; }
+  .stat b { display: block; font-size: 42px; line-height: 1.1; }
+  .stat span { font-size: 17px; opacity: 0.9; }
+
+  .steps { counter-reset: step; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 26px; }
+  .step { counter-increment: step; display: flex; gap: 18px; background: var(--surface); border-radius: 20px; padding: 20px 24px; }
+  .step::before { content: counter(step); flex: none; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; font-weight: 700; font-size: 16px; display: grid; place-items: center; }
+  .step h3 { font-size: 22px; margin-bottom: 4px; }
+  .step p { font-size: 18px; line-height: 1.4; color: #2a3038; }
+  .note { margin-top: 26px; font-size: 19px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<section class="slide title">
+  <img src="../../assets/images/logo.png" alt="Barry's icon, a St. Bernard with a little barrel on its collar">
+  <h1>Barry</h1>
+  <p class="slogan">Go alone, get home.</p>
+  <p class="sub">Project overview · October 2026 · barry.support</p>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Features 1 of 2</p><h1>Before You Go and While You Are Out</h1></div></div>
+  <div class="body">
+    <p class="lead">Tell Barry where you are going and when you will be back. If you don't check in by then, Barry tells the people you chose.</p>
+    <p class="group">Before You Go</p>
+    <div class="grid g4">
+      <div class="card"><h3>A Plan and a Deadline</h3><p>Destination, route, starting point, notes such as what you are wearing, and the time you will be back.</p></div>
+      <div class="card"><h3>Emergency Contacts</h3><p>Chosen per adventure from a saved list. They need no app and no account. Barry reaches them by email, text message, or both.</p></div>
+      <div class="card"><h3>A Heads-Up at the Start</h3><p>Each contact learns that you are heading out, with your plan, your deadline and their own link to your adventure page.</p></div>
+      <div class="card"><h3>Plans for Later</h3><p>Save an adventure for later and start it with one tap when you leave.</p></div>
+    </div>
+    <p class="group">While You Are Out</p>
+    <div class="grid g4">
+      <div class="card"><h3>Your Trail</h3><p>With location access set to Always, Barry records a position about once a minute and keeps readings on the phone without signal.</p></div>
+      <div class="card"><h3>A Live Adventure Page</h3><p>Contacts see your trail, last known position and plan at barry.support/adventure. It updates every minute and never shows the deadline.</p></div>
+      <div class="card"><h3>Need More Time?</h3><p>Move the deadline later with one tap, even when you are already overdue. Edit the plan, and contacts get a plan update.</p></div>
+      <div class="card"><h3>Reminder and Overdue Notice</h3><p>The phone itself reminds you 30 minutes before the deadline and tells you when you are overdue, even without signal.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>2</span></div>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Features 2 of 2</p><h1>Coming Back, or Not in Time</h1></div></div>
+  <div class="body">
+    <p class="lead">Barry's server keeps the time, so it raises the alarm even when your phone is off or out of signal.</p>
+    <div class="grid g3">
+      <div class="card"><span class="tag">Coming back</span><h3>Hold to Check In</h3><p>A deliberate press and hold, so a pocket cannot check you in by accident. A check-in without signal is kept and sent when the phone is online again.</p></div>
+      <div class="card"><span class="tag">Coming back</span><h3>Contacts See You Are Back</h3><p>After the check-in the adventure page shows the time you checked in, with your trail up to then.</p></div>
+      <div class="card"><span class="tag">Not in time</span><h3>An Alert to Every Contact</h3><p>One minute after the deadline, then every hour, up to three alerts. Only an alert carries your phone number, car and medical notes.</p></div>
+      <div class="card"><span class="tag">Not in time</span><h3>An All-Clear</h3><p>When you check in after an alert, every contact who got one hears that you are back safe.</p></div>
+      <div class="card"><span class="tag">Not in time</span><h3>Messages That Did Not Arrive</h3><p>If an email or text message fails, the app shows you which contact did not get it. Contacts who share an address get one message.</p></div>
+      <div class="card"><span class="tag">Your data</span><h3>History and Deleting</h3><p>Past adventures with plan, check-in time and trail. Delete an adventure or the whole account, and the contacts' links stop working.</p></div>
+    </div>
+    <p class="note">Barry is not an emergency service. It never calls rescue services. It tells the people you chose, and they decide what to do.</p>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>3</span></div>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Deliverables</p><h1>The Components of Barry</h1></div></div>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card"><span class="tag">iPhone</span><h3>The Barry App</h3><ul><li>Expo SDK 58, React Native, Expo Router</li><li>Tabs: Adventure, History, Contacts, Profile</li><li>Liquid Glass buttons through SwiftUI</li><li>Background trail with a 200 m geofence</li><li>Local Reminder and Overdue Notice</li><li>Offline check-in queue</li></ul></div>
+      <div class="card"><span class="tag">Supabase</span><h3>Backend and Clock</h3><ul><li>Postgres schema with row-level security</li><li>25 migrations, commands as functions</li><li>A clock in <code>pg_cron</code>, every minute</li><li>Auth with email confirmation</li><li>Vault for the delivery secret</li></ul></div>
+      <div class="card"><span class="tag">Edge Function</span><h3><code>deliver</code></h3><ul><li>Renders heads-up, plan update, alert and all-clear</li><li>Email through Resend as "🐶 Barry"</li><li>Text messages through LINK Mobility</li><li>Retries and delivery failures</li></ul></div>
+      <div class="card"><span class="tag">barry.support</span><h3>Web Pages</h3><ul><li>Landing page with all features</li><li>Adventure page for contacts, with an OpenStreetMap trail</li><li>Email confirmation page</li><li>Published by a GitHub Pages workflow</li></ul></div>
+      <div class="card"><span class="tag">Quality</span><h3>Tests</h3><ul><li>11 database test files (pgTAP)</li><li>Unit tests for the app (Jest)</li><li>Tests for <code>deliver</code> (Deno)</li><li>6 end-to-end scripts against the local stack</li></ul></div>
+      <div class="card"><span class="tag">Tooling</span><h3>Scripts and Skills</h3><ul><li><code>hosted-secrets.mjs</code> sets the hosted secrets</li><li><code>make-icons.py</code> draws icon and launch screen</li><li><code>without-push.js</code> config plugin</li><li>A verify skill with 8 feature maps</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>4</span></div>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Technical documents 1 of 2</p><h1>Specification and Design</h1></div></div>
+  <div class="body">
+    <p class="lead">Barry was designed before it was built. These documents describe what Barry does and why it is shaped this way.</p>
+    <div class="grid g3">
+      <div class="card"><span class="tag">docs/spec.md</span><h3>Barry Specification</h3><p>The product reference: accounts, profile, contacts, adventures and their stages, deadline and grace period, messages, location, the adventure page, monitoring and what is out of scope.</p></div>
+      <div class="card"><span class="tag">CONTEXT.md</span><h3>Glossary</h3><p>The domain language, one definition per term: Adventurer, Emergency Contact, Plan, Deadline, Grace Period, Heads-up, Alert, All-clear, Trail and more.</p></div>
+      <div class="card"><span class="tag">docs/adr/0001</span><h3>The Server Owns the Deadline</h3><p>The decision record why Supabase, not the phone, decides when an alert goes out, so the alarm works when the phone is off.</p></div>
+      <div class="card"><span class="tag">docs/design/backend</span><h3>Backend Design</h3><p>The design sketch for the schema, row-level security, the clock and message delivery, with <code>schema.sql</code>, <code>barry.ts</code> and <code>deliver.ts</code>.</p></div>
+      <div class="card"><span class="tag">docs/design/trail</span><h3>Trail Design</h3><p>The design for background recording, offline readings, the geofence and the contacts' live page.</p></div>
+      <div class="card"><span class="tag">AGENTS.md</span><h3>Rules for Coding Agents</h3><p>How to work in the repository: Expo version, commands, routing, the build without push, and the checks to run before a task is done.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>5</span></div>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Technical documents 2 of 2</p><h1>Guides and the Build Process</h1></div></div>
+  <div class="body">
+    <div class="stats">
+      <div class="stat"><b>311</b><span>prompts to Claude</span></div>
+      <div class="stat"><b>166</b><span>commits</span></div>
+      <div class="stat"><b>1.8 M</b><span>output tokens</span></div>
+      <div class="stat"><b>1.5 B</b><span>tokens in total</span></div>
+      <div class="stat"><b>2 days</b><span>15 to 16 October 2026</span></div>
+    </div>
+    <div class="grid g4">
+      <div class="card"><span class="tag">README.md</span><h3>Run and Check</h3><p>Setup, the local stack, and every test command.</p></div>
+      <div class="card"><span class="tag">docs/iphone.md</span><h3>Barry on an iPhone</h3><p>Prebuild, signing and installing a build on a phone.</p></div>
+      <div class="card"><span class="tag">docs/hosted-supabase.md</span><h3>The Hosted Project</h3><p>What is deployed, how to ship a change, secrets and health.</p></div>
+      <div class="card"><span class="tag">docs/text-messages.md</span><h3>Text Messages</h3><p>LINK Mobility setup, sender, costs and segment counts.</p></div>
+      <div class="card"><span class="tag">docs/local-messages.md</span><h3>Messages Locally</h3><p>How to see what Barry sends, in Mailpit and Studio.</p></div>
+      <div class="card"><span class="tag">docs/trail-map-hosting.md</span><h3>Hosting the Web Pages</h3><p>The GitHub Pages workflow for barry.support.</p></div>
+      <div class="card"><span class="tag">.claude/skills/verify</span><h3>Verify Skill</h3><p>How an agent drives the app in the simulator, with 8 feature maps.</p></div>
+      <div class="card"><span class="tag">barry-prompts.html</span><h3>Prompt Overview</h3><p>Every prompt of the project with the tokens it used, by session.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>6</span></div>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Production</p><h1>External Services</h1></div></div>
+  <div class="body">
+    <p class="lead">The services the live Barry depends on. The app talks only to Supabase; Supabase talks to the rest.</p>
+    <div class="grid g3">
+      <div class="card"><span class="tag">Backend</span><h3>Supabase</h3><p>Hosted project <code>kizggaicooqhdzpqzawu</code>: Postgres, Auth, the <code>deliver</code> Edge Function, <code>pg_cron</code> and Vault.</p></div>
+      <div class="card"><span class="tag">Email</span><h3>Resend</h3><p>Heads-ups, plan updates, alerts and all-clears from <code>barry@barry.support</code>, and sign-up emails over SMTP from <code>help@barry.support</code>.</p></div>
+      <div class="card"><span class="tag">Text messages</span><h3>LINK Mobility</h3><p>The websms API sends every message as a text message to contacts with a phone number.</p></div>
+      <div class="card"><span class="tag">Web hosting</span><h3>GitHub</h3><p>The repository <code>mircowidmer/barry</code>, Actions for the deploy, and Pages serving <code>barry.support</code>.</p></div>
+      <div class="card"><span class="tag">Maps</span><h3>OpenStreetMap</h3><p>Map tiles for the adventure page, drawn with Leaflet. The app uses Apple Maps.</p></div>
+      <div class="card"><span class="tag">Platform</span><h3>Apple</h3><p>Signing and installing the iPhone app, background location and local notifications. The domain <code>barry.support</code> points at GitHub Pages.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>7</span></div>
+</section>
+
+<section class="slide">
+  <div class="band"><img src="../../assets/images/logo.png" alt=""><div><p class="kicker">Next</p><h1>Steps to a Production-Ready App</h1></div></div>
+  <div class="body">
+    <div class="steps">
+      <div class="step"><div><h3>Join the Apple Developer Program</h3><p>A paid team for TestFlight and the App Store. Today the app is installed by hand.</p></div></div>
+      <div class="step"><div><h3>Set up release builds</h3><p>Add <code>eas.json</code> or an Xcode archive, version numbers and TestFlight testers.</p></div></div>
+      <div class="step"><div><h3>Prepare the App Store listing</h3><p>Screenshots, privacy labels and the reason for "Always" location for App Review.</p></div></div>
+      <div class="step"><div><h3>Publish privacy policy and terms</h3><p>On barry.support, for Swiss and EU data protection, with the "not an emergency service" disclaimer.</p></div></div>
+      <div class="step"><div><h3>Move LINK Mobility to production</h3><p>The test account reaches only one verified number. Register the sender "Barry".</p></div></div>
+      <div class="step"><div><h3>Upgrade the Supabase plan</h3><p>Daily backups, no pausing, and a higher limit for sign-up emails.</p></div></div>
+      <div class="step"><div><h3>Monitor the clock and delivery</h3><p>Set <code>HEALTHCHECK_URL</code> to an uptime monitor and report app errors.</p></div></div>
+      <div class="step"><div><h3>Rotate exposed keys</h3><p>Rotate the Resend key, close Twilio and delete the Azure Communication Services resource.</p></div></div>
+      <div class="step"><div><h3>Run every test in CI</h3><p>Database, Deno, unit and end-to-end tests on each push, not only the Pages deploy.</p></div></div>
+      <div class="step"><div><h3>Merge or close open branches</h3><p>The Plan screen fix, the Maestro end-to-end tests and the check-in wake branch.</p></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>Barry · Go alone, get home.</span><span>8</span></div>
+</section>
+
+</body>
+</html>
