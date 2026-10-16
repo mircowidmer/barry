@@ -18,7 +18,7 @@ const parseEnv = (text) =>
   );
 
 const hosted = parseEnv(readFileSync('supabase/.env.hosted', 'utf8'));
-for (const key of ['TRAIL_MAP_URL', 'RESEND_API_KEY', 'EMAIL_FROM', 'TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM']) {
+for (const key of ['TRAIL_MAP_URL', 'RESEND_API_KEY', 'EMAIL_FROM', 'TWILIO_ACCOUNT_SID', 'TWILIO_API_KEY_SID', 'TWILIO_API_KEY_SECRET', 'TWILIO_FROM']) {
   if (!hosted[key]) throw new Error(`supabase/.env.hosted has no ${key}`);
 }
 if ('TWILIO_API_URL' in hosted) throw new Error('Leave TWILIO_API_URL out of supabase/.env.hosted: deliver then sends to https://api.twilio.com');

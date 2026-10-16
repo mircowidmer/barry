@@ -384,7 +384,8 @@ TRAIL_MAP_URL = "http://Mirook.local:8081/adventure"
 # Locally, text messages go to scripts/sms-relay.mjs, which prints them and sends nothing.
 TWILIO_API_URL = "http://host.docker.internal:8788"
 TWILIO_ACCOUNT_SID = "AClocal"
-TWILIO_AUTH_TOKEN = "local"
+TWILIO_API_KEY_SID = "SKlocal"
+TWILIO_API_KEY_SECRET = "local"
 TWILIO_FROM = "Barry"
 
 [functions.deliver]

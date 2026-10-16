@@ -1,6 +1,6 @@
 # Text messages
 
-Barry sends text messages through Twilio's Messaging API. `deliver` sends each one to `POST https://api.twilio.com/2010-04-01/Accounts/<Account SID>/Messages.json` with the Account SID and the Auth Token.
+Barry sends text messages through Twilio's Messaging API. `deliver` sends each one to `POST https://api.twilio.com/2010-04-01/Accounts/<Account SID>/Messages.json` signed with an API key that may only create messages.
 
 Text messages are switched on in `private.channel_config`. Locally, `supabase/config.toml` points `TWILIO_API_URL` at `scripts/sms-relay.mjs`, which prints each text message and sends nothing. [How to see what Barry sends locally](local-messages.md) shows where to read them.
 
@@ -12,17 +12,19 @@ Text messages are switched on in `private.channel_config`. Locally, `supabase/co
 4. Choose the sender:
    - For Swiss numbers, use the alphanumeric sender `Barry`. Twilio's guidelines for Switzerland list it as supported without registration, so you buy nothing. Contacts cannot reply to it.
    - For a country without alphanumeric senders, buy an SMS-capable number in **Phone Numbers > Manage > Buy a number** and use it in E.164 form, for example `+41445551234`.
-5. Copy the **Account SID** and the **Auth Token** from the Console's account dashboard.
-6. Add them to `supabase/.env.hosted`, which git ignores, and remove any `LINKMOBILITY_*` lines:
+5. Copy the **Account SID** from the Console's account dashboard.
+6. Create an API key in the Console's API key settings. Choose the key type **Restricted** and tick only **Create** on **Messaging > Messages > messages**. That is the classic Messaging API that `deliver` calls. Leave **Comms** unticked: it is Twilio's Communications API, a Private Beta that answers asynchronously, so a refused number would not fail at once. The counter above the list must read **1 item selected**. Copy the key's **SID** and its **Client secret** on the last step, because Twilio shows the secret only once.
+7. Add them to `supabase/.env.hosted`, which git ignores, and remove any `LINKMOBILITY_*` lines:
 
    ```
    TWILIO_ACCOUNT_SID=AC...
-   TWILIO_AUTH_TOKEN=...
+   TWILIO_API_KEY_SID=SK...
+   TWILIO_API_KEY_SECRET=...
    TWILIO_FROM=Barry
    ```
 
    Leave `TWILIO_API_URL` out. Without it, `deliver` sends to `https://api.twilio.com`.
-7. From the linked checkout, set the secrets and deploy the function:
+8. From the linked checkout, set the secrets and deploy the function:
 
    ```bash
    node scripts/hosted-secrets.mjs
@@ -32,7 +34,7 @@ Text messages are switched on in `private.channel_config`. Locally, `supabase/co
    npx supabase functions deploy deliver
    ```
 
-8. Send one test text message and check it arrives.
+9. Send one test text message and check it arrives.
 
 The hosted project still holds `LINKMOBILITY_ACCESS_TOKEN` from before. `deliver` ignores it. Remove it with `npx supabase secrets unset LINKMOBILITY_ACCESS_TOKEN`.
 
