@@ -4,7 +4,7 @@ import { parseFacts } from './facts.ts';
 import { trailMapLinks } from './links.ts';
 import { formatTime, render } from './messages.en.ts';
 
-const links = trailMapLinks('http://localhost:8081/trail');
+const links = trailMapLinks('http://localhost:8081/adventure');
 const token = 'Xk3vQ9pL2mN8rT5wY1zA0b';
 
 const base = {
@@ -42,7 +42,7 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
-      "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
   );
 });
@@ -61,7 +61,7 @@ Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map li
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
-      "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
   );
 });
@@ -90,7 +90,7 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
       '',
       'Last Known Position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
       'Map: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68',
-      "Follow Anna's Trail: http://localhost:8081/trail#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
       '',
       "Anna's phone: +41790000001",
       'Car: red Subaru, SZ 12345',
