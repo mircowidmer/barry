@@ -35,7 +35,6 @@ describe('parseTrailMap', () => {
     expect(parseTrailMap(underway)).toEqual({
       status: 'underway',
       adventurerName: 'Anna',
-      timeZone: 'Europe/Zurich',
       plan: { destination: 'Rigi', route: 'North face', startingPoint: null, notes: null },
       lastKnownPosition: { latitude: 47.03, longitude: 8.68, accuracyM: 12, takenAt: new Date('2026-10-15T09:41:00Z') },
       trail: [
@@ -51,7 +50,6 @@ describe('parseTrailMap', () => {
     ).toEqual({
       status: 'checked_in',
       adventurerName: 'Anna',
-      timeZone: 'Europe/Zurich',
       plan: { destination: 'Rigi', route: 'North face', startingPoint: null, notes: null },
       checkedInAt: new Date('2026-10-15T16:05:00Z'),
     });

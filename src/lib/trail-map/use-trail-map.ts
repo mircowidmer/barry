@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
 
 import { fetchTrailMap, mergeTrailMap, newestReading, tokenFromHash } from './fetch';
 import type { TrailMap, TrailMapState } from './types';
 
 const POLL_MS = 60_000;
-
-const onWeb = Platform.OS === 'web';
 
 const load = fetchTrailMap(
   (input, init) => fetch(input, init),
@@ -15,10 +12,9 @@ const load = fetchTrailMap(
 );
 
 export function useTrailMap(): TrailMapState {
-  const [view, setView] = useState<TrailMapState>(onWeb ? { kind: 'loading' } : { kind: 'not_found' });
+  const [view, setView] = useState<TrailMapState>({ kind: 'loading' });
 
   useEffect(() => {
-    if (!onWeb) return;
     const token = tokenFromHash(window.location.hash);
     let last: TrailMap | null = null;
     let since: Date | null = null;

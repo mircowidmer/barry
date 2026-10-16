@@ -39,10 +39,9 @@ const lastKnown = (value: unknown): LastKnown | null | undefined => {
 export const parseTrailMap = (json: unknown): TrailMap | null => {
   if (!isObject(json) || FORBIDDEN.some((key) => key in json)) return null;
   const adventurerName = text(json.adventurer_name);
-  const timeZone = text(json.time_zone);
   const p = plan(json.plan);
-  if (!adventurerName || !timeZone || !p) return null;
-  const base = { adventurerName, timeZone, plan: p };
+  if (!adventurerName || !p) return null;
+  const base = { adventurerName, plan: p };
 
   switch (json.status) {
     case 'underway':
