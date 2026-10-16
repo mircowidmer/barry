@@ -1,0 +1,51 @@
+# Builds
+
+Barry has three app variants. Each has its own bundle identifier, so all three can be installed on one phone at the same time. `APP_VARIANT` picks the variant, and `app.config.js` applies it on top of `app.json`.
+
+| Variant | Name under the icon | Bundle identifier | URL scheme | Backend | JavaScript |
+| --- | --- | --- | --- | --- | --- |
+| `development` | Barry Dev | `support.barry.dev` | `barry-dev` | Supabase on your Mac, from `.env.local` | From Metro on your Mac, through the development client |
+| `preview` | Barry Preview | `support.barry.preview` | `barry-preview` | The hosted project | Built into the app |
+| `production` | Barry | `support.barry` | `barry` | The hosted project | Built into the app |
+
+Without `APP_VARIANT`, the config is `production`. The npm scripts `start`, `ios` and `android` set `development`. Only the development variant asks for Local Network access, because only it talks to Metro. The sign-up confirmation page opens `barry://sign-in`, so it opens the production app.
+
+## Build in the cloud with EAS
+
+`eas.json` has one build profile per variant, plus `development-simulator` for the iOS Simulator. The preview and production profiles carry the hosted Supabase URL and publishable key. The publishable key is meant to ship inside the app, so it is not a secret.
+
+```bash
+npm run build:dev
+```
+
+```bash
+npm run build:dev:simulator
+```
+
+```bash
+npm run build:preview
+```
+
+```bash
+npm run build:production
+```
+
+```bash
+npm run submit:production
+```
+
+- `build:dev` makes a development client for registered iPhones. Install it once, then run `npm start` on your Mac and open Barry Dev on the phone.
+- `build:dev:simulator` makes the same development client for the iOS Simulator. It needs no Apple account.
+- `build:preview` is for testers on registered iPhones. It talks to the hosted project.
+- `build:production` is for TestFlight and the App Store. EAS counts up the build number on every production build, because `eas.json` sets `"appVersionSource": "remote"` and `"autoIncrement": true`. The version that users see, `1.0.0`, stays in `app.json`.
+- `submit:production` uploads the latest production build to App Store Connect. The first run asks for the App Store Connect app.
+
+### Before the first cloud build
+
+- EAS builds for an iPhone need a paid Apple Developer Program membership. A free personal team works only for local builds, and its builds expire after 7 days.
+- `app.json` links the project to the EAS project `8fed6e1c-eaeb-41ea-ba83-eb841d3b08ee` of the account `mircowidmer`. Log in to that account with `npx eas-cli@latest login`, or run `npx eas-cli@latest init` to link Barry to the account you are logged in with. That replaces `owner` and `extra.eas.projectId` in `app.json`.
+- With a paid team, EAS signs the Push Notifications capability itself. `BARRY_WITHOUT_PUSH` is only for local builds with the free team.
+
+## Build on your Mac
+
+[How to run Barry on your iPhone](iphone.md) builds the development and production variants locally with Xcode. `ios/` is generated for one variant at a time, so switching variants needs `npx expo prebuild --clean` with the new `APP_VARIANT`.
