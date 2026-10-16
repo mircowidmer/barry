@@ -187,6 +187,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.
 - The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 - Any other address on `barry.support`, such as an old `/trail` link, opens the landing page.
+- The landing page, the Adventure page and the email confirmation page are in German when the browser's first preferred language is German, and in English otherwise.
 
 ## Monitoring
 

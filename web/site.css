@@ -102,3 +102,5 @@ html:has(.site) { background: var(--bg); }
 }
 .site footer { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; color: var(--muted); font-size: 15px; }
 .site a:not(.button) { color: var(--accent); }
+
+html:not([lang="de"]) .site [lang="de"], html[lang="de"] .site [lang="en"] { display: none; }
