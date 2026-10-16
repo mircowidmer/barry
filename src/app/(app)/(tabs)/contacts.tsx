@@ -66,7 +66,7 @@ export default function ContactsScreen() {
   return (
     <Screen title="Emergency Contacts">
       <ThemedText themeColor="textSecondary">
-        The people Barry tells when you start an Adventure, and again if you don’t check in. They don’t need the app.
+        Barry can tell these contacts when you start an adventure, and again if you don’t check in on time. They don’t need to use Barry.
       </ThemedText>
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
       {loaded.status === 'error' && <Notice tone="danger">Could not load your contacts.</Notice>}
