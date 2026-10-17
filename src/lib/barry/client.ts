@@ -24,6 +24,7 @@ import type {
   DeliveryFailure,
   EndedAdventure,
   InProgressAdventure,
+  MessageLanguage,
   Position,
   Refusal,
 } from './types';
@@ -33,6 +34,8 @@ export type BarryDeps = {
   /** One reading, or null when permission is denied or there is no fix in time. */
   readPosition(): Promise<Position | null>;
   timeZone(): string;
+  /** The phone's language, which Barry also writes the messages to the contacts in. */
+  language(): MessageLanguage;
   now(): Date;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Whether the system lets Barry show notifications. */
@@ -66,6 +69,7 @@ export const createBarry = ({
   supabase,
   readPosition,
   timeZone,
+  language,
   now,
   storage,
   notificationsPermitted,
@@ -184,10 +188,18 @@ export const createBarry = ({
         car_colour: profile.carColour,
         car_plate: profile.carPlate,
         medical_notes: profile.medicalNotes,
-        message_language: profile.messageLanguage,
+        message_language: language(),
         updated_at: now().toISOString(),
       });
       if (error) fail('saveProfile', error);
+    },
+
+    syncMessageLanguage: async () => {
+      const { error } = await supabase
+        .from('adventurer_profiles')
+        .update({ message_language: language() })
+        .eq('id', await userId());
+      if (error) fail('syncMessageLanguage', error);
     },
 
     listContacts: async () => {

@@ -23,6 +23,7 @@ function Navigation() {
         .catch(() => undefined)
         .then(() => barry.trail.sync())
         .catch(() => undefined);
+      barry.syncMessageLanguage().catch(() => undefined);
       askForNotifications();
     };
     catchUp();

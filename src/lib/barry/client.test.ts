@@ -88,6 +88,7 @@ const setup = ({ cached = true } = {}) => {
     supabase,
     readPosition: async () => null,
     timeZone: () => 'Europe/Zurich',
+    language: () => 'de',
     now,
     storage,
     notificationsPermitted: async () => true,

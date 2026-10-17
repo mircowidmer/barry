@@ -18,7 +18,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
-export { Choice } from '@/components/choice';
 
 export function Screen({ title, children }: { title?: string; children: ReactNode }) {
   const theme = useTheme();

@@ -10,7 +10,7 @@ The app opens on the sign-in screen until an Adventurer signs in or creates an a
 - `signin-persist` keeps the session after the app restarts.
 - `signin-signout` signs out from the Profile tab.
 - `account-delete` deletes the account from the Profile tab with `Delete`.
-- `profile-language` picks English or Deutsch for the messages to the contacts.
+- `profile-language` writes the messages to the contacts in the phone's language, without a choice on the Profile.
 
 ## How to get to it (user POV)
 
@@ -28,7 +28,7 @@ Preconditions:
 - **Push (`signin-push`).** On a fresh install the prompt `"Barry" Would Like to Send You Notifications` appears. Tap `Allow`. Barry needs it only for the Reminder and the Overdue Notice, which the phone schedules itself, so nothing is stored on the server.
 - **Persist (`signin-persist`).** Run `xcrun simctl terminate booted support.barry.dev` and `xcrun simctl launch booted support.barry.dev`. The app opens signed in on the Adventure tab.
 - **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Log Out`. The alert `Log Out?` offers `Cancel` and `Log Out`. `Cancel` keeps you signed in. Tap `Log Out` and the sign-in screen returns.
-- **Language (`profile-language`).** Tap `Profile` and scroll to `Messages to Your Contacts`. `Language` offers `English` and `Deutsch`, with `English` selected. Tap `Deutsch`, then `Save`: the notice reads `Profile saved.` Start an Adventure: Mailpit has `Anna ist unterwegs: <destination>` for Luca, and the text message relay prints `texted <number> from Barry: Anna ist allein auf einem Abenteuer …`. Switch back to `English` and `Save` afterwards.
+- **Language (`profile-language`).** The Profile has no language choice. Switch the simulator to German as the Language note in `SKILL.md` describes, open Barry, and start an Adventure: Mailpit has `Anna ist unterwegs: <destination>` for Luca, and the text message relay prints `texted <number> from Barry: Anna ist allein auf einem Abenteuer …`. Switch the simulator back to English and open Barry again, so the test account writes English messages afterwards.
 - **Delete account (`account-delete`).** Never on the test account. Sign out, paste a new address such as `delete-test-<time>@barry.test` and a generated password, and tap `Create account`. Tap `Profile`, scroll down, tap `Delete`. The alert `Delete Your Account?` offers `Cancel` and `Delete`. Tap `Delete`. The sign-in screen returns, and `auth.users` has no row for that address. Sign in to the test account again afterwards.
 
 ## Gotchas

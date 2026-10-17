@@ -117,8 +117,7 @@ describe('parseProfile', () => {
     updated_at: '2026-10-15T08:00:00Z',
   };
 
-  it('reads the message language', () => {
-    expect(parseProfile(profile).messageLanguage).toBe('de');
-    expect(parseProfile({ ...profile, message_language: 'en' }).messageLanguage).toBe('en');
+  it('leaves the message language to the phone', () => {
+    expect(parseProfile(profile)).not.toHaveProperty('messageLanguage');
   });
 });

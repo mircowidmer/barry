@@ -17,7 +17,6 @@ export type AdventurerProfile = {
   carPlate: string | null;
   medicalNotes: string | null;
   /** The language of the messages to the Emergency Contacts. */
-  messageLanguage: MessageLanguage;
 };
 
 /** An address that is switched off is kept, but Barry does not use it. */
@@ -126,6 +125,8 @@ export type SaveAdventureResult =
 export type Barry = {
   getProfile(): Promise<AdventurerProfile | null>;
   saveProfile(profile: AdventurerProfile): Promise<void>;
+  /** Writes the phone's language to the Profile, so the next messages to the contacts use it. */
+  syncMessageLanguage(): Promise<void>;
   listContacts(): Promise<EmergencyContact[]>;
   saveContact(contact: ContactDraft): Promise<EmergencyContact>;
   removeContact(id: EmergencyContactId): Promise<{ kind: 'removed' } | { kind: 'in_use' }>;
