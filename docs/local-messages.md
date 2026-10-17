@@ -20,6 +20,8 @@ Mailpit catches every email. Open http://127.0.0.1:54324 to read the Heads-ups, 
 
 2. Open http://localhost:8788/messages to read them in full. The page lists each text message's recipient, sender and body.
 
+Like Twilio, the relay reports each text message as delivered a moment later. A number that ends in `30003` is reported as undelivered with Twilio's error 30003, so its message becomes a Delivery Failure.
+
 The relay keeps text messages in memory only, so the list is empty after it restarts. While it is not running, each text message is retried until it runs again.
 
 ## The heartbeat to the monitor

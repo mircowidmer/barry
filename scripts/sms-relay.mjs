@@ -1,11 +1,14 @@
 // Stands in for Twilio's Messaging API and for Healthchecks.io during local development: accepts
 // the text messages and the heartbeats deliver sends, prints them, and keeps them in memory for
-// GET /messages and GET /healthchecks.
+// GET /messages and GET /healthchecks. Like Twilio, it reports each text message's delivery to its
+// StatusCallback: delivered, or undelivered with error 30003 for a number that ends in 30003.
 // Run: node scripts/sms-relay.mjs   (Supabase's config.toml points TWILIO_API_URL and HEALTHCHECK_URL here)
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 
 const PORT = 8788;
+// deliver names its own address as the edge runtime sees it, which the Mac reaches through the API gateway.
+const reachableFromMac = (url) => url.replace(/^http:\/\/kong:8000/, 'http://127.0.0.1:54321');
 const messages = [];
 const heartbeats = [];
 
@@ -46,4 +49,15 @@ createServer(async (request, response) => {
   const [first, ...rest] = message.body.split('\n');
   console.log([`texted ${message.to} from ${message.from}: ${first}`, ...rest.map((line) => (line ? `  ${line}` : ''))].join('\n'));
   reply(201, message);
+
+  const callback = form.get('StatusCallback');
+  if (callback) {
+    message.status = message.to.endsWith('30003') ? 'undelivered' : 'delivered';
+    const report = { MessageSid: message.sid, MessageStatus: message.status, ...(message.status === 'undelivered' && { ErrorCode: '30003' }) };
+    setTimeout(() => {
+      fetch(reachableFromMac(callback), { method: 'POST', body: new URLSearchParams(report) })
+        .then((r) => r.ok || console.log(`delivery report for ${message.to} answered ${r.status}`))
+        .catch((error) => console.log(`delivery report for ${message.to} failed: ${error.message}`));
+    }, 500);
+  }
 }).listen(PORT, () => console.log(`sms relay listening on http://localhost:${PORT}`));

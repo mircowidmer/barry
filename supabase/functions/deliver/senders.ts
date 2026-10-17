@@ -1,3 +1,4 @@
+import { reportUrl } from './delivery-report.ts';
 import type { Channel } from './facts.ts';
 import type { Rendered } from './messages.en.ts';
 
@@ -60,14 +61,23 @@ const parseJson = (body: string): Record<string, unknown> => {
 };
 
 // An API key restricted to creating messages signs the request; the Account SID only names the account in the path.
-export type TwilioConfig = { apiUrl: string; accountSid: string; keySid: string; keySecret: string; from: string };
+export type TwilioConfig = {
+  apiUrl: string;
+  accountSid: string;
+  keySid: string;
+  keySecret: string;
+  from: string;
+  statusCallback?: (messageId: number) => Promise<string>;
+};
 
-export const twilioSms = (config: () => TwilioConfig): Sender => async (to, message) => {
-  const { apiUrl, accountSid, keySid, keySecret, from } = config();
+export const twilioSms = (config: () => TwilioConfig): Sender => async (to, message, messageId) => {
+  const { apiUrl, accountSid, keySid, keySecret, from, statusCallback } = config();
+  const form = new URLSearchParams({ To: to, From: from, Body: message.text });
+  if (statusCallback) form.set('StatusCallback', await statusCallback(messageId));
   const response = await fetch(`${apiUrl}/2010-04-01/Accounts/${accountSid}/Messages.json`, {
     method: 'POST',
     headers: { authorization: `Basic ${btoa(`${keySid}:${keySecret}`)}` },
-    body: new URLSearchParams({ To: to, From: from, Body: message.text }),
+    body: form,
   });
   const body = parseJson(await response.text());
   if (!response.ok) return fromHttpStatus(response.status, `Twilio ${body.code ?? 'error'}: ${body.message ?? response.statusText}`);
@@ -105,6 +115,7 @@ const twilio = twilioSms(() => ({
   keySid: env('TWILIO_API_KEY_SID'),
   keySecret: env('TWILIO_API_KEY_SECRET'),
   from: env('TWILIO_FROM'),
+  statusCallback: (messageId) => reportUrl(env('SUPABASE_URL'), env('DELIVER_SECRET'), messageId),
 }));
 
 export const senders: Record<Channel, Sender> = {
