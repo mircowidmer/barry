@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { randomInt, randomUUID } from 'node:crypto';
 import { after } from 'node:test';
 import { createClient } from '@supabase/supabase-js';
@@ -7,6 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 export const API = 'http://127.0.0.1:54321';
 const MAILPIT = 'http://127.0.0.1:54324/api/v1';
 const SMS_RELAY = 'http://localhost:8788/messages';
+const HEARTBEATS = 'http://localhost:8788/healthchecks';
+const DELIVER_SECRET = readFileSync('supabase/config.toml', 'utf8').match(/^DELIVER_SECRET = "(.+)"$/m)[1];
 
 const keys = Object.fromEntries(
   execFileSync('npx', ['supabase', 'status', '-o', 'env'], { encoding: 'utf8' })
@@ -137,3 +140,18 @@ export const missDeadline = async (adventureId, minutesAgo = 2) =>
     await admin.from('adventures').update({ deadline: new Date(Date.now() - minutesAgo * 60_000).toISOString() }).eq('id', adventureId),
     'move the Deadline into the past',
   );
+
+/** Runs deliver the way the clock does, and returns the health it reported. */
+export const runDeliver = async () => {
+  const response = await fetch(`${API}/functions/v1/deliver`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${DELIVER_SECRET}`, 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  assert.ok(response.ok, `deliver answered ${response.status}`);
+  return (await response.json()).health;
+};
+
+/** The heartbeats the text message relay received in place of Healthchecks.io, oldest first. */
+export const heartbeatsSince = async (since) =>
+  (await fetch(HEARTBEATS).then((r) => r.json())).filter((h) => new Date(h.at) >= since);

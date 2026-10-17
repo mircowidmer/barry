@@ -1,11 +1,13 @@
-// Stands in for Twilio's Messaging API during local development: accepts the request deliver
-// sends to Twilio, prints it, and keeps it in memory for GET /messages.
-// Run: node scripts/sms-relay.mjs   (Supabase's config.toml points TWILIO_API_URL here)
+// Stands in for Twilio's Messaging API and for Healthchecks.io during local development: accepts
+// the text messages and the heartbeats deliver sends, prints them, and keeps them in memory for
+// GET /messages and GET /healthchecks.
+// Run: node scripts/sms-relay.mjs   (Supabase's config.toml points TWILIO_API_URL and HEALTHCHECK_URL here)
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 
 const PORT = 8788;
 const messages = [];
+const heartbeats = [];
 
 const readBody = (request) =>
   new Promise((resolve, reject) => {
@@ -21,6 +23,13 @@ createServer(async (request, response) => {
     response.end(JSON.stringify(body));
   };
   if (request.method === 'GET' && request.url === '/messages') return reply(200, messages);
+  if (request.method === 'GET' && request.url === '/healthchecks') return reply(200, heartbeats);
+  if (request.method === 'POST' && /^\/healthcheck(\/fail)?$/.test(request.url ?? '')) {
+    const heartbeat = { at: new Date().toISOString(), failed: request.url.endsWith('/fail'), body: await readBody(request) };
+    heartbeats.push(heartbeat);
+    if (heartbeat.failed) console.log(`heartbeat failed: ${heartbeat.body}`);
+    return reply(200, 'OK');
+  }
   if (request.method !== 'POST' || !/^\/2010-04-01\/Accounts\/[^/]+\/Messages\.json$/.test(request.url ?? '')) {
     return reply(404, { code: 20404, message: 'The requested resource was not found', status: 404 });
   }

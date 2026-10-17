@@ -22,6 +22,10 @@ Mailpit catches every email. Open http://127.0.0.1:54324 to read the Heads-ups, 
 
 The relay keeps text messages in memory only, so the list is empty after it restarts. While it is not running, each text message is retried until it runs again.
 
+## The heartbeat to the monitor
+
+`deliver` reports `health()` after every run. Locally, `HEALTHCHECK_URL` in `supabase/config.toml` points at the same relay instead of Healthchecks.io. The relay prints `heartbeat failed: <checks>` for each failed heartbeat and stays quiet for the healthy one every minute. Open http://localhost:8788/healthchecks to read them all.
+
 ## The Reminder and the Overdue Notice
 
 The app shows these on the phone itself, as notifications at the right time. Nothing leaves the Mac for them.
