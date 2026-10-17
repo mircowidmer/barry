@@ -31,6 +31,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
       style={styles.map}
       cameraPosition={{ coordinates: camera.center, zoom: camera.zoom }}
       uiSettings={{ myLocationButtonEnabled: false, scaleBarEnabled: true, togglePitchEnabled: false }}
+      properties={{ selectionEnabled: false }}
       polylines={coordinates.length > 1 ? [{ id: 'trail', coordinates, color: TRAIL, width: 4 }] : []}
       circles={[
         ...coordinates.map((center, i) => ({
