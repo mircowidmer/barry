@@ -45,7 +45,7 @@ jobs:
         run: |
           mkdir site
           cp -R dist/adventure.html dist/confirmed.html dist/_expo dist/assets dist/favicon.ico site/
-          cp web/index.html web/404.html web/site.css site/
+          cp web/index.html web/404.html web/privacy.html web/terms.html web/site.css site/
           cp assets/images/logo.png site/logo.png
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

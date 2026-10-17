@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
+import { LegalLinks } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry } from '@/lib/barry';
@@ -111,6 +112,10 @@ function ProfileForm({ initial }: { initial: Form }) {
         <Button title={t.profile.logOut} kind="secondary" onPress={askToLogOut} />
         <Button title={t.common.delete} kind="danger" onPress={deleteAccount} busy={deleting} />
       </Row>
+      <ThemedText type="small" themeColor="textSecondary">
+        {t.legal.notEmergency}
+      </ThemedText>
+      <LegalLinks />
     </Screen>
   );
 }

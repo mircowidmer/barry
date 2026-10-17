@@ -44,6 +44,12 @@ const en = {
     signIn: 'Sign in',
     createAccount: 'Create account',
   },
+  legal: {
+    accept: 'By creating an account, you accept the Terms of Use and the Privacy Policy.',
+    notEmergency: 'Barry is not an emergency service and never calls rescue services. In an emergency, call 112, or 1414 for Rega in Switzerland.',
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Use',
+  },
   adventure: {
     title: 'Adventure',
     noSignal: 'No signal. Barry cannot load your Adventures right now.',
@@ -243,6 +249,12 @@ const de: Texts = {
     confirmEmail: 'Bestätige deine E-Mail-Adresse mit dem Link, den Barry dir geschickt hat, und melde dich dann an.',
     signIn: 'Anmelden',
     createAccount: 'Konto erstellen',
+  },
+  legal: {
+    accept: 'Mit dem Erstellen eines Kontos akzeptierst du die Nutzungsbedingungen und die Datenschutzerklärung.',
+    notEmergency: 'Barry ist kein Notdienst und ruft nie die Rettung. Ruf im Notfall 112, in der Schweiz für die Rega 1414.',
+    privacy: 'Datenschutzerklärung',
+    terms: 'Nutzungsbedingungen',
   },
   adventure: {
     title: 'Abenteuer',
