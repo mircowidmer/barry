@@ -64,7 +64,7 @@ The confirmation email that Supabase Auth sends after **Create account** lives o
 npx supabase db query --linked "select * from public.health()"
 ```
 
-All three values are `true` when the clock ticked in the last two minutes without an error and messages are not piling up.
+All four values are `true` when the clock ticked in the last two minutes without an error, messages are not piling up, and the providers take messages: `delivery_ok` turns `false` when an Alert failed in the last 15 minutes, or when three or more emails or text messages failed and none went out on that channel in that time.
 
 The clock wakes `deliver` every minute, and each run reports these values to the Healthchecks.io check "Barry production server" at `HEALTHCHECK_URL`: a plain ping when all are `true`, and a ping to `/fail` naming the failing ones otherwise. When the pings stop for 5 minutes or a `/fail` arrives, Healthchecks.io emails the operator.
 
