@@ -61,7 +61,10 @@
       [
         "expo-localization",
         {
-          "supportedLocales": ["en", "de"]
+          "supportedLocales": [
+            "en",
+            "de"
+          ]
         }
       ]
     ],
@@ -72,7 +75,7 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "owner": "mircowidmer",
+    "owner": "musharosky",
     "extra": {
       "router": {
         "asyncRoutes": {
@@ -80,7 +83,7 @@
         }
       },
       "eas": {
-        "projectId": "8fed6e1c-eaeb-41ea-ba83-eb841d3b08ee"
+        "projectId": "9ed7a12e-44b5-4e36-831a-1e7a636033c7"
       }
     }
   }

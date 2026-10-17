@@ -43,7 +43,7 @@ npm run submit:production
 ### Before the first cloud build
 
 - EAS builds for an iPhone need a paid Apple Developer Program membership. A free personal team works only for local builds, and its builds expire after 7 days.
-- `app.json` links the project to the EAS project `8fed6e1c-eaeb-41ea-ba83-eb841d3b08ee` of the account `mircowidmer`. Log in to that account with `npx eas-cli@latest login`, or run `npx eas-cli@latest init` to link Barry to the account you are logged in with. That replaces `owner` and `extra.eas.projectId` in `app.json`.
+- `app.json` links Barry to the EAS project `@musharosky/barry` (`extra.eas.projectId`). Log in with `npx eas-cli@latest login` as `musharosky`. The Expo website may show the same account under the name `mircowidmer`. `npx eas-cli@latest whoami` shows who is logged in.
 - With a paid team, EAS signs the Push Notifications capability itself. `BARRY_WITHOUT_PUSH` is only for local builds with the free team.
 
 ## Build on your Mac
