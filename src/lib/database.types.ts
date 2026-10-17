@@ -93,14 +93,14 @@ isOneToOne: false
                   ]
                 },"messages": {
                   Row: {
-                    "adventure_id": string,"attempts": number,"channel": Database["public"]['Enums']["channel"],"contact_id": string | null,"created_at": string,"failure_reason": string | null,"for_deadline": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"lease_until": string | null,"next_attempt_at": string,"plan_revision": number | null,"previous_deadline": string | null,"provider_ref": string | null,"round": number | null,"sent_at": string | null,"status": Database["public"]['Enums']["message_status"],"to_address": string
+                    "adventure_id": string,"attempts": number,"channel": Database["public"]['Enums']["channel"],"contact_id": string | null,"created_at": string,"delivered_at": string | null,"failure_reason": string | null,"for_deadline": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"lease_until": string | null,"next_attempt_at": string,"plan_revision": number | null,"previous_deadline": string | null,"provider_ref": string | null,"round": number | null,"sent_at": string | null,"settled_at": string | null,"status": Database["public"]['Enums']["message_status"],"to_address": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "adventure_id": string,"attempts"?: number,"channel": Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind": Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"plan_revision"?: number | null,"previous_deadline"?: string | null,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address": string
+                    "adventure_id": string,"attempts"?: number,"channel": Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"delivered_at"?: string | null,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind": Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"plan_revision"?: number | null,"previous_deadline"?: string | null,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"settled_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address": string
                   }
                   Update: {
-                    "adventure_id"?: string,"attempts"?: number,"channel"?: Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind"?: Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"plan_revision"?: number | null,"previous_deadline"?: string | null,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address"?: string
+                    "adventure_id"?: string,"attempts"?: number,"channel"?: Database["public"]['Enums']["channel"],"contact_id"?: string | null,"created_at"?: string,"delivered_at"?: string | null,"failure_reason"?: string | null,"for_deadline"?: string | null,"id"?: never,"kind"?: Database["public"]['Enums']["message_kind"],"lease_until"?: string | null,"next_attempt_at"?: string,"plan_revision"?: number | null,"previous_deadline"?: string | null,"provider_ref"?: string | null,"round"?: number | null,"sent_at"?: string | null,"settled_at"?: string | null,"status"?: Database["public"]['Enums']["message_status"],"to_address"?: string
                   }
                   Relationships: [
                     {
@@ -187,6 +187,7 @@ isOneToOne: false
 "channel": Database["public"]['Enums']["channel"],
 "contact_id": string | null,
 "created_at": string,
+"delivered_at": string | null,
 "failure_reason": string | null,
 "for_deadline": string | null,
 "id": number,
@@ -198,6 +199,7 @@ isOneToOne: false
 "provider_ref": string | null,
 "round": number | null,
 "sent_at": string | null,
+"settled_at": string | null,
 "status": Database["public"]['Enums']["message_status"],
 "to_address": string
             }[]
@@ -218,7 +220,7 @@ isOneToOne: false
                            },
 "health":
 { Args: Record<PropertyKey, never>; Returns: {
-              "adventures_ok": boolean,"clock_ok": boolean,"outbox_ok": boolean
+              "adventures_ok": boolean,"clock_ok": boolean,"delivery_ok": boolean,"outbox_ok": boolean
             }[]
                            },
 "message_facts":
@@ -229,6 +231,9 @@ isOneToOne: false
                            },
 "record_trail":
 { Args: { "p_id": string,"p_readings": Json }; Returns: Database["public"]['Enums']["refusal"]
+                           },
+"report_delivery":
+{ Args: { "p_id": number,"p_provider_ref": string,"p_reason"?: string,"p_status": string }; Returns: undefined
                            },
 "save_adventure":
 { Args: { "p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_id": string,"p_notes": string,"p_route": string,"p_starting_point": string }; Returns: {
