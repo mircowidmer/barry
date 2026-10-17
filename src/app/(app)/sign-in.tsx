@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { Button, Field, Notice, Screen } from '@/components/form';
+import { LegalLinks } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { supabase } from '@/lib/supabase';
 import { useTexts } from '@/lib/texts';
@@ -58,6 +59,10 @@ export default function SignInScreen() {
         busy={busy === 'sign_up'}
         disabled={!email || !password}
       />
+      <ThemedText type="small" themeColor="textSecondary">
+        {t.legal.accept} {t.legal.notEmergency}
+      </ThemedText>
+      <LegalLinks />
     </Screen>
   );
 }
