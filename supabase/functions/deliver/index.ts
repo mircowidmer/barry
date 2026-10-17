@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 
+import { readDeliveryReport } from './delivery-report.ts';
 import { type Channel, parseFacts } from './facts.ts';
 import { trailMapLinks } from './links.ts';
 import { render } from './messages.ts';
@@ -73,7 +74,27 @@ const reportHealth = async (): Promise<Health> => {
   return health;
 };
 
+// Twilio posts each text message's later status here, with the token from its callback URL.
+const receiveDeliveryReport = async (request: Request) => {
+  const url = new URL(request.url);
+  const form = new URLSearchParams(await request.text());
+  const report = await readDeliveryReport(url, form, Deno.env.get('DELIVER_SECRET')!);
+  if (report === null) return new Response('unauthorized', { status: 401 });
+  if (report.kind === 'report') {
+    await rpc('report_delivery', {
+      p_id: report.messageId,
+      p_provider_ref: report.providerRef,
+      p_status: report.status,
+      p_reason: report.reason,
+    });
+  }
+  return new Response(null, { status: 204 });
+};
+
 Deno.serve(async (request) => {
+  if (request.method === 'POST' && new URL(request.url).pathname.endsWith('/deliver/status')) {
+    return await receiveDeliveryReport(request);
+  }
   if (request.headers.get('Authorization') !== `Bearer ${Deno.env.get('DELIVER_SECRET')}`) {
     return new Response('unauthorized', { status: 401 });
   }

@@ -159,7 +159,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Delivery Failures
 
-If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer.
+If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer. That includes a text message that Twilio accepted but later reports as not delivered.
 
 ## Location
 

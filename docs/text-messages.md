@@ -45,6 +45,15 @@ The hosted project still holds `LINKMOBILITY_ACCESS_TOKEN` from before. `deliver
 - Every other answer fails at once, with Twilio's error code and message as the reason, for example `HTTP 400: Twilio 21211: The 'To' number is not a valid phone number.`
 - Without `TWILIO_ACCOUNT_SID`, each text message fails with `TWILIO_ACCOUNT_SID is not set`.
 
+## Delivery reports
+
+Twilio accepting a text message does not mean it reached the phone. So each text message gives Twilio a `StatusCallback`, `<SUPABASE_URL>/functions/v1/deliver/status?message=<id>&token=<token>`, and Twilio reports there once the text message was delivered or not.
+
+- `delivered` records `messages.delivered_at`. The message stays `sent`.
+- `undelivered` or `failed` turns the message into `failed`, with Twilio's error as the reason, for example `Twilio 30003: Unreachable destination handset`. The app shows it as a Delivery Failure, and an undelivered Alert makes `health()` report `delivery_ok = false` to the monitor.
+- Twilio signs its callbacks with the account's Auth Token, which Barry does not hold, because it sends with a restricted API key. Instead, the token in the URL is an HMAC of the message ID made with `DELIVER_SECRET`. Rotating `DELIVER_SECRET` with `scripts/hosted-secrets.mjs` makes the reports of text messages sent in the minutes before invalid, so they are lost.
+- A report for a text message the database does not know, or with another Twilio sid, changes nothing.
+
 ## Segments
 
 Providers charge per segment. A segment holds 160 characters, or 153 when a message has more than one. One character outside the GSM-7 alphabet, such as `’` or `…`, sends the whole message as UCS-2, with 70 characters per segment, or 67 when split. The message text uses only GSM-7 characters, and a test in `supabase/functions/deliver/messages.en.test.ts` checks it. A name, a destination or notes that the Adventurer types with other characters still switch that message to UCS-2.

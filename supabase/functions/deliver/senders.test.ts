@@ -79,6 +79,22 @@ Deno.test('a text message goes to Twilio as a form signed with the API key, and 
   });
 });
 
+Deno.test('a text message asks Twilio to report its delivery to the callback URL of that message', async () => {
+  const realFetch = globalThis.fetch;
+  let request: Request | undefined;
+  globalThis.fetch = (input, init) => {
+    request = new Request(input, init);
+    return Promise.resolve(new Response(JSON.stringify({ sid: 'SM123' }), { status: 201 }));
+  };
+  try {
+    const statusCallback = (messageId: number) => Promise.resolve(`https://barry.example/status?message=${messageId}`);
+    await twilioSms(() => ({ ...twilio, statusCallback }))('+41792222222', message, 7);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+  assertEquals(new URLSearchParams(await request!.text()).get('StatusCallback'), 'https://barry.example/status?message=7');
+});
+
 Deno.test('a rejected number fails with the Twilio error code and message', async () => {
   const { result } = await twilioAnswering(400, { code: 21211, message: "The 'To' number is not a valid phone number." });
   assertEquals(result, { outcome: 'failed', reason: "HTTP 400: Twilio 21211: The 'To' number is not a valid phone number." });
