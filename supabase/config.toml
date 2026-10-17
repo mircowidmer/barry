@@ -387,6 +387,8 @@ TWILIO_ACCOUNT_SID = "AClocal"
 TWILIO_API_KEY_SID = "SKlocal"
 TWILIO_API_KEY_SECRET = "local"
 TWILIO_FROM = "Barry"
+# Locally, deliver's heartbeat goes to scripts/sms-relay.mjs too, instead of Healthchecks.io.
+HEALTHCHECK_URL = "http://host.docker.internal:8788/healthcheck"
 
 [functions.deliver]
 verify_jwt = false
