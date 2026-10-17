@@ -192,7 +192,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 
 ## Monitoring
 
-Supabase checks Deadlines every minute. Each run reports to an outside monitor, such as Healthchecks.io. If the reports stop for a few minutes, the monitor emails or texts the operator.
+Supabase checks Deadlines every minute. Each run reports to an outside monitor, such as Healthchecks.io. If the reports stop for a few minutes, the monitor emails or texts the operator. It also does when an Alert could not be delivered, or when the email or text message provider refuses every message, because those fail at once instead of piling up.
 
 ## Out of scope for the first version
 

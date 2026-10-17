@@ -6,7 +6,7 @@ import { render } from './messages.ts';
 import { type SendResult, senders } from './senders.ts';
 
 type ClaimedRow = { id: number; attempts: number; channel: Channel; to_address: string };
-type Health = { clock_ok: boolean; adventures_ok: boolean; outbox_ok: boolean };
+type Health = { clock_ok: boolean; adventures_ok: boolean; outbox_ok: boolean; delivery_ok: boolean };
 
 const BATCH = 20;
 const TIME_BUDGET_MS = 20_000;
@@ -63,7 +63,12 @@ const reportHealth = async (): Promise<Health> => {
   const url = Deno.env.get('HEALTHCHECK_URL');
   if (url) {
     const problems = Object.entries(health).filter(([, ok]) => !ok).map(([name]) => name);
-    await fetch(problems.length === 0 ? url : `${url}/fail`, { method: 'POST', body: problems.join(', ') });
+    // The messages are out by now, so an unreachable monitor must not turn this run into an error.
+    try {
+      await fetch(problems.length === 0 ? url : `${url}/fail`, { method: 'POST', body: problems.join(', ') });
+    } catch (error) {
+      console.error('heartbeat failed', error);
+    }
   }
   return health;
 };
