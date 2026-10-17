@@ -51,7 +51,6 @@ export const parseProfile = (row: ProfileRow): AdventurerProfile => ({
   carColour: row.car_colour,
   carPlate: row.car_plate,
   medicalNotes: row.medical_notes,
-  messageLanguage: row.message_language === 'de' ? 'de' : 'en',
 });
 
 export const POSITION_SELECT = 'taken_at, latitude, longitude, accuracy_m';

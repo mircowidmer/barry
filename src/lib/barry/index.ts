@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 
 import { storage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
+import { appLanguage } from '@/lib/language';
 import { notificationText } from '@/lib/wording';
 
 import type { NotificationService } from './alarms';
@@ -119,6 +120,7 @@ export const barry = createBarry({
   supabase,
   readPosition,
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+  language: appLanguage,
   now: () => new Date(),
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,

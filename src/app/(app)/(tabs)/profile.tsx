@@ -1,24 +1,18 @@
 import { useState } from 'react';
 
-import { Button, Choice, Field, Notice, Row, Screen, Section } from '@/components/form';
+import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
-import { type AdventurerProfile, barry, type MessageLanguage } from '@/lib/barry';
+import { type AdventurerProfile, barry } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
 import { formatPhoneNumber, phoneInput } from '@/lib/phone';
 import { useSession } from '@/lib/session';
 import { askToLogOut } from '@/lib/log-out';
 import { useTexts } from '@/lib/texts';
 
-type TextField = Exclude<keyof AdventurerProfile, 'messageLanguage'>;
-type Form = Record<TextField, string> & { messageLanguage: MessageLanguage };
+type Form = Record<keyof AdventurerProfile, string>;
 
-const empty: Form = { name: '', phone: '', carMake: '', carColour: '', carPlate: '', medicalNotes: '', messageLanguage: 'en' };
-
-const languages: { value: MessageLanguage; title: string }[] = [
-  { value: 'en', title: 'English' },
-  { value: 'de', title: 'Deutsch' },
-];
+const empty: Form = { name: '', phone: '', carMake: '', carColour: '', carPlate: '', medicalNotes: '' };
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
@@ -29,7 +23,6 @@ const toForm = (p: AdventurerProfile): Form => ({
   carColour: p.carColour ?? '',
   carPlate: p.carPlate ?? '',
   medicalNotes: p.medicalNotes ?? '',
-  messageLanguage: p.messageLanguage,
 });
 
 export default function ProfileScreen() {
@@ -54,13 +47,8 @@ function ProfileForm({ initial }: { initial: Form }) {
     if (outcome.kind === 'failed') setDeleteError(outcome.message);
   };
 
-  const set = (field: TextField) => (text: string) => {
+  const set = (field: keyof Form) => (text: string) => {
     setProfile((p) => ({ ...p, [field]: text }));
-    setStatus('idle');
-  };
-
-  const setLanguage = (messageLanguage: MessageLanguage) => {
-    setProfile((p) => ({ ...p, messageLanguage }));
     setStatus('idle');
   };
 
@@ -74,7 +62,6 @@ function ProfileForm({ initial }: { initial: Form }) {
         carColour: orNull(profile.carColour),
         carPlate: orNull(profile.carPlate),
         medicalNotes: orNull(profile.medicalNotes),
-        messageLanguage: profile.messageLanguage,
       });
       setStatus('saved');
     } catch {
@@ -109,15 +96,6 @@ function ProfileForm({ initial }: { initial: Form }) {
           onChangeText={set('medicalNotes')}
           multiline
           hint={t.profile.medicalHint}
-        />
-      </Section>
-      <Section title={t.profile.messages}>
-        <Choice
-          label={t.profile.language}
-          options={languages}
-          value={profile.messageLanguage}
-          onChange={setLanguage}
-          hint={t.profile.languageHint}
         />
       </Section>
       {status === 'saved' && <Notice tone="success">{t.profile.saved}</Notice>}

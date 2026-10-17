@@ -24,7 +24,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 | Phone number | Yes | Alert |
 | Car make, colour, and number plate | No | Alert |
 | Medical notes | No | Alert |
-| Message language | Yes, English unless the Adventurer picks Deutsch | Decides the language of every message to the contacts |
+| Message language | Yes, set by the app to the phone's language, German or English | Decides the language of every message to the contacts |
 
 The name and the phone number must be filled in before the Adventurer starts their first Adventure. Only the Alert carries the full Profile.
 
@@ -134,7 +134,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - The Last Known Position in an Alert gives the time of the reading, the coordinates, and a map link.
 - Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".
 - An Alert states facts only. It gives no guidance on what to do.
-- Messages are in English. The text of the messages Supabase sends is kept in one place, and the text of the Reminder and the Overdue Notice in another, so that other languages can be added.
+- Messages are in English or German. The text of the messages Supabase sends is kept in one place per language, and the text of the Reminder and the Overdue Notice in the app's texts, so that other languages can be added.
 - After the third Alert, Barry sends nothing more. The Adventure stays Alerted until the Adventurer checks in.
 - Barry never contacts a rescue service. The Emergency Contacts decide what to do.
 
@@ -151,7 +151,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 - Barry sends email and text messages. Each message goes to every channel the contact has, on the addresses that are switched on. "Every channel the contact has" in the table above means the same. A text message carries the same text as the email body, without the subject.
 - Barry sends email through Resend, from the sender name "🐶 Barry".
-- Barry writes every message to the contacts in the language the Adventurer picks in the Profile: English or German. The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du".
+- Barry writes every message to the contacts in the language of the Adventurer's phone: German when the phone is in German, English otherwise. The app stores that language in the Profile each time it opens and each time the Profile is saved, so a language changed in Settings reaches the next message. The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du".
 - Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
@@ -188,7 +188,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 - Any other address on `barry.support`, such as an old `/trail` link, opens the landing page.
 - The landing page, the Adventure page and the email confirmation page are in German when the browser's first preferred language is German, and in English otherwise.
-- The iOS app is in German when the phone's first language is German, and in English otherwise. Settings › Barry › Language can pick either for Barry alone. The language of the messages to the contacts is set separately, in the Profile.
+- The iOS app is in German when the phone's first language is German, and in English otherwise. Settings › Barry › Language can pick either for Barry alone. The messages to the contacts follow the same language.
 
 ## Monitoring
 
