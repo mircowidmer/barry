@@ -7,7 +7,7 @@ import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/
 import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
-import { type AdventurerProfile, barry } from '@/lib/barry';
+import { type AdventurerProfile, barry, isPhoneNumber } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
 import { askToLogOut } from '@/lib/log-out';
 import { formatPhoneNumber, phoneInput } from '@/lib/phone';
@@ -63,7 +63,7 @@ function ProfileForm({ initial }: { initial: Form }) {
   const [deleting, setDeleting] = useState(false);
 
   const set = (field: keyof Form) => (text: string) => setProfile((p) => ({ ...p, [field]: text }));
-  const complete = profile.name.trim() !== '' && profile.phone.trim() !== '';
+  const complete = profile.name.trim() !== '' && isPhoneNumber(profile.phone);
 
   const save = async () => {
     setSaving(true);

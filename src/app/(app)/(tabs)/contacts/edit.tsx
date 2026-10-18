@@ -63,7 +63,9 @@ function ContactForm({ contact }: { contact: EmergencyContact | null }) {
   const [busy, setBusy] = useState<'save' | 'delete' | null>(null);
   const leave = useDiscardGuard(!same(form, initial));
 
-  const complete = form.name.trim() !== '' && (emailOn(form) || phoneOn(form));
+  // An address that is filled in but not valid would be saved switched off without a word, so it blocks Save.
+  const wellFormed = (form.email.trim() === '' || isEmailAddress(form.email)) && (form.phone.trim() === '' || isPhoneNumber(form.phone));
+  const complete = form.name.trim() !== '' && (emailOn(form) || phoneOn(form)) && wellFormed;
 
   const save = async () => {
     setBusy('save');
