@@ -69,7 +69,7 @@ function useDragSelect(
     });
     return row;
   };
-  // A touch in the gap between two rows starts nothing; once dragging, the gap counts as the row above.
+  // A tap in the gap between two rows toggles nothing; a drag counts the gap as the row above.
   const rowUnder = (y: number) =>
     rows.current.findIndex((r, i) => r && i < latest.current.ids.length && y >= r.top && y <= r.bottom);
 
@@ -85,8 +85,7 @@ function useDragSelect(
   };
 
   const begin = (y: number) => {
-    const anchor = rowUnder(y);
-    if (anchor === -1) return;
+    const anchor = rowAt(y);
     const { ids: current, selected: shown, selecting: already } = latest.current;
     if (!already) startSelecting();
     const before = already ? shown : new Set<AdventureId>();
