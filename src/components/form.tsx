@@ -22,7 +22,6 @@ import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
 
-/** What a screen shows while its first load is on its way. */
 export function Loading() {
   const theme = useTheme();
   return <ActivityIndicator color={theme.textSecondary} style={styles.loading} />;
@@ -39,10 +38,8 @@ export function FirstLoad({ failure, onRetry }: { failure: string | undefined; o
   );
 }
 
-/** Dims a tappable card while the finger is down, as iOS cells highlight. */
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
 
-/** A scrolling screen. With onRefresh, pulling down reloads it, as iOS lists do. */
 export function Screen({ title, onRefresh, children }: { title?: string; onRefresh?: () => Promise<unknown>; children: ReactNode }) {
   const theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
