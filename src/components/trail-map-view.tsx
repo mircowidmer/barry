@@ -1,11 +1,11 @@
 import { useImage } from 'expo-image';
 import { AppleMaps } from 'expo-maps';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
-import { fitCamera } from '@/lib/trail-map/camera';
+import { type Camera, fitCamera, shows } from '@/lib/trail-map/camera';
 import type { LastKnown, TrailPoint } from '@/lib/trail-map/types';
 import { useTexts } from '@/lib/texts';
 
@@ -25,17 +25,25 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
   const dot = useImage(
     useColorScheme() === 'dark' ? require('@/assets/images/trail-dot-dark.png') : require('@/assets/images/trail-dot.png'),
   );
-  // The camera fits the Trail once. Later readings must not undo the Adventurer's zoom and pan.
-  const [cameraPosition] = useState(() => {
-    const camera = fitCamera(last ? [...trail, last] : trail);
-    return camera && { coordinates: camera.center, zoom: camera.zoom };
-  });
+  const map = useRef<AppleMaps.MapView>(null);
+  // The camera fits the Trail again only once a reading leaves the region it last fitted, so the
+  // Adventurer's zoom and pan survive the readings that land inside it.
+  const [fitted] = useState(() => fitCamera(last ? [...trail, last] : trail));
+  const [cameraPosition] = useState(() => fitted && { coordinates: fitted.center, zoom: fitted.zoom });
+  const lastFit = useRef<Camera | null>(fitted);
+  const newest = last ?? trail.at(-1);
+  useEffect(() => {
+    if (!newest || (lastFit.current && shows(lastFit.current, newest))) return;
+    lastFit.current = fitCamera(last ? [...trail, last] : trail);
+    if (lastFit.current) map.current?.setCameraPosition({ coordinates: lastFit.current.center, zoom: lastFit.current.zoom });
+  }, [trail, last, newest]);
 
   if (Platform.OS !== 'ios' || !cameraPosition) return null;
 
   const coordinates = trail.map(at);
   return (
     <AppleMaps.View
+      ref={map}
       style={styles.map}
       cameraPosition={cameraPosition}
       uiSettings={{ myLocationButtonEnabled: false, scaleBarEnabled: true, togglePitchEnabled: false }}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { fitCamera } from './camera';
+import { fitCamera, shows } from './camera';
 
 describe('fitCamera', () => {
   it('shows nothing without readings', () => {
@@ -21,5 +21,20 @@ describe('fitCamera', () => {
     const camera = fitCamera([{ latitude: 47.0, longitude: 8.6 }])!;
     expect(camera.zoom).toBe(16);
     expect(camera.center).toEqual({ latitude: 47.0, longitude: 8.6 });
+  });
+});
+
+describe('shows', () => {
+  const camera = fitCamera([
+    { latitude: 47.0, longitude: 8.6 },
+    { latitude: 47.1, longitude: 8.62 },
+  ])!;
+
+  it('holds the readings it was fitted to', () => {
+    expect(shows(camera, { latitude: 47.1, longitude: 8.62 })).toBe(true);
+  });
+
+  it('loses a reading beyond the fitted region', () => {
+    expect(shows(camera, { latitude: 47.2, longitude: 8.61 })).toBe(false);
   });
 });

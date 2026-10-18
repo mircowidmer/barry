@@ -15,3 +15,9 @@ export const fitCamera = (points: readonly Point[]): Camera | null => {
   const zoom = Math.min(MAX_ZOOM, Math.log2(360 / (Math.max(north - south, east - west) * PADDING)));
   return { center: { latitude: (south + north) / 2, longitude: (west + east) / 2 }, zoom };
 };
+
+/** Whether the square region the camera shows holds the point. */
+export const shows = (camera: Camera, point: Point) => {
+  const half = 360 / 2 ** camera.zoom / 2;
+  return Math.abs(point.latitude - camera.center.latitude) <= half && Math.abs(point.longitude - camera.center.longitude) <= half;
+};
