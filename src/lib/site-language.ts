@@ -53,7 +53,7 @@ export const siteText = {
     destination: 'Destination',
     route: 'Route',
     linkFailed: 'This link did not work',
-    newLink: 'Open Barry and tap Create account again to get a new link.',
+    newLink: 'Open Barry and tap Create Account again to get a new link.',
     emailConfirmed: 'Your email is confirmed',
     welcome: 'Welcome to Barry. Go alone, get home.',
     signInHint: 'Open Barry on your iPhone and sign in with your email and password.',

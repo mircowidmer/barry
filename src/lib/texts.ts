@@ -91,7 +91,7 @@ const en = {
     lastKnown: (when: string) => `Last known position: ${when}`,
     contacts: (names: string) => `Contacts: ${names}`,
     edit: 'Edit Plan or Contacts',
-    failuresTitle: 'Messages that did not arrive',
+    failuresTitle: 'Messages That Did Not Arrive',
     failure: (f: DeliveryFailure) =>
       `${f.contactName}: ${{ heads_up: 'heads-up', plan_update: 'plan update', deadline_update: 'deadline update', alert: 'alert', all_clear: 'all-clear' }[f.message]} by ${{ email: 'email', sms: 'text message', push: 'push' }[f.channel]}` +
       (f.reason === 'channel_not_enabled' ? ' (text messages are not set up yet)' : ` (${f.reason})`),
@@ -159,7 +159,7 @@ const en = {
     inUse: (name: string) => `${name} is a contact of your current adventure, so they stay until you check in.`,
     couldNotDelete: (name: string) => `Could not delete ${name}. Try again.`,
     editLabel: (name: string) => `Edit ${name}`,
-    editTitle: (name: string) => `Edit ${name || 'contact'}`,
+    editTitle: (name: string) => `Edit ${name || 'Contact'}`,
     newTitle: 'New Contact',
     addLabel: 'Add a contact',
     name: 'Name',
@@ -204,7 +204,7 @@ const en = {
     deleteAdventureTitle: 'Delete this Adventure?',
     deletePlanned: 'Its plan is removed. Nobody was told about it yet.',
     deleteEnded: 'Its plan, its trail and its messages are removed. Links your emergency contacts got stop working.',
-    couldNotDelete: 'Could not delete.',
+    couldNotDelete: 'Try again when you have signal.',
     logOutTitle: 'Log Out?',
     logOutMessage: 'You need your email address and password to sign in again.',
   },
@@ -415,7 +415,7 @@ const de: Texts = {
     deletePlanned: 'Sein Plan wird gelöscht. Es wurde noch niemand informiert.',
     deleteEnded:
       'Sein Plan, seine Spur und seine Nachrichten werden gelöscht. Links, die deine Notfallkontakte erhalten haben, funktionieren nicht mehr.',
-    couldNotDelete: 'Löschen nicht möglich.',
+    couldNotDelete: 'Versuch es nochmals, wenn du Empfang hast.',
     logOutTitle: 'Abmelden?',
     logOutMessage: 'Um dich wieder anzumelden, brauchst du deine E-Mail-Adresse und dein Passwort.',
   },
