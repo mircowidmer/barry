@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
-import { Button, Notice, Screen } from '@/components/form';
+import { Button, Loading, Notice, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/grouped-list';
 import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
@@ -47,7 +47,11 @@ export default function ProfileScreen() {
       </Screen>
     );
   }
-  return <Screen>{null}</Screen>;
+  return (
+    <Screen>
+      <Loading />
+    </Screen>
+  );
 }
 
 function ProfileForm({ initial }: { initial: Form }) {

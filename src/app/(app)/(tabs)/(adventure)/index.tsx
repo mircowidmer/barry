@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, HoldButton, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, HoldButton, Loading, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -22,15 +22,20 @@ export default function AdventureScreen() {
   });
   const t = useTexts();
 
-  if (loaded.status === 'error') {
+  if (loaded.data === undefined) {
     return (
       <Screen>
-        <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
-        <Button title={t.common.tryAgain} onPress={loaded.reload} />
+        {loaded.status === 'error' ? (
+          <>
+            <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
+            <Button title={t.common.tryAgain} onPress={loaded.reload} />
+          </>
+        ) : (
+          <Loading />
+        )}
       </Screen>
     );
   }
-  if (!loaded.data) return <Screen>{null}</Screen>;
 
   const { inProgress, offlineSince, adventures, pending } = loaded.data;
   const queued = inProgress && pending.find((c) => c.adventureId === inProgress.id);

@@ -2,6 +2,7 @@ import { type ReactNode, useState } from 'react';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useSegments } from 'expo-router';
 import {
+  ActivityIndicator,
   Animated,
   Pressable,
   RefreshControl,
@@ -19,6 +20,12 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
+
+/** What a screen shows while its first load is on its way. */
+export function Loading() {
+  const theme = useTheme();
+  return <ActivityIndicator color={theme.textSecondary} style={styles.loading} />;
+}
 
 /** Dims a tappable card while the finger is down, as iOS cells highlight. */
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
@@ -189,5 +196,6 @@ const styles = StyleSheet.create({
   capsule: { borderRadius: 32 },
   holdTarget: { flex: 1, minHeight: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
   notice: { borderLeftWidth: 4, paddingLeft: Spacing.two, paddingVertical: Spacing.one },
+  loading: { marginTop: Spacing.four },
   row: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap' },
 });

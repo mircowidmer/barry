@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
-import { Button, Notice, pressedStyle, Screen, Section } from '@/components/form';
+import { Button, Loading, Notice, pressedStyle, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
@@ -161,15 +161,20 @@ export default function HistoryScreen() {
   const endedIds = ended.map((a) => a.id);
   const dragSelect = useDragSelect(endedIds, selected, setSelected, selecting, () => setSelecting(true));
 
-  if (loaded.status === 'error') {
+  if (loaded.data === undefined) {
     return (
       <Screen>
-        <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
-        <Button title={t.common.tryAgain} onPress={loaded.reload} />
+        {loaded.status === 'error' ? (
+          <>
+            <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
+            <Button title={t.common.tryAgain} onPress={loaded.reload} />
+          </>
+        ) : (
+          <Loading />
+        )}
       </Screen>
     );
   }
-  if (!loaded.data) return <Screen>{null}</Screen>;
 
   const inProgress = loaded.data.find(isInProgress);
   const remove = async (id: AdventureId) => {

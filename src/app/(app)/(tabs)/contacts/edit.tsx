@@ -1,7 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
-import { Button, Field, Notice, Screen } from '@/components/form';
+import { Button, Field, Loading, Notice, Screen } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
@@ -36,14 +36,16 @@ export default function ContactSheet() {
   const loaded = useLoad(async () => (id ? ((await barry.listContacts()).find((c) => c.id === id) ?? null) : null));
   const t = useTexts();
 
-  if (loaded.status === 'ready' && (!id || loaded.data)) return <ContactForm contact={loaded.data} />;
+  if (loaded.data !== undefined && (!id || loaded.data)) return <ContactForm contact={loaded.data} />;
   return (
     <Screen>
       <Stack.Screen options={{ title: id ? t.contacts.editTitle('') : t.contacts.newTitle }} />
       <Stack.Toolbar placement="left">
         <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
       </Stack.Toolbar>
-      {loaded.status !== 'loading' && (
+      {loaded.status === 'loading' ? (
+        <Loading />
+      ) : (
         <>
           <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>
           <Button title={t.common.tryAgain} kind="secondary" onPress={loaded.reload} />
