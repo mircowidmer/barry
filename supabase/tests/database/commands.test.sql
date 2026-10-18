@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(61);
+select plan(62);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -113,6 +113,11 @@ select is(
   (select refusal from public.save_adventure(null, null, null, null, '{}')),
   null::public.refusal,
   'A Planned Adventure can be saved without a destination, a Deadline or contacts'
+);
+select is(
+  (select refusal from public.save_adventure(null, 'Rigi', null, 'Brunni car park', 'Bring a headlamp', null, '{}')),
+  null::public.refusal,
+  'An app that still sends a Starting Point and Notes can save its Plan'
 );
 
 -- start_adventure: every refusal, then a Start
