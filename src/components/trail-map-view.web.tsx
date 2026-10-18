@@ -4,7 +4,8 @@ import type { Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
 
 import { Colors } from '@/constants/theme';
-import { formatWhen } from '@/lib/wording';
+import { siteText, useSiteLanguage } from '@/lib/site-language';
+import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
 import type { TrailMapViewProps } from './trail-map-view';
 
@@ -16,9 +17,13 @@ const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">Op
 export function TrailMapView({ trail, last }: TrailMapViewProps) {
   const element = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
+  const fitted = useRef(false);
+  const language = useSiteLanguage();
 
   useEffect(() => {
     let cancelled = false;
+    const t = siteText[language];
+    const when = language === 'de' ? formatWhenGerman : formatWhen;
     // Leaflet touches window at import, and the static export renders this page in Node.
     import('leaflet').then((L) => {
       if (cancelled || !element.current) return;
@@ -33,22 +38,27 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
       if (line.length > 1) L.polyline(line, { color: TRAIL, weight: 4 }).addTo(m);
       for (const p of trail) {
         L.circleMarker([p.latitude, p.longitude], { radius: 4, color: '#fff', weight: 1.5, fillColor: TRAIL, fillOpacity: 1 })
-          .bindTooltip(formatWhen(p.takenAt))
+          .bindTooltip(when(p.takenAt))
           .addTo(m);
       }
       if (last) {
         L.circleMarker([last.latitude, last.longitude], { radius: 8, color: '#fff', weight: 2, fillColor: LAST, fillOpacity: 1 })
-          .bindTooltip(`Last known position, ${formatWhen(last.takenAt)}`)
+          .bindTooltip(t.lastKnown(last.takenAt))
           .addTo(m);
         if (last.accuracyM) L.circle([last.latitude, last.longitude], { radius: last.accuracyM, color: TRAIL, weight: 1 }).addTo(m);
       }
+      // The view fits the Trail once. A minute later the new readings must not undo the reader's zoom and pan.
+      if (fitted.current) return;
       const bounds = L.latLngBounds(last ? [...line, L.latLng(last.latitude, last.longitude)] : line);
-      if (bounds.isValid()) m.fitBounds(bounds, { padding: [32, 32], maxZoom: 16 });
+      if (bounds.isValid()) {
+        m.fitBounds(bounds, { padding: [32, 32], maxZoom: 16 });
+        fitted.current = true;
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [trail, last]);
+  }, [trail, last, language]);
 
   useEffect(
     () => () => {

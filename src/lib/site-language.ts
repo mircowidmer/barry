@@ -1,5 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
+import type { LastKnown } from '@/lib/trail-map/types';
 import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
 export type SiteLanguage = 'en' | 'de';
@@ -29,12 +30,13 @@ export const useSiteLanguage = (): SiteLanguage => {
 const position = (coordinates: { latitude: number; longitude: number }) =>
   `${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}`;
 
-type Position = { takenAt: Date; latitude: number; longitude: number; accuracyM: number | null };
+type Position = LastKnown;
 
 export const siteText = {
   en: {
     logo: "Barry's icon, a St. Bernard with a little barrel on its collar",
     adventure: 'Adventure',
+    lastKnown: (at: Date) => `Last known position, ${formatWhen(at)}`,
     loading: 'Loading…',
     linkBroken: 'This link does not work.',
     unreachable: 'Barry cannot be reached. Try again in a moment.',
@@ -60,6 +62,7 @@ export const siteText = {
   de: {
     logo: 'Barrys Symbol, ein Bernhardiner mit einem kleinen Fässchen am Halsband',
     adventure: 'Abenteuer',
+    lastKnown: (at: Date) => `Letzter bekannter Standort, ${formatWhenGerman(at)}`,
     loading: 'Wird geladen…',
     linkBroken: 'Dieser Link funktioniert nicht.',
     unreachable: 'Barry ist nicht erreichbar. Versuch es gleich nochmals.',
