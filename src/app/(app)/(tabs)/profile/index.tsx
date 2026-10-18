@@ -78,7 +78,7 @@ function ProfileForm({ initial }: { initial: Form }) {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
           variant="done"
-          icon="square.and.arrow.down"
+          icon="checkmark"
           accessibilityLabel={t.common.save}
           disabled={!complete || saving || same(profile, saved)}
           onPress={save}
