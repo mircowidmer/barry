@@ -236,7 +236,7 @@ export default function HistoryScreen() {
           <ThemedText type="smallBold">{t.history.current}</ThemedText>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t.common.openLabel(inProgress.plan.destination)}
+            accessibilityHint={t.common.openLabel(inProgress.plan.destination)}
             style={pressedStyle}
             // Leaving while selecting would keep the tab bar hidden with no Done to bring it back.
             onPress={() => {
@@ -281,7 +281,7 @@ export default function HistoryScreen() {
                   <SwipeToDelete label={t.common.deleteLabel(a.plan.destination)} onDelete={() => remove(a.id)}>
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={t.common.openLabel(a.plan.destination)}
+                      accessibilityHint={t.common.openLabel(a.plan.destination)}
                       style={pressedStyle}
                       onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}>
                       {card}

@@ -91,7 +91,8 @@ function Overview({
           onDelete={() => remove(a.id)}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t.common.openLabel(a.plan.destination ?? t.adventure.fallbackName)}
+            // A hint, not a label, so VoiceOver still reads the card's own lines.
+            accessibilityHint={t.common.openLabel(a.plan.destination ?? t.adventure.fallbackName)}
             style={pressedStyle}
             onPress={() => router.push({ pathname: '/plan', params: { id: a.id } })}>
             <Section>

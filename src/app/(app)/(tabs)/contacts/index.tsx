@@ -51,7 +51,7 @@ export default function ContactsScreen() {
           <SwipeToDelete key={contact.id} label={t.common.deleteLabel(contact.name)} onDelete={() => remove(contact)}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={t.contacts.editLabel(contact.name)}
+              accessibilityHint={t.contacts.editLabel(contact.name)}
               style={pressedStyle}
               onPress={() => router.push({ pathname: '/contacts/edit', params: { id: contact.id } })}>
               <Section>
