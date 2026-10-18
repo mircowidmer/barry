@@ -3,7 +3,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Field, Loading, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, Field, FirstLoad, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
@@ -96,14 +96,7 @@ export default function PlanScreen() {
         <Stack.Toolbar placement="left">
           <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
         </Stack.Toolbar>
-        {loaded.status === 'error' ? (
-          <>
-            <Notice tone="danger">{t.plan.couldNotLoad}</Notice>
-            <Button title={t.common.tryAgain} kind="secondary" onPress={loaded.reload} />
-          </>
-        ) : (
-          <Loading />
-        )}
+        <FirstLoad failure={loaded.error && t.plan.couldNotLoad} onRetry={loaded.reload} />
       </Screen>
     );
   }

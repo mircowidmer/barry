@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
-import { Button, Loading, Notice, pressedStyle, Screen, Section } from '@/components/form';
+import { FirstLoad, pressedStyle, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
@@ -164,14 +164,7 @@ export default function HistoryScreen() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        {loaded.status === 'error' ? (
-          <>
-            <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
-            <Button title={t.common.tryAgain} onPress={loaded.reload} />
-          </>
-        ) : (
-          <Loading />
-        )}
+        <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
       </Screen>
     );
   }

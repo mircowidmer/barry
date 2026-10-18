@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
-import { Button, Loading, Notice, Screen } from '@/components/form';
+import { FirstLoad, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/grouped-list';
 import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
@@ -39,17 +39,9 @@ export default function ProfileScreen() {
   if (initial === null && loaded.status === 'ready') setInitial(loaded.data ? toForm(loaded.data) : empty);
   if (initial) return <ProfileForm initial={initial} />;
   // A failed load must not show a blank Profile, or saving it would wipe the stored one.
-  if (loaded.status === 'error') {
-    return (
-      <Screen>
-        <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
-        <Button title={t.common.tryAgain} onPress={loaded.reload} />
-      </Screen>
-    );
-  }
   return (
     <Screen>
-      <Loading />
+      <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
     </Screen>
   );
 }

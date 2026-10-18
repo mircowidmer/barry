@@ -1,7 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
-import { Button, Field, Loading, Notice, Screen } from '@/components/form';
+import { Button, Field, FirstLoad, Notice, Screen } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
@@ -43,14 +43,7 @@ export default function ContactSheet() {
       <Stack.Toolbar placement="left">
         <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
       </Stack.Toolbar>
-      {loaded.status === 'loading' ? (
-        <Loading />
-      ) : (
-        <>
-          <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>
-          <Button title={t.common.tryAgain} kind="secondary" onPress={loaded.reload} />
-        </>
-      )}
+      <FirstLoad failure={loaded.status === 'loading' ? undefined : t.contacts.couldNotLoad} onRetry={loaded.reload} />
     </Screen>
   );
 }

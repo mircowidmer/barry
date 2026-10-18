@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 
+import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -25,6 +26,17 @@ export { Button } from '@/components/button';
 export function Loading() {
   const theme = useTheme();
   return <ActivityIndicator color={theme.textSecondary} style={styles.loading} />;
+}
+
+export function FirstLoad({ failure, onRetry }: { failure: string | undefined; onRetry: () => void }) {
+  const t = useTexts();
+  if (failure === undefined) return <Loading />;
+  return (
+    <>
+      <Notice tone="danger">{failure}</Notice>
+      <Button title={t.common.tryAgain} kind="secondary" onPress={onRetry} />
+    </>
+  );
 }
 
 /** Dims a tappable card while the finger is down, as iOS cells highlight. */

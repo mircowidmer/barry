@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, Loading, Notice, Screen } from '@/components/form';
+import { FirstLoad, Notice, Screen } from '@/components/form';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventureId, barry } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
@@ -14,14 +14,7 @@ export default function PastAdventureRoute() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        {loaded.status === 'error' ? (
-          <>
-            <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
-            <Button title={t.common.tryAgain} onPress={loaded.reload} />
-          </>
-        ) : (
-          <Loading />
-        )}
+        <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
       </Screen>
     );
   }

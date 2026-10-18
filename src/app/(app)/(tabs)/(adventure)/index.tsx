@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, HoldButton, Loading, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, FirstLoad, HoldButton, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -25,14 +25,7 @@ export default function AdventureScreen() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        {loaded.status === 'error' ? (
-          <>
-            <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
-            <Button title={t.common.tryAgain} onPress={loaded.reload} />
-          </>
-        ) : (
-          <Loading />
-        )}
+        <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
       </Screen>
     );
   }
