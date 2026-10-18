@@ -1,10 +1,10 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { SymbolView } from 'expo-symbols';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
+import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
@@ -283,12 +283,7 @@ function PlanForm({
               accessibilityLabel={c.name}
               onPress={() => toggle(c.id)}
               style={({ pressed }) => [styles.contact, pressed && { opacity: 0.5 }]}>
-              <SymbolView
-                name={chosen ? 'checkmark.circle.fill' : 'circle'}
-                tintColor={chosen ? theme.accent : theme.textSecondary}
-                size={24}
-                fallback={<ThemedText style={{ color: chosen ? theme.accent : theme.textSecondary }}>{chosen ? '●' : '○'}</ThemedText>}
-              />
+              <SelectionCircle selected={chosen} />
               <View
                 style={[
                   styles.contactText,

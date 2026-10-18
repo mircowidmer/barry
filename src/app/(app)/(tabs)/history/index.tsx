@@ -4,6 +4,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
 import { Button, Notice, Screen, Section } from '@/components/form';
+import { SelectionCircle } from '@/components/selection-circle';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -19,6 +20,10 @@ const isInProgress = (a: Adventure): a is InProgressAdventure =>
 
 const isEnded = (a: Adventure): a is EndedAdventure => a.stage === 'ended';
 
+// The server orders by when the Adventure was planned; History shows the newest Check-in first.
+const endedNewestFirst = (adventures: Adventure[]) =>
+  adventures.filter(isEnded).sort((a, b) => b.checkedInAt.getTime() - a.checkedInAt.getTime());
+
 const inProgressStatus = (a: InProgressAdventure, t: Texts) => {
   switch (a.stage) {
     case 'active':
@@ -29,19 +34,6 @@ const inProgressStatus = (a: InProgressAdventure, t: Texts) => {
       return t.history.alerted;
   }
 };
-
-function SelectionMark({ selected }: { selected: boolean }) {
-  const theme = useTheme();
-  return (
-    <View
-      style={[
-        styles.mark,
-        selected ? { backgroundColor: theme.accent, borderColor: theme.accent } : { borderColor: theme.textSecondary },
-      ]}>
-      {selected && <ThemedText style={[styles.check, { color: theme.onAccent }]}>✓</ThemedText>}
-    </View>
-  );
-}
 
 const LONG_PRESS_MS = 300;
 // The selection circles and the gap after them, where a drag selects without holding first.
@@ -165,7 +157,8 @@ export default function HistoryScreen() {
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<AdventureId>>(new Set());
   useHideTabBar(selecting);
-  const endedIds = (loaded.data ?? []).filter(isEnded).map((a) => a.id);
+  const ended = endedNewestFirst(loaded.data ?? []);
+  const endedIds = ended.map((a) => a.id);
   const dragSelect = useDragSelect(endedIds, selected, setSelected, selecting, () => setSelecting(true));
 
   if (loaded.status === 'error') {
@@ -179,7 +172,6 @@ export default function HistoryScreen() {
   if (!loaded.data) return <Screen>{null}</Screen>;
 
   const inProgress = loaded.data.find(isInProgress);
-  const ended = loaded.data.filter(isEnded);
   const remove = async (id: AdventureId) => {
     const outcome = await askToDeleteAdventure(id, 'ended');
     if (outcome.kind === 'deleted') loaded.reload();
@@ -240,7 +232,11 @@ export default function HistoryScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t.common.openLabel(inProgress.plan.destination)}
-            onPress={() => router.navigate('/')}>
+            // Leaving while selecting would keep the tab bar hidden with no Done to bring it back.
+            onPress={() => {
+              finishSelecting();
+              router.navigate('/');
+            }}>
             <Section>
               <ThemedText type="smallBold">{inProgress.plan.destination}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
@@ -272,7 +268,7 @@ export default function HistoryScreen() {
                     accessibilityState={{ checked: selected.has(a.id) }}
                     onPress={() => toggle(a.id)}
                     style={styles.selectable}>
-                    <SelectionMark selected={selected.has(a.id)} />
+                    <SelectionCircle selected={selected.has(a.id)} />
                     <View style={styles.selectableCard}>{card}</View>
                   </Pressable>
                 ) : (
@@ -304,6 +300,4 @@ const styles = StyleSheet.create({
   circles: { position: 'absolute', left: 0, top: 0, bottom: 0, width: CIRCLES_WIDTH },
   selectable: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   selectableCard: { flex: 1 },
-  mark: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-  check: { fontSize: 14, fontWeight: 700, lineHeight: 18 },
 });
