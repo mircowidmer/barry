@@ -239,6 +239,10 @@ isOneToOne: false
 { Args: { "p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_id": string,"p_route": string }; Returns: {
               "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
             }[]
+                           } |
+{ Args: { "p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_id": string,"p_notes": string,"p_route": string,"p_starting_point": string }; Returns: {
+              "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
+            }[]
                            },
 "settle_message":
 { Args: { "p_attempt": number,"p_id": number,"p_outcome": string,"p_provider_ref"?: string,"p_reason"?: string,"p_retry_after"?: string }; Returns: undefined
