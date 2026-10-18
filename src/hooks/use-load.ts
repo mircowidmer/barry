@@ -36,7 +36,12 @@ export function useLoad<T>(load: () => Promise<T>) {
   useFocusEffect(
     useCallback(() => {
       reload();
-      const subscription = AppState.addEventListener('change', (next) => next === 'active' && reload());
+      // Only a return from the background: a permission prompt or Control Center only makes the app inactive.
+      let previous = AppState.currentState;
+      const subscription = AppState.addEventListener('change', (next) => {
+        if (previous === 'background' && next === 'active') reload();
+        previous = next;
+      });
       return () => subscription.remove();
     }, [reload]),
   );
