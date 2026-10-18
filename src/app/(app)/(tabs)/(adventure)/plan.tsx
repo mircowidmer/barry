@@ -3,7 +3,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Field, Loading, Notice, Row, Screen, Section } from '@/components/form';
+import { Button, Field, Loading, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
@@ -244,6 +244,9 @@ function PlanForm({
         )}
       </Stack.Toolbar>
 
+      {/* A refusal or a failed Start must be seen; below the contacts it could sit off screen. */}
+      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
+
       <Section title={t.plan.where}>
         <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} />
         <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
@@ -286,7 +289,7 @@ function PlanForm({
               accessibilityState={{ checked: chosen }}
               accessibilityLabel={c.name}
               onPress={() => toggle(c.id)}
-              style={({ pressed }) => [styles.contact, pressed && { opacity: 0.5 }]}>
+              style={(state) => [styles.contact, pressedStyle(state)]}>
               <SelectionCircle selected={chosen} />
               <View
                 style={[
@@ -303,7 +306,6 @@ function PlanForm({
         })}
       </Section>
 
-      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
       {!live && (
         <>
           {warnings.map((w) => (
