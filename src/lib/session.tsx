@@ -11,8 +11,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<SessionState>({ session: null, loading: true });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setState({ session: data.session, loading: false }));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setState({ session, loading: false }));
+    // An auth event that lands first is newer than the stored session read, so the read must not overwrite it.
+    let heard = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!heard) setState({ session: data.session, loading: false });
+    });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      heard = true;
+      setState({ session, loading: false });
+    });
     return () => data.subscription.unsubscribe();
   }, []);
 
