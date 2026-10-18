@@ -4,6 +4,7 @@ import { useSegments } from 'expo-router';
 import {
   Animated,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Switch,
@@ -19,16 +20,27 @@ import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
 
-export function Screen({ title, children }: { title?: string; children: ReactNode }) {
+/** A scrolling screen. With onRefresh, pulling down reloads it, as iOS lists do. */
+export function Screen({ title, onRefresh, children }: { title?: string; onRefresh?: () => Promise<unknown>; children: ReactNode }) {
   const theme = useTheme();
+  const [refreshing, setRefreshing] = useState(false);
   // The tab bar needs a gap above it. Without one, the home indicator inset is gap enough.
   const aboveTabBar = (useSegments() as string[]).includes('(tabs)');
+  const refresh = async () => {
+    setRefreshing(true);
+    try {
+      await onRefresh?.();
+    } finally {
+      setRefreshing(false);
+    }
+  };
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets
+      refreshControl={onRefresh && <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={theme.textSecondary} />}
       contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }]}>
       {title && <ThemedText type="subtitle">{title}</ThemedText>}
       {children}

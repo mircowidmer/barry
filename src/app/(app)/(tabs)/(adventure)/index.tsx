@@ -55,7 +55,7 @@ function Overview({
 }: {
   adventures: Adventure[];
   offlineSince: Date | null;
-  onReload: () => void;
+  onReload: () => Promise<void>;
 }) {
   const t = useTexts();
   const planned = adventures.filter((a) => a.stage === 'planned');
@@ -66,7 +66,7 @@ function Overview({
   };
   // A Live Adventure names the header after its destination; the overview takes the tab's name back.
   return (
-    <Screen>
+    <Screen onRefresh={onReload}>
       <Stack.Screen options={{ title: t.adventure.title }} />
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />

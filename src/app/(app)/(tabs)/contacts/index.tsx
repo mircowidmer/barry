@@ -37,7 +37,7 @@ export default function ContactsScreen() {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.contacts.addLabel} onPress={() => router.push('/contacts/edit')} />
       </Stack.Toolbar>
-      <Screen>
+      <Screen onRefresh={loaded.reload}>
         <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
         {loaded.status === 'error' && <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>}

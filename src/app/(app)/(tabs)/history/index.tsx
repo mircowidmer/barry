@@ -200,7 +200,7 @@ export default function HistoryScreen() {
   };
 
   return (
-    <Screen>
+    <Screen onRefresh={loaded.reload}>
       {ended.length > 0 && (
         <Stack.Toolbar placement="right">
           {selecting ? (
