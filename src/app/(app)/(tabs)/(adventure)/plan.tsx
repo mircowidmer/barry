@@ -230,7 +230,7 @@ function PlanForm({
       </Stack.Toolbar>
 
       <Section title={t.plan.where}>
-        <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} placeholder={t.plan.destinationPlaceholder} />
+        <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} />
         <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
       </Section>
 
