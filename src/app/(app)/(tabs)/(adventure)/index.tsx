@@ -68,6 +68,9 @@ function Overview({
   return (
     <Screen>
       <Stack.Screen options={{ title: t.adventure.title }} />
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
+      </Stack.Toolbar>
       {offlineSince && (
         <>
           <Notice tone="warning">{t.adventure.noSignal}</Notice>
@@ -75,7 +78,6 @@ function Overview({
         </>
       )}
       <ThemedText themeColor="textSecondary">{t.adventure.intro}</ThemedText>
-      <Button title={t.adventure.plan} onPress={() => router.push('/plan')} />
       {planned.length > 0 && <ThemedText type="smallBold">{t.adventure.planned}</ThemedText>}
       {planned.map((a) => (
         <SwipeToDelete
