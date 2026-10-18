@@ -19,8 +19,10 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
   const map = useRef<LeafletMap | null>(null);
   const fitted = useRef(false);
   const language = useSiteLanguage();
+  const empty = trail.length === 0 && !last;
 
   useEffect(() => {
+    if (empty) return;
     let cancelled = false;
     const t = siteText[language];
     const when = language === 'de' ? formatWhenGerman : formatWhen;
@@ -58,7 +60,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     return () => {
       cancelled = true;
     };
-  }, [trail, last, language]);
+  }, [trail, last, language, empty]);
 
   useEffect(
     () => () => {
@@ -68,5 +70,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     [],
   );
 
+  // With nothing to show, the caption says so; a map without a view would be a grey box.
+  if (empty) return null;
   return <div ref={element} className="map" />;
 }
