@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import { Children, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
 
@@ -100,7 +101,15 @@ export function ActionRow({
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundSelected }]}>
       <ThemedText style={[styles.action, { color: theme[tone] }]}>{title}</ThemedText>
       {busy && <ActivityIndicator />}
-      {chevron && <ThemedText themeColor="textSecondary" style={styles.chevron}>›</ThemedText>}
+      {chevron && (
+        <SymbolView
+          name="chevron.right"
+          size={14}
+          weight="semibold"
+          tintColor={theme.textSecondary}
+          fallback={<ThemedText themeColor="textSecondary" style={styles.chevron}>›</ThemedText>}
+        />
+      )}
     </Pressable>
   );
 }
@@ -112,7 +121,8 @@ const styles = StyleSheet.create({
   box: { borderRadius: 12, overflow: 'hidden' },
   separator: { height: StyleSheet.hairlineWidth, marginLeft: Spacing.three },
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three },
-  label: { flexShrink: 0 },
+  // The label may wrap at large text sizes, but never takes the whole row from the input.
+  label: { flexShrink: 1, maxWidth: '55%' },
   input: { flex: 1, fontSize: 17, paddingVertical: 11 },
   value: { flex: 1, textAlign: 'right' },
   textArea: { minHeight: 88, fontSize: 17, paddingHorizontal: Spacing.three, paddingVertical: 11, textAlignVertical: 'top' },
