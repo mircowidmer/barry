@@ -22,6 +22,8 @@ export function useLoad<T>(load: () => Promise<T>) {
 
   const reload = useCallback(async () => {
     const request = ++requests.current;
+    // Without data the screen shows the failure itself, so a retry takes it back to the spinner.
+    setState((before) => (before.data === undefined ? { status: 'loading', data: undefined, error: undefined } : before));
     try {
       const data = await loadRef.current();
       if (request === requests.current) setState({ status: 'ready', data, error: undefined });
