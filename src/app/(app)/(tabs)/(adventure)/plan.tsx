@@ -37,10 +37,12 @@ const inFourHours = () => {
   return at;
 };
 
+// A Planned Adventure's Deadline that has passed cannot start, and the picker would clamp it to now
+// while the form still held the old date, so the sheet proposes a fresh one instead.
 const toForm = (a: Adventure | null): Form => ({
   destination: a?.plan.destination ?? '',
   route: a?.plan.route ?? '',
-  deadline: a?.deadline ?? inFourHours(),
+  deadline: a?.deadline && a.deadline.getTime() > Date.now() ? a.deadline : inFourHours(),
   contactIds: a?.contacts.map((c) => c.id) ?? [],
 });
 
