@@ -1,9 +1,9 @@
 import { router, Stack } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, FirstLoad, HoldButton, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -31,7 +31,7 @@ export default function AdventureScreen() {
   }
 
   const { inProgress, offlineSince, adventures, pending } = loaded.data;
-  const reloadFailure = loaded.error && t.common.couldNotReach(loaded.error.message);
+  const reloadFailure = <LoadState loaded={loaded} failure={(e) => t.common.couldNotReach(e.message)} />;
   const queued = inProgress && pending.find((c) => c.adventureId === inProgress.id);
 
   return inProgress ? (
@@ -56,7 +56,7 @@ function Overview({
 }: {
   adventures: Adventure[];
   offlineSince: Date | null;
-  reloadFailure: string | undefined;
+  reloadFailure: ReactNode;
   onReload: () => Promise<void>;
 }) {
   const t = useTexts();
@@ -73,7 +73,7 @@ function Overview({
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
       </Stack.Toolbar>
-      {reloadFailure && <Notice tone="danger">{reloadFailure}</Notice>}
+      {reloadFailure}
       {offlineSince && (
         <>
           <Notice tone="warning">{t.adventure.noSignal}</Notice>
@@ -120,7 +120,7 @@ function LiveAdventure({
   adventure: InProgressAdventure;
   offlineSince: Date | null;
   queuedAt: Date | null;
-  reloadFailure: string | undefined;
+  reloadFailure: ReactNode;
   onChanged: () => void;
 }) {
   const now = useNow();
@@ -205,7 +205,7 @@ function LiveAdventure({
       {offlineSince && (
         <Notice tone="warning">{t.adventure.offline(t.when(offlineSince))}</Notice>
       )}
-      {reloadFailure && <Notice tone="danger">{reloadFailure}</Notice>}
+      {reloadFailure}
       {trailStatus === 'recording' && <Notice>{t.adventure.recording}</Notice>}
       {trailStatus === 'off' && <Notice>{t.adventure.trailOff}</Notice>}
       {queuedAt && (

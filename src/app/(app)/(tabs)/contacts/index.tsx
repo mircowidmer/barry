@@ -2,7 +2,7 @@ import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable } from 'react-native';
 
-import { FirstLoad, Notice, pressedStyle, Screen, Section } from '@/components/form';
+import { LoadState, Notice, pressedStyle, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
@@ -41,8 +41,7 @@ export default function ContactsScreen() {
       <Screen onRefresh={loaded.reload}>
         <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
-        {data === undefined && <FirstLoad failure={loaded.error && t.contacts.couldNotLoad} onRetry={loaded.reload} />}
-        {data !== undefined && loaded.error && <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>}
+        <LoadState loaded={loaded} failure={() => t.contacts.couldNotLoad} />
         {data?.contacts.map((contact) => (
           <SwipeToDelete key={contact.id} label={t.common.deleteLabel(contact.name)} onDelete={() => remove(contact)}>
             <Pressable

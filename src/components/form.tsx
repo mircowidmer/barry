@@ -38,6 +38,18 @@ export function FirstLoad({ failure, onRetry }: { failure: string | undefined; o
   );
 }
 
+// A reload that fails keeps the data on screen, so the failure shows above it instead of in its place.
+export function LoadState({
+  loaded,
+  failure,
+}: {
+  loaded: { data: unknown; error: Error | undefined; reload: () => void };
+  failure: (error: Error) => string;
+}) {
+  if (loaded.data === undefined) return <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />;
+  return loaded.error ? <Notice tone="danger">{failure(loaded.error)}</Notice> : null;
+}
+
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
 
 export function Screen({ title, onRefresh, children }: { title?: string; onRefresh?: () => Promise<unknown>; children: ReactNode }) {
