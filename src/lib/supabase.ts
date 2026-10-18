@@ -10,8 +10,13 @@ const REQUEST_TIMEOUT_MS = 10_000;
 const fetchWithTimeout: typeof fetch = (input, init) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  init?.signal?.addEventListener('abort', () => controller.abort());
-  return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
+  const abort = () => controller.abort();
+  if (init?.signal?.aborted) abort();
+  init?.signal?.addEventListener('abort', abort);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
+    clearTimeout(timer);
+    init?.signal?.removeEventListener('abort', abort);
+  });
 };
 
 export const supabase = createClient(
