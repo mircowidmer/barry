@@ -33,7 +33,7 @@ export function FirstLoad({ failure, onRetry }: { failure: string | undefined; o
   return (
     <>
       <Notice tone="danger">{failure}</Notice>
-      <Button title={t.common.tryAgain} kind="secondary" onPress={onRetry} />
+      <Button title={t.common.tryAgain} onPress={onRetry} />
     </>
   );
 }
