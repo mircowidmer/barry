@@ -109,8 +109,8 @@ export const adventurer = async () => {
   const start = async () => {
     const [saved] = must(
       await client.rpc('save_adventure', {
-        p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_starting_point: 'Brunni car park',
-        p_notes: null, p_deadline: new Date(Date.now() + 2 * 3600_000).toISOString(),
+        p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge',
+        p_deadline: new Date(Date.now() + 2 * 3600_000).toISOString(),
         p_contact_ids: [luca.id, sara.id],
       }),
       'save_adventure',

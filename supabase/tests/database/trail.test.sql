@@ -132,7 +132,7 @@ select is(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'status',
 select is(
   pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') - 'trail' - 'last_known_position',
   jsonb_build_object('status', 'underway', 'adventurer_name', 'Anna', 'time_zone', 'Europe/Zurich',
-    'plan', jsonb_build_object('destination', 'Rigi', 'route', 'North face', 'starting_point', null, 'notes', null)),
+    'plan', jsonb_build_object('destination', 'Rigi', 'route', 'North face')),
   'The Trail Map shows the name and the Plan, and no Deadline, Stage or Profile');
 select is(jsonb_array_length(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'trail'), 7,
   'The Trail line holds the Start, the Trail and the Deadline-move readings');
@@ -155,7 +155,7 @@ select is((public.message_facts(pg_temp.message('alert', 'luca@example.com'))
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", "role": "authenticated"}';
-select is((select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000001', 'Rigi', 'North face', null, null, null,
+select is((select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000001', 'Rigi', 'North face', null,
     array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[])), null,
   'Anna removes Mia from the Adventure');
 reset role;
@@ -163,7 +163,7 @@ select is(public.message_facts(pg_temp.message('heads_up', 'mia@example.com')) -
   'null'::jsonb,
   'A message to a removed contact carries no link token');
 set local role authenticated;
-select is((select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000001', 'Rigi', 'North face', null, null, null,
+select is((select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000001', 'Rigi', 'North face', null,
     array['aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002']::uuid[])), null,
   'Anna adds Mia again');
 reset role;

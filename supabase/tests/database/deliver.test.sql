@@ -122,7 +122,7 @@ $$;
 select is(
   pg_temp.facts('a@example.com', 'heads_up') - 'deadline' - 'trail_token',
   jsonb_build_object('kind', 'heads_up', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich', 'language', 'en',
-    'plan', jsonb_build_object('destination', 'Grosser Mythen', 'route', 'East ridge', 'starting_point', null, 'notes', null)),
+    'plan', jsonb_build_object('destination', 'Grosser Mythen', 'route', 'East ridge')),
   'A Heads-up carries the name, the Plan and the Deadline, and nothing from the Profile'
 );
 select is(

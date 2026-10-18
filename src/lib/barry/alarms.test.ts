@@ -10,7 +10,7 @@ const adventure = (deadline: string, stage: InProgressAdventure['stage'] = 'acti
     id: 'a1' as AdventureId,
     stage,
     contacts: [],
-    plan: { destination: 'Pilatus', route: null, startingPoint: null, notes: null },
+    plan: { destination: 'Pilatus', route: null },
     deadline: new Date(deadline),
     alertAt: new Date(new Date(deadline).getTime() + 60_000),
     timeZone: 'Europe/Zurich',

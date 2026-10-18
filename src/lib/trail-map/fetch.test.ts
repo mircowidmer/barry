@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { fetchTrailMap, mergeTrailMap, newestReading, parseTrailMap, tokenFromHash } from './fetch';
 
-const plan = { destination: 'Rigi', route: 'North face', starting_point: null, notes: null };
+const plan = { destination: 'Rigi', route: 'North face' };
 const underway = {
   status: 'underway',
   adventurer_name: 'Anna',
@@ -35,7 +35,7 @@ describe('parseTrailMap', () => {
     expect(parseTrailMap(underway)).toEqual({
       status: 'underway',
       adventurerName: 'Anna',
-      plan: { destination: 'Rigi', route: 'North face', startingPoint: null, notes: null },
+      plan: { destination: 'Rigi', route: 'North face' },
       lastKnownPosition: { latitude: 47.03, longitude: 8.68, accuracyM: 12, takenAt: new Date('2026-10-15T09:41:00Z') },
       trail: [
         { latitude: 47.0, longitude: 8.6, takenAt: new Date('2026-10-15T08:00:00Z') },
@@ -48,7 +48,7 @@ describe('parseTrailMap', () => {
     expect(parseTrailMap({ ...underway, status: 'checked_in', checked_in_at: '2026-10-15T16:05:00Z' })).toEqual({
       status: 'checked_in',
       adventurerName: 'Anna',
-      plan: { destination: 'Rigi', route: 'North face', startingPoint: null, notes: null },
+      plan: { destination: 'Rigi', route: 'North face' },
       lastKnownPosition: { latitude: 47.03, longitude: 8.68, accuracyM: 12, takenAt: new Date('2026-10-15T09:41:00Z') },
       trail: [
         { latitude: 47.0, longitude: 8.6, takenAt: new Date('2026-10-15T08:00:00Z') },

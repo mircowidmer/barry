@@ -8,7 +8,7 @@ const adventure = {
   id: 'a1' as AdventureId,
   stage: 'active',
   contacts: [],
-  plan: { destination: 'Pilatus', route: null, startingPoint: null, notes: null },
+  plan: { destination: 'Pilatus', route: null },
   deadline: new Date('2026-10-17T16:00:00Z'),
   alertAt: new Date('2026-10-17T16:01:00Z'),
   timeZone: 'Europe/Zurich',

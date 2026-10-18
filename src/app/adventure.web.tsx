@@ -56,18 +56,6 @@ function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date })
               <dd>{plan.route}</dd>
             </>
           )}
-          {plan.startingPoint && (
-            <>
-              <dt>{t.startingPoint}</dt>
-              <dd>{plan.startingPoint}</dd>
-            </>
-          )}
-          {plan.notes && (
-            <>
-              <dt>{t.notes}</dt>
-              <dd>{plan.notes}</dd>
-            </>
-          )}
         </dl>
       </div>
     </SitePage>

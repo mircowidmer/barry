@@ -49,8 +49,6 @@ The name and the phone number must be filled in before the Adventurer starts the
 | --- | --- | --- |
 | Destination | Yes | Part of the Plan. |
 | Route | No | Part of the Plan. |
-| Starting Point | No | Part of the Plan, for example where the car is parked. |
-| Notes | No | Part of the Plan. Free text, for example clothing and equipment. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
 | Last Known Position | No | Recorded by Barry, not entered. |
@@ -106,7 +104,7 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 ### Edit an Active or Overdue Adventure
 
 - The Alert always carries the latest Plan.
-- A change to the destination, route, starting point or notes sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
+- A change to the destination or route sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
 - Several changes before a Plan Update goes out send only one, with the latest Plan.
 - Changing only the contacts, or moving the Deadline, sends no Plan Update.
 - A contact added to the Adventure gets a Heads-up.

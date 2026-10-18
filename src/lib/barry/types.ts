@@ -34,8 +34,6 @@ export type ContactDraft = Omit<EmergencyContact, 'id'> & { id?: EmergencyContac
 export type Plan = {
   destination: string;
   route: string | null;
-  startingPoint: string | null;
-  notes: string | null;
 };
 
 export type Position = { takenAt: Date; latitude: number; longitude: number; accuracyM: number | null };

@@ -83,8 +83,6 @@ export const parseAdventure = (row: AdventureWithRelations): Adventure => {
       plan: {
         destination: row.destination ?? undefined,
         route: row.route,
-        startingPoint: row.starting_point,
-        notes: row.notes,
       },
       deadline: row.deadline === null ? null : new Date(row.deadline),
     };
@@ -94,7 +92,7 @@ export const parseAdventure = (row: AdventureWithRelations): Adventure => {
   const started = {
     id,
     contacts,
-    plan: { destination: row.destination, route: row.route, startingPoint: row.starting_point, notes: row.notes },
+    plan: { destination: row.destination, route: row.route },
     deadline: date(row.deadline, 'deadline'),
     alertAt: date(row.alert_at, 'alert_at'),
     timeZone: row.time_zone ?? 'UTC',

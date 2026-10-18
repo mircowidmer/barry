@@ -27,8 +27,6 @@ import { refusalText, type Texts, useTexts } from '@/lib/texts';
 type Form = {
   destination: string;
   route: string;
-  startingPoint: string;
-  notes: string;
   deadline: Date;
   contactIds: EmergencyContactId[];
 };
@@ -42,8 +40,6 @@ const inFourHours = () => {
 const toForm = (a: Adventure | null): Form => ({
   destination: a?.plan.destination ?? '',
   route: a?.plan.route ?? '',
-  startingPoint: a?.plan.startingPoint ?? '',
-  notes: a?.plan.notes ?? '',
   deadline: a?.deadline ?? inFourHours(),
   contactIds: a?.contacts.map((c) => c.id) ?? [],
 });
@@ -55,8 +51,6 @@ const sorted = (ids: EmergencyContactId[]) => [...ids].sort().join(',');
 const same = (a: Form, b: Form) =>
   a.destination === b.destination &&
   a.route === b.route &&
-  a.startingPoint === b.startingPoint &&
-  a.notes === b.notes &&
   a.deadline.getTime() === b.deadline.getTime() &&
   sorted(a.contactIds) === sorted(b.contactIds);
 
@@ -126,7 +120,7 @@ function PlanForm({
     data.conditions,
   );
   const live = adventure !== null && adventure.stage !== 'planned';
-  const set = (field: 'destination' | 'route' | 'startingPoint' | 'notes') => (text: string) =>
+  const set = (field: 'destination' | 'route') => (text: string) =>
     setForm((f) => ({ ...f, [field]: text }));
   const toggle = (contactId: EmergencyContactId) =>
     setForm((f) => ({
@@ -142,8 +136,6 @@ function PlanForm({
       plan: {
         destination: orNull(form.destination) ?? undefined,
         route: orNull(form.route),
-        startingPoint: orNull(form.startingPoint),
-        notes: orNull(form.notes),
       },
       deadline: form.deadline,
       contactIds: form.contactIds,
@@ -237,20 +229,7 @@ function PlanForm({
 
       <Section title={t.plan.where}>
         <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} placeholder={t.plan.destinationPlaceholder} />
-        <Field
-          label={t.plan.startingPoint}
-          value={form.startingPoint}
-          onChangeText={set('startingPoint')}
-          placeholder={t.plan.startingPointPlaceholder}
-        />
         <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
-        <Field
-          label={t.plan.notes}
-          value={form.notes}
-          onChangeText={set('notes')}
-          multiline
-          placeholder={t.plan.notesPlaceholder}
-        />
       </Section>
 
       {!live && (

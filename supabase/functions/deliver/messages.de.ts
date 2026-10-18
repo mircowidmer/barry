@@ -24,8 +24,6 @@ const planLines = (plan: Plan): string[] =>
   [
     `Ziel: ${plan.destination}`,
     plan.route && `Route: ${plan.route}`,
-    plan.startingPoint && `Startpunkt: ${plan.startingPoint}`,
-    plan.notes && `Notizen: ${plan.notes}`,
   ].filter((line): line is string => Boolean(line));
 
 const lines = (...parts: (string | false | null)[]): string => parts.filter((p) => p !== false && p !== null).join('\n');

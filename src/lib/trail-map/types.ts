@@ -1,4 +1,4 @@
-export type Plan = { destination: string; route: string | null; startingPoint: string | null; notes: string | null };
+export type Plan = { destination: string; route: string | null };
 
 export type TrailPoint = { latitude: number; longitude: number; takenAt: Date };
 export type LastKnown = TrailPoint & { accuracyM: number | null };

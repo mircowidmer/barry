@@ -13,7 +13,7 @@ const base = {
   adventurer_name: 'Anna',
   contact_name: 'Luca',
   time_zone: 'Europe/Zurich',
-  plan: { destination: 'Grosser Mythen', route: 'Ostgrat', starting_point: 'Parkplatz Brunni', notes: null },
+  plan: { destination: 'Grosser Mythen', route: 'Ostgrat' },
   deadline: '2026-10-17T16:00:00Z',
 };
 
@@ -45,7 +45,6 @@ Deno.test('the German Heads-up carries the Plan, the Deadline and the Trail Map 
       '',
       'Ziel: Grosser Mythen',
       'Route: Ostgrat',
-      'Startpunkt: Parkplatz Brunni',
       '',
       'Wenn sich Anna bis Sa, 17. Okt. um 18:00 nicht zurückgemeldet hat, meldet sich Barry wieder bei dir.',
       '',
@@ -74,7 +73,6 @@ Deno.test('the German Alert carries the Last Known Position and the Profile', ()
       '',
       'Ziel: Grosser Mythen',
       'Route: Ostgrat',
-      'Startpunkt: Parkplatz Brunni',
       '',
       'Letzter bekannter Standort am Sa, 17. Okt. um 14:12: 47.03000, 8.68000 (auf 12 m genau)',
       'Karte: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68',

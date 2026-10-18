@@ -85,7 +85,7 @@ set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", 
 -- save_adventure: create and edit a Planned Adventure
 
 create temporary table created on commit drop as
-  select * from public.save_adventure(null, 'Rigi', null, null, null, now() + interval '8 hours',
+  select * from public.save_adventure(null, 'Rigi', null, now() + interval '8 hours',
                                       array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[]);
 
 select is((select refusal from created), null::public.refusal, 'save_adventure creates a Planned Adventure');
@@ -100,17 +100,17 @@ select is(
   'The new Adventure uses Luca'
 );
 select is(
-  (select refusal from public.save_adventure(null, 'Rigi', null, null, null, null, array['bbbbbbbb-0000-0000-0000-000000000001']::uuid[])),
+  (select refusal from public.save_adventure(null, 'Rigi', null, null, array['bbbbbbbb-0000-0000-0000-000000000001']::uuid[])),
   'unknown_contact'::public.refusal,
   'Anna cannot use Ben''s contact'
 );
 select is(
-  (select refusal from public.save_adventure(null, 'Rigi', null, null, null, null, array['aaaaaaaa-0000-0000-0000-000000000003']::uuid[])),
+  (select refusal from public.save_adventure(null, 'Rigi', null, null, array['aaaaaaaa-0000-0000-0000-000000000003']::uuid[])),
   'unknown_contact'::public.refusal,
   'Anna cannot use a removed contact'
 );
 select is(
-  (select refusal from public.save_adventure(null, null, null, null, null, null, '{}')),
+  (select refusal from public.save_adventure(null, null, null, null, '{}')),
   null::public.refusal,
   'A Planned Adventure can be saved without a destination, a Deadline or contacts'
 );
@@ -173,7 +173,7 @@ set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", 
 -- save_adventure while Active
 
 select is(
-  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000015', 'Grosser Mythen', 'East ridge', null, null,
+  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000015', 'Grosser Mythen', 'East ridge',
      now() + interval '20 hours',
      array['aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002']::uuid[])),
   null::public.refusal,
@@ -195,12 +195,12 @@ select is(
   'Saving an Active Adventure updates the Plan'
 );
 select is(
-  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000015', 'Grosser Mythen', null, null, null, null, '{}')),
+  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000015', 'Grosser Mythen', null, null, '{}')),
   'no_contacts'::public.refusal,
   'An Active Adventure keeps at least one contact'
 );
 select is(
-  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000015', 'Grosser Mythen', 'East ridge', null, null, null,
+  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000015', 'Grosser Mythen', 'East ridge', null,
      array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[])),
   null::public.refusal,
   'A contact can be removed from an Active Adventure'

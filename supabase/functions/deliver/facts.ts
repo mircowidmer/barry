@@ -5,8 +5,6 @@ export type Language = 'en' | 'de';
 export type Plan = {
   destination: string;
   route: string | null;
-  startingPoint: string | null;
-  notes: string | null;
 };
 
 export type Position = { takenAt: Date; latitude: number; longitude: number; accuracyM: number | null };
@@ -74,8 +72,6 @@ export const parseFacts = (raw: unknown): MessageFacts => {
     plan: {
       destination: text(plan.destination, 'plan.destination'),
       route: optionalText(plan.route),
-      startingPoint: optionalText(plan.starting_point),
-      notes: optionalText(plan.notes),
     },
     deadline: date(f.deadline, 'deadline'),
   };

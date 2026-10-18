@@ -212,8 +212,6 @@ function LiveAdventure({
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
         {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
-        {adventure.plan.startingPoint && <ThemedText type="small">{t.adventure.startingPoint(adventure.plan.startingPoint)}</ThemedText>}
-        {adventure.plan.notes && <ThemedText type="small">{t.adventure.notes(adventure.plan.notes)}</ThemedText>}
         <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
         {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
         <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>
