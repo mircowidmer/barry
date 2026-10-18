@@ -6,8 +6,8 @@ import { useTexts } from '@/lib/texts';
 
 /**
  * Keeps a sheet with unsaved changes from closing, whether by Cancel or by swiping it down,
- * until the Adventurer agrees to discard them. leave() closes the sheet without asking, for
- * after a save.
+ * until the Adventurer agrees to discard them. Cancel calls router.back() so the guard asks;
+ * leave() closes the sheet without asking, for after a save.
  */
 export function useDiscardGuard(dirty: boolean) {
   const t = useTexts();

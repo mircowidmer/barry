@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
 import { Button, Field, Notice, Screen } from '@/components/form';
@@ -36,16 +36,21 @@ export default function ContactSheet() {
   const loaded = useLoad(async () => (id ? ((await barry.listContacts()).find((c) => c.id === id) ?? null) : null));
   const t = useTexts();
 
-  if (loaded.status === 'loading') return <Screen>{null}</Screen>;
-  if (loaded.status === 'error' || (id && !loaded.data)) {
-    return (
-      <Screen>
-        <Stack.Screen options={{ title: t.contacts.editTitle('') }} />
-        <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>
-      </Screen>
-    );
-  }
-  return <ContactForm contact={loaded.data} />;
+  if (loaded.status === 'ready' && (!id || loaded.data)) return <ContactForm contact={loaded.data} />;
+  return (
+    <Screen>
+      <Stack.Screen options={{ title: id ? t.contacts.editTitle('') : t.contacts.newTitle }} />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
+      </Stack.Toolbar>
+      {loaded.status !== 'loading' && (
+        <>
+          <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>
+          <Button title={t.common.tryAgain} kind="secondary" onPress={loaded.reload} />
+        </>
+      )}
+    </Screen>
+  );
 }
 
 function ContactForm({ contact }: { contact: EmergencyContact | null }) {
@@ -92,7 +97,7 @@ function ContactForm({ contact }: { contact: EmergencyContact | null }) {
     <>
       <Stack.Screen options={{ title: contact ? t.contacts.editTitle(contact.name) : t.contacts.newTitle }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={leave} />
+        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
