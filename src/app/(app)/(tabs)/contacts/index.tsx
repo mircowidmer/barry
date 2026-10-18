@@ -32,6 +32,7 @@ export default function ContactsScreen() {
     loaded.reload();
   };
 
+  const data = loaded.data;
   return (
     <>
       <Stack.Toolbar placement="right">
@@ -40,11 +41,9 @@ export default function ContactsScreen() {
       <Screen onRefresh={loaded.reload}>
         <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
-        {loaded.data === undefined && (
-          <FirstLoad failure={loaded.error && t.contacts.couldNotLoad} onRetry={loaded.reload} />
-        )}
-        {loaded.data !== undefined && loaded.error && <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>}
-        {loaded.data?.contacts.map((contact) => (
+        {data === undefined && <FirstLoad failure={loaded.error && t.contacts.couldNotLoad} onRetry={loaded.reload} />}
+        {data !== undefined && loaded.error && <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>}
+        {data?.contacts.map((contact) => (
           <SwipeToDelete key={contact.id} label={t.common.deleteLabel(contact.name)} onDelete={() => remove(contact)}>
             <Pressable
               accessibilityRole="button"
@@ -62,7 +61,7 @@ export default function ContactsScreen() {
                 {contact.phone && (
                   <ThemedText type="small" themeColor={contact.phoneEnabled ? undefined : 'textSecondary'}>
                     {formatPhoneNumber(contact.phone)}
-                    {!contact.phoneEnabled ? `  ·  ${t.contacts.off}` : !loaded.data?.smsEnabled && `  ·  ${t.contacts.smsNotSetUp}`}
+                    {!contact.phoneEnabled ? `  ·  ${t.contacts.off}` : !data.smsEnabled && `  ·  ${t.contacts.smsNotSetUp}`}
                   </ThemedText>
                 )}
               </Section>
