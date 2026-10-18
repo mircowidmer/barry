@@ -34,7 +34,7 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
   assertEquals(
     text,
     [
-      'Anna is going on an adventure alone and chose you as an Emergency Contact on Barry. Barry is the watchdog here: he only barks if Anna does not check in in time.',
+      'Anna is going on an adventure alone and chose you as an emergency contact on Barry. Barry is the watchdog here: he only barks if Anna does not check in in time.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',

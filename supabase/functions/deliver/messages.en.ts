@@ -38,7 +38,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
       return {
         subject: `${name} is heading out to ${facts.plan.destination}`,
         text: lines(
-          `${name} is going on an adventure alone and chose you as an Emergency Contact on Barry. Barry is the watchdog here: he only barks if ${name} does not check in in time.`,
+          `${name} is going on an adventure alone and chose you as an emergency contact on Barry. Barry is the watchdog here: he only barks if ${name} does not check in in time.`,
           '',
           ...planLines(facts.plan),
           '',
