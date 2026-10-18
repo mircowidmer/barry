@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
-import { Button, Notice, Screen, Section } from '@/components/form';
+import { Button, Notice, pressedStyle, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
@@ -232,6 +232,7 @@ export default function HistoryScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t.common.openLabel(inProgress.plan.destination)}
+            style={pressedStyle}
             // Leaving while selecting would keep the tab bar hidden with no Done to bring it back.
             onPress={() => {
               finishSelecting();
@@ -276,6 +277,7 @@ export default function HistoryScreen() {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={t.common.openLabel(a.plan.destination)}
+                      style={pressedStyle}
                       onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}>
                       {card}
                     </Pressable>

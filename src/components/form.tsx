@@ -20,6 +20,9 @@ import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
 
+/** Dims a tappable card while the finger is down, as iOS cells highlight. */
+export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
+
 /** A scrolling screen. With onRefresh, pulling down reloads it, as iOS lists do. */
 export function Screen({ title, onRefresh, children }: { title?: string; onRefresh?: () => Promise<unknown>; children: ReactNode }) {
   const theme = useTheme();

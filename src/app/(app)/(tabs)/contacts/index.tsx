@@ -2,7 +2,7 @@ import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable } from 'react-native';
 
-import { Notice, Screen, Section } from '@/components/form';
+import { Notice, pressedStyle, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
@@ -46,6 +46,7 @@ export default function ContactsScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t.contacts.editLabel(contact.name)}
+              style={pressedStyle}
               onPress={() => router.push({ pathname: '/contacts/edit', params: { id: contact.id } })}>
               <Section>
                 <ThemedText type="smallBold">{contact.name}</ThemedText>

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, HoldButton, Notice, Row, Screen, Section } from '@/components/form';
+import { Button, HoldButton, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -87,6 +87,7 @@ function Overview({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t.common.openLabel(a.plan.destination ?? t.adventure.fallbackName)}
+            style={pressedStyle}
             onPress={() => router.push({ pathname: '/plan', params: { id: a.id } })}>
             <Section>
               <ThemedText type="smallBold">{a.plan.destination ?? t.adventure.noDestination}</ThemedText>
