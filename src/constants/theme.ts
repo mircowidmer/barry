@@ -8,7 +8,7 @@ export const Colors = {
     accent: '#B5562A',
     onAccent: '#FFFFFF',
     success: '#1F7A3D',
-    warning: '#9A6B00',
+    warning: '#856000',
     danger: '#C62828',
   },
   dark: {
