@@ -8,7 +8,6 @@ const en = {
   when: formatWhen,
   duration: formatDuration,
   common: {
-    back: 'Back',
     cancel: 'Cancel',
     delete: 'Delete',
     save: 'Save',
@@ -179,7 +178,6 @@ const en = {
     about: 'About You',
     name: 'Name',
     email: 'Email Address',
-    emailHint: 'You sign in with this address.',
     phone: 'Phone Number',
     phoneHint: 'With country code, for example +41 77 123 45 67.',
     car: 'Car (optional)',
@@ -218,7 +216,6 @@ const de: Texts = {
   when: formatWhenGerman,
   duration: formatDurationGerman,
   common: {
-    back: 'Zurück',
     cancel: 'Abbrechen',
     delete: 'Löschen',
     save: 'Speichern',
@@ -391,7 +388,6 @@ const de: Texts = {
     about: 'Über dich',
     name: 'Name',
     email: 'E-Mail-Adresse',
-    emailHint: 'Mit dieser Adresse meldest du dich an.',
     phone: 'Telefonnummer',
     phoneHint: 'Mit Ländervorwahl, zum Beispiel +41 77 123 45 67.',
     car: 'Auto (optional)',

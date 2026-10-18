@@ -16,7 +16,6 @@ export type AdventurerProfile = {
   carColour: string | null;
   carPlate: string | null;
   medicalNotes: string | null;
-  /** The language of the messages to the Emergency Contacts. */
 };
 
 /** An address that is switched off is kept, but Barry does not use it. */
