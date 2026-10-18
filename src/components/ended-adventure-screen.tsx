@@ -25,6 +25,12 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
   return (
     <Screen>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
+      {!onDone && (
+        <Stack.Toolbar placement="right">
+          <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={remove} />
+        </Stack.Toolbar>
+      )}
+      {deleteError && <Notice tone="danger">{deleteError}</Notice>}
       <Notice tone="success">
         {t.ended.checkedIn(t.when(adventure.checkedInAt))}
         {onDone && t.ended.welcome}
@@ -53,13 +59,6 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
         {adventure.plan.notes && <ThemedText type="small">{t.adventure.notes(adventure.plan.notes)}</ThemedText>}
         {adventure.alertsSent > 0 && <ThemedText type="small">{t.ended.alertsSent(adventure.alertsSent)}</ThemedText>}
       </Section>
-
-      {!onDone && (
-        <>
-          {deleteError && <Notice tone="danger">{deleteError}</Notice>}
-          <Button title={t.common.delete} kind="danger" onPress={remove} />
-        </>
-      )}
     </Screen>
   );
 }
