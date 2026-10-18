@@ -1,6 +1,12 @@
+import { Stack } from 'expo-router';
+
 import { TabStack } from '@/components/tab-stack';
 import { useTexts } from '@/lib/texts';
 
 export default function AdventureLayout() {
-  return <TabStack title={useTexts().adventure.title} />;
+  return (
+    <TabStack title={useTexts().adventure.title}>
+      <Stack.Screen name="plan" options={{ presentation: 'modal' }} />
+    </TabStack>
+  );
 }

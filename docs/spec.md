@@ -69,13 +69,13 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 
 ### Rules by stage
 
-- **Planned.** The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing. If the Adventurer never taps **Start Adventure**, nobody is protected.
+- **Planned.** The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing. If the Adventurer never taps **Start**, nobody is protected.
 - **Active and Overdue.** The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later. At least one contact always remains. The Adventure cannot be cancelled. A Check-in is the only way to end it.
 - **Alerted.** The Adventurer cannot move the Deadline or edit the Adventure. A Check-in is the only way to end it.
 
 ### Start
 
-1. The Adventurer taps **Start Adventure**.
+1. The Adventurer taps **Start**.
 2. The app records the Last Known Position.
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
@@ -201,7 +201,7 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 - Checkpoints during an Adventure. The only Check-in is the final one.
 - Sign-in with a magic link, Apple, or Google.
 - A message to a contact when they are added to the saved list, and contact confirmation.
-- A scheduled start. Every Adventure starts when the Adventurer taps **Start Adventure**.
+- A scheduled start. Every Adventure starts when the Adventurer taps **Start**.
 - A reminder to start a Planned Adventure.
 - Cancelling an Active, Overdue, or Alerted Adventure.
 - Guidance in the Alert, such as emergency numbers.

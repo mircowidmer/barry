@@ -1,11 +1,12 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { SymbolView } from 'expo-symbols';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
+import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -48,6 +49,16 @@ const toForm = (a: Adventure | null): Form => ({
 });
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
+
+const sorted = (ids: EmergencyContactId[]) => [...ids].sort().join(',');
+
+const same = (a: Form, b: Form) =>
+  a.destination === b.destination &&
+  a.route === b.route &&
+  a.startingPoint === b.startingPoint &&
+  a.notes === b.notes &&
+  a.deadline.getTime() === b.deadline.getTime() &&
+  sorted(a.contactIds) === sorted(b.contactIds);
 
 const names = (contacts: EmergencyContact[]) => contacts.map((c) => c.name).join(', ');
 
@@ -101,11 +112,13 @@ function PlanForm({
   setId: (id: AdventureId) => void;
   reload: () => void;
 }) {
-  const [form, setForm] = useState<Form>(() => toForm(data.adventure));
+  const [initial, setInitial] = useState<Form>(() => toForm(data.adventure));
+  const [form, setForm] = useState<Form>(initial);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [busy, setBusy] = useState<'save' | 'start' | null>(null);
   const theme = useTheme();
   const t = useTexts();
+  const leave = useDiscardGuard(!same(form, initial));
 
   const adventure = data.adventure;
   const warnings = startWarnings(
@@ -140,6 +153,7 @@ function PlanForm({
       return null;
     }
     setId(result.adventure.id);
+    setInitial(form);
     return result.adventure.id;
   };
 
@@ -151,13 +165,7 @@ function PlanForm({
       return null;
     });
     setBusy(null);
-    if (saved) {
-      if (live) router.back();
-      else {
-        setNotice({ tone: 'success', text: t.plan.saved });
-        reload();
-      }
-    }
+    if (saved) leave();
   };
 
   const allowTrail = async () => {
@@ -174,7 +182,7 @@ function PlanForm({
       .catch(() => 'failed' as const);
     setBusy(null);
     if (result === 'failed') setNotice({ tone: 'danger', text: t.plan.couldNotStart });
-    else if (result?.kind === 'protected') router.back();
+    else if (result?.kind === 'protected') leave();
     else if (result?.kind === 'refused') setNotice({ tone: 'danger', text: refusalText(result.refusal) });
     else if (result) {
       setNotice({
@@ -187,7 +195,7 @@ function PlanForm({
   const onDelete = async () => {
     if (!id) return;
     const outcome = await askToDeleteAdventure(id, 'planned');
-    if (outcome.kind === 'deleted') router.back();
+    if (outcome.kind === 'deleted') leave();
     else if (outcome.kind === 'failed') setNotice({ tone: 'danger', text: outcome.message });
   };
 
@@ -210,6 +218,22 @@ function PlanForm({
   return (
     <Screen>
       <Stack.Screen options={{ title: live ? t.plan.titleEdit : id ? t.plan.titlePlanned : t.plan.titleNew }} />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button disabled={busy !== null} onPress={leave}>
+          {t.common.cancel}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        {live ? (
+          <Stack.Toolbar.Button variant="done" disabled={busy !== null} onPress={onSave}>
+            {t.common.save}
+          </Stack.Toolbar.Button>
+        ) : (
+          <Stack.Toolbar.Button variant="prominent" disabled={busy !== null} onPress={onStart}>
+            {t.plan.start}
+          </Stack.Toolbar.Button>
+        )}
+      </Stack.Toolbar>
 
       <Section title={t.plan.where}>
         <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} placeholder={t.plan.destinationPlaceholder} />
@@ -289,9 +313,7 @@ function PlanForm({
       </Section>
 
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
-      {live ? (
-        <Button title={t.common.save} onPress={onSave} busy={busy === 'save'} />
-      ) : (
+      {!live && (
         <>
           {warnings.map((w) => (
             <Notice key={w.kind} tone="warning">
@@ -301,7 +323,6 @@ function PlanForm({
           {warnings.some((w) => w.kind === 'no_trail') && (
             <Button title={t.plan.allowAlways} kind="secondary" onPress={allowTrail} />
           )}
-          <Button title={t.plan.start} onPress={onStart} busy={busy === 'start'} />
           <ThemedText type="small" themeColor="textSecondary">
             {t.plan.startHint(t.when(form.deadline))}
           </ThemedText>
