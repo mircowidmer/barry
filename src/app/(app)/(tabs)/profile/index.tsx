@@ -76,9 +76,13 @@ function ProfileForm({ initial }: { initial: Form }) {
   return (
     <>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button variant="done" disabled={!complete || saving || same(profile, saved)} onPress={save}>
-          {t.common.save}
-        </Stack.Toolbar.Button>
+        <Stack.Toolbar.Button
+          variant="done"
+          icon="checkmark"
+          accessibilityLabel={t.common.save}
+          disabled={!complete || saving || same(profile, saved)}
+          onPress={save}
+        />
       </Stack.Toolbar>
       <Screen>
         <ThemedText type="small" themeColor="textSecondary">
