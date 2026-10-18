@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTexts } from '@/lib/texts';
 
-const SITE = 'https://barry.support';
+export const SITE = 'https://barry.support';
 
 export function LegalLinks() {
   const t = useTexts();

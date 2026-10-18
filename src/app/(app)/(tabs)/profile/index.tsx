@@ -1,14 +1,17 @@
+import { Stack } from 'expo-router';
 import { useState } from 'react';
+import { Alert, Linking } from 'react-native';
 
-import { Button, Field, Notice, Row, Screen, Section } from '@/components/form';
-import { LegalLinks } from '@/components/legal-links';
+import { Screen } from '@/components/form';
+import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/grouped-list';
+import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
+import { askToLogOut } from '@/lib/log-out';
 import { formatPhoneNumber, phoneInput } from '@/lib/phone';
 import { useSession } from '@/lib/session';
-import { askToLogOut } from '@/lib/log-out';
 import { useTexts } from '@/lib/texts';
 
 type Form = Record<keyof AdventurerProfile, string>;
@@ -26,6 +29,8 @@ const toForm = (p: AdventurerProfile): Form => ({
   medicalNotes: p.medicalNotes ?? '',
 });
 
+const same = (a: Form, b: Form) => (Object.keys(a) as (keyof Form)[]).every((key) => a[key] === b[key]);
+
 export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
   if (loaded.status === 'loading') return <Screen>{null}</Screen>;
@@ -35,25 +40,16 @@ export default function ProfileScreen() {
 function ProfileForm({ initial }: { initial: Form }) {
   const { session } = useSession();
   const t = useTexts();
+  const [saved, setSaved] = useState<Form>(initial);
   const [profile, setProfile] = useState<Form>(initial);
-  const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const deleteAccount = async () => {
-    setDeleteError(null);
-    const outcome = await askToDeleteAccount(() => setDeleting(true));
-    setDeleting(false);
-    if (outcome.kind === 'failed') setDeleteError(outcome.message);
-  };
-
-  const set = (field: keyof Form) => (text: string) => {
-    setProfile((p) => ({ ...p, [field]: text }));
-    setStatus('idle');
-  };
+  const set = (field: keyof Form) => (text: string) => setProfile((p) => ({ ...p, [field]: text }));
+  const complete = profile.name.trim() !== '' && profile.phone.trim() !== '';
 
   const save = async () => {
-    setStatus('saving');
+    setSaving(true);
     try {
       await barry.saveProfile({
         name: profile.name.trim(),
@@ -63,58 +59,87 @@ function ProfileForm({ initial }: { initial: Form }) {
         carPlate: orNull(profile.carPlate),
         medicalNotes: orNull(profile.medicalNotes),
       });
-      setStatus('saved');
+      setSaved(profile);
     } catch {
-      setStatus('error');
+      Alert.alert(t.profile.couldNotSave);
+    } finally {
+      setSaving(false);
     }
   };
 
+  const deleteAccount = async () => {
+    const outcome = await askToDeleteAccount(() => setDeleting(true));
+    setDeleting(false);
+    if (outcome.kind === 'failed') Alert.alert(outcome.message);
+  };
+
   return (
-    <Screen>
-      <ThemedText themeColor="textSecondary">{t.profile.intro}</ThemedText>
-      <Section title={t.profile.about}>
-        <Field label={t.profile.name} value={profile.name} onChangeText={set('name')} autoComplete="name" />
-        <Field label={t.profile.email} value={session?.user.email ?? ''} editable={false} hint={t.profile.emailHint} />
-        <Field
-          label={t.profile.phone}
-          value={profile.phone}
-          onChangeText={(text) => set('phone')(phoneInput(text))}
-          keyboardType="phone-pad"
-          autoComplete="tel"
-          hint={t.profile.phoneHint}
-        />
-      </Section>
-      <Section title={t.profile.car}>
-        <Field label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} />
-        <Field label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} />
-        <Field label={t.profile.plate} value={profile.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
-      </Section>
-      <Section title={t.profile.medical}>
-        <Field
-          label={t.profile.medicalLabel}
-          value={profile.medicalNotes}
-          onChangeText={set('medicalNotes')}
-          multiline
-          hint={t.profile.medicalHint}
-        />
-      </Section>
-      {status === 'saved' && <Notice tone="success">{t.profile.saved}</Notice>}
-      {status === 'error' && <Notice tone="danger">{t.profile.couldNotSave}</Notice>}
-      {deleteError && <Notice tone="danger">{deleteError}</Notice>}
-      <Row>
-        <Button
-          title={t.common.save}
-          onPress={save}
-          busy={status === 'saving'}
-          disabled={profile.name.trim() === '' || profile.phone.trim() === ''}
-        />
-        <Button title={t.profile.logOut} kind="secondary" onPress={askToLogOut} />
-        <Button title={t.common.delete} kind="danger" onPress={deleteAccount} busy={deleting} />
-      </Row>
-      <ThemedText type="small" themeColor="textSecondary">
-        {t.legal.notEmergency}
-      </ThemedText>
-      <LegalLinks />
-    </Screen>
+    <>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button variant="done" disabled={!complete || saving || same(profile, saved)} onPress={save}>
+          {t.common.save}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+      <Screen>
+        <ThemedText type="small" themeColor="textSecondary">
+          {t.profile.intro}
+        </ThemedText>
+
+        <Group title={t.profile.about} footer={t.profile.phoneHint}>
+          <InputRow
+            label={t.profile.name}
+            value={profile.name}
+            onChangeText={set('name')}
+            placeholder={t.profile.required}
+            autoComplete="name"
+            textContentType="name"
+          />
+          <ValueRow label={t.profile.email} value={session?.user.email ?? ''} />
+          <InputRow
+            label={t.profile.phone}
+            value={profile.phone}
+            onChangeText={(text) => set('phone')(phoneInput(text))}
+            placeholder={t.profile.required}
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            textContentType="telephoneNumber"
+          />
+        </Group>
+
+        <Group title={t.profile.car}>
+          <InputRow label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} placeholder={t.profile.optional} />
+          <InputRow label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} placeholder={t.profile.optional} />
+          <InputRow
+            label={t.profile.plate}
+            value={profile.carPlate}
+            onChangeText={set('carPlate')}
+            placeholder={t.profile.optional}
+            autoCapitalize="characters"
+          />
+        </Group>
+
+        <Group title={t.profile.medical} footer={t.profile.medicalHint}>
+          <TextAreaRow
+            label={t.profile.medicalLabel}
+            value={profile.medicalNotes}
+            onChangeText={set('medicalNotes')}
+            placeholder={t.profile.medicalPlaceholder}
+          />
+        </Group>
+
+        <Group footer={t.legal.notEmergency}>
+          <ActionRow title={t.legal.privacy} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/privacy`)} />
+          <ActionRow title={t.legal.terms} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/terms`)} />
+        </Group>
+
+        <Group>
+          <ActionRow title={t.profile.logOut} onPress={askToLogOut} />
+        </Group>
+
+        <Group>
+          <ActionRow title={t.profile.deleteAccount} tone="danger" onPress={deleteAccount} busy={deleting} />
+        </Group>
+      </Screen>
+    </>
   );
 }
