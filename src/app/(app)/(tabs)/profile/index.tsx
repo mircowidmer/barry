@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
-import { Screen } from '@/components/form';
+import { Button, Notice, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/grouped-list';
 import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
@@ -33,8 +33,21 @@ const same = (a: Form, b: Form) => (Object.keys(a) as (keyof Form)[]).every((key
 
 export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
-  if (loaded.status === 'loading') return <Screen>{null}</Screen>;
-  return <ProfileForm initial={loaded.data ? toForm(loaded.data) : empty} />;
+  const t = useTexts();
+  // The form keeps the first Profile that loads, so edits survive the reloads on focus.
+  const [initial, setInitial] = useState<Form | null>(null);
+  if (initial === null && loaded.status === 'ready') setInitial(loaded.data ? toForm(loaded.data) : empty);
+  if (initial) return <ProfileForm initial={initial} />;
+  // A failed load must not show a blank Profile, or saving it would wipe the stored one.
+  if (loaded.status === 'error') {
+    return (
+      <Screen>
+        <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
+        <Button title={t.common.tryAgain} onPress={loaded.reload} />
+      </Screen>
+    );
+  }
+  return <Screen>{null}</Screen>;
 }
 
 function ProfileForm({ initial }: { initial: Form }) {
