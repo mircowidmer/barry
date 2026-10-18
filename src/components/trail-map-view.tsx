@@ -1,7 +1,9 @@
+import { useImage } from 'expo-image';
 import { AppleMaps } from 'expo-maps';
 import { useEffect, useRef } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { fitCamera } from '@/lib/trail-map/camera';
 import { formatWhen } from '@/lib/wording';
@@ -19,6 +21,10 @@ const translucent = (hex: string, alpha: number) => {
 export function TrailMapView({ trail, last }: TrailMapViewProps) {
   const map = useRef<AppleMaps.MapView>(null);
   const theme = useTheme();
+  // expo-maps draws an annotation icon in a 50-point frame, so the picture holds a small dot amid transparency.
+  const dot = useImage(
+    useColorScheme() === 'dark' ? require('@/assets/images/trail-dot-dark.png') : require('@/assets/images/trail-dot.png'),
+  );
   const camera = fitCamera(last ? [...trail, last] : trail);
   const [latitude, longitude, zoom] = [camera?.center.latitude, camera?.center.longitude, camera?.zoom];
 
@@ -38,19 +44,12 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
       // expo-maps keeps map places selectable even with selectionEnabled off, so the map shows none.
       properties={{ selectionEnabled: false, pointsOfInterest: { including: [] } }}
       polylines={coordinates.length > 1 ? [{ id: 'trail', coordinates, color: theme.accent, width: 4 }] : []}
-      circles={[
-        ...coordinates.map((center, i) => ({
-          id: `reading-${i}`,
-          center,
-          radius: camera.dotRadiusM,
-          color: theme.accent,
-          lineColor: '#fff',
-          lineWidth: 1.5,
-        })),
-        ...(last?.accuracyM
+      circles={
+        last?.accuracyM
           ? [{ id: 'accuracy', center: at(last), radius: last.accuracyM, color: translucent(theme.accent, 0.15), lineColor: theme.accent, lineWidth: 1 }]
-          : []),
-      ]}
+          : []
+      }
+      annotations={dot ? coordinates.map((c, i) => ({ id: `reading-${i}`, coordinates: c, icon: dot })) : []}
       markers={
         last
           ? [

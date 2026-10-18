@@ -15,7 +15,6 @@ describe('fitCamera', () => {
     expect(camera.center.latitude).toBeCloseTo(47.05);
     expect(camera.center.longitude).toBeCloseTo(8.61);
     expect(360 / 2 ** camera.zoom).toBeCloseTo(0.14);
-    expect(camera.dotRadiusM).toBeCloseTo(194.25);
   });
 
   it('zooms no closer than street level for a single reading', () => {
