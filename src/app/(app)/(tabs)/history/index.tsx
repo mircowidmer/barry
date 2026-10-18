@@ -53,7 +53,7 @@ function useDragSelect(
   selecting: boolean,
   startSelecting: () => void,
 ) {
-  const rowTops = useRef<number[]>([]);
+  const rows = useRef<{ top: number; bottom: number }[]>([]);
   const latest = useRef({ ids, selected, selecting });
   useEffect(() => {
     latest.current = { ids, selected, selecting };
@@ -64,11 +64,14 @@ function useDragSelect(
 
   const rowAt = (y: number) => {
     let row = 0;
-    rowTops.current.forEach((top, i) => {
+    rows.current.forEach(({ top }, i) => {
       if (i < latest.current.ids.length && y >= top) row = i;
     });
     return row;
   };
+  // A touch in the gap between two rows starts nothing; once dragging, the gap counts as the row above.
+  const rowUnder = (y: number) =>
+    rows.current.findIndex((r, i) => r && i < latest.current.ids.length && y >= r.top && y <= r.bottom);
 
   const extendTo = (row: number) => {
     const d = drag.current;
@@ -82,7 +85,8 @@ function useDragSelect(
   };
 
   const begin = (y: number) => {
-    const anchor = rowAt(y);
+    const anchor = rowUnder(y);
+    if (anchor === -1) return;
     const { ids: current, selected: shown, selecting: already } = latest.current;
     if (!already) startSelecting();
     const before = already ? shown : new Set<AdventureId>();
@@ -134,7 +138,9 @@ function useDragSelect(
     runOnJS: true,
     onActivate: (e) => {
       const { ids: current, selected: shown } = latest.current;
-      const id = current[rowAt(e.y)];
+      const row = rowUnder(e.y);
+      if (row === -1) return;
+      const id = current[row];
       const next = new Set(shown);
       if (!next.delete(id)) next.add(id);
       setSelected(next);
@@ -143,8 +149,9 @@ function useDragSelect(
   const gesture = useCompetingGestures(twoFingers, held);
   const circlesGesture = useCompetingGestures(alongCircles, tapCircle);
 
-  const measure = (row: number) => (e: { nativeEvent: { layout: { y: number } } }) => {
-    rowTops.current[row] = e.nativeEvent.layout.y;
+  const measure = (row: number) => (e: { nativeEvent: { layout: { y: number; height: number } } }) => {
+    const { y, height } = e.nativeEvent.layout;
+    rows.current[row] = { top: y, bottom: y + height };
   };
 
   return { gesture, circlesGesture, measure };
