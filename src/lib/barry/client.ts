@@ -380,12 +380,12 @@ export const createBarry = ({
     trail,
 
     watchAdventure: (id, onChange) => {
+      const refresh = () => getAdventure(id).then((adventure) => adventure && onChange(adventure), () => undefined);
       const channel = supabase
         .channel(`adventure:${id}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'adventures', filter: `id=eq.${id}` }, () => {
-          getAdventure(id).then((adventure) => adventure && onChange(adventure), () => undefined);
-        })
-        .subscribe();
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'adventures', filter: `id=eq.${id}` }, refresh)
+        // Realtime does not replay the updates missed while the socket was down, so each connection refetches.
+        .subscribe((status) => status === 'SUBSCRIBED' && refresh());
       return () => {
         supabase.removeChannel(channel);
       };

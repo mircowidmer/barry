@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
@@ -129,14 +129,19 @@ function LiveAdventure({
   useEffect(() => {
     stage.current = adventure.stage;
   }, [adventure]);
-  useEffect(
-    () =>
-      barry.watchAdventure(initial.id, (next) => {
-        if (next.stage !== stage.current) setNotice(null);
-        setAdventure(next);
-      }),
-    [initial.id],
-  );
+  // A notice about a move or a failed one is stale once the stage changes.
+  const apply = useCallback((next: Adventure) => {
+    if (next.stage !== stage.current) setNotice(null);
+    setAdventure(next);
+  }, []);
+  useEffect(() => barry.watchAdventure(initial.id, apply), [initial.id, apply]);
+  // The screen reloads on focus and on returning to the foreground; the live view must follow.
+  const [seen, setSeen] = useState(initial);
+  if (seen !== initial) {
+    setSeen(initial);
+    if (initial.stage !== adventure.stage) setNotice(null);
+    setAdventure(initial);
+  }
   useEffect(() => {
     barry.deliveryFailures(initial.id).then(setFailures, () => undefined);
   }, [initial.id, adventure]);
