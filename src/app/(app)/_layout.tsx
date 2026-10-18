@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { AppState, useColorScheme } from 'react-native';
 
+import { Colors } from '@/constants/theme';
 import { barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
@@ -48,10 +49,27 @@ function Navigation() {
   );
 }
 
+// Headers, sheets and screens take Barry's colours instead of the navigation library's white and grey.
+const navigationTheme = (scheme: 'light' | 'dark') => {
+  const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+  const colors = Colors[scheme];
+  return {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: colors.accent,
+      background: colors.background,
+      card: colors.background,
+      text: colors.text,
+      border: colors.backgroundSelected,
+    },
+  };
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigationTheme(colorScheme === 'dark' ? 'dark' : 'light')}>
       <SessionProvider>
         <Navigation />
       </SessionProvider>
