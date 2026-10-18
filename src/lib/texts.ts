@@ -97,7 +97,7 @@ const en = {
       (f.reason === 'channel_not_enabled' ? ' (text messages are not set up yet)' : ` (${f.reason})`),
   },
   ended: {
-    checkedIn: (when: string) => `You checked in at ${when}.`,
+    checkedIn: (when: string) => `You checked in ${when}.`,
     welcome: ' Welcome back.',
     mapFailed: (detail: string) => `Could not load the map. ${detail}`,
     noPositions: 'No positions were recorded.',
