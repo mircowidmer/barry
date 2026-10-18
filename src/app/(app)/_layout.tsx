@@ -67,10 +67,12 @@ const navigationTheme = (scheme: 'light' | 'dark') => {
   };
 };
 
+const navigationThemes = { light: navigationTheme('light'), dark: navigationTheme('dark') };
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={navigationTheme(colorScheme === 'dark' ? 'dark' : 'light')}>
+    <ThemeProvider value={navigationThemes[colorScheme === 'dark' ? 'dark' : 'light']}>
       <SessionProvider>
         <Navigation />
       </SessionProvider>
