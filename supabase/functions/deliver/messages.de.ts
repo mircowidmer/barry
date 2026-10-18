@@ -125,7 +125,13 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
     case 'all_clear':
       return {
         subject: `${name} ist sicher zurück`,
-        text: `${name} hat sich am ${time(facts.checkedInAt)} sicher zurückgemeldet. Barry muss sich keine Sorgen mehr machen, und du auch nicht.`,
+        text: lines(
+          `${name} hat sich am ${time(facts.checkedInAt)} sicher zurückgemeldet. Barry muss sich keine Sorgen mehr machen, und du auch nicht.`,
+          links !== null && facts.trailToken !== null && '',
+          links !== null &&
+            facts.trailToken !== null &&
+            `Neugierig, wo ${name} überall war? Barry hat die ganze Spur erschnüffelt: ${links.forToken(facts.trailToken)}`,
+        ),
       };
   }
 };

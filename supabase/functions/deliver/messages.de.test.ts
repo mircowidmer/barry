@@ -86,10 +86,17 @@ Deno.test('the German Alert carries the Last Known Position and the Profile', ()
   );
 });
 
-Deno.test('the German All-clear gives the Check-in time', () => {
-  const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links);
+Deno.test('the German All-clear gives the Check-in time and the link to the Trail', () => {
+  const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: token }), links);
   assertEquals(subject, 'Anna ist sicher zurück');
-  assertEquals(text, 'Anna hat sich am Sa, 17. Okt. um 19:05 sicher zurückgemeldet. Barry muss sich keine Sorgen mehr machen, und du auch nicht.');
+  assertEquals(
+    text,
+    [
+      'Anna hat sich am Sa, 17. Okt. um 19:05 sicher zurückgemeldet. Barry muss sich keine Sorgen mehr machen, und du auch nicht.',
+      '',
+      'Neugierig, wo Anna überall war? Barry hat die ganze Spur erschnüffelt: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b',
+    ].join('\n'),
+  );
 });
 
 Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit and the link, without the Plan', () => {
@@ -131,7 +138,7 @@ Deno.test('every German text message body uses only the GSM-7 alphabet, so it is
       links,
     ),
     render(parseFacts({ ...base, kind: 'alert', round: 3, profile, last_known_position: null, trail_token: null }), links),
-    render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links),
+    render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: token }), links),
   ].map((message) => message.text);
   for (const body of bodies) {
     assertEquals([...body].filter((c) => !GSM_7.includes(c)), [], body.split('\n')[0]);

@@ -29,6 +29,7 @@ test('a missed Deadline alerts every contact, and the Check-in sends the All-cle
   assert.equal(must(await anna.client.rpc('check_in', { p_id: id, p_checked_in_at: new Date().toISOString() }), 'check_in'), null);
   const allClear = await waitForMail(anna.luca.email, 'Anna is back safe');
   assert.match(allClear.Text, /Anna checked in safely at/);
+  assert.equal(trailToken(allClear.Text), token, 'the All-clear carries the same Trail Map link');
   await waitForText(anna.sara.phone, 'Anna checked in safely');
   const checkedIn = await trailMap(token);
   assert.equal(checkedIn.status, 'checked_in');

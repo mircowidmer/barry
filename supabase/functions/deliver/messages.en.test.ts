@@ -117,10 +117,19 @@ Deno.test('the Overdue Notice says when the Alert goes out', () => {
   );
 });
 
-Deno.test('the All-clear gives the Check-in time', () => {
-  const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links);
+Deno.test('the All-clear gives the Check-in time and the link to the Trail', () => {
+  const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: token }), links);
   assertEquals(subject, 'Anna is back safe');
-  assertEquals(text, 'Anna checked in safely at Sat 17 Oct, 19:05. Barry can stop worrying, and so can you.');
+  assertEquals(
+    text,
+    [
+      'Anna checked in safely at Sat 17 Oct, 19:05. Barry can stop worrying, and so can you.',
+      '',
+      'Curious where Anna has been? Barry sniffed out the whole Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b',
+    ].join('\n'),
+  );
+  const withoutLink = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: null }), links);
+  assertEquals(withoutLink.text, 'Anna checked in safely at Sat 17 Oct, 19:05. Barry can stop worrying, and so can you.');
 });
 
 Deno.test('without a link base or a token the Heads-up and the Alert go out without the Trail Map line', () => {
@@ -176,7 +185,7 @@ Deno.test('every text message body uses only the GSM-7 alphabet, so it is not se
       links,
     ),
     render(parseFacts({ ...base, kind: 'alert', round: 1, profile, last_known_position: null, trail_token: null }), links),
-    render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z' }), links),
+    render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: token }), links),
   ].map((message) => message.text);
   for (const body of bodies) {
     assertEquals([...body].filter((c) => !GSM_7.includes(c)), [], body.split('\n')[0]);

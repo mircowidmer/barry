@@ -122,7 +122,13 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
     case 'all_clear':
       return {
         subject: `${name} is back safe`,
-        text: `${name} checked in safely at ${time(facts.checkedInAt)}. Barry can stop worrying, and so can you.`,
+        text: lines(
+          `${name} checked in safely at ${time(facts.checkedInAt)}. Barry can stop worrying, and so can you.`,
+          links !== null && facts.trailToken !== null && '',
+          links !== null &&
+            facts.trailToken !== null &&
+            `Curious where ${name} has been? Barry sniffed out the whole Trail: ${links.forToken(facts.trailToken)}`,
+        ),
       };
   }
 };

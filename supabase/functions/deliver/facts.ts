@@ -39,7 +39,7 @@ export type MessageFacts = {
       profile: ProfileDetails;
       lastKnownPosition: Position | null;
     }
-  | { kind: 'all_clear'; checkedInAt: Date }
+  | { kind: 'all_clear'; checkedInAt: Date; trailToken: string | null }
 );
 
 type Json = Record<string, unknown>;
@@ -113,7 +113,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
       };
     }
     case 'all_clear':
-      return { ...base, kind: f.kind, checkedInAt: date(f.checked_in_at, 'checked_in_at') };
+      return { ...base, kind: f.kind, checkedInAt: date(f.checked_in_at, 'checked_in_at'), trailToken: optionalText(f.trail_token) };
     default:
       throw new Error(`message_facts: unknown kind ${String(f.kind)}`);
   }

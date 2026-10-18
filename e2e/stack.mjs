@@ -73,7 +73,7 @@ export const trailMap = async (token, after) => {
   return response.json();
 };
 
-export const trailToken = (text) => text.match(/Follow Anna's Trail: \S+#([\w-]{22})/)?.[1];
+export const trailToken = (text) => text.match(/\/adventure#([\w-]{22})/)?.[1];
 
 export const messageKinds = async (adventureId) =>
   must(await admin.from('messages').select('kind, to_address, status').eq('adventure_id', adventureId), 'messages');

@@ -125,7 +125,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts in total | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |
-| All-clear | Each contact of the Adventure | Every channel the contact has | The Adventurer checks in | The time of the Check-in |
+| All-clear | Each contact of the Adventure | Every channel the contact has | The Adventurer checks in | The time of the Check-in, the contact's Trail Map link to see where the Adventurer has been |
 
 ### Message rules
 
@@ -177,7 +177,7 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 
 The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
 
-- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update and every Alert carry it.
+- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
 - The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
 - The page adds new readings every minute while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. After the first Alert, it shows that the Adventure is Alerted.
