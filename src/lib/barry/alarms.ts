@@ -1,6 +1,6 @@
 import type { InProgressAdventure } from './types';
 
-export const REMINDER_LEAD_MS = 30 * 60_000;
+const REMINDER_LEAD_MS = 30 * 60_000;
 
 const PREFIX = 'barry.';
 

@@ -1,4 +1,7 @@
 import type { Database } from '@/lib/database.types';
+import type { AppLanguage } from '@/lib/language';
+
+import type { PendingCheckIn } from './check-in-queue';
 
 type Brand<T, B extends string> = T & { readonly __brand: B };
 export type AdventureId = Brand<string, 'AdventureId'>;
@@ -7,7 +10,8 @@ export type EmergencyContactId = Brand<string, 'EmergencyContactId'>;
 export type Refusal = Database['public']['Enums']['refusal'];
 export type Channel = Database['public']['Enums']['channel'];
 
-export type MessageLanguage = 'en' | 'de';
+/** The messages to the contacts follow the phone's language. */
+export type MessageLanguage = AppLanguage;
 
 export type AdventurerProfile = {
   name: string;
@@ -143,7 +147,7 @@ export type Barry = {
   start(id: AdventureId): Promise<StartResult>;
   moveDeadline(id: AdventureId, deadline: Date): Promise<MoveDeadlineResult>;
   checkIn(id: AdventureId): Promise<CheckInResult>;
-  pendingCheckIns(): { adventureId: AdventureId; checkedInAt: Date }[];
+  pendingCheckIns(): PendingCheckIn[];
   flushPendingCheckIns(): Promise<void>;
 
   deliveryFailures(id: AdventureId): Promise<DeliveryFailure[]>;

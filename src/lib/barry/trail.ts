@@ -37,7 +37,7 @@ export type TrailFacts = {
 export const trailMode = ({ signedIn, permitted, pendingCheckIn, inProgressId }: TrailFacts): TrailStatus =>
   !signedIn || !permitted ? 'off' : pendingCheckIn ? 'delivering' : inProgressId ? 'recording' : 'off';
 
-export const trailOutcome = ({ data, error }: RecordTrailResponse): TrailSendOutcome =>
+const trailOutcome = ({ data, error }: RecordTrailResponse): TrailSendOutcome =>
   error ? 'retry' : data === null ? 'accepted' : 'refused';
 
 const toReading = (l: RawLocation): Position => ({
