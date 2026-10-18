@@ -34,7 +34,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
       }
       if (last) {
         L.circleMarker([last.latitude, last.longitude], { radius: 8, color: '#fff', weight: 2, fillColor: '#E5484D', fillOpacity: 1 })
-          .bindTooltip(`Last Known Position, ${formatWhen(last.takenAt)}`)
+          .bindTooltip(`Last known position, ${formatWhen(last.takenAt)}`)
           .addTo(m);
         if (last.accuracyM) L.circle([last.latitude, last.longitude], { radius: last.accuracyM, weight: 1 }).addTo(m);
       }

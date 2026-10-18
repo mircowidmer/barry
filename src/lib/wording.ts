@@ -62,9 +62,9 @@ export const notificationText = ({ kind, adventure }: Alarm, language: AppLangua
   }
   const time = (at: Date) => formatMessageTime(at, adventure.timeZone);
   return kind === 'reminder'
-    ? { title: 'Check in or move your Deadline', body: `Your Deadline for ${destination} is ${time(adventure.deadline)}.` }
+    ? { title: 'Check in or move your deadline', body: `Your deadline for ${destination} is ${time(adventure.deadline)}.` }
     : {
         title: 'You are overdue',
-        body: `Your Deadline for ${destination} was ${time(adventure.deadline)}. Barry alerts your emergency contacts at ${time(adventure.alertAt)} unless you check in.`,
+        body: `Your deadline for ${destination} was ${time(adventure.deadline)}. Barry alerts your emergency contacts at ${time(adventure.alertAt)} unless you check in.`,
       };
 };

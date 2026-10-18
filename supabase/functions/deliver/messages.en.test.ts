@@ -38,30 +38,30 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
-      'Starting Point: Brunni car park',
+      'Starting point: Brunni car park',
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
-      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
   );
 });
 
 Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map link', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'plan_update', trail_token: token }), links);
-  assertEquals(subject, 'Anna changed the Plan for Grosser Mythen');
+  assertEquals(subject, 'Anna changed the plan for Grosser Mythen');
   assertEquals(
     text,
     [
-      'Anna changed the Plan, and Barry has sniffed out the new details.',
+      'Anna changed the plan, and Barry has sniffed out the new details.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
-      'Starting Point: Brunni car park',
+      'Starting point: Brunni car park',
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
-      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
   );
 });
@@ -82,19 +82,19 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
   assertEquals(
     text,
     [
-      'Anna has not checked in from an adventure. The Deadline was Sat 17 Oct, 18:00.',
+      'Anna has not checked in from an adventure. The deadline was Sat 17 Oct, 18:00.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',
-      'Starting Point: Brunni car park',
+      'Starting point: Brunni car park',
       '',
-      'Last Known Position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
+      'Last known position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
       'Map: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68',
-      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
       '',
       "Anna's phone: +41790000001",
       'Car: red Subaru, SZ 12345',
-      'Medical Notes: Type 1 diabetic',
+      'Medical notes: Type 1 diabetic',
     ].join('\n'),
   );
 });
@@ -104,16 +104,16 @@ Deno.test('a later Alert says which round it is, and a missing position says so'
     parseFacts({ ...base, kind: 'alert', round: 2, profile: { phone: '+41790000001' }, last_known_position: null }),
     links,
   );
-  assertEquals(subject, 'Anna has still not checked in (Alert 2 of 3)');
-  assertStringIncludes(text, 'Anna has still not checked in from an adventure (Alert 2 of 3).');
-  assertStringIncludes(text, 'Last Known Position: not recorded');
+  assertEquals(subject, 'Anna has still not checked in (alert 2 of 3)');
+  assertStringIncludes(text, 'Anna has still not checked in from an adventure (alert 2 of 3).');
+  assertStringIncludes(text, 'Last known position: not recorded');
 });
 
 Deno.test('the Overdue Notice says when the Alert goes out', () => {
   const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:30:00Z' }), links);
   assertEquals(
     text,
-    'Your Deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:30 unless you check in.',
+    'Your deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:30 unless you check in.',
   );
 });
 
@@ -125,7 +125,7 @@ Deno.test('the All-clear gives the Check-in time and the link to the Trail', () 
     [
       'Anna checked in safely at Sat 17 Oct, 19:05. Barry can stop worrying, and so can you.',
       '',
-      'Curious where Anna has been? Barry sniffed out the whole Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b',
+      'Curious where Anna has been? Barry sniffed out the whole trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b',
     ].join('\n'),
   );
   const withoutLink = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: null }), links);
@@ -159,7 +159,7 @@ Deno.test('a Deadline Update gives the earlier and the new check-in time and the
       '',
       'If Anna has not checked in by Sat 17 Oct, 20:00, Barry will message you again.',
       '',
-      "Follow Anna's Trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
+      "Follow Anna's trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
     ].join('\n'),
   );
 });

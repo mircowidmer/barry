@@ -18,7 +18,7 @@ test('a missed Deadline alerts every contact, and the Check-in sends the All-cle
 
   await missDeadline(id);
   const alert = await waitForMail(anna.luca.email, 'Anna has not checked in');
-  assert.match(alert.Text, /Last Known Position at .+: 47\.03000, 8\.68000/);
+  assert.match(alert.Text, /Last known position at .+: 47\.03000, 8\.68000/);
   assert.match(alert.Text, /Car: red Subaru, SZ 12345/);
   assert.equal(trailToken(alert.Text), token, 'the Alert carries the same Trail Map link');
   assert.match(alert.Text, /Anna's phone: \+41790000001/);

@@ -4,7 +4,7 @@ The Adventurer gets a Reminder 30 minutes before the Deadline and an Overdue Not
 
 ## Sub-features
 
-- `local-reminder` shows `Check in or move your Deadline` 30 minutes before the Deadline. A Deadline less than 30 minutes ahead gets none.
+- `local-reminder` shows `Check in or move your deadline` 30 minutes before the Deadline. A Deadline less than 30 minutes ahead gets none.
 - `local-overdue` shows `You are overdue` with the Alert time at the Deadline.
 - `local-cancel` shows neither after a Check-in, including one that waits for signal.
 
@@ -18,8 +18,8 @@ Preconditions:
 
 - Baseline from the index. Supabase sends no pushes, so every notification that appears is local.
 
-- **Overdue Notice (`local-overdue`).** Run `fixture.mjs live 2`, then `xcrun simctl terminate booted support.barry.dev` and `xcrun simctl launch booted support.barry.dev`, so the app loads the Adventure and schedules the notification. Wait until the live screen shows the countdown, then press `button HOME`. At the Deadline, a banner from `Barry` reads `You are overdue. Your Deadline for Pilatus was <weekday> <day> <month>, <HH:MM>. Barry alerts your emergency contacts at …`. Take `xcrun simctl io booted screenshot` about once a second from one second before the Deadline, because the banner stays for about 5 seconds. `fixture.mjs state` lists no `reminder` or `overdue_notice` message rows.
-- **Reminder (`local-reminder`).** Run `fixture.mjs live 31`, then relaunch the app as above and press `button HOME`. About a minute later the banner reads `Check in or move your Deadline. Your Deadline for Pilatus is …`.
+- **Overdue Notice (`local-overdue`).** Run `fixture.mjs live 2`, then `xcrun simctl terminate booted support.barry.dev` and `xcrun simctl launch booted support.barry.dev`, so the app loads the Adventure and schedules the notification. Wait until the live screen shows the countdown, then press `button HOME`. At the Deadline, a banner from `Barry` reads `You are overdue. Your deadline for Pilatus was <weekday> <day> <month>, <HH:MM>. Barry alerts your emergency contacts at …`. Take `xcrun simctl io booted screenshot` about once a second from one second before the Deadline, because the banner stays for about 5 seconds. `fixture.mjs state` lists no `reminder` or `overdue_notice` message rows.
+- **Reminder (`local-reminder`).** Run `fixture.mjs live 31`, then relaunch the app as above and press `button HOME`. About a minute later the banner reads `Check in or move your deadline. Your deadline for Pilatus is …`.
 - **Check-in cancels (`local-cancel`).** Run `fixture.mjs live 2`, relaunch the app, and hold `Hold to Check In` with `duration: 2.2`. Press `button HOME`. Screenshots from one second before the Deadline to ten seconds after show no banner.
 - **Proof.** Save the banner screenshot and `fixture.mjs state`, then run `fixture.mjs end`.
 

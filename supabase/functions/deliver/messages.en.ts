@@ -22,7 +22,7 @@ const planLines = (plan: Plan): string[] =>
   [
     `Destination: ${plan.destination}`,
     plan.route && `Route: ${plan.route}`,
-    plan.startingPoint && `Starting Point: ${plan.startingPoint}`,
+    plan.startingPoint && `Starting point: ${plan.startingPoint}`,
     plan.notes && `Notes: ${plan.notes}`,
   ].filter((line): line is string => Boolean(line));
 
@@ -31,7 +31,7 @@ const lines = (...parts: (string | false | null)[]): string => parts.filter((p) 
 export const render = (facts: MessageFacts, links: TrailMapLinks | null): Rendered => {
   const name = facts.adventurerName;
   const time = (at: Date) => formatTime(at, facts.timeZone);
-  const trailLine = (token: string | null) => links !== null && token !== null && `Follow ${name}'s Trail: ${links.forToken(token)}`;
+  const trailLine = (token: string | null) => links !== null && token !== null && `Follow ${name}'s trail: ${links.forToken(token)}`;
 
   switch (facts.kind) {
     case 'heads_up':
@@ -50,9 +50,9 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
 
     case 'plan_update':
       return {
-        subject: `${name} changed the Plan for ${facts.plan.destination}`,
+        subject: `${name} changed the plan for ${facts.plan.destination}`,
         text: lines(
-          `${name} changed the Plan, and Barry has sniffed out the new details.`,
+          `${name} changed the plan, and Barry has sniffed out the new details.`,
           '',
           ...planLines(facts.plan),
           '',
@@ -76,14 +76,14 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
 
     case 'reminder':
       return {
-        subject: 'Check in or move your Deadline',
-        text: `Your Deadline for ${facts.plan.destination} is ${time(facts.deadline)}.`,
+        subject: 'Check in or move your deadline',
+        text: `Your deadline for ${facts.plan.destination} is ${time(facts.deadline)}.`,
       };
 
     case 'overdue_notice':
       return {
         subject: 'You are overdue',
-        text: `Your Deadline for ${facts.plan.destination} was ${time(facts.deadline)}. Barry alerts your emergency contacts at ${time(facts.alertAt)} unless you check in.`,
+        text: `Your deadline for ${facts.plan.destination} was ${time(facts.deadline)}. Barry alerts your emergency contacts at ${time(facts.alertAt)} unless you check in.`,
       };
 
     case 'alert': {
@@ -96,25 +96,25 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         subject:
           facts.round === 1
             ? `${name} has not checked in`
-            : `${name} has still not checked in (Alert ${facts.round} of 3)`,
+            : `${name} has still not checked in (alert ${facts.round} of 3)`,
         text: lines(
           facts.round === 1
-            ? `${name} has not checked in from an adventure. The Deadline was ${time(facts.deadline)}.`
-            : `${name} has still not checked in from an adventure (Alert ${facts.round} of 3). The Deadline was ${time(facts.deadline)}.`,
+            ? `${name} has not checked in from an adventure. The deadline was ${time(facts.deadline)}.`
+            : `${name} has still not checked in from an adventure (alert ${facts.round} of 3). The deadline was ${time(facts.deadline)}.`,
           '',
           ...planLines(facts.plan),
           '',
           p
-            ? `Last Known Position at ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
+            ? `Last known position at ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
                 (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
-            : 'Last Known Position: not recorded',
+            : 'Last known position: not recorded',
           p !== null &&
             `Map: https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=15/${p.latitude}/${p.longitude}`,
           trailLine(facts.trailToken),
           '',
           `${name}'s phone: ${facts.profile.phone}`,
           car !== '' && `Car: ${car}`,
-          facts.profile.medicalNotes !== null && `Medical Notes: ${facts.profile.medicalNotes}`,
+          facts.profile.medicalNotes !== null && `Medical notes: ${facts.profile.medicalNotes}`,
         ),
       };
     }
@@ -127,7 +127,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
           links !== null && facts.trailToken !== null && '',
           links !== null &&
             facts.trailToken !== null &&
-            `Curious where ${name} has been? Barry sniffed out the whole Trail: ${links.forToken(facts.trailToken)}`,
+            `Curious where ${name} has been? Barry sniffed out the whole trail: ${links.forToken(facts.trailToken)}`,
         ),
       };
   }

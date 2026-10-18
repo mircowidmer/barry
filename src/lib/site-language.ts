@@ -41,16 +41,16 @@ export const siteText = {
     adventureOf: (name: string) => `${name}'s Adventure`,
     updatesEveryMinute: 'Barry updates this map every minute.',
     staleSince: (since: Date) => `Barry cannot be reached since ${formatWhen(since)}. This is the last update it sent.`,
-    alerted: (name: string) => `${name} has not checked in. Barry has raised the Alert.`,
+    alerted: (name: string) => `${name} has not checked in. Barry has raised the alert.`,
     checkedIn: (name: string, at: Date) => `${name} checked in at ${formatWhen(at)}.`,
     lastKnownPosition: (p: Position | null) =>
       p
-        ? `Last Known Position at ${formatWhen(p.takenAt)}: ${position(p)}` + (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
-        : 'Last Known Position: not recorded',
+        ? `Last known position at ${formatWhen(p.takenAt)}: ${position(p)}` + (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
+        : 'Last known position: not recorded',
     plan: 'Plan',
     destination: 'Destination',
     route: 'Route',
-    startingPoint: 'Starting Point',
+    startingPoint: 'Starting point',
     notes: 'Notes',
     linkFailed: 'This link did not work',
     newLink: 'Open Barry and tap Create account again to get a new link.',

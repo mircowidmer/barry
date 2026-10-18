@@ -54,7 +54,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
                 id: 'last',
                 coordinates: at(last),
                 tintColor: LAST,
-                title: `Last Known Position, ${formatWhen(last.takenAt)}`,
+                title: `Last known position, ${formatWhen(last.takenAt)}`,
               },
             ]
           : []

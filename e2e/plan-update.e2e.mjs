@@ -18,11 +18,11 @@ test('a Plan change sends a Plan Update to the contacts so far and a Heads-up to
     'save_adventure',
   );
 
-  const update = await waitForMail(anna.luca.email, 'Anna changed the Plan for Grosser Mythen');
+  const update = await waitForMail(anna.luca.email, 'Anna changed the plan for Grosser Mythen');
   assert.match(update.Text, /Notes: Bring a headlamp/);
-  const updateText = await waitForText(anna.sara.phone, 'Anna changed the Plan');
+  const updateText = await waitForText(anna.sara.phone, 'Anna changed the plan');
   assert.match(updateText.body, /Notes: Bring a headlamp/);
   const miaHeadsUp = await waitForMail(mia.email, 'Anna is heading out to Grosser Mythen');
   assert.match(miaHeadsUp.Text, /Notes: Bring a headlamp/);
-  assert.equal(await mailCount(mia.email, 'Anna changed the Plan'), 0, 'the new contact gets no Plan Update');
+  assert.equal(await mailCount(mia.email, 'Anna changed the plan'), 0, 'the new contact gets no Plan Update');
 });

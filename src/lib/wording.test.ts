@@ -21,15 +21,15 @@ const alarm = (kind: Alarm['kind']): Alarm => ({ identifier: `barry.${kind}.a1`,
 describe('notificationText', () => {
   it('words the Reminder like the server did, in the time zone of the Start', () => {
     expect(notificationText(alarm('reminder'), 'en')).toEqual({
-      title: 'Check in or move your Deadline',
-      body: 'Your Deadline for Pilatus is Sat 17 Oct, 18:00.',
+      title: 'Check in or move your deadline',
+      body: 'Your deadline for Pilatus is Sat 17 Oct, 18:00.',
     });
   });
 
   it('gives the Alert time in the Overdue Notice', () => {
     expect(notificationText(alarm('overdue_notice'), 'en')).toEqual({
       title: 'You are overdue',
-      body: 'Your Deadline for Pilatus was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:01 unless you check in.',
+      body: 'Your deadline for Pilatus was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:01 unless you check in.',
     });
   });
 
