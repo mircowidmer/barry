@@ -94,7 +94,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
 const HOLD_MS = 1500;
 
 /** Completes only after a deliberate hold, so a pocket press cannot end protection. */
-export function HoldButton({ title, onComplete }: { title: string; onComplete: () => void }) {
+export function HoldButton({ title, onComplete, disabled }: { title: string; onComplete: () => void; disabled?: boolean }) {
   const theme = useTheme();
   const t = useTexts();
   const [progress] = useState(() => new Animated.Value(0));
@@ -119,11 +119,13 @@ export function HoldButton({ title, onComplete }: { title: string; onComplete: (
     <GlassView
       isInteractive
       tintColor={theme.success}
-      style={[styles.hold, glass ? styles.capsule : { backgroundColor: theme.success, borderRadius: Spacing.two }]}>
+      style={[styles.hold, glass ? styles.capsule : { backgroundColor: theme.success, borderRadius: Spacing.two }, disabled && { opacity: 0.6 }]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={title}
         accessibilityHint={t.adventure.holdHint}
+        accessibilityState={{ disabled, busy: disabled }}
+        disabled={disabled}
         onPressIn={start}
         onPressOut={cancel}
         style={styles.holdTarget}>

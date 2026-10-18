@@ -167,10 +167,16 @@ function LiveAdventure({
 
   const checkIn = async () => {
     setBusy(true);
-    const result = await barry.checkIn(adventure.id);
-    setBusy(false);
-    if (result.kind === 'ended') setAdventure(result.adventure);
-    else onChanged();
+    try {
+      const result = await barry.checkIn(adventure.id);
+      if (result.kind === 'ended') setAdventure(result.adventure);
+      else onChanged();
+    } catch {
+      // The Check-in is saved before it is sent, so the reload shows it as waiting.
+      onChanged();
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -202,7 +208,7 @@ function LiveAdventure({
       )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
-      <HoldButton title={t.adventure.hold} onComplete={checkIn} />
+      <HoldButton title={t.adventure.hold} onComplete={checkIn} disabled={busy} />
 
       {adventure.stage !== 'alerted' && (
         <Section title={t.adventure.needMoreTime}>
