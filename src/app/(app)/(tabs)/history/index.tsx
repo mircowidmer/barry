@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
-import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
+import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
 import { Button, Notice, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
@@ -44,23 +44,31 @@ function SelectionMark({ selected }: { selected: boolean }) {
 }
 
 const LONG_PRESS_MS = 300;
+// The selection circles and the gap after them, where a drag selects without holding first.
+const CIRCLES_WIDTH = 48;
+
+type Drag = { anchor: number; select: boolean; before: Set<AdventureId> };
 
 /**
- * Press and hold a row, then drag over others to select every row in between, as in Photos.
- * The first row decides whether the drag selects or deselects.
+ * Selects many rows in one drag, as in Mail: two fingers over the list start selecting, and while
+ * selecting, one finger down the circles or a held row extends the selection. The first row decides
+ * whether the drag selects or deselects.
  */
 function useDragSelect(
   ids: AdventureId[],
   selected: Set<AdventureId>,
   setSelected: (next: Set<AdventureId>) => void,
-  enabled: boolean,
+  selecting: boolean,
+  startSelecting: () => void,
 ) {
   const rowTops = useRef<number[]>([]);
-  const latest = useRef({ ids, selected });
+  const latest = useRef({ ids, selected, selecting });
   useEffect(() => {
-    latest.current = { ids, selected };
+    latest.current = { ids, selected, selecting };
   });
-  const drag = useRef<{ anchor: number; select: boolean; before: Set<AdventureId> } | null>(null);
+  const drag = useRef<Drag | null>(null);
+  // A drag selects from the row it touched first, not the one it has reached when it activates.
+  const touchedY = useRef(0);
 
   const rowAt = (y: number) => {
     let row = 0;
@@ -81,27 +89,73 @@ function useDragSelect(
     setSelected(next);
   };
 
-  const gesture = usePanGesture({
-    enabled,
+  const begin = (y: number) => {
+    const anchor = rowAt(y);
+    const { ids: current, selected: shown, selecting: already } = latest.current;
+    if (!already) startSelecting();
+    const before = already ? shown : new Set<AdventureId>();
+    drag.current = { anchor, select: !before.has(current[anchor]), before };
+    extendTo(anchor);
+  };
+
+  const end = () => {
+    drag.current = null;
+  };
+
+  const held = usePanGesture({
+    enabled: selecting,
     activateAfterLongPress: LONG_PRESS_MS,
+    // Moving before the hold completes is a scroll, not a selection.
+    failOffsetX: [-10, 10],
+    failOffsetY: [-10, 10],
+    runOnJS: true,
+    onBegin: (e) => {
+      touchedY.current = e.y;
+    },
+    onActivate: () => begin(touchedY.current),
+    onUpdate: (e) => extendTo(rowAt(e.y)),
+    onFinalize: end,
+  });
+  const alongCircles = usePanGesture({
+    activeOffsetY: [-8, 8],
+    failOffsetX: [-20, 20],
+    runOnJS: true,
+    onBegin: (e) => {
+      touchedY.current = e.y;
+    },
+    onActivate: () => begin(touchedY.current),
+    onUpdate: (e) => extendTo(rowAt(e.y)),
+    onFinalize: end,
+  });
+  const twoFingers = usePanGesture({
+    minPointers: 2,
+    activeOffsetY: [-10, 10],
+    runOnJS: true,
+    onBegin: (e) => {
+      touchedY.current = e.y;
+    },
+    onActivate: () => begin(touchedY.current),
+    onUpdate: (e) => extendTo(rowAt(e.y)),
+    onFinalize: end,
+  });
+  const tapCircle = useTapGesture({
     runOnJS: true,
     onActivate: (e) => {
-      const anchor = rowAt(e.y);
-      const { ids: current, selected: before } = latest.current;
-      drag.current = { anchor, select: !before.has(current[anchor]), before };
-      extendTo(anchor);
-    },
-    onUpdate: (e) => extendTo(rowAt(e.y)),
-    onFinalize: () => {
-      drag.current = null;
+      const { ids: current, selected: shown } = latest.current;
+      const id = current[rowAt(e.y)];
+      const next = new Set(shown);
+      if (!next.delete(id)) next.add(id);
+      setSelected(next);
     },
   });
+  const gesture = useCompetingGestures(twoFingers, held);
+  const circlesGesture = useCompetingGestures(alongCircles, tapCircle);
 
   const measure = (row: number) => (e: { nativeEvent: { layout: { y: number } } }) => {
     rowTops.current[row] = e.nativeEvent.layout.y;
   };
 
-  return { gesture, measure };
+  return { gesture, circlesGesture, measure };
 }
 
 export default function HistoryScreen() {
@@ -112,7 +166,7 @@ export default function HistoryScreen() {
   const [selected, setSelected] = useState<Set<AdventureId>>(new Set());
   useHideTabBar(selecting);
   const endedIds = (loaded.data ?? []).filter(isEnded).map((a) => a.id);
-  const dragSelect = useDragSelect(endedIds, selected, setSelected, selecting);
+  const dragSelect = useDragSelect(endedIds, selected, setSelected, selecting, () => setSelecting(true));
 
   if (loaded.status === 'error') {
     return (
@@ -209,29 +263,36 @@ export default function HistoryScreen() {
                 </ThemedText>
               </Section>
             );
-            return selecting ? (
-              <Pressable
-                key={a.id}
-                accessibilityRole="checkbox"
-                accessibilityLabel={a.plan.destination}
-                accessibilityState={{ checked: selected.has(a.id) }}
-                onPress={() => toggle(a.id)}
-                onLayout={dragSelect.measure(i)}
-                style={styles.selectable}>
-                <SelectionMark selected={selected.has(a.id)} />
-                <View style={styles.selectableCard}>{card}</View>
-              </Pressable>
-            ) : (
-              <SwipeToDelete key={a.id} label={t.common.deleteLabel(a.plan.destination)} onDelete={() => remove(a.id)}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t.common.openLabel(a.plan.destination)}
-                  onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}>
-                  {card}
-                </Pressable>
-              </SwipeToDelete>
+            return (
+              <View key={a.id} onLayout={dragSelect.measure(i)}>
+                {selecting ? (
+                  <Pressable
+                    accessibilityRole="checkbox"
+                    accessibilityLabel={a.plan.destination}
+                    accessibilityState={{ checked: selected.has(a.id) }}
+                    onPress={() => toggle(a.id)}
+                    style={styles.selectable}>
+                    <SelectionMark selected={selected.has(a.id)} />
+                    <View style={styles.selectableCard}>{card}</View>
+                  </Pressable>
+                ) : (
+                  <SwipeToDelete label={t.common.deleteLabel(a.plan.destination)} onDelete={() => remove(a.id)}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t.common.openLabel(a.plan.destination)}
+                      onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}>
+                      {card}
+                    </Pressable>
+                  </SwipeToDelete>
+                )}
+              </View>
             );
           })}
+          {selecting && (
+            <GestureDetector gesture={dragSelect.circlesGesture}>
+              <View style={styles.circles} />
+            </GestureDetector>
+          )}
         </View>
       </GestureDetector>
     </Screen>
@@ -240,6 +301,7 @@ export default function HistoryScreen() {
 
 const styles = StyleSheet.create({
   list: { gap: Spacing.three },
+  circles: { position: 'absolute', left: 0, top: 0, bottom: 0, width: CIRCLES_WIDTH },
   selectable: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   selectableCard: { flex: 1 },
   mark: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
