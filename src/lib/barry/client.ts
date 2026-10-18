@@ -306,6 +306,11 @@ export const createBarry = ({
       return { kind: 'deleted' };
     },
 
+    logOut: async () => {
+      remember(null);
+      await supabase.auth.signOut();
+    },
+
     startConditions: async () => {
       const [channels, notificationsAllowed, trailPermitted] = await Promise.all([
         enabledChannels(),

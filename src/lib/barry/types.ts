@@ -136,6 +136,8 @@ export type Barry = {
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
   /** Deletes the signed-in account with everything it owns, then signs out on this phone. */
   deleteAccount(): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
+  /** Signs out and forgets the live Adventure, so its Reminder and Overdue Notice no longer fire. */
+  logOut(): Promise<void>;
 
   startConditions(): Promise<StartConditions>;
   start(id: AdventureId): Promise<StartResult>;

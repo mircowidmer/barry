@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 
-import { supabase } from '@/lib/supabase';
+import { barry } from '@/lib/barry';
 import { currentTexts } from '@/lib/texts';
 
 const confirmed = () => {
@@ -19,5 +19,5 @@ const confirmed = () => {
 };
 
 export const askToLogOut = async () => {
-  if (await confirmed()) await supabase.auth.signOut();
+  if (await confirmed()) await barry.logOut();
 };
