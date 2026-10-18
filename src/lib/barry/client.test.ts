@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { AuthRetryableFetchError, type SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
 
@@ -48,7 +48,12 @@ const setup = ({ cached = true } = {}) => {
   const now = () => new Date('2026-10-17T15:00:00Z');
   if (cached) createAdventureCache(storage, now).save(row({}));
   const ended = row({ stage: 'ended', checked_in_at: '2026-10-17T15:00:00Z', ended_at: '2026-10-17T15:10:00Z' });
-  const world = { signal: false, server: ended };
+  const world = {
+    signal: false,
+    reads: true,
+    server: ended,
+    session: { data: { session: { user: { id: 'u1' } } }, error: null } as { data: { session: unknown }; error: unknown },
+  };
   const query = {
     select: () => query,
     eq: () => query,
@@ -56,12 +61,12 @@ const setup = ({ cached = true } = {}) => {
     order: () => query,
     limit: () => query,
     maybeSingle: async () =>
-      world.signal ? { data: world.server, error: null } : { data: null, error: { message: 'Network request failed' } },
+      world.signal && world.reads ? { data: world.server, error: null } : { data: null, error: { message: 'Network request failed' } },
   };
   const signOuts: unknown[] = [];
   const supabase = {
     auth: {
-      getSession: async () => ({ data: { session: { user: { id: 'u1' } } } }),
+      getSession: async () => world.session,
       signOut: async (options: unknown) => void signOuts.push(options),
     },
     rpc: async () => (world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } }),
@@ -105,6 +110,30 @@ describe('flushPendingCheckIns', () => {
     world.signal = true;
     await barry.flushPendingCheckIns();
     expect(barry.pendingCheckIns()).toEqual([]);
+    expect(await barry.trail.status()).toBe('off');
+  });
+
+  it('forgets the Ended Adventure even when the refetch after the accepted Check-in fails', async () => {
+    const { barry, world, scheduled } = setup();
+    world.signal = true;
+    world.reads = false;
+    expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
+    expect(barry.pendingCheckIns()).toEqual([]);
+    expect(await barry.trail.status()).toBe('off');
+    expect(scheduled()).toEqual({});
+  });
+});
+
+describe('signedIn', () => {
+  it('keeps recording the Trail when the expired token cannot be refreshed for lack of signal', async () => {
+    const { barry, world } = setup();
+    world.session = { data: { session: null }, error: new AuthRetryableFetchError('Network request failed', 0) };
+    expect(await barry.trail.status()).toBe('recording');
+  });
+
+  it('stops the Trail once the session is really gone', async () => {
+    const { barry, world } = setup();
+    world.session = { data: { session: null }, error: null };
     expect(await barry.trail.status()).toBe('off');
   });
 });
