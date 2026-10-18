@@ -1,4 +1,4 @@
-import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import { isAuthRetryableFetchError, type PostgrestError, type SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
 
@@ -142,13 +142,21 @@ export const createBarry = ({
 
   const flushCheckIns = async () => {
     const done = await queue.flush();
+    // A Check-in that left the queue ended the Adventure, so it is no longer the live one even when
+    // the refetch below fails; otherwise its notifications would be scheduled again.
+    const live = cache.load()?.row.id as AdventureId | undefined;
+    if (live && done.has(live)) remember(null);
     return new Map(await Promise.all([...done].map(async (id) => [id, await getAdventure(id).catch(() => null)] as const)));
   };
 
   const trail = createTrail({
     location,
     buffer: createTrailBuffer(storage),
-    signedIn: async () => (await supabase.auth.getSession()).data.session !== null,
+    // An expired token whose refresh fails for lack of signal still belongs to a signed-in Adventurer.
+    signedIn: async () => {
+      const { data, error } = await supabase.auth.getSession();
+      return data.session !== null || (error !== null && isAuthRetryableFetchError(error));
+    },
     inProgressId: () => (cache.load()?.row.id as AdventureId | undefined) ?? null,
     pendingCheckIn: () => queue.pending().length > 0,
     flushCheckIns: async () => {
@@ -316,7 +324,8 @@ export const createBarry = ({
       });
       if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('start', error);
       if (data) return { kind: 'refused', refusal: data as Refusal };
-      const adventure = await getAdventure(id);
+      // The command went through; a refetch that fails for lack of signal is only unconfirmed.
+      const adventure = await getAdventure(id).catch(() => null);
       syncTrail();
       return isInProgress(adventure) ? { kind: 'protected', adventure } : { kind: 'unconfirmed' };
     },
@@ -330,7 +339,7 @@ export const createBarry = ({
       });
       if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('moveDeadline', error);
       if (data) return { kind: 'refused', refusal: data as Refusal };
-      const adventure = await getAdventure(id);
+      const adventure = await getAdventure(id).catch(() => null);
       syncTrail();
       return isInProgress(adventure) ? { kind: 'moved', adventure } : { kind: 'unconfirmed' };
     },
