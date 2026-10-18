@@ -31,6 +31,7 @@ export default function AdventureScreen() {
   }
 
   const { inProgress, offlineSince, adventures, pending } = loaded.data;
+  const reloadFailure = loaded.error && t.common.couldNotReach(loaded.error.message);
   const queued = inProgress && pending.find((c) => c.adventureId === inProgress.id);
 
   return inProgress ? (
@@ -39,20 +40,23 @@ export default function AdventureScreen() {
       adventure={inProgress}
       offlineSince={offlineSince}
       queuedAt={queued?.checkedInAt ?? null}
+      reloadFailure={reloadFailure}
       onChanged={loaded.reload}
     />
   ) : (
-    <Overview adventures={adventures} offlineSince={offlineSince} onReload={loaded.reload} />
+    <Overview adventures={adventures} offlineSince={offlineSince} reloadFailure={reloadFailure} onReload={loaded.reload} />
   );
 }
 
 function Overview({
   adventures,
   offlineSince,
+  reloadFailure,
   onReload,
 }: {
   adventures: Adventure[];
   offlineSince: Date | null;
+  reloadFailure: string | undefined;
   onReload: () => Promise<void>;
 }) {
   const t = useTexts();
@@ -69,6 +73,7 @@ function Overview({
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
       </Stack.Toolbar>
+      {reloadFailure && <Notice tone="danger">{reloadFailure}</Notice>}
       {offlineSince && (
         <>
           <Notice tone="warning">{t.adventure.noSignal}</Notice>
@@ -109,11 +114,13 @@ function LiveAdventure({
   adventure: initial,
   offlineSince,
   queuedAt,
+  reloadFailure,
   onChanged,
 }: {
   adventure: InProgressAdventure;
   offlineSince: Date | null;
   queuedAt: Date | null;
+  reloadFailure: string | undefined;
   onChanged: () => void;
 }) {
   const now = useNow();
@@ -198,6 +205,7 @@ function LiveAdventure({
       {offlineSince && (
         <Notice tone="warning">{t.adventure.offline(t.when(offlineSince))}</Notice>
       )}
+      {reloadFailure && <Notice tone="danger">{reloadFailure}</Notice>}
       {trailStatus === 'recording' && <Notice>{t.adventure.recording}</Notice>}
       {trailStatus === 'off' && <Notice>{t.adventure.trailOff}</Notice>}
       {queuedAt && (

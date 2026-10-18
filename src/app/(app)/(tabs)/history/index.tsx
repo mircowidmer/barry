@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
-import { FirstLoad, pressedStyle, Screen, Section } from '@/components/form';
+import { FirstLoad, Notice, pressedStyle, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
@@ -221,6 +221,7 @@ export default function HistoryScreen() {
           </Stack.Toolbar.Button>
         </Stack.Toolbar>
       )}
+      {loaded.error && <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>}
       {!inProgress && ended.length === 0 && (
         <ThemedText themeColor="textSecondary">{t.history.empty}</ThemedText>
       )}
