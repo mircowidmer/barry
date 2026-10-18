@@ -92,14 +92,16 @@ function ContactForm({ contact }: { contact: EmergencyContact | null }) {
     <>
       <Stack.Screen options={{ title: contact ? t.contacts.editTitle(contact.name) : t.contacts.newTitle }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button disabled={busy !== null} onPress={leave}>
-          {t.common.cancel}
-        </Stack.Toolbar.Button>
+        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={leave} />
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button variant="done" disabled={!complete || busy !== null} onPress={save}>
-          {contact ? t.common.save : t.common.add}
-        </Stack.Toolbar.Button>
+        <Stack.Toolbar.Button
+          variant="done"
+          icon="checkmark"
+          accessibilityLabel={contact ? t.common.save : t.common.add}
+          disabled={!complete || busy !== null}
+          onPress={save}
+        />
       </Stack.Toolbar>
       <Screen>
         <Field label={t.contacts.name} value={form.name} onChangeText={(name) => setForm((f) => ({ ...f, name }))} autoFocus={!contact} />

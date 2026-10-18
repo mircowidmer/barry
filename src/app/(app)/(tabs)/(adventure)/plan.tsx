@@ -211,15 +211,17 @@ function PlanForm({
     <Screen>
       <Stack.Screen options={{ title: live ? t.plan.titleEdit : id ? t.plan.titlePlanned : t.plan.titleNew }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button disabled={busy !== null} onPress={leave}>
-          {t.common.cancel}
-        </Stack.Toolbar.Button>
+        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={leave} />
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
         {live ? (
-          <Stack.Toolbar.Button variant="done" disabled={busy !== null} onPress={onSave}>
-            {t.common.save}
-          </Stack.Toolbar.Button>
+          <Stack.Toolbar.Button
+            variant="done"
+            icon="checkmark"
+            accessibilityLabel={t.common.save}
+            disabled={busy !== null}
+            onPress={onSave}
+          />
         ) : (
           <Stack.Toolbar.Button variant="prominent" disabled={busy !== null} onPress={onStart}>
             {t.plan.start}
