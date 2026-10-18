@@ -16,8 +16,13 @@ export const fitCamera = (points: readonly Point[]): Camera | null => {
   return { center: { latitude: (south + north) / 2, longitude: (west + east) / 2 }, zoom };
 };
 
-/** Whether the square region the camera shows holds the point. */
-export const shows = (camera: Camera, point: Point) => {
-  const half = 360 / 2 ** camera.zoom / 2;
-  return Math.abs(point.latitude - camera.center.latitude) <= half && Math.abs(point.longitude - camera.center.longitude) <= half;
+export type Region = { center: Point; latitudeDelta: number; longitudeDelta: number };
+
+export const regionOf = (camera: Camera): Region => {
+  const span = 360 / 2 ** camera.zoom;
+  return { center: camera.center, latitudeDelta: span, longitudeDelta: span };
 };
+
+export const shows = (region: Region, point: Point) =>
+  Math.abs(point.latitude - region.center.latitude) <= region.latitudeDelta / 2 &&
+  Math.abs(point.longitude - region.center.longitude) <= region.longitudeDelta / 2;

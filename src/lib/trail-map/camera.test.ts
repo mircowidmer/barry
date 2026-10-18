@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { fitCamera, shows } from './camera';
+import { fitCamera, regionOf, shows } from './camera';
 
 describe('fitCamera', () => {
   it('shows nothing without readings', () => {
@@ -25,16 +25,23 @@ describe('fitCamera', () => {
 });
 
 describe('shows', () => {
-  const camera = fitCamera([
-    { latitude: 47.0, longitude: 8.6 },
-    { latitude: 47.1, longitude: 8.62 },
-  ])!;
+  const region = regionOf(
+    fitCamera([
+      { latitude: 47.0, longitude: 8.6 },
+      { latitude: 47.1, longitude: 8.62 },
+    ])!,
+  );
 
   it('holds the readings it was fitted to', () => {
-    expect(shows(camera, { latitude: 47.1, longitude: 8.62 })).toBe(true);
+    expect(shows(region, { latitude: 47.1, longitude: 8.62 })).toBe(true);
   });
 
   it('loses a reading beyond the fitted region', () => {
-    expect(shows(camera, { latitude: 47.2, longitude: 8.61 })).toBe(false);
+    expect(shows(region, { latitude: 47.2, longitude: 8.61 })).toBe(false);
+  });
+
+  it('follows a region the Adventurer zoomed out to', () => {
+    const zoomedOut = { center: { latitude: 47.05, longitude: 8.61 }, latitudeDelta: 1, longitudeDelta: 1 };
+    expect(shows(zoomedOut, { latitude: 47.2, longitude: 8.61 })).toBe(true);
   });
 });

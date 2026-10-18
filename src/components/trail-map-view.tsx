@@ -1,11 +1,11 @@
 import { useImage } from 'expo-image';
-import { AppleMaps } from 'expo-maps';
+import { AppleMaps, type CameraMoveEvent } from 'expo-maps';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
-import { type Camera, fitCamera, shows } from '@/lib/trail-map/camera';
+import { fitCamera, type Region, regionOf, shows } from '@/lib/trail-map/camera';
 import type { LastKnown, TrailPoint } from '@/lib/trail-map/types';
 import { useTexts } from '@/lib/texts';
 
@@ -26,17 +26,23 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     useColorScheme() === 'dark' ? require('@/assets/images/trail-dot-dark.png') : require('@/assets/images/trail-dot.png'),
   );
   const map = useRef<AppleMaps.MapView>(null);
-  // The camera fits the Trail again only once a reading leaves the region it last fitted, so the
-  // Adventurer's zoom and pan survive the readings that land inside it.
+  // The camera fits the Trail again only once the newest reading leaves the region on screen, so the
+  // Adventurer's zoom and pan survive every reading they can still see.
   const [fitted] = useState(() => fitCamera(last ? [...trail, last] : trail));
   const [cameraPosition] = useState(() => fitted && { coordinates: fitted.center, zoom: fitted.zoom });
-  const lastFit = useRef<Camera | null>(fitted);
+  const visible = useRef<Region | null>(fitted && regionOf(fitted));
   const newest = last ?? trail.at(-1);
   useEffect(() => {
-    if (!newest || (lastFit.current && shows(lastFit.current, newest))) return;
-    lastFit.current = fitCamera(last ? [...trail, last] : trail);
-    if (lastFit.current) map.current?.setCameraPosition({ coordinates: lastFit.current.center, zoom: lastFit.current.zoom });
+    if (!newest || (visible.current && shows(visible.current, newest))) return;
+    const camera = fitCamera(last ? [...trail, last] : trail);
+    if (!camera) return;
+    visible.current = regionOf(camera);
+    map.current?.setCameraPosition({ coordinates: camera.center, zoom: camera.zoom });
   }, [trail, last, newest]);
+  const onCameraMove = ({ coordinates, latitudeDelta, longitudeDelta }: CameraMoveEvent) => {
+    if (coordinates.latitude === undefined || coordinates.longitude === undefined) return;
+    visible.current = { center: { latitude: coordinates.latitude, longitude: coordinates.longitude }, latitudeDelta, longitudeDelta };
+  };
 
   if (Platform.OS !== 'ios' || !cameraPosition) return null;
 
@@ -44,6 +50,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
   return (
     <AppleMaps.View
       ref={map}
+      onCameraMove={onCameraMove}
       style={styles.map}
       cameraPosition={cameraPosition}
       uiSettings={{ myLocationButtonEnabled: false, scaleBarEnabled: true, togglePitchEnabled: false }}
