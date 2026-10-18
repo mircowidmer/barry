@@ -1,12 +1,14 @@
 :root {
-  --bg: #ffffff;
-  --surface: #f2f4f7;
-  --text: #111418;
-  --muted: #5b6470;
-  --accent: #0b6bcb;
-  --border: #e3e7ec;
-  --warning-bg: #fff6e5;
-  --warning: #8a5a00;
+  --bg: #faf8f5;
+  --surface: #efebe6;
+  --text: #1c1a19;
+  --muted: #6b645e;
+  --accent: #b5562a;
+  --on-accent: #ffffff;
+  --link: #a34b22;
+  --border: #e2ddd6;
+  --warning-bg: #fbf1dc;
+  --warning: #855c00;
   --danger-bg: #fdecec;
   --danger: #a51d1d;
   --success-bg: #e8f6ec;
@@ -14,14 +16,16 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0d1014;
-    --surface: #181c22;
-    --text: #f2f4f7;
-    --muted: #a3acb8;
-    --accent: #5aa9ff;
-    --border: #262c34;
+    --bg: #1c1a19;
+    --surface: #2a2725;
+    --text: #faf8f5;
+    --muted: #b3aca5;
+    --accent: #e07a4a;
+    --on-accent: #1c1a19;
+    --link: #e07a4a;
+    --border: #3a3633;
     --warning-bg: #2b2210;
-    --warning: #f0c060;
+    --warning: #e8b23a;
     --danger-bg: #2d1414;
     --danger: #ff8a8a;
     --success-bg: #12261a;
@@ -38,7 +42,7 @@ html:has(.site) { background: var(--bg); }
 }
 .site.page { flex: 1; height: 100%; overflow-y: auto; }
 .site header {
-  background: linear-gradient(160deg, #34c759, #0088ff);
+  background: linear-gradient(160deg, #b5562a, #7a3518);
   color: #fff;
   padding: 56px 16px 64px;
   text-align: center;
@@ -56,7 +60,7 @@ html:has(.site) { background: var(--bg); }
   margin-top: 20px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.18);
+  background: rgb(0 0 0 / 0.2);
   font-size: 15px;
 }
 .site main { max-width: 760px; margin: 0 auto; padding: 8px 16px 48px; }
@@ -96,11 +100,11 @@ html:has(.site) { background: var(--bg); }
   padding: 12px 22px;
   border-radius: 999px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 600;
   text-decoration: none;
 }
 .site footer { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; color: var(--muted); font-size: 15px; }
-.site a:not(.button) { color: var(--accent); }
+.site a:not(.button) { color: var(--link); }
 
 html:not([lang="de"]) .site [lang="de"], html[lang="de"] .site [lang="en"] { display: none; }
