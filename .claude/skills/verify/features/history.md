@@ -6,9 +6,9 @@ The History tab, second in the tab bar, shows the Adventure in progress under `C
 
 - `history-tab` shows four tabs in the order `Adventure`, `History`, `Contacts`, `Profile`, with a list icon on `History`.
 - `history-past` lists Ended Adventures as cards reading `<destination>` and `Checked in <time>`, newest first.
-- `history-now` shows the live Adventure under `Current Adventure` with `Back by <time>`, `Overdue since <time>` or `Emergency Contacts alerted`. Tapping it opens the Adventure tab's live screen.
+- `history-now` shows the live Adventure under `Current Adventure` with `Back by <time>`, `Overdue since <time>` or `Emergency contacts alerted`. Tapping it opens the Adventure tab's live screen.
 - `history-empty` reads `Your adventures show up here once you start one.` when there is no live or Ended Adventure.
-- `history-select` deletes several Ended Adventures at once. `Select` in the header turns into `Done`, each card gets a round checkmark, a tap selects it instead of opening it, and the tab bar gives way to a bottom toolbar with `Select All` and a red `Delete (<n>)`. `Delete (2)` asks `Delete 2 Adventures?` with `Their Plans, Trails and messages are removed.`; afterwards the cards are gone, `Select` is back and so is the tab bar.
+- `history-select` deletes several Ended Adventures at once. `Select` in the header turns into `Done`, each card gets a round checkmark, a tap selects it instead of opening it, and the tab bar gives way to a bottom toolbar with `Select All` and a red `Delete (<n>)`. `Delete (2)` asks `Delete 2 Adventures?` with `Their plans, trails and messages are removed.`; afterwards the cards are gone, `Select` is back and so is the tab bar.
 - Opening an Ended Adventure and deleting it are `trail-history` and `history-delete` in [Trail and Trail Map](./trail.md).
 
 ## How to get to it (user POV)

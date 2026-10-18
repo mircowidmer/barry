@@ -5,15 +5,15 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 ## Sub-features
 
 - `trail-off` shows `Barry can share only where you started.` on the live screen without "Always".
-- `trail-recording` shows `Barry is recording your Trail. Closing Barry stops the Trail.` with "Always".
+- `trail-recording` shows `Barry is recording your trail. Closing Barry stops the trail.` with "Always".
 - `trail-background` keeps uploading readings while Barry is in the background, at most one per minute.
 - `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
 - `trail-map` shows `<name>'s Adventure`, the line, `Last Known Position at …` and the Plan, without the Deadline, also while Overdue.
 - `trail-map-checked-in` shows `<name> checked in at …` above the map of the Trail after the Check-in.
-- `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every minute, and the Plan's `Last Known Position: <time>` always shows the same time as the marker.
+- `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every minute, and the Plan's `Last known position: <time>` always shows the same time as the marker.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.
 - `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
-- `history-delete` deletes an Ended Adventure, from its screen with `Delete` or from `Past Adventures` on the History tab by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this Adventure. Try again in a few minutes.`
+- `history-delete` deletes an Ended Adventure, from its screen with `Delete` or from `Past Adventures` on the History tab by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this adventure. Try again in a few minutes.`
 
 ## How to get to it (user POV)
 
@@ -32,7 +32,7 @@ Preconditions:
 - `fixture.mjs live 120`, then tap `Contacts` (243, 820) and `Adventure` (73, 820) so the app loads and saves the live Adventure.
 
 - **Off (`trail-off`).** The live screen shows `Barry can share only where you started.` under the countdown.
-- **Recording (`trail-recording`).** The live screen shows `Barry is recording your Trail. Closing Barry stops the Trail.` and the status bar shows the location arrow.
+- **Recording (`trail-recording`).** The live screen shows `Barry is recording your trail. Closing Barry stops the trail.` and the status bar shows the location arrow.
 - **Walk.** `xcrun simctl location booted start --speed=2 --distance=15 47.0286,8.6885 47.0320,8.6960 47.0370,8.7040 47.0420,8.7120 47.0480,8.7200`. Within a minute `fixture.mjs trail` prints a `readings | trail | n | n | …` line, where the two counts are equal. Expect one reading per minute, the first one iOS reports in that minute.
 - **Background (`trail-background`).** Press HOME, wait three minutes, run `fixture.mjs trail`. The count grows by roughly 3 (one per minute while moving) and the last time is within the last minute.
 - **Offline (`trail-offline`).** While walking, `fixture.mjs offline`, wait two minutes, `fixture.mjs trail` shows no new readings. `fixture.mjs online`, then `xcrun simctl launch booted support.barry.dev`. Within 30 seconds the missing readings arrive, still at most one per minute.
