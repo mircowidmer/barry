@@ -36,7 +36,7 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `duration` for a long-press), `swipe`, `button HOME`, `open_url`. Coordinates are device points on the iPhone 18 Pro, 402 × 874. A screenshot is shown scaled, so convert with the factor the tool reports.
 
 - **Wait after every tap.** The debug build reacts one to three seconds late. Wait 2 to 3 seconds after a tap before the next screenshot, or the screenshot shows the old screen and the next tap lands on the new one.
-- **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign in`, `Plan an Adventure`, `Start`, `Hold to Check In`, `+1 hour`, `Edit Plan or Contacts`, `Save`. Coordinates in the feature files are hints for an unscrolled screen only.
+- **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign In`, `Plan an Adventure`, `Start`, `Hold to Check In`, `+1 h`, `Edit Plan or Contacts`, `Save`. Coordinates in the feature files are hints for an unscrolled screen only.
 - **Language.** The app follows the simulator's language, and every recipe quotes the English texts, so keep the simulator in English. To check the German texts, run `xcrun simctl spawn booted defaults write -g AppleLanguages -array de-CH en`, then `xcrun simctl shutdown booted` and boot it again. Set it back with `-array en-CH` the same way.
 - **Text entry.** The `text` action does not reach the field. Use the clipboard:
   1. `.claude/skills/verify/scripts/clip.sh set "Grosser Mythen"` (or `clip.sh email`, `clip.sh password`).
@@ -44,7 +44,7 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
   3. Wait one second, then take a screenshot. A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
   4. Tap `Paste`. Never tap `AutoFill`.
   5. After pasting the password, run `clip.sh clear`.
-- **Sign in.** Paste the email and the password, then tap `Sign in`. The first sign-in shows `"Barry" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
+- **Sign in.** Paste the email and the password, then tap `Sign In`. The first sign-in shows `"Barry" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
 - **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content.
 - **Hold to Check In.** A Check-in needs `tap` with `duration: 2.2` on `Hold to Check In`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`) and the Trail (`trail`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
