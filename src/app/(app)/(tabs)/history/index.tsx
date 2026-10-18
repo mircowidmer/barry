@@ -31,13 +31,13 @@ export default function HistoryScreen() {
 
   if (loaded.status === 'error') {
     return (
-      <Screen title={t.history.title}>
+      <Screen>
         <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
         <Button title={t.common.tryAgain} onPress={loaded.reload} />
       </Screen>
     );
   }
-  if (!loaded.data) return <Screen title={t.history.title}>{null}</Screen>;
+  if (!loaded.data) return <Screen>{null}</Screen>;
 
   const inProgress = loaded.data.find(isInProgress);
   const ended = loaded.data.filter(isEnded);
@@ -48,7 +48,7 @@ export default function HistoryScreen() {
   };
 
   return (
-    <Screen title={t.history.title}>
+    <Screen>
       {!inProgress && ended.length === 0 && (
         <ThemedText themeColor="textSecondary">{t.history.empty}</ThemedText>
       )}
@@ -74,7 +74,7 @@ export default function HistoryScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t.common.openLabel(a.plan.destination)}
-            onPress={() => router.push({ pathname: '/adventure/[id]', params: { id: a.id } })}>
+            onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}>
             <Section>
               <ThemedText type="smallBold">{a.plan.destination}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">

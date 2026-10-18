@@ -1,20 +1,19 @@
 import { NativeTabs } from 'expo-router/native-tabs';
-import { useColorScheme } from 'react-native';
+import { DynamicColorIOS, Platform } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 import { useTexts } from '@/lib/texts';
 
+// Liquid Glass picks the tab bar's light or dark look from the content behind it, so iOS gets both
+// accent colours and chooses. The bar's background is the system's own and cannot be set.
+const tint = Platform.OS === 'ios' ? DynamicColorIOS({ light: Colors.light.accent, dark: Colors.dark.accent }) : Colors.light.accent;
+
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const t = useTexts();
 
   return (
-    <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
-      <NativeTabs.Trigger name="index">
+    <NativeTabs tintColor={tint} minimizeBehavior="onScrollDown">
+      <NativeTabs.Trigger name="(adventure)">
         <NativeTabs.Trigger.Label>{t.tabs.adventure}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.hiking" md="hiking" />
       </NativeTabs.Trigger>

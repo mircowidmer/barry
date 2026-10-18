@@ -28,8 +28,7 @@ const toForm = (p: AdventurerProfile): Form => ({
 
 export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
-  const t = useTexts();
-  if (loaded.status === 'loading') return <Screen title={t.profile.title}>{null}</Screen>;
+  if (loaded.status === 'loading') return <Screen>{null}</Screen>;
   return <ProfileForm initial={loaded.data ? toForm(loaded.data) : empty} />;
 }
 
@@ -71,7 +70,7 @@ function ProfileForm({ initial }: { initial: Form }) {
   };
 
   return (
-    <Screen title={t.profile.title}>
+    <Screen>
       <ThemedText themeColor="textSecondary">{t.profile.intro}</ThemedText>
       <Section title={t.profile.about}>
         <Field label={t.profile.name} value={profile.name} onChangeText={set('name')} autoComplete="name" />

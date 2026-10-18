@@ -79,7 +79,7 @@ export default function ContactsScreen() {
   };
 
   return (
-    <Screen title={t.contacts.title}>
+    <Screen>
       <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
       {loaded.status === 'error' && <Notice tone="danger">{t.contacts.couldNotLoad}</Notice>}

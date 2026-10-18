@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 
 import { Button, Notice, Screen, Section } from '@/components/form';
@@ -23,7 +23,8 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
   };
 
   return (
-    <Screen title={adventure.plan.destination}>
+    <Screen>
+      <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Notice tone="success">
         {t.ended.checkedIn(t.when(adventure.checkedInAt))}
         {onDone && t.ended.welcome}

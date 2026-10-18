@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable } from 'react-native';
 
@@ -24,13 +24,13 @@ export default function AdventureScreen() {
 
   if (loaded.status === 'error') {
     return (
-      <Screen title={t.adventure.title}>
+      <Screen>
         <Notice tone="danger">{t.common.couldNotReach(loaded.error.message)}</Notice>
         <Button title={t.common.tryAgain} onPress={loaded.reload} />
       </Screen>
     );
   }
-  if (!loaded.data) return <Screen title={t.adventure.title}>{null}</Screen>;
+  if (!loaded.data) return <Screen>{null}</Screen>;
 
   const { inProgress, offlineSince, adventures, pending } = loaded.data;
   const queued = inProgress && pending.find((c) => c.adventureId === inProgress.id);
@@ -64,8 +64,10 @@ function Overview({
     if (outcome.kind === 'deleted') onReload();
     else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
+  // A Live Adventure names the header after its destination; the overview takes the tab's name back.
   return (
-    <Screen title={t.adventure.title}>
+    <Screen>
+      <Stack.Screen options={{ title: t.adventure.title }} />
       {offlineSince && (
         <>
           <Notice tone="warning">{t.adventure.noSignal}</Notice>
@@ -165,7 +167,8 @@ function LiveAdventure({
   };
 
   return (
-    <Screen title={adventure.plan.destination}>
+    <Screen>
+      <Stack.Screen options={{ title: adventure.plan.destination }} />
       {adventure.stage === 'active' && (
         <Notice tone="success">
           {t.adventure.watching(t.when(adventure.deadline), t.duration(adventure.deadline.getTime() - now.getTime()))}

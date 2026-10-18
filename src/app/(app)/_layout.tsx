@@ -6,14 +6,12 @@ import { AppState, useColorScheme } from 'react-native';
 import { barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
-import { useTexts } from '@/lib/texts';
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ fade: true, duration: 300 });
 
 function Navigation() {
   const { session, loading } = useSession();
-  const t = useTexts();
 
   useEffect(() => {
     if (!session) return;
@@ -37,15 +35,14 @@ function Navigation() {
 
   if (loading) return null;
 
+  // Each tab has its own stack with the headers, so this one shows none.
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={session !== null}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="plan" options={{ title: t.adventure.title, headerBackTitle: t.common.back }} />
-        <Stack.Screen name="adventure/[id]" options={{ title: t.adventure.title, headerBackTitle: t.common.back }} />
+        <Stack.Screen name="(tabs)" />
       </Stack.Protected>
       <Stack.Protected guard={session === null}>
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-in" />
       </Stack.Protected>
     </Stack>
   );
