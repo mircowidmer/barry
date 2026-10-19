@@ -121,7 +121,7 @@ function LiveAdventure({
   offlineSince: Date | null;
   queuedAt: Date | null;
   reloadFailure: ReactNode;
-  onChanged: () => void;
+  onChanged: () => Promise<void>;
 }) {
   const now = useNow();
   const t = useTexts();
@@ -187,7 +187,7 @@ function LiveAdventure({
   };
 
   return (
-    <Screen>
+    <Screen onRefresh={onChanged}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       {adventure.stage === 'active' && (
         <Notice tone="success">
