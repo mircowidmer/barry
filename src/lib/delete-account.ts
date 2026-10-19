@@ -30,6 +30,6 @@ export const askToDeleteAccount = async (onConfirmed: () => void): Promise<Delet
   onConfirmed();
   const result = await barry.deleteAccount().catch(() => null);
   if (result?.kind === 'deleted') return { kind: 'deleted' };
-  if (!result) return { kind: 'failed', message: currentTexts().dialogs.couldNotDeleteAccount };
+  if (!result) return { kind: 'failed', message: currentTexts().dialogs.couldNotDelete };
   return { kind: 'failed', message: accountRefusals()[result.refusal] ?? refusalText(result.refusal) };
 };

@@ -95,7 +95,7 @@ function ProfileForm({
       });
       setSaved(profile);
     } catch {
-      Alert.alert(t.profile.couldNotSave);
+      Alert.alert(t.common.couldNotSave, t.profile.couldNotSave);
     } finally {
       setSaving(false);
     }
@@ -104,7 +104,7 @@ function ProfileForm({
   const deleteAccount = async () => {
     const outcome = await askToDeleteAccount(() => setDeleting(true));
     setDeleting(false);
-    if (outcome.kind === 'failed') Alert.alert(outcome.message);
+    if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
 
   return (
