@@ -52,7 +52,7 @@ Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map li
   assertEquals(
     text,
     [
-      'Anna changed the plan, and Barry has sniffed out the new details.',
+      'Anna changed the plan, and Barry has sniffed out the new one.',
       '',
       'Destination: Grosser Mythen',
       'Route: East ridge',

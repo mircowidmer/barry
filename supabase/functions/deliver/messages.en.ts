@@ -50,7 +50,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
       return {
         subject: `${name} changed the plan for ${facts.plan.destination}`,
         text: lines(
-          `${name} changed the plan, and Barry has sniffed out the new details.`,
+          `${name} changed the plan, and Barry has sniffed out the new one.`,
           '',
           ...planLines(facts.plan),
           '',
