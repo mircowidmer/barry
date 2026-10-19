@@ -1,6 +1,6 @@
 # How to host the Adventure page on GitHub Pages
 
-The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Adventure page and the email-confirmed page to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. Any other address on `barry.support` goes to the landing page, because `web/404.html` sends the visitor there.
+The workflow `.github/workflows/trail-map.yml` publishes the landing page, the Adventure page, the email-confirmed page, the Privacy Policy and the Terms of Use to GitHub Pages on the domain `barry.support`. Emergency Contacts open their link anywhere, at `https://barry.support/adventure#<token>`. Any other address on `barry.support` goes to the landing page, because `web/404.html` sends the visitor there.
 
 ## Before you start
 
@@ -20,7 +20,7 @@ You need a hosted Supabase project. The page fetches the Trail from Supabase in 
 
 Every push to `main` builds and publishes the page. To publish without a push, open **Actions > Trail Map on GitHub Pages** and choose **Run workflow**. The run's summary links to the page.
 
-The workflow exports the web build and publishes `adventure.html`, `confirmed.html`, `_expo`, `assets` and `favicon.ico`. It adds `web/index.html` and `web/site.css` with `assets/images/logo.png` as the landing page at `https://barry.support`, and `web/404.html` for every other address. `confirmed.html` is where Supabase Auth sends a new account after its email confirmation link, so the hosted project's **Site URL** is `https://barry.support/confirmed`. The app's other web screens, such as sign-in, are not published.
+The workflow exports the web build and publishes `adventure.html`, `confirmed.html`, `_expo`, `assets` and `favicon.ico`. It adds `web/index.html` and `web/site.css` with `assets/images/logo.png` as the landing page at `https://barry.support`, `web/privacy.html` and `web/terms.html` at `/privacy` and `/terms`, and `web/404.html` for every other address. `confirmed.html` is where Supabase Auth sends a new account after its email confirmation link, so the hosted project's **Site URL** is `https://barry.support/confirmed`. The app's other web screens, such as sign-in, are not published.
 
 ## Try the build locally
 
