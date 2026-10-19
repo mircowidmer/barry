@@ -16,7 +16,7 @@ Mailpit catches every email. Open http://127.0.0.1:54324 to read the Heads-ups, 
    node scripts/sms-relay.mjs
    ```
 
-   Each text message prints `texted <to> from Barry: <first line>`, for example `texted +41792222222 from Barry: Anna has not checked in from an adventure. The Deadline was Thu 15 Oct, 18:00.`, followed by the rest of the text indented, including the Adventure page link. A text message carries the same text as the email body, without the subject.
+   Each text message prints `texted <to> from Barry: <first line>`, for example `texted +41792222222 from Barry: Anna has not checked in from an adventure. The deadline was Thu 15 Oct, 18:00.`, followed by the rest of the text indented, including the Adventure page link. A text message carries the same text as the email body, without the subject.
 
 2. Open http://localhost:8788/messages to read them in full. The page lists each text message's recipient, sender and body.
 
