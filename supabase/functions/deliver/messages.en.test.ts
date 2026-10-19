@@ -107,10 +107,10 @@ Deno.test('a later Alert says which round it is, and a missing position says so'
 });
 
 Deno.test('the Overdue Notice says when the Alert goes out', () => {
-  const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:30:00Z' }), links);
+  const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:01:00Z' }), links);
   assertEquals(
     text,
-    'Your deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:30 unless you check in.',
+    'Your deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:01 unless you check in.',
   );
 });
 

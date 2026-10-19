@@ -139,11 +139,11 @@ select is(
   'During the Grace Period no Alert is queued'
 );
 
-select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:31+02');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:01+02');
 
 select is((pg_temp.anna()).stage, 'alerted'::public.adventure_stage, 'When the Grace Period ends the Adventure becomes Alerted');
 select is((pg_temp.anna()).alerts_sent, 1::smallint, 'One Alert round is recorded');
-select is((pg_temp.anna()).last_alert_at, '2026-10-17 20:31+02'::timestamptz, 'The Alert time is when reconcile ran');
+select is((pg_temp.anna()).last_alert_at, '2026-10-17 20:01+02'::timestamptz, 'The Alert time is when reconcile ran');
 
 select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'alert'),
