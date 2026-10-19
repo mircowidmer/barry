@@ -6,7 +6,7 @@ This puts the development build of Barry, Barry Dev with the bundle identifier `
 
 - The iPhone is paired with Xcode on this Mac and has **Developer Mode** on (**Settings > Privacy & Security > Developer Mode**).
 - Xcode is signed in to the Apple account of team `4GNTKX8XTQ` (`app.json` sets `ios.appleTeamId`). It is a free personal team.
-- The Mac's local network name is `Mirook`. Check it with `scutil --get LocalHostName`. If it differs, change `Mirook.local` in `.env.local` and in `TRAIL_MAP_URL` in `supabase/config.toml`, then restart Supabase.
+- The Mac's local network name is `Mirook`. Check it with `scutil --get LocalHostName`. The iPhone reaches Supabase through that name, so set `EXPO_PUBLIC_SUPABASE_URL=http://Mirook.local:54321` in `.env.local`; the `127.0.0.1` from `.env.example` works only in the simulator. If the name differs, use yours there and in `TRAIL_MAP_URL` in `supabase/config.toml`, then restart Supabase.
 
 ## Build and install
 
