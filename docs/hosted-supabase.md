@@ -128,5 +128,4 @@ Once Barry runs again, a waiting Alert goes out by itself. A failed one does not
 
 ## Not done yet
 
-- Text messages. They need a Twilio account and its secrets. [Text messages](text-messages.md) sets it up.
 - The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.
