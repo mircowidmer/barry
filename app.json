@@ -62,7 +62,8 @@
           "locationAlwaysAndWhenInUsePermission": "With Always, Barry records your Trail about once a minute until you check in, so your Emergency Contacts can follow it and an Alert can show where you were last.",
           "locationAlwaysPermission": "With Always, Barry records your Trail about once a minute until you check in, so your Emergency Contacts can follow it and an Alert can show where you were last.",
           "isIosBackgroundLocationEnabled": true,
-          "motionUsagePermission": false
+          "motionUsagePermission": false,
+          "locationFullAccuracyPermission": "Barry needs your precise location, so your Trail and your Last Known Position show where you really are."
         }
       ],
       "expo-notifications",
