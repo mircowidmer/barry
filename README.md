@@ -36,3 +36,4 @@ npm run e2e
 - [The hosted Supabase project](docs/hosted-supabase.md)
 - [How to host the Adventure page on GitHub Pages](docs/trail-map-hosting.md)
 - [Text messages](docs/text-messages.md)
+- [Backend design](docs/design/backend/design.md) and [Trail design](docs/design/trail/design.md), the sketches the implementation started from
