@@ -40,3 +40,13 @@ npm run e2e
 - [Text messages](docs/text-messages.md)
 - [Backend design](docs/design/backend/design.md) and [Trail design](docs/design/trail/design.md), the sketches the implementation started from
 - [Project overview](docs/overview/barry-overview.html), a snapshot of the project, and [Prompt overview](barry-prompts.html), the prompts of its first two days
+
+## Skills
+
+Each is a prompt under `.claude/skills/`, run in Claude Code as `/<name>`.
+
+- `verify` drives the app in the iOS Simulator against the local stack, the way a user does, and captures proof.
+- `audit-consistency` finds where the repository disagrees with itself and reports it; `--fix` applies the safe fixes.
+- `e2e-gaps` lists the use cases the documents promise that no end-to-end case proves.
+- `prune-tests` finds the tests whose failure would tell nothing, and the duplicates; `--fix` cuts them.
+- `update-readme` keeps this file true to the repository; `--fix` edits it.
