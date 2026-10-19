@@ -25,7 +25,7 @@ npx supabase test db
 npm run e2e
 ```
 
-`npx supabase test db` and `npm run e2e` need the local Supabase stack running.
+`npx tsc --noEmit` needs `expo-env.d.ts`, which `npm start` writes on its first run. `npx supabase test db` and `npm run e2e` need the local Supabase stack running.
 
 ## Guides
 
