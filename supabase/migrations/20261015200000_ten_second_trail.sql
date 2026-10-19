@@ -1,4 +1,7 @@
--- The Trail keeps one reading per 10-second UTC window instead of one per minute.
+-- The unique index collapses Trail readings to one per 10-second UTC window instead of one per minute.
+-- The phone still uploads only the first reading of each minute (src/lib/barry/trail-buffer.ts), so the
+-- Trail keeps about one reading a minute, as the spec and the permission texts say. The finer slot only
+-- lets a denser upload through without rejecting it.
 drop index public.position_readings_trail_minute;
 alter table public.position_readings drop column minute;
 alter table public.position_readings
