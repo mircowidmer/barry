@@ -47,6 +47,6 @@ Each is a prompt under `.claude/skills/`, run in Claude Code as `/<name>`.
 
 - `verify` drives the app in the iOS Simulator against the local stack, the way a user does, and captures proof.
 - `audit-consistency` finds where the repository disagrees with itself and reports it; `--fix` applies the safe fixes.
-- `e2e-gaps` lists the use cases the documents promise that no end-to-end case proves.
+- `e2e-gaps` lists the use cases the documents promise that no end-to-end case proves; `--fix` writes the missing cases against the running stack.
 - `prune-tests` finds the tests whose failure would tell nothing, and the duplicates; `--fix` cuts them.
 - `update-readme` keeps this file true to the repository; `--fix` edits it.
