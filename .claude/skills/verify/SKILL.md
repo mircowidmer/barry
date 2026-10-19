@@ -18,7 +18,7 @@ From the repo root, in this order:
 3. The app:
    - If `ios/` is missing or a native dependency changed: `APP_VARIANT=development LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. If `ios/` was generated for another variant, run `APP_VARIANT=development LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios` first. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
    - Otherwise: `npm start` as a background process, then `xcrun simctl launch booted support.barry.dev`. Ready when Metro prints `iOS Bundled`.
-   - If iOS shows `Open in "Barry"?`, choose **Open**.
+   - If iOS shows `Open in "Barry Dev"?`, choose **Open**.
 4. Run the doctor. Every line must say `ok`.
 
 Only one instance exists: one database, one Metro port, one booted simulator. Never start a second run while another agent drives the app. If the doctor shows a stack you did not start, drive it only if the user said so.
@@ -44,7 +44,7 @@ The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `durati
   3. Wait one second, then take a screenshot. A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
   4. Tap `Paste`. Never tap `AutoFill`.
   5. After pasting the password, run `clip.sh clear`.
-- **Sign in.** Paste the email and the password, then tap `Sign In`. The first sign-in shows `"Barry" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
+- **Sign in.** Paste the email and the password, then tap `Sign In`. The first sign-in shows `"Barry Dev" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
 - **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content.
 - **Hold to Check In.** A Check-in needs `tap` with `duration: 2.2` on `Hold to Check In`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`) and the Trail (`trail`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.

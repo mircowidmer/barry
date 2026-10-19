@@ -25,7 +25,7 @@ Preconditions:
 
 - **Enter credentials.** `clip.sh email`, long-press `Email Address` (201, 247), tap `Paste`. `clip.sh password`, long-press `Password` (201, 329), tap `Paste`, then `clip.sh clear`. `Sign In` turns solid.
 - **Sign in (`signin-password`).** Tap `Sign In` (201, 390). The Adventure tab opens with `Plan an Adventure`.
-- **Push (`signin-push`).** On a fresh install the prompt `"Barry" Would Like to Send You Notifications` appears. Tap `Allow`. Barry needs it only for the Reminder and the Overdue Notice, which the phone schedules itself, so nothing is stored on the server.
+- **Push (`signin-push`).** On a fresh install the prompt `"Barry Dev" Would Like to Send You Notifications` appears. Tap `Allow`. Barry needs it only for the Reminder and the Overdue Notice, which the phone schedules itself, so nothing is stored on the server.
 - **Persist (`signin-persist`).** Run `xcrun simctl terminate booted support.barry.dev` and `xcrun simctl launch booted support.barry.dev`. The app opens signed in on the Adventure tab.
 - **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Log Out`. The alert `Log Out?` offers `Cancel` and `Log Out`. `Cancel` keeps you signed in. Tap `Log Out` and the sign-in screen returns.
 - **Language (`profile-language`).** The Profile has no language choice. Switch the simulator to German as the Language note in `SKILL.md` describes, open Barry, and start an Adventure: Mailpit has `Anna ist unterwegs: <destination>` for Luca, and the text message relay prints `texted <number> from Barry: Anna ist allein auf einem Abenteuer …`. Switch the simulator back to English and open Barry again, so the test account writes English messages afterwards.
