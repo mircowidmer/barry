@@ -13,7 +13,7 @@ Helpers live in `.claude/skills/verify/scripts/`, run from the repo root. Shell 
 
 From the repo root, in this order:
 
-1. `npx supabase start`. Ready when `.claude/skills/verify/scripts/doctor.sh` shows the database, Kong and the Edge runtime up. A fresh database needs `npx supabase db reset --local`, which applies every migration and `supabase/seed.sql` (the Vault secrets `deliver` needs). A reset deletes the test account too: create it again through the app's **Create account** with the values in `.env.local`.
+1. `npx supabase start`. Ready when `.claude/skills/verify/scripts/doctor.sh` shows the database, Kong and the Edge runtime up. A fresh database needs `npx supabase db reset --local`, which applies every migration and `supabase/seed.sql` (the Vault secrets `deliver` needs). A reset deletes the test account too: create it again through the app's **Create Account** with the values in `.env.local`.
 2. `node scripts/sms-relay.mjs` as a background process. Ready when it prints `sms relay listening on http://localhost:8788`.
 3. The app:
    - If `ios/` is missing or a native dependency changed: `APP_VARIANT=development LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. If `ios/` was generated for another variant, run `APP_VARIANT=development LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios` first. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
