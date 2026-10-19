@@ -1,6 +1,6 @@
 # Trail and Trail Map
 
-With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and keeps the Trail for the Adventurer after the Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up, every Plan Update and every Alert. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and adds the Check-in time once the Adventurer is back. The app shows the Adventurer the map of the Trail on the Check-in screen and on each Past Adventure.
+With the iOS "Always" location permission, Barry records the Trail in the background during a live Adventure, at most one reading per minute, keeps readings on the phone without signal, and keeps the Trail for the Adventurer after the Check-in. Each Emergency Contact gets their own Trail Map link in the Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear. The page shows the Plan, the Trail and the Last Known Position, never the Deadline or the Overdue stage, and adds the Check-in time once the Adventurer is back. The app shows the Adventurer the map of the Trail on the Check-in screen and on each Past Adventure.
 
 ## Sub-features
 
