@@ -13,7 +13,7 @@ insert into public.emergency_contacts (id, adventurer_id, name, email, phone) va
   ('aaaaaaaa-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com', null),
   ('bbbbbbbb-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Noah', 'noah@example.com', null);
 
--- The push and sms paths stay testable while their channels are off.
+-- The push path stays testable while its channel is off; the sms channel is on already.
 update private.channel_config set enabled = true where channel in ('push', 'sms');
 
 insert into public.push_devices (expo_push_token, adventurer_id) values
