@@ -19,6 +19,8 @@
   ],
   "exclude": [
     "supabase/functions",
-    "docs"
+    "docs",
+    "ios",
+    "android"
   ]
 }
