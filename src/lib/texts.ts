@@ -95,7 +95,7 @@ const en = {
     failuresTitle: 'Messages That Did Not Arrive',
     failure: (f: DeliveryFailure) =>
       `${f.contactName}: ${{ heads_up: 'heads-up', plan_update: 'plan update', deadline_update: 'deadline update', alert: 'alert', all_clear: 'all-clear' }[f.message]} by ${{ email: 'email', sms: 'text message', push: 'push' }[f.channel]}` +
-      (f.reason === 'channel_not_enabled' ? ' (text messages are not set up yet)' : ` (${f.reason})`),
+      ` (${({ channel_not_enabled: 'text messages are not set up yet', retries_exhausted: 'gave up after several attempts' } as Record<string, string>)[f.reason] ?? f.reason})`,
   },
   ended: {
     checkedIn: (when: string) => `You checked in ${when}.`,
@@ -304,7 +304,7 @@ const de: Texts = {
     failuresTitle: 'Nachrichten, die nicht ankamen',
     failure: (f) =>
       `${f.contactName}: ${{ heads_up: 'Startnachricht', plan_update: 'Plan-Update', deadline_update: 'Neue Rückkehrzeit', alert: 'Alarm', all_clear: 'Entwarnung' }[f.message]} ${{ email: 'per E-Mail', sms: 'per SMS', push: 'per Push' }[f.channel]}` +
-      (f.reason === 'channel_not_enabled' ? ' (SMS sind noch nicht eingerichtet)' : ` (${f.reason})`),
+      ` (${({ channel_not_enabled: 'SMS sind noch nicht eingerichtet', retries_exhausted: 'nach mehreren Versuchen aufgegeben' } as Record<string, string>)[f.reason] ?? f.reason})`,
   },
   ended: {
     checkedIn: (when) => `Du hast dich am ${when} zurückgemeldet.`,
