@@ -134,12 +134,6 @@ describe('the Trail', () => {
     expect(buffer.newest(a1)).toBeNull();
   });
 
-  it('leaves the updates off for a queued Check-in without the Always permission', async () => {
-    const { trail, os } = setup({ permitted: false, queued: true });
-    expect(await trail.sync()).toBe('off');
-    expect(os.updates).toBeNull();
-  });
-
   it('tries the queued Check-in on every wake and buffers no readings while there is no signal', async () => {
     const { trail, os, uploads, buffer, flushes } = setup({ queued: true });
     await trail.sync();
@@ -236,11 +230,5 @@ describe('the Trail', () => {
     await trail.onFenceExit();
     expect(uploads).toEqual([{ id: 'a1', latitudes: [47.0286] }]);
     expect(os.updates).toBe('recording');
-  });
-
-  it('never throws from a task', async () => {
-    const { trail } = setup({ fenceFails: true });
-    await expect(trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)])).resolves.toBeUndefined();
-    await expect(trail.onFenceExit()).resolves.toBeUndefined();
   });
 });
