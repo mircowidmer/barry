@@ -1,8 +1,8 @@
 import { Stack } from 'expo-router';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
-import { FirstLoad, Screen } from '@/components/form';
+import { FirstLoad, LoadState, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/grouped-list';
 import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
@@ -34,25 +34,50 @@ const same = (a: Form, b: Form) => (Object.keys(a) as (keyof Form)[]).every((key
 export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
   const t = useTexts();
-  // The form keeps the first Profile that loads, so edits survive the reloads on focus.
-  const [initial, setInitial] = useState<Form | null>(null);
-  if (initial === null && loaded.status === 'ready') setInitial(loaded.data ? toForm(loaded.data) : empty);
-  if (initial) return <ProfileForm initial={initial} />;
-  // A failed load must not show a blank Profile, or saving it would wipe the stored one.
+  const failure = (e: Error) => t.common.couldNotReach(e.message);
+  // A failed first load must not show a blank Profile, or saving it would wipe the stored one.
+  if (loaded.data === undefined) {
+    return (
+      <Screen>
+        <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />
+      </Screen>
+    );
+  }
   return (
-    <Screen>
-      <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
-    </Screen>
+    <ProfileForm
+      stored={loaded.data}
+      reloadFailure={<LoadState loaded={loaded} failure={failure} />}
+      onRefresh={loaded.reload}
+    />
   );
 }
 
-function ProfileForm({ initial }: { initial: Form }) {
+const formOf = (stored: AdventurerProfile | null) => (stored ? toForm(stored) : empty);
+
+function ProfileForm({
+  stored,
+  reloadFailure,
+  onRefresh,
+}: {
+  stored: AdventurerProfile | null;
+  reloadFailure: ReactNode;
+  onRefresh: () => Promise<void>;
+}) {
   const { session } = useSession();
   const t = useTexts();
-  const [saved, setSaved] = useState<Form>(initial);
-  const [profile, setProfile] = useState<Form>(initial);
+  const [seen, setSeen] = useState(stored);
+  const [saved, setSaved] = useState<Form>(() => formOf(stored));
+  const [profile, setProfile] = useState<Form>(saved);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // A reload takes the stored Profile only while the form holds no unsaved edits.
+  if (seen !== stored) {
+    setSeen(stored);
+    if (same(profile, saved)) {
+      setSaved(formOf(stored));
+      setProfile(formOf(stored));
+    }
+  }
 
   const set = (field: keyof Form) => (text: string) => setProfile((p) => ({ ...p, [field]: text }));
   const complete = profile.name.trim() !== '' && isPhoneNumber(profile.phone);
@@ -93,7 +118,8 @@ function ProfileForm({ initial }: { initial: Form }) {
           onPress={save}
         />
       </Stack.Toolbar>
-      <Screen>
+      <Screen onRefresh={onRefresh}>
+        {reloadFailure}
         <ThemedText type="small" themeColor="textSecondary">
           {t.profile.intro}
         </ThemedText>
