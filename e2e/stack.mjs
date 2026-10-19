@@ -155,3 +155,12 @@ export const runDeliver = async () => {
 /** The heartbeats the text message relay received in place of Healthchecks.io, oldest first. */
 export const heartbeatsSince = async (since) =>
   (await fetch(HEARTBEATS).then((r) => r.json())).filter((h) => new Date(h.at) >= since);
+
+/** Moves the last Alert an hour into the past and runs the clock once, as if an hour had passed without a Check-in. */
+export const hourAfterAlert = async (adventureId) => {
+  must(
+    await admin.from('adventures').update({ last_alert_at: new Date(Date.now() - 61 * 60_000).toISOString() }).eq('id', adventureId),
+    'move the last Alert into the past',
+  );
+  execFileSync('npx', ['supabase', 'db', 'query', '--local', 'select private.tick()'], { stdio: 'ignore' });
+};
