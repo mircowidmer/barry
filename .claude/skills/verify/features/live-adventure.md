@@ -41,7 +41,7 @@ Preconditions:
 
 ## Gotchas
 
-- The overview does not refresh while open. After `fixture.mjs live`, switch tabs to reload it, waiting 3 seconds after each tab tap.
+- The overview reloads when its tab comes into focus, when the app returns to the foreground, and when you pull the list down. After `fixture.mjs live`, pull down, or switch tabs, waiting 3 seconds after each tab tap.
 - `fixture.mjs live` sends Luca a real Heads-up at the next tick. It lands in Mailpit.
 - A short tap passes trivially if it misses the button. Confirm the same coordinates end the Adventure with a 2.2-second hold in the same run.
 - Without signal each request waits up to 10 seconds before the app falls back to the saved Adventure.

@@ -27,6 +27,6 @@ Preconditions:
 
 ## Gotchas
 
-- History loads when the tab comes into focus. After a `fixture.mjs` change, switch to another tab and back.
+- History loads when the tab comes into focus, and again when you pull the list down. After a `fixture.mjs` change, pull down, or switch to another tab and back.
 - A new tab needs a full reload of the app (`xcrun simctl terminate` and `launch`). Fast Refresh keeps the old tab bar.
 - `history-empty` needs an account without Adventures. The test account has many, so the empty state is unverified unless a fresh account is used.
