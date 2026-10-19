@@ -1,11 +1,18 @@
 ---
 name: audit-consistency
-description: Audit the whole Barry repository for inconsistencies between the migrations, the Edge Function, the app code, CONTEXT.md, the spec, the config files, the guides, the tests, the German and English texts, and the platform variants, and report them with both sides quoted. Read-only. Use when asked to find inconsistencies, drift, stale docs, or mismatches across the repository.
+description: Audit the whole Barry repository for inconsistencies between the migrations, the Edge Function, the app code, CONTEXT.md, the spec, the config files, the guides, the tests, the German and English texts, and the platform variants, and report them with both sides quoted. Read-only unless invoked with --fix, which then applies the high-confidence fixes on the less trusted side and commits each one. Use when asked to find inconsistencies, drift, stale docs, or mismatches across the repository.
 ---
 
 # Audit Barry for inconsistencies
 
-You are auditing the repository at the current working directory, Barry: an Expo SDK 58 iPhone app with a Supabase backend that alerts an Adventurer's Emergency Contacts when a Deadline passes without a Check-in. Your job is to find every place where two parts of the repository disagree with each other. You are not fixing anything. The deliverable is a report.
+You are auditing the repository at the current working directory, Barry: an Expo SDK 58 iPhone app with a Supabase backend that alerts an Adventurer's Emergency Contacts when a Deadline passes without a Check-in. Your job is to find every place where two parts of the repository disagree with each other. The deliverable is a report.
+
+## Arguments
+
+- No argument: audit only. Change nothing.
+- `--fix`: audit, write the report, then apply the fixes the section **Applying fixes with --fix** allows, and commit each one. The report comes first either way, so a fix is never applied to a finding the report does not contain.
+
+Any other argument is an error. Say so and stop.
 
 ## What counts as an inconsistency
 
@@ -135,7 +142,7 @@ Report an export on one side that is missing on the other, a differing signature
 
 - Read and search. Use `grep -rn` across the repository for each term, number, URL, and identifier you compare. Do not guess from memory what a file contains.
 - Run `npx expo lint`, `npx tsc --noEmit`, and `npm test`, and include their results. If the local Supabase stack is running, also run `npx supabase test db` and `deno test supabase/functions/deliver`. If it is not, say so and skip them.
-- Do not edit any file. Do not create branches or commits. Scratch output goes to a temporary directory outside the repository.
+- Without `--fix`, do not edit any file and do not create branches or commits. Scratch output goes to a temporary directory outside the repository.
 - One finding per root cause. If a stale number appears in five documents, that is one finding with five locations.
 - Quote both sides verbatim with `path:line`. A finding without two quoted locations is not a finding.
 - Say what is true, not only that two things differ. If you cannot determine which side is right, say what you checked and why it was not enough.
@@ -156,4 +163,21 @@ Write the report in Markdown with these sections, in this order:
 3. **Checked and consistent**: one line per group above, listing what was compared.
 4. **Could not check**: anything that needed a running stack, a device, or external access you did not have.
 
+With `--fix`, each finding also carries an outcome: **fixed** with the commit hash, or **skipped** with the rule below that stopped it.
+
 If the report is for a German-speaking reader, write it in Swiss High German with `ss`, never `ß`.
+
+## Applying fixes with --fix
+
+Only after the report is complete. Work through the findings from Blocking down to Low and apply a fix only when every rule below holds. Skip the finding otherwise and say which rule stopped it.
+
+1. **Confidence is high.** A medium or low finding is never fixed automatically.
+2. **The fix lands on the less trusted side.** The ordering under **Sources of truth** decides: a document, text, locale string, comment, guide, feature file, or config value is changed to match the migrations and the app code. App code and SQL are never changed to match a document, because that is a behaviour change the author must decide. The one exception is a text or label inside app code, such as a string in `src/lib/texts.ts`, which counts as text.
+3. **No existing migration is edited.** If the migrations are the side that is wrong, report only. Do not add a migration either.
+4. **Generated files are regenerated, not hand-edited.** `src/lib/database.types.ts` is regenerated with the Supabase CLI against the local stack, and only when the stack is running. Without the stack, skip.
+5. **Tests are changed only to match a migration or code they already test.** A test that asserts a behaviour a later migration changed may be updated to the new behaviour. A test is never deleted, skipped, or weakened, and a test is never added to cover a gap, because a missing test is a finding for the author.
+6. **Both languages move together.** A change to an English text is applied to its German counterpart in the same fix, in Swiss High German with `ss`, never `ß`, and the other way round.
+7. **One finding, one commit.** After each fix run `npx expo lint`, `npx tsc --noEmit`, and `npm test`. If any of them fails, revert the fix with `git checkout -- <files>` and mark the finding skipped with the failing output. If they pass, commit the fix alone, with a message in the style of the repository's history: one sentence that says what the reader now sees, not what the diff does, followed by the attribution lines the session requires.
+8. **Never push, never open a pull request.** If the current branch is the default branch, create a branch first and say which. Leave pushing to the user unless they asked for it in the same message.
+
+When all findings have been handled, append to the report a list of the commits made, in order, with one line each, and a list of the skipped findings with their rules.
