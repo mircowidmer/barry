@@ -12,7 +12,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-map-checked-in` shows `<name> checked in at …` above the map of the Trail after the Check-in.
 - `trail-live-map` shows the Trail on an Apple map below the Plan on the live screen, with a dot per reading and a red `Last Known Position` marker. It adds new readings every minute, and the Plan's `Last known position: <time>` always shows the same time as the marker.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in at … Welcome back.` screen.
-- `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility label `Open <destination>`) with its Plan, Check-in time and the same map.
+- `trail-history` opens an Ended Adventure from `Past Adventures` on the History tab (accessibility hint `Open <destination>`) with its Plan, Check-in time and the same map.
 - `history-delete` deletes an Ended Adventure, from its screen with `Delete` or from `Past Adventures` on the History tab by swiping the card left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this adventure. Try again in a few minutes.`
 
 ## How to get to it (user POV)
