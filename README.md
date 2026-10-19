@@ -10,7 +10,7 @@ npx supabase start
 npm start
 ```
 
-Copy `.env.example` to `.env.local` first, and set `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the publishable key that `npx supabase start` prints. `BARRY_TEST_EMAIL` and `BARRY_TEST_PASSWORD` name the test account that the verify skill drives the app with; the app itself does not read them.
+Copy `.env.example` to `.env.local` first, and set `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the publishable key that `npx supabase start` prints. `EXPO_PUBLIC_SUPABASE_URL` already points at the local stack for the simulator; the iPhone guide says what a phone needs there. `BARRY_TEST_EMAIL` and `BARRY_TEST_PASSWORD` name the test account that the verify skill drives the app with; the app itself does not read them.
 
 The app needs the development build, Barry Dev, in the iOS Simulator or on an iPhone. [How to run Barry on your iPhone](docs/iphone.md) covers the local build, and [Builds](docs/builds.md) the variants and the cloud builds with EAS.
 
