@@ -25,7 +25,7 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 
 ## Doctor
 
-`.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the text message relay on :8788, Metro on :8081, a booted simulator, the `support.barry` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
+`.claude/skills/verify/scripts/doctor.sh` is read-only. It checks Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the text message relay on :8788, Metro on :8081, a booted simulator, the `support.barry.dev` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
 
 ## End-to-end suite
 
