@@ -30,6 +30,8 @@ npm run e2e
 ## Guides
 
 - [Barry specification](docs/spec.md)
+- [Glossary](CONTEXT.md), the domain language the specification and the texts use
+- [Supabase owns the Deadline and sends every message](docs/adr/0001-server-owns-the-deadline.md), the decision record behind the backend
 - [How to run Barry on your iPhone](docs/iphone.md)
 - [Builds](docs/builds.md)
 - [How to see what Barry sends locally](docs/local-messages.md)
