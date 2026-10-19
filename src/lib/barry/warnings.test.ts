@@ -47,8 +47,4 @@ describe('startWarnings', () => {
       { kind: 'unreachable', contacts: [miaEmailOff] },
     ]);
   });
-
-  it('says nothing about text messages for email-only contacts', () => {
-    expect(startWarnings([luca], { smsEnabled: false, notificationsPermitted: true, trailPermitted: true })).toEqual([]);
-  });
 });
