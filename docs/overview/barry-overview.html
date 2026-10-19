@@ -62,7 +62,7 @@
   <img src="../../assets/images/logo.png" alt="Barry's icon, a St. Bernard with a little barrel on its collar">
   <h1>Barry</h1>
   <p class="slogan">Go alone, get home.</p>
-  <p class="sub">Project overview · October 2026 · barry.support</p>
+  <p class="sub">Project overview · 19 October 2026 · barry.support</p>
 </section>
 
 <section class="slide">
@@ -71,7 +71,7 @@
     <p class="lead">Tell Barry where you are going and when you will be back. If you don't check in by then, Barry tells the people you chose.</p>
     <p class="group">Before You Go</p>
     <div class="grid g4">
-      <div class="card"><h3>A Plan and a Deadline</h3><p>Destination, route, starting point, notes such as what you are wearing, and the time you will be back.</p></div>
+      <div class="card"><h3>A Plan and a Deadline</h3><p>Destination, route and the time you will be back.</p></div>
       <div class="card"><h3>Emergency Contacts</h3><p>Chosen per adventure from a saved list. They need no app and no account. Barry reaches them by email, text message, or both.</p></div>
       <div class="card"><h3>A Heads-Up at the Start</h3><p>Each contact learns that you are heading out, with your plan, your deadline and their own link to your adventure page.</p></div>
       <div class="card"><h3>Plans for Later</h3><p>Save an adventure for later and start it with one tap when you leave.</p></div>
@@ -109,11 +109,11 @@
   <div class="body">
     <div class="grid g3">
       <div class="card"><span class="tag">iPhone</span><h3>The Barry App</h3><ul><li>Expo SDK 58, React Native, Expo Router</li><li>Tabs: Adventure, History, Contacts, Profile</li><li>Liquid Glass buttons through SwiftUI</li><li>Background trail with a 200 m geofence</li><li>Local Reminder and Overdue Notice</li><li>Offline check-in queue</li></ul></div>
-      <div class="card"><span class="tag">Supabase</span><h3>Backend and Clock</h3><ul><li>Postgres schema with row-level security</li><li>25 migrations, commands as functions</li><li>A clock in <code>pg_cron</code>, every minute</li><li>Auth with email confirmation</li><li>Vault for the delivery secret</li></ul></div>
-      <div class="card"><span class="tag">Edge Function</span><h3><code>deliver</code></h3><ul><li>Renders heads-up, plan update, alert and all-clear</li><li>Email through Resend as "🐶 Barry"</li><li>Text messages through Twilio, with delivery reports</li><li>Retries and delivery failures</li></ul></div>
+      <div class="card"><span class="tag">Supabase</span><h3>Backend and Clock</h3><ul><li>Postgres schema with row-level security</li><li>37 migrations, commands as functions</li><li>A clock in <code>pg_cron</code>, every minute</li><li>Auth with email confirmation</li><li>Vault for the delivery secret</li></ul></div>
+      <div class="card"><span class="tag">Edge Function</span><h3><code>deliver</code></h3><ul><li>Renders heads-up, plan update, deadline update, alert and all-clear</li><li>Email through Resend as "🐶 Barry"</li><li>Text messages through Twilio, with delivery reports</li><li>Retries and delivery failures</li></ul></div>
       <div class="card"><span class="tag">barry.support</span><h3>Web Pages</h3><ul><li>Landing page with all features</li><li>Adventure page for contacts, with an OpenStreetMap trail</li><li>Email confirmation page</li><li>Published by a GitHub Pages workflow</li></ul></div>
-      <div class="card"><span class="tag">Quality</span><h3>Tests</h3><ul><li>11 database test files (pgTAP)</li><li>Unit tests for the app (Jest)</li><li>Tests for <code>deliver</code> (Deno)</li><li>6 end-to-end scripts against the local stack</li></ul></div>
-      <div class="card"><span class="tag">Tooling</span><h3>Scripts and Skills</h3><ul><li><code>hosted-secrets.mjs</code> sets the hosted secrets</li><li><code>make-icons.py</code> draws icon and launch screen</li><li><code>without-push.js</code> config plugin</li><li>A verify skill with 8 feature maps</li></ul></div>
+      <div class="card"><span class="tag">Quality</span><h3>Tests</h3><ul><li>15 database test files (pgTAP)</li><li>Unit tests for the app (Jest)</li><li>Tests for <code>deliver</code> (Deno)</li><li>11 end-to-end scripts against the local stack</li></ul></div>
+      <div class="card"><span class="tag">Tooling</span><h3>Scripts and Skills</h3><ul><li><code>hosted-secrets.mjs</code> sets the hosted secrets</li><li><code>make-icons.py</code> draws icon and launch screen</li><li><code>without-push.js</code> config plugin</li><li>A verify skill with 7 feature maps</li></ul></div>
     </div>
   </div>
   <div class="foot"><span>Barry · Go alone, get home.</span><span>4</span></div>
@@ -152,7 +152,7 @@
       <div class="card"><span class="tag">docs/text-messages.md</span><h3>Text Messages</h3><p>Twilio setup, sender, delivery reports and segment counts.</p></div>
       <div class="card"><span class="tag">docs/local-messages.md</span><h3>Messages Locally</h3><p>How to see what Barry sends, in Mailpit and Studio.</p></div>
       <div class="card"><span class="tag">docs/trail-map-hosting.md</span><h3>Hosting the Web Pages</h3><p>The GitHub Pages workflow for barry.support.</p></div>
-      <div class="card"><span class="tag">.claude/skills/verify</span><h3>Verify Skill</h3><p>How an agent drives the app in the simulator, with 8 feature maps.</p></div>
+      <div class="card"><span class="tag">.claude/skills/verify</span><h3>Verify Skill</h3><p>How an agent drives the app in the simulator, with 7 feature maps.</p></div>
       <div class="card"><span class="tag">barry-prompts.html</span><h3>Prompt Overview</h3><p>Every prompt of the project with the tokens it used, by session.</p></div>
     </div>
   </div>
@@ -180,13 +180,12 @@
   <div class="body">
     <div class="steps">
       <div class="step"><div><h3>Join the Apple Developer Program</h3><p>A paid team for TestFlight and the App Store. Today the app is installed by hand.</p></div></div>
-      <div class="step"><div><h3>Set up release builds</h3><p>Add <code>eas.json</code> or an Xcode archive, version numbers and TestFlight testers.</p></div></div>
+      <div class="step"><div><h3>Set up release builds</h3><p><code>eas.json</code> has the build profiles. Add version numbers and TestFlight testers once the paid team exists.</p></div></div>
       <div class="step"><div><h3>Prepare the App Store listing</h3><p>Screenshots, privacy labels and the reason for "Always" location for App Review.</p></div></div>
-      <div class="step"><div><h3>Publish privacy policy and terms</h3><p>On barry.support, for Swiss and EU data protection, with the "not an emergency service" disclaimer.</p></div></div>
       <div class="step"><div><h3>Move Twilio to production</h3><p>A trial account reaches only verified numbers. Upgrade it and use the alphanumeric sender "Barry".</p></div></div>
       <div class="step"><div><h3>Upgrade the Supabase plan</h3><p>Daily backups, no pausing, and a higher limit for sign-up emails.</p></div></div>
       <div class="step"><div><h3>Monitor the clock and delivery</h3><p>Set <code>HEALTHCHECK_URL</code> to an uptime monitor and report app errors.</p></div></div>
-      <div class="step"><div><h3>Rotate exposed keys</h3><p>Rotate the Resend key, close Twilio and delete the Azure Communication Services resource.</p></div></div>
+      <div class="step"><div><h3>Rotate exposed keys</h3><p>Rotate the Resend key and delete the Azure Communication Services resource.</p></div></div>
       <div class="step"><div><h3>Run every test in CI</h3><p>Database, Deno, unit and end-to-end tests on each push, not only the Pages deploy.</p></div></div>
       <div class="step"><div><h3>Merge or close open branches</h3><p>The Plan screen fix, the Maestro end-to-end tests and the check-in wake branch.</p></div></div>
     </div>
