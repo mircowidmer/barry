@@ -29,7 +29,7 @@ Preconditions:
 - **Persist (`signin-persist`).** Run `xcrun simctl terminate booted support.barry.dev` and `xcrun simctl launch booted support.barry.dev`. The app opens signed in on the Adventure tab.
 - **Sign out (`signin-signout`).** Tap `Profile`, scroll down, tap `Log Out`. The alert `Log Out?` offers `Cancel` and `Log Out`. `Cancel` keeps you signed in. Tap `Log Out` and the sign-in screen returns.
 - **Language (`profile-language`).** The Profile has no language choice. Switch the simulator to German as the Language note in `SKILL.md` describes, open Barry, and start an Adventure: Mailpit has `Anna ist unterwegs: <destination>` for Luca, and the text message relay prints `texted <number> from Barry: Anna ist allein auf einem Abenteuer …`. Switch the simulator back to English and open Barry again, so the test account writes English messages afterwards.
-- **Delete account (`account-delete`).** Never on the test account. Sign out, paste a new address such as `delete-test-<time>@barry.test` and a generated password, and tap `Create Account`. Tap `Profile`, scroll down, tap `Delete`. The alert `Delete Your Account?` offers `Cancel` and `Delete`. Tap `Delete`. The sign-in screen returns, and `auth.users` has no row for that address. Sign in to the test account again afterwards.
+- **Delete account (`account-delete`).** Never on the test account. Sign out, paste a new address such as `delete-test-<time>@barry.test` and a generated password, and tap `Create Account`. Tap `Profile`, scroll down, tap `Delete Account`. The alert `Delete Your Account?` offers `Cancel` and `Delete`. Tap `Delete`. The sign-in screen returns, and `auth.users` has no row for that address. Sign in to the test account again afterwards.
 
 ## Gotchas
 
