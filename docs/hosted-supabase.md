@@ -58,6 +58,17 @@ The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO
 
 The confirmation email that Supabase Auth sends after **Create account** lives only in the dashboard, under **Authentication > Emails > Templates > Confirm signup**, and needs custom SMTP to be editable. Its subject is "Confirm your email for Barry". Supabase treats the template as HTML and builds the plain-text part from it, so write each sentence in its own `<p>`. Keep `{{ .ConfirmationURL }}` as the link target.
 
+## Edit the password reset email
+
+The email Auth sends after **Forgot Password?** lives under **Authentication > Emails > Templates > Reset password**. Supabase's default carries a link, which Barry does not use: the app asks for the six-digit code instead, so the template must contain `{{ .Token }}`. Set the subject to `Reset your password for Barry` and paste this body, which is the same as `supabase/templates/recovery.html` for the local stack. As with the sign-up email, each sentence is in its own `<p>`.
+
+```html
+<h2>Reset your password for Barry</h2>
+<p>Enter this code in Barry together with your new password:</p>
+<p><strong>{{ .Token }}</strong></p>
+<p>If you did not ask for a new password, you can ignore this email. Your password stays as it is.</p>
+```
+
 ## Check that it runs
 
 ```bash
