@@ -8,9 +8,9 @@
   --link: #a34b22;
   --border: #e2ddd6;
   --warning-bg: #fbf1dc;
-  --warning: #855c00;
+  --warning: #856000;
   --danger-bg: #fdecec;
-  --danger: #a51d1d;
+  --danger: #c62828;
   --success-bg: #e8f6ec;
   --success: #1f7a3d;
 }
@@ -27,9 +27,9 @@
     --warning-bg: #2b2210;
     --warning: #e8b23a;
     --danger-bg: #2d1414;
-    --danger: #ff8a8a;
+    --danger: #ff7a7a;
     --success-bg: #12261a;
-    --success: #6fd394;
+    --success: #5cc97f;
   }
 }
 html:has(.site) { background: var(--bg); }
