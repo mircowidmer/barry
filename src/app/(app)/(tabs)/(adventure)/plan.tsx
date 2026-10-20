@@ -204,13 +204,13 @@ function PlanForm({
       value: form.deadline,
       mode: 'date',
       minimumDate: new Date(),
-      onChange: (_, date) => {
-        if (!date) return;
+      onChange: (event, date) => {
+        if (event.type !== 'set' || !date) return;
         DateTimePickerAndroid.open({
           value: date,
           mode: 'time',
           is24Hour: true,
-          onChange: (__, time) => time && setForm((f) => ({ ...f, deadline: time })),
+          onChange: (picked, time) => picked.type === 'set' && time && setForm((f) => ({ ...f, deadline: time })),
         });
       },
     });
