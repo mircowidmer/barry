@@ -56,7 +56,7 @@ export const siteText = {
     newLink: 'Open Barry and tap Create Account again to get a new link.',
     emailConfirmed: 'Your email is confirmed',
     welcome: 'Welcome to Barry. Go alone, get home.',
-    signInHint: 'Open Barry on your iPhone and sign in with your email and password.',
+    signInHint: 'Open Barry on your iPhone and sign in with your email address and password.',
     openBarry: 'Open Barry and sign in',
   },
   de: {
