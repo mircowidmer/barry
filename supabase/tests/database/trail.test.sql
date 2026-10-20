@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(47);
+select plan(44);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -128,7 +128,6 @@ set local request.jwt.claims = '{"role": "anon"}';
 
 select is(pg_temp.map('unknown'), null, 'An unknown link shows nothing');
 select is(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000002'), null, 'A Planned Adventure''s link shows nothing');
-select is(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'status', 'underway', 'An Active Adventure is underway');
 select is(
   pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') - 'trail' - 'last_known_position',
   jsonb_build_object('status', 'underway', 'adventurer_name', 'Anna', 'time_zone', 'Europe/Zurich',
@@ -196,16 +195,11 @@ select is(public.record_trail('a0000000-0000-0000-0000-000000000001', jsonb_buil
 select is(pg_temp.trail_count(), 6, 'The Alerted Trail reading is stored');
 
 select is(public.check_in('a0000000-0000-0000-0000-000000000001', now()), null, 'Anna checks in');
-select is(pg_temp.trail_count(), 6, 'The Check-in keeps the Trail');
 select is(public.check_in('a0000000-0000-0000-0000-000000000001', now()), null, 'A resent Check-in is accepted');
 select is(
   (select array_agg(reason order by reason) from public.position_readings where adventure_id = 'a0000000-0000-0000-0000-000000000001'),
   array['deadline_move', 'start', 'trail', 'trail', 'trail', 'trail', 'trail', 'trail'],
   'The Check-in keeps the Start, Deadline-move and Trail readings');
-select is(
-  (select count(*)::int from public.position_readings where adventure_id = 'a0000000-0000-0000-0000-000000000001'),
-  8,
-  'Anna still reads every reading of her Ended Adventure');
 select is(public.record_trail('a0000000-0000-0000-0000-000000000001', (select readings from batch)), 'wrong_stage',
   'A Trail reading after the Check-in is refused');
 select is(pg_temp.trail_count(), 6, 'A Trail reading after the Check-in stores nothing');
