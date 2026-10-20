@@ -34,6 +34,7 @@
     },
     "plugins": [
       "./plugins/without-push",
+      "./plugins/accent-color",
       "expo-router",
       [
         "expo-splash-screen",
