@@ -122,7 +122,7 @@ function ProfileForm({
           {t.profile.intro}
         </ThemedText>
 
-        <Group title={t.profile.about} footer={t.profile.phoneHint}>
+        <Group title={t.profile.about}>
           <InputRow
             label={t.profile.name}
             value={profile.name}
@@ -153,7 +153,7 @@ function ProfileForm({
           />
         </Group>
 
-        <Group title={t.profile.medical} footer={t.profile.medicalHint}>
+        <Group title={t.profile.medical}>
           <TextAreaRow
             label={t.profile.medicalLabel}
             value={profile.medicalNotes}
