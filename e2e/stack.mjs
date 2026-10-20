@@ -125,7 +125,7 @@ export const adventurer = async () => {
     return saved.adventure_id;
   };
 
-  return { client, userId: user.id, luca, sara, contact, start };
+  return { client, userId: user.id, email, password, luca, sara, contact, start };
 };
 
 /** Fails unless the clock ticked in the last two minutes, so a test that expects silence cannot pass on a stopped clock. */
