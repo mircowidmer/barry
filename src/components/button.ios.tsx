@@ -1,5 +1,6 @@
 import { Host, HStack, ProgressView, Button as SwiftUIButton, Text } from '@expo/ui/swift-ui';
 import { accessibilityLabel, buttonStyle, controlSize, disabled as disable, font, frame, tint } from '@expo/ui/swift-ui/modifiers';
+import { StyleSheet } from 'react-native';
 
 import { FontFamily } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -10,7 +11,7 @@ export function Button({ title, onPress, kind = 'primary', disabled, busy }: But
   const theme = useTheme();
   return (
     // flexGrow shares a Row's width between its buttons; in a column the Host stretches to full width.
-    <Host matchContents={{ vertical: true }} style={{ flexGrow: 1 }}>
+    <Host matchContents={{ vertical: true }} style={styles.host}>
       <SwiftUIButton
         role={kind === 'danger' ? 'destructive' : 'default'}
         onPress={onPress}
@@ -29,3 +30,7 @@ export function Button({ title, onPress, kind = 'primary', disabled, busy }: But
     </Host>
   );
 }
+
+const styles = StyleSheet.create({
+  host: { flexGrow: 1 },
+});
