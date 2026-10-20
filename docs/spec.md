@@ -13,6 +13,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 - An Adventurer signs in with an email address and a password through Supabase Auth.
 - A new account confirms its email address with a link that Barry sends from help@barry.support. The link opens a page on `https://barry.support/confirmed` that asks the Adventurer to sign in.
 - Each account has one Adventurer Profile.
+- The Adventurer changes the password and the email address on the Account screen, which opens from the Profile tab. A password change needs the current password. A changed email address takes effect once the Adventurer has confirmed it from both the old and the new address, with the link Barry sends to each.
 - The Adventurer deletes the account from the Profile tab with **Delete**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
 - An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
 
