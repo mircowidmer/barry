@@ -33,7 +33,8 @@ export default function AccountScreen() {
   );
 }
 
-type Shown = { tone: 'success' | 'danger'; text: string } | null;
+// whileEmail: a notice about a requested change is done once the stored address is no longer the one it was requested from.
+type Shown = { tone: 'success' | 'danger'; text: string; whileEmail?: string } | null;
 
 function PasswordChange({ email }: { email: string }) {
   const t = useTexts();
@@ -89,6 +90,7 @@ function EmailChange({ stored, onRequested }: { stored: AccountEmail; onRequeste
   const [shown, setShown] = useState<Shown>(null);
   const address = next.trim().toLowerCase();
   const unchanged = address === '' || address === stored.email.toLowerCase();
+  const notice = shown && (shown.whileEmail === undefined || shown.whileEmail === stored.email) ? shown : null;
 
   const change = async () => {
     setBusy(true);
@@ -97,7 +99,7 @@ function EmailChange({ stored, onRequested }: { stored: AccountEmail; onRequeste
     setBusy(false);
     if (outcome.kind === 'confirmation_sent') {
       setNext('');
-      setShown({ tone: 'success', text: t.account.confirmationSent(outcome.from, outcome.to) });
+      setShown({ tone: 'success', text: t.account.confirmationSent(outcome.from, outcome.to), whileEmail: stored.email });
       await onRequested();
     } else {
       setShown({ tone: 'danger', text: outcome.message });
@@ -119,8 +121,8 @@ function EmailChange({ stored, onRequested }: { stored: AccountEmail; onRequeste
         />
         <ActionRow title={t.account.changeEmail} onPress={change} busy={busy} disabled={unchanged} />
       </Group>
-      {shown && <Notice tone={shown.tone}>{shown.text}</Notice>}
-      {!shown && stored.pendingEmail && <Notice>{t.account.pendingEmail(stored.pendingEmail)}</Notice>}
+      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
+      {!notice && stored.pendingEmail && <Notice>{t.account.pendingEmail(stored.pendingEmail)}</Notice>}
     </>
   );
 }
