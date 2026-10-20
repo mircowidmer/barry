@@ -39,7 +39,7 @@ export default function SignInScreen() {
 
   return (
     <Screen title="Barry">
-      <Image source={require('@/assets/images/logo.png')} style={{ width: 96, height: 96, borderRadius: 22, alignSelf: 'center' }} />
+      <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
       <ThemedText themeColor="textSecondary">
         {t.signIn.intro}
       </ThemedText>
@@ -87,6 +87,7 @@ export default function SignInScreen() {
 }
 
 const styles = StyleSheet.create({
+  logo: { width: 96, height: 96, borderRadius: 22, alignSelf: 'center' },
   // Padding brings the 20-point text up to the 44-point hit target iOS asks for.
   link: { alignSelf: 'center', paddingVertical: 12, paddingHorizontal: Spacing.two },
 });
