@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useNavigation, useSegments } from 'expo-router';
 import {
@@ -54,12 +54,23 @@ export function LoadState({
 
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
 
-export function Screen({ title, onRefresh, children }: { title?: string; onRefresh?: () => Promise<unknown>; children: ReactNode }) {
+export function Screen({
+  ref,
+  title,
+  onRefresh,
+  children,
+}: {
+  ref?: Ref<ScrollViewInstance>;
+  title?: string;
+  onRefresh?: () => Promise<unknown>;
+  children: ReactNode;
+}) {
   const theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   // The tab bar needs a gap above it. Without one, the home indicator inset is gap enough.
   const aboveTabBar = (useSegments() as string[]).includes('(tabs)');
   const scroll = useRef<ScrollViewInstance>(null);
+  useImperativeHandle(ref, () => scroll.current as ScrollViewInstance, []);
   // The top sits above 0 by the header's height, which iOS adds unseen by React Native, whose scrollTo stops at 0
   // without scrollToOverflowEnabled. The first drag starts from the top, and a screen never dragged is still there.
   const top = useRef<number | null>(null);
