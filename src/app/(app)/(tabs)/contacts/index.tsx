@@ -1,7 +1,8 @@
 import { router, Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useRef, useState } from 'react';
-import { type LayoutChangeEvent, Pressable, type ScrollViewInstance, StyleSheet, View } from 'react-native';
+import { type LayoutChangeEvent, Pressable, type ScrollViewInstance, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Flash } from '@/components/flash';
 import { LoadState, Notice, Screen } from '@/components/form';
@@ -16,6 +17,10 @@ import { askToRemoveContact } from '@/lib/remove-contact';
 import { type Texts, useTexts } from '@/lib/texts';
 
 const AVATAR = 44;
+
+// The heights of iOS's collapsed navigation bar and of the tab bar, above the safe area insets.
+const NAVIGATION_BAR_HEIGHT = 44;
+const TAB_BAR_HEIGHT = 49;
 
 const initials = (name: string) =>
   name
@@ -47,16 +52,25 @@ export default function ContactsScreen() {
   const scroll = useRef<ScrollViewInstance>(null);
   const t = useTexts();
 
+  const insets = useSafeAreaInsets();
+  const window = useWindowDimensions();
+
   // The list is sorted by name, so the new row can land off screen. iOS's zoomToRect scrolls it into view
-  // within the large title and the tab bar, which a plain scrollTo does not know about. The row sits inside
-  // its group, so it is measured against the scroll view's content rather than its parent.
+  // within the large title and the tab bar, which a plain scrollTo does not know about. It also centres a row
+  // that is already in view, and on a short list that pulls the page down past its top, so it runs only for a
+  // row that is not fully in view. The row sits inside its group, so it is measured against the scroll view's
+  // content rather than its parent.
   const reveal = (event: LayoutChangeEvent) => {
     const row = event.currentTarget;
     const content = scroll.current?.getInnerViewRef();
     if (typeof row === 'number' || !content) return;
-    row.measureLayout(content, (x, y, width, height) =>
-      scroll.current?.scrollResponderZoomTo({ x, y, width, height, animated: true }),
-    );
+    row.measureInWindow((_x, top, _width, height) => {
+      const inView = top >= insets.top + NAVIGATION_BAR_HEIGHT && top + height <= window.height - insets.bottom - TAB_BAR_HEIGHT;
+      if (inView) return;
+      row.measureLayout(content, (x, y, width, rowHeight) =>
+        scroll.current?.scrollResponderZoomTo({ x, y, width, height: rowHeight, animated: true }),
+      );
+    });
   };
 
   const add = async () => {
