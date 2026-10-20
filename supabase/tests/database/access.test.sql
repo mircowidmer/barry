@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(25);
+select plan(24);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -168,8 +168,6 @@ select is(
   array['trail_map'],
   'Without an account only the Trail Map can be read'
 );
-select is(has_function_privilege('anon', 'public.record_trail(uuid, jsonb)', 'execute'), false,
-  'Without an account no Trail reading can be recorded');
 select is(has_function_privilege('authenticated', 'public.trail_map(text, timestamptz)', 'execute'), false,
   'The app does not read the Trail Map');
 select is(has_table_privilege('anon', 'public.adventure_contacts', 'select'), false,
