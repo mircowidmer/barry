@@ -1,14 +1,27 @@
 import { SymbolView } from 'expo-symbols';
 import { Children, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Switch, TextInput, type TextInputProps, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { FontFamily, Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
 import { useTheme } from '@/hooks/use-theme';
 
-/** An inset group of rows like in Settings, with an optional header above and footer below. */
-export function Group({ title, footer, children }: { title?: string; footer?: string; children: ReactNode }) {
+/**
+ * An inset group of rows like in Settings, with an optional header above and footer below. inset is
+ * where the separators start, so rows that lead with a picture can start them at the text.
+ */
+export function Group({
+  title,
+  footer,
+  inset = Spacing.three,
+  children,
+}: {
+  title?: string;
+  footer?: string;
+  inset?: number;
+  children: ReactNode;
+}) {
   const theme = useTheme();
   const rows = Children.toArray(children).filter(Boolean);
   return (
@@ -21,7 +34,7 @@ export function Group({ title, footer, children }: { title?: string; footer?: st
       <View style={[styles.box, { backgroundColor: theme.backgroundElement }]}>
         {rows.map((row, i) => (
           <View key={i}>
-            {i > 0 && <View style={[styles.separator, { backgroundColor: theme.backgroundSelected }]} />}
+            {i > 0 && <View style={[styles.separator, { marginLeft: inset, backgroundColor: theme.backgroundSelected }]} />}
             {row}
           </View>
         ))}
@@ -82,12 +95,42 @@ export function ValueRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** A label and a switch, such as whether Barry may use an address. */
+export function SwitchRow({
+  label,
+  accessibilityLabel,
+  value,
+  onValueChange,
+  disabled = false,
+}: {
+  label: string;
+  accessibilityLabel?: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  disabled?: boolean;
+}) {
+  const theme = useTheme();
+  return (
+    <View style={styles.row}>
+      <ThemedText style={styles.action}>{label}</ThemedText>
+      <Switch
+        accessibilityLabel={accessibilityLabel ?? label}
+        value={value}
+        onValueChange={onValueChange}
+        disabled={disabled}
+        trackColor={{ true: theme.success }}
+      />
+    </View>
+  );
+}
+
 /** A tappable row: a link with a chevron, or an action in the accent or danger colour, greyed out while disabled. */
 export function ActionRow({
   title,
   onPress,
   tone = 'accent',
   chevron = false,
+  centered = false,
   busy = false,
   disabled = false,
 }: {
@@ -95,6 +138,7 @@ export function ActionRow({
   onPress: () => void;
   tone?: 'accent' | 'danger' | 'text';
   chevron?: boolean;
+  centered?: boolean;
   busy?: boolean;
   disabled?: boolean;
 }) {
@@ -106,7 +150,7 @@ export function ActionRow({
       disabled={busy || disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundSelected }]}>
-      <ThemedText style={[styles.action, { color: disabled ? theme.textSecondary : theme[tone] }]}>{title}</ThemedText>
+      <ThemedText style={[styles.action, centered && styles.centered, { color: disabled ? theme.textSecondary : theme[tone] }]}>{title}</ThemedText>
       {busy && <ActivityIndicator color={theme.textSecondary} />}
       {chevron && (
         <SymbolView
@@ -126,7 +170,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: Spacing.three, fontSize: 13 },
   footer: { paddingHorizontal: Spacing.three, fontSize: 13 },
   box: { borderRadius: 12, overflow: 'hidden' },
-  separator: { height: StyleSheet.hairlineWidth, marginLeft: Spacing.three },
+  separator: { height: StyleSheet.hairlineWidth },
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three },
   // The label may wrap at large text sizes, but never takes the whole row from the input.
   label: { flexShrink: 1, maxWidth: '55%' },
@@ -134,5 +178,6 @@ const styles = StyleSheet.create({
   value: { flex: 1, textAlign: 'right' },
   textArea: { minHeight: 88, fontSize: 17, fontFamily: FontFamily, paddingHorizontal: Spacing.three, paddingVertical: 11, textAlignVertical: 'top' },
   action: { flex: 1 },
+  centered: { textAlign: 'center' },
   chevron: { fontSize: 22 },
 });

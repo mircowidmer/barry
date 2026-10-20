@@ -1,8 +1,8 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
-import { Button, Field, FirstLoad, Notice, Screen } from '@/components/form';
-import { ThemedText } from '@/components/themed-text';
+import { FirstLoad, Notice, Screen } from '@/components/form';
+import { ActionRow, Group, InputRow, SwitchRow } from '@/components/grouped-list';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
 import { barry, type EmergencyContact, type EmergencyContactId, isEmailAddress, isPhoneNumber } from '@/lib/barry';
@@ -106,36 +106,58 @@ function ContactForm({ contact }: { contact: EmergencyContact | null }) {
         />
       </Stack.Toolbar>
       <Screen>
-        <Field label={t.contacts.name} value={form.name} onChangeText={(name) => setForm((f) => ({ ...f, name }))} autoFocus={!contact} />
-        <Field
-          label={t.contacts.email}
-          value={form.email}
-          toggle={{
-            value: emailOn(form),
-            disabled: !isEmailAddress(form.email),
-            onValueChange: (emailEnabled) => setForm((f) => ({ ...f, emailEnabled })),
-          }}
-          onChangeText={(email) => setForm((f) => ({ ...f, email }))}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        <Field
-          label={t.contacts.phone}
-          value={form.phone}
-          toggle={{
-            value: phoneOn(form),
-            disabled: !isPhoneNumber(form.phone),
-            onValueChange: (phoneEnabled) => setForm((f) => ({ ...f, phoneEnabled })),
-          }}
-          onChangeText={(phone) => setForm((f) => ({ ...f, phone: phoneInput(phone) }))}
-          keyboardType="phone-pad"
-          hint={t.contacts.phoneHint}
-        />
-        <ThemedText type="small" themeColor="textSecondary">
-          {t.contacts.switchesHint}
-        </ThemedText>
+        <Group>
+          <InputRow
+            label={t.contacts.name}
+            value={form.name}
+            onChangeText={(name) => setForm((f) => ({ ...f, name }))}
+            placeholder={t.profile.required}
+            autoFocus={!contact}
+            autoComplete="name"
+            textContentType="name"
+          />
+        </Group>
+        <Group title={t.contacts.emailSection}>
+          <InputRow
+            label={t.contacts.address}
+            accessibilityLabel={t.contacts.email}
+            value={form.email}
+            onChangeText={(email) => setForm((f) => ({ ...f, email }))}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            textContentType="emailAddress"
+          />
+          <SwitchRow
+            label={t.contacts.useForMessages}
+            accessibilityLabel={t.common.useLabel(t.contacts.email)}
+            value={emailOn(form)}
+            disabled={!isEmailAddress(form.email)}
+            onValueChange={(emailEnabled) => setForm((f) => ({ ...f, emailEnabled }))}
+          />
+        </Group>
+        <Group title={t.contacts.textSection} footer={`${t.contacts.phoneHint} ${t.contacts.switchesHint}`}>
+          <InputRow
+            label={t.contacts.number}
+            accessibilityLabel={t.contacts.phone}
+            value={form.phone}
+            onChangeText={(phone) => setForm((f) => ({ ...f, phone: phoneInput(phone) }))}
+            keyboardType="phone-pad"
+            textContentType="telephoneNumber"
+          />
+          <SwitchRow
+            label={t.contacts.useForMessages}
+            accessibilityLabel={t.common.useLabel(t.contacts.phone)}
+            value={phoneOn(form)}
+            disabled={!isPhoneNumber(form.phone)}
+            onValueChange={(phoneEnabled) => setForm((f) => ({ ...f, phoneEnabled }))}
+          />
+        </Group>
         {error && <Notice tone="danger">{error}</Notice>}
-        {contact && <Button title={t.common.delete} kind="danger" onPress={remove} busy={busy === 'delete'} />}
+        {contact && (
+          <Group>
+            <ActionRow title={t.contacts.deleteContact} tone="danger" centered onPress={remove} busy={busy === 'delete'} />
+          </Group>
+        )}
       </Screen>
     </>
   );
