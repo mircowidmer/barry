@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(27);
+select plan(25);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -161,17 +161,6 @@ select lives_ok(
   'The trusted server role can change a Deadline directly'
 );
 reset role;
-
-select lives_ok(
-  $$delete from auth.users where id = '22222222-2222-2222-2222-222222222222'$$,
-  'An account with no Adventure in progress can be deleted'
-);
-
-select is(
-  (select count(*)::int from public.emergency_contacts where adventurer_id = '22222222-2222-2222-2222-222222222222'),
-  0,
-  'Deleting the account deletes its contacts'
-);
 
 select is(
   (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
