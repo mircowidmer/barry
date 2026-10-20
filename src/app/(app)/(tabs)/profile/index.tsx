@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
@@ -134,6 +134,7 @@ function ProfileForm({
             textContentType="name"
           />
           <ValueRow label={t.profile.email} value={session?.user.email ?? ''} />
+          <ActionRow title={t.profile.account} tone="text" chevron onPress={() => router.push('/profile/account')} />
           <InputRow
             label={t.profile.phone}
             value={profile.phone}
