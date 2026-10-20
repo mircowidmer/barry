@@ -82,29 +82,31 @@ export function ValueRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** A tappable row: a link with a chevron, or an action in the accent or danger colour. */
+/** A tappable row: a link with a chevron, or an action in the accent or danger colour, greyed out while disabled. */
 export function ActionRow({
   title,
   onPress,
   tone = 'accent',
   chevron = false,
   busy = false,
+  disabled = false,
 }: {
   title: string;
   onPress: () => void;
   tone?: 'accent' | 'danger' | 'text';
   chevron?: boolean;
   busy?: boolean;
+  disabled?: boolean;
 }) {
   const theme = useTheme();
   return (
     <Pressable
       accessibilityRole={chevron ? 'link' : 'button'}
-      accessibilityState={{ busy }}
-      disabled={busy}
+      accessibilityState={{ busy, disabled }}
+      disabled={busy || disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundSelected }]}>
-      <ThemedText style={[styles.action, { color: theme[tone] }]}>{title}</ThemedText>
+      <ThemedText style={[styles.action, { color: disabled ? theme.textSecondary : theme[tone] }]}>{title}</ThemedText>
       {busy && <ActivityIndicator color={theme.textSecondary} />}
       {chevron && (
         <SymbolView

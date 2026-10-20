@@ -58,6 +58,11 @@ export const siteText = {
     welcome: 'Welcome to Barry. Go alone, get home.',
     signInHint: 'Open Barry on your iPhone and sign in with your email address and password.',
     openBarry: 'Open Barry and sign in',
+    oneMoreLink: 'One more link to open',
+    otherAddress: 'Barry also sent a link to your other email address. Your address changes once you open that one too.',
+    emailChanged: 'Your email address is changed',
+    signInWithNew: 'From now on, sign in to Barry with your new address and your password.',
+    staysSignedIn: 'Barry on your iPhone stays signed in.',
   },
   de: {
     logo: 'Barrys Symbol, ein Bernhardiner mit einem kleinen Fässchen am Halsband',
@@ -86,5 +91,10 @@ export const siteText = {
     welcome: 'Willkommen bei Barry. Allein los, sicher heim.',
     signInHint: 'Öffne Barry auf deinem iPhone und melde dich mit deiner E-Mail-Adresse und deinem Passwort an.',
     openBarry: 'Barry öffnen und anmelden',
+    oneMoreLink: 'Noch ein Link',
+    otherAddress: 'Barry hat auch einen Link an deine andere E-Mail-Adresse geschickt. Deine Adresse ändert sich, sobald du auch diesen öffnest.',
+    emailChanged: 'Deine E-Mail-Adresse ist geändert',
+    signInWithNew: 'Ab jetzt meldest du dich bei Barry mit deiner neuen Adresse und deinem Passwort an.',
+    staysSignedIn: 'Auf deinem iPhone bleibst du bei Barry angemeldet.',
   },
 } satisfies Record<SiteLanguage, Record<string, unknown>>;
