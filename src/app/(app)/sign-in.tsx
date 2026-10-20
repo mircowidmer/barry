@@ -30,7 +30,7 @@ export default function SignInScreen() {
 
   return (
     <Screen title="Barry">
-      <Image source={require('@/assets/images/logo.png')} accessibilityLabel="Barry" style={{ width: 96, height: 96, borderRadius: 22, alignSelf: 'center' }} />
+      <Image source={require('@/assets/images/logo.png')} style={{ width: 96, height: 96, borderRadius: 22, alignSelf: 'center' }} />
       <ThemedText themeColor="textSecondary">
         {t.signIn.intro}
       </ThemedText>
