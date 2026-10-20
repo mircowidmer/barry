@@ -3,7 +3,7 @@ import { type ReactNode, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
 import { FirstLoad, LoadState, Screen } from '@/components/form';
-import { ActionRow, Group, InputRow, TextAreaRow, ValueRow } from '@/components/grouped-list';
+import { ActionRow, Group, InputRow, TextAreaRow } from '@/components/grouped-list';
 import { SITE } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
@@ -11,7 +11,6 @@ import { type AdventurerProfile, barry, isPhoneNumber } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
 import { askToLogOut } from '@/lib/log-out';
 import { formatPhoneNumber, phoneInput } from '@/lib/phone';
-import { useSession } from '@/lib/session';
 import { useTexts } from '@/lib/texts';
 
 type Form = Record<keyof AdventurerProfile, string>;
@@ -63,7 +62,6 @@ function ProfileForm({
   reloadFailure: ReactNode;
   onRefresh: () => Promise<void>;
 }) {
-  const { session } = useSession();
   const t = useTexts();
   const [seen, setSeen] = useState(stored);
   const [saved, setSaved] = useState<Form>(() => formOf(stored));
@@ -133,12 +131,10 @@ function ProfileForm({
             autoComplete="name"
             textContentType="name"
           />
-          <ValueRow label={t.profile.email} value={session?.user.email ?? ''} />
           <InputRow
             label={t.profile.phone}
             value={profile.phone}
             onChangeText={(text) => set('phone')(phoneInput(text))}
-            placeholder={t.profile.required}
             keyboardType="phone-pad"
             autoComplete="tel"
             textContentType="telephoneNumber"
