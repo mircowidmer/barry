@@ -129,13 +129,12 @@ function ProfileForm({ stored, reloadFailure }: { stored: AdventurerProfile | nu
       </Group>
 
       <Group title={t.profile.car}>
-        <InputRow label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} placeholder={t.profile.optional} />
-        <InputRow label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} placeholder={t.profile.optional} />
+        <InputRow label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} />
+        <InputRow label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} />
         <InputRow
           label={t.profile.plate}
           value={profile.carPlate}
           onChangeText={set('carPlate')}
-          placeholder={t.profile.optional}
           autoCapitalize="characters"
         />
       </Group>

@@ -203,7 +203,6 @@ const en = {
     logOut: 'Log Out',
     deleteAccount: 'Delete Account',
     required: 'Required',
-    optional: 'Optional',
     medicalPlaceholder: 'For example allergies or medication',
   },
   account: {
@@ -442,7 +441,6 @@ const de: Texts = {
     logOut: 'Abmelden',
     deleteAccount: 'Konto löschen',
     required: 'Erforderlich',
-    optional: 'Optional',
     medicalPlaceholder: 'Zum Beispiel Allergien oder Medikamente',
   },
   account: {
