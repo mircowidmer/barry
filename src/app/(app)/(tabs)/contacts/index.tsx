@@ -49,15 +49,9 @@ export default function ContactsScreen() {
     setMessage(null);
     try {
       const outcome = await barry.addContactFromPhone();
-      if (outcome.kind === 'cancelled') return;
-      setMessage(
-        outcome.kind === 'added'
-          ? { tone: 'success', text: t.contacts.added(outcome.contact.name) }
-          : outcome.kind === 'duplicate'
-            ? { tone: 'danger', text: t.contacts.alreadyAdded(outcome.name) }
-            : { tone: 'danger', text: t.contacts.nothingToReach(outcome.name) },
-      );
       if (outcome.kind === 'added') loaded.reload();
+      else if (outcome.kind === 'duplicate') setMessage({ tone: 'danger', text: t.contacts.alreadyAdded(outcome.name) });
+      else if (outcome.kind === 'unreachable') setMessage({ tone: 'danger', text: t.contacts.nothingToReach(outcome.name) });
     } catch {
       setMessage({ tone: 'danger', text: t.contacts.couldNotAdd });
     } finally {
