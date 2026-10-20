@@ -7,7 +7,7 @@ export default function ProfileLayout() {
   const t = useTexts();
   return (
     <TabStack title={t.profile.title}>
-      <Stack.Screen name="account" options={{ title: t.account.title }} />
+      <Stack.Screen name="account" options={{ title: t.account.title, presentation: 'modal' }} />
     </TabStack>
   );
 }

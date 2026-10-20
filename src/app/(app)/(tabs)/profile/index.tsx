@@ -134,7 +134,6 @@ function ProfileForm({
             textContentType="name"
           />
           <ValueRow label={t.profile.email} value={session?.user.email ?? ''} />
-          <ActionRow title={t.profile.account} tone="text" chevron onPress={() => router.push('/profile/account')} />
           <InputRow
             label={t.profile.phone}
             value={profile.phone}
@@ -170,6 +169,10 @@ function ProfileForm({
         <Group footer={t.legal.notEmergency}>
           <ActionRow title={t.legal.privacy} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/privacy`)} />
           <ActionRow title={t.legal.terms} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/terms`)} />
+        </Group>
+
+        <Group>
+          <ActionRow title={t.profile.account} tone="text" onPress={() => router.push('/profile/account')} />
         </Group>
 
         <Group>

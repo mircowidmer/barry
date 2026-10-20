@@ -1,3 +1,4 @@
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 
 import { FirstLoad, LoadState, Notice, Screen } from '@/components/form';
@@ -17,12 +18,14 @@ export default function AccountScreen() {
   if (loaded.data === undefined) {
     return (
       <Screen>
+        <Close />
         <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />
       </Screen>
     );
   }
   return (
     <Screen onRefresh={loaded.reload}>
+      <Close />
       <LoadState loaded={loaded} failure={failure} />
       <ThemedText type="small" themeColor="textSecondary">
         {t.account.intro}
@@ -30,6 +33,15 @@ export default function AccountScreen() {
       <PasswordChange email={loaded.data.email} />
       <EmailChange stored={loaded.data} onRequested={loaded.reload} />
     </Screen>
+  );
+}
+
+function Close() {
+  const t = useTexts();
+  return (
+    <Stack.Toolbar placement="left">
+      <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.done} onPress={() => router.back()} />
+    </Stack.Toolbar>
   );
 }
 
@@ -63,6 +75,7 @@ function PasswordChange({ email }: { email: string }) {
         <InputRow
           label={t.account.currentPassword}
           value={current}
+          placeholder={t.profile.required}
           onChangeText={setCurrent}
           secureTextEntry
           autoComplete="current-password"
@@ -71,6 +84,7 @@ function PasswordChange({ email }: { email: string }) {
         <InputRow
           label={t.account.newPassword}
           value={next}
+          placeholder={t.profile.required}
           onChangeText={setNext}
           secureTextEntry
           autoComplete="new-password"
@@ -113,6 +127,7 @@ function EmailChange({ stored, onRequested }: { stored: AccountEmail; onRequeste
         <InputRow
           label={t.account.newEmail}
           value={next}
+          placeholder={t.profile.required}
           onChangeText={setNext}
           autoCapitalize="none"
           autoComplete="email"
