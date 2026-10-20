@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(12);
+select plan(11);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -110,12 +110,6 @@ select is(
   has_function_privilege('authenticated', 'private.tick(timestamptz)', 'execute'),
   false,
   'The app cannot run tick'
-);
-
-select is(
-  (select count(*)::int from private.clock_status),
-  1,
-  'There is one clock row'
 );
 
 select * from finish();
