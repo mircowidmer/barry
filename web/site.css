@@ -47,12 +47,12 @@ html:has(.site) { background: var(--bg); }
   padding: 56px 16px 64px;
   text-align: center;
 }
-.site header img { width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.2); }
+.site header img { width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 0 0 3px rgb(255 255 255 / 0.85), 0 8px 24px rgb(0 0 0 / 0.2); }
 .site header h1 { margin: 20px 0 8px; font-size: 44px; line-height: 1.15; letter-spacing: -0.02em; }
 .site header p { margin: 0 auto; max-width: 34em; font-size: 20px; opacity: 0.95; }
 .site header .slogan { margin-bottom: 16px; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; opacity: 1; }
 .site header.compact { padding: 32px 16px 40px; }
-.site header.compact img { width: 72px; height: 72px; border-radius: 17px; }
+.site header.compact img { width: 72px; height: 72px; border-radius: 17px; box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85), 0 8px 24px rgb(0 0 0 / 0.2); }
 .site header.compact h1 { margin-top: 14px; font-size: 34px; }
 .site header.compact p { font-size: 18px; }
 .site .status {

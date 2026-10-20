@@ -13,7 +13,7 @@ export function SitePage({ title, lead, children }: { title: string; lead?: stri
         <Image
           source={require('@/assets/images/logo.png')}
           accessibilityLabel={t.logo}
-          style={{ width: 72, height: 72, borderRadius: 17, marginHorizontal: 'auto', boxShadow: '0 8px 24px rgb(0 0 0 / 0.2)' }}
+          style={{ width: 72, height: 72, borderRadius: 17, marginHorizontal: 'auto', boxShadow: '0 0 0 2px rgb(255 255 255 / 0.85), 0 8px 24px rgb(0 0 0 / 0.2)' }}
         />
         <h1>{title}</h1>
         {lead && <p>{lead}</p>}
