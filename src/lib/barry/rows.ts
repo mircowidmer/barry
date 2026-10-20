@@ -24,7 +24,6 @@ export type AdventureWithRelations = AdventureRow & {
 export const ADVENTURE_SELECT =
   '*, adventure_contacts(emergency_contacts(*)), last_position:position_readings(taken_at, latitude, longitude, accuracy_m)';
 
-
 const date = (value: string | null, field: string): Date => {
   if (value === null) throw new Error(`adventure row: ${field} is missing`);
   return new Date(value);
