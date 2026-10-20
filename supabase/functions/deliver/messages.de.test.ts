@@ -97,7 +97,7 @@ Deno.test('the German All-clear gives the Check-in time and the link to the Trai
   );
 });
 
-Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit and the link, without the Plan', () => {
+Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit, the destination and the link, without the route', () => {
   const { subject, text } = render(
     parseFacts({ ...base, kind: 'deadline_update', deadline: '2026-10-17T18:00:00Z', previous_deadline: '2026-10-17T16:00:00Z', trail_token: token }),
     links,
@@ -107,6 +107,8 @@ Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit 
     text,
     [
       'Anna braucht mehr Zeit und hat die Rückkehrzeit von Sa, 17. Okt. um 18:00 auf Sa, 17. Okt. um 20:00 verschoben. Barry hat die neue Fährte aufgenommen und passt weiter auf.',
+      '',
+      'Ziel: Grosser Mythen',
       '',
       'Wenn sich Anna bis Sa, 17. Okt. um 20:00 nicht zurückgemeldet hat, meldet sich Barry wieder bei dir.',
       '',

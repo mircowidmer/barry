@@ -69,6 +69,8 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         text: lines(
           `${name} braucht mehr Zeit und hat die Rückkehrzeit von ${time(facts.previousDeadline)} auf ${time(facts.deadline)} verschoben. Barry hat die neue Fährte aufgenommen und passt weiter auf.`,
           '',
+          `Ziel: ${facts.plan.destination}`,
+          '',
           `Wenn sich ${name} bis ${time(facts.deadline)} nicht zurückgemeldet hat, meldet sich Barry wieder bei dir.`,
           trailLine(facts.trailToken) && '',
           trailLine(facts.trailToken),

@@ -66,6 +66,8 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         text: lines(
           `${name} needs more time and moved the check-in time from ${time(facts.previousDeadline)} to ${time(facts.deadline)}. Barry has picked up the new scent and keeps watching.`,
           '',
+          `Destination: ${facts.plan.destination}`,
+          '',
           `If ${name} has not checked in by ${time(facts.deadline)}, Barry will message you again.`,
           trailLine(facts.trailToken) && '',
           trailLine(facts.trailToken),

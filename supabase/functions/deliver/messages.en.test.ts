@@ -143,7 +143,7 @@ Deno.test('an unset or invalid TRAIL_MAP_URL gives no links', () => {
   assertEquals(trailMapLinks('not a url'), null);
 });
 
-Deno.test('a Deadline Update gives the earlier and the new check-in time and the Trail Map link, without the Plan', () => {
+Deno.test('a Deadline Update gives the earlier and the new check-in time, the destination and the Trail Map link, without the route', () => {
   const { subject, text } = render(
     parseFacts({ ...base, kind: 'deadline_update', deadline: '2026-10-17T18:00:00Z', previous_deadline: '2026-10-17T16:00:00Z', trail_token: token }),
     links,
@@ -153,6 +153,8 @@ Deno.test('a Deadline Update gives the earlier and the new check-in time and the
     text,
     [
       'Anna needs more time and moved the check-in time from Sat 17 Oct, 18:00 to Sat 17 Oct, 20:00. Barry has picked up the new scent and keeps watching.',
+      '',
+      'Destination: Grosser Mythen',
       '',
       'If Anna has not checked in by Sat 17 Oct, 20:00, Barry will message you again.',
       '',
