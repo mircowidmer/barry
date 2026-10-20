@@ -201,7 +201,7 @@ A few limits are implementation choices, not promises to the Adventurer. Their v
 
 - `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many minutes of Trail the phone keeps while it has no signal. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values.
 - `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading.
-- `max_attempts`, `retry_backoff` and the lease in `claim_messages` (`supabase/migrations/20261015084008_deliver.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
+- `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261016210100_deadline_update.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
 - `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one. `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.
 
 ## Out of scope for the first version
