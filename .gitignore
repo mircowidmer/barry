@@ -44,7 +44,7 @@ example
 /ios
 /android
 
-# verification proof (see .claude/skills/verify)
+# verification proof (see .claude/skills/barry-verify)
 .verify-artifacts/
 
 # Secrets for the local Supabase stack

@@ -1,5 +1,5 @@
 ---
-name: update-readme
+name: barry-update-readme
 description: Keep Barry's README.md true to the repository: the commands to run and check it, the files they need, the guides under docs/ and the skills under .claude/skills/. Compares every claim in the README with the repository and reports what is stale, missing or wrong. Read-only unless invoked with --fix, which then edits README.md and commits each change. Use after adding or removing a document, a script, a test suite, an env variable or a skill, or when asked whether the README is current.
 ---
 
@@ -7,7 +7,7 @@ description: Keep Barry's README.md true to the repository: the commands to run 
 
 You are checking `README.md` of the repository at the current working directory, Barry: an Expo SDK 58 iPhone app with a Supabase backend that alerts an Adventurer's Emergency Contacts when a Deadline passes without a Check-in. The README is the front door: a developer at a fresh checkout reads it to learn what Barry is, how to run it, how to check it, and where the rest is written down. Your job is to make sure every sentence of it is still true and that nothing a newcomer needs is missing. The deliverable is a report, and with `--fix`, a README that matches the repository.
 
-The README follows the repository, never the other way round. If a command, a file or a guide has changed, the README changes. If the README promises something the repository does not have, the README loses the promise. Changing code, scripts, documents or skills to make the README true is the audit-consistency skill's business, not this one's.
+The README follows the repository, never the other way round. If a command, a file or a guide has changed, the README changes. If the README promises something the repository does not have, the README loses the promise. Changing code, scripts, documents or skills to make the README true is the barry-audit-consistency skill's business, not this one's.
 
 ## Arguments
 
@@ -24,7 +24,7 @@ Four sections after the title and one paragraph, in this order. Each must match 
 | --- | --- | --- |
 | The opening paragraph | What Barry is, for whom, and what it is built with | `CONTEXT.md`, the first paragraph of `docs/spec.md`, `package.json` (`expo`, `@supabase/supabase-js`) |
 | **Run it locally** | The commands that start the backend and the app, the env file to copy and the keys to fill in, and which build the app needs | `package.json` scripts, `.env.example`, `supabase/config.toml`, `docs/iphone.md`, `docs/builds.md`, `AGENTS.md` |
-| **Check it** | Every command that checks the repository, one per line, and what each needs before it runs | `package.json` scripts (`lint`, `test`, `e2e`), `tsconfig.json`, `supabase/functions/deliver/*.test.ts`, `supabase/tests/database/`, `e2e/stack.mjs`, `.claude/skills/verify/SKILL.md` |
+| **Check it** | Every command that checks the repository, one per line, and what each needs before it runs | `package.json` scripts (`lint`, `test`, `e2e`), `tsconfig.json`, `supabase/functions/deliver/*.test.ts`, `supabase/tests/database/`, `e2e/stack.mjs`, `.claude/skills/barry-verify/SKILL.md` |
 | **Guides** | One link per document a person would read, with the document's title as the link text | every `docs/**/*.md`, `docs/adr/*.md`, `docs/overview/`, `barry-prompts.html`, `CONTEXT.md` |
 | **Skills** | One line per skill under `.claude/skills/`: its name, what it does in one sentence, and `--fix` where it has one | the `name` and `description` of every `.claude/skills/*/SKILL.md` |
 
@@ -50,7 +50,7 @@ Read the README fully, then each source named above fully. Do not sample.
 6. **Links and commands.** Every relative link in the README resolves. Every command in a code block is one the reader can paste.
 7. **Style.** Short sentences. The glossary's terms, capitalised as `CONTEXT.md` writes them when they name the concept, lower case in running prose about the app as the app's own texts do. No count, no date, no version that drifts.
 
-One finding per root cause, with the README line and the source line quoted. Say what is true. If the README and a source disagree and the source itself is contradicted by the code, say so and leave that to the audit-consistency skill.
+One finding per root cause, with the README line and the source line quoted. Say what is true. If the README and a source disagree and the source itself is contradicted by the code, say so and leave that to the barry-audit-consistency skill.
 
 ## Report
 
