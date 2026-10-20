@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, TextInput, type TextInputProp
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useInputColors } from '@/hooks/use-input-colors';
 import { useTheme } from '@/hooks/use-theme';
 
 /** An inset group of rows like in Settings, with an optional header above and footer below. */
@@ -37,13 +38,13 @@ export function Group({ title, footer, children }: { title?: string; footer?: st
 /** A label on the left and the value it edits on the right. */
 export function InputRow({ label, ...input }: { label: string } & TextInputProps) {
   const theme = useTheme();
+  const inputColors = useInputColors();
   return (
     <View style={styles.row}>
       <ThemedText style={styles.label}>{label}</ThemedText>
       <TextInput
         accessibilityLabel={label}
-        placeholderTextColor={theme.textSecondary}
-        selectionColor={theme.accent}
+        {...inputColors}
         style={[styles.input, { color: theme.text }]}
         textAlign="right"
         {...input}
@@ -55,11 +56,11 @@ export function InputRow({ label, ...input }: { label: string } & TextInputProps
 /** A text that fills the row and grows with its lines, such as notes. */
 export function TextAreaRow({ label, ...input }: { label: string } & TextInputProps) {
   const theme = useTheme();
+  const inputColors = useInputColors();
   return (
     <TextInput
       accessibilityLabel={label}
-      placeholderTextColor={theme.textSecondary}
-      selectionColor={theme.accent}
+      {...inputColors}
       style={[styles.textArea, { color: theme.text }]}
       multiline
       {...input}

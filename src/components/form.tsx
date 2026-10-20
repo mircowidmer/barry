@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useInputColors } from '@/hooks/use-input-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useTexts } from '@/lib/texts';
 
@@ -93,6 +94,7 @@ type Toggle = { value: boolean; onValueChange: (value: boolean) => void; disable
 
 export function Field({ label, hint, toggle, ...input }: { label: string; hint?: string; toggle?: Toggle } & TextInputProps) {
   const theme = useTheme();
+  const inputColors = useInputColors();
   const t = useTexts();
   const dimmed = input.editable === false || (toggle !== undefined && !toggle.value && !toggle.disabled);
   return (
@@ -113,8 +115,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
       </View>
       <TextInput
         accessibilityLabel={label}
-        placeholderTextColor={theme.textSecondary}
-        selectionColor={theme.accent}
+        {...inputColors}
         style={[
           styles.input,
           {
