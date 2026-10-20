@@ -1,6 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { withDangerousMod, withXcodeProject } = require('expo/config-plugins');
+const {
+  AndroidConfig,
+  withAndroidColors,
+  withAndroidColorsNight,
+  withAndroidStyles,
+  withDangerousMod,
+  withXcodeProject,
+} = require('expo/config-plugins');
 
 // The accent colours of src/constants/theme.ts, read from the source so the two cannot drift.
 function accents() {
@@ -40,4 +47,23 @@ const withIosAccentColor = (config) => {
   });
 };
 
-module.exports = (config) => withIosAccentColor(config);
+// Android dialogs, such as the Deadline's date and time pickers, take the app theme's colorAccent.
+const withAndroidAccentColor = (config) => {
+  const assign = (scheme) => (config) => {
+    config.modResults = AndroidConfig.Colors.assignColorValue(config.modResults, { name: 'colorAccent', value: accents()[scheme] });
+    return config;
+  };
+  config = withAndroidColors(config, assign('light'));
+  config = withAndroidColorsNight(config, assign('dark'));
+  return withAndroidStyles(config, (config) => {
+    config.modResults = AndroidConfig.Styles.assignStylesValue(config.modResults, {
+      add: true,
+      parent: AndroidConfig.Styles.getAppThemeGroup(),
+      name: 'colorAccent',
+      value: '@color/colorAccent',
+    });
+    return config;
+  });
+};
+
+module.exports = (config) => withAndroidAccentColor(withIosAccentColor(config));
