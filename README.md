@@ -50,3 +50,4 @@ Each is a prompt under `.claude/skills/`, run in Claude Code as `/<name>`.
 - `e2e-gaps` lists the use cases the documents promise that no end-to-end case proves; `--fix` writes the missing cases against the running stack.
 - `prune-tests` finds the tests whose failure would tell nothing, and the duplicates; `--fix` cuts them.
 - `update-readme` keeps this file true to the repository; `--fix` edits it.
+- `assure-code-quality` reviews the app code against current best practices in coding style and code quality; `--fix` applies the certain, behaviour-preserving fixes.
