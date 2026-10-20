@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Linking } from 'react-native';
 
 import { Button, Field, Notice, Screen } from '@/components/form';
 import { LegalLinks } from '@/components/legal-links';
@@ -14,6 +15,12 @@ export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null);
   const [confirmEmail, setConfirmEmail] = useState(false);
   const t = useTexts();
+
+  // The confirmation page's button opens barry://sign-in, so the hint to confirm is done by then.
+  useEffect(() => {
+    const subscription = Linking.addEventListener('url', () => setConfirmEmail(false));
+    return () => subscription.remove();
+  }, []);
 
   const submit = async (mode: 'sign_in' | 'sign_up') => {
     setBusy(mode);
