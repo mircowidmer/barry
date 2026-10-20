@@ -116,6 +116,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
       <TextInput
         accessibilityLabel={label}
         {...inputColors}
+        spellCheck={false}
         style={[
           styles.input,
           {
