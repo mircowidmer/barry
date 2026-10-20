@@ -1,23 +1,46 @@
-"""Generates every app icon, splash and favicon from assets/brand/icon-1024.png (full-bleed, for
-app icons) and assets/brand/icon-rounded.png (rounded corners, for the splash, logo and favicon).
+"""Generates every app icon, splash and favicon from the Icon Composer source assets/brand/icon.icon.
 
-Run with: python3 scripts/make-icons.py (needs Pillow)
+Icon Composer's ictool renders the icon with its glass, so a colour change belongs in icon.json and
+reaches every image on the next run. The launch screens take their colours from src/constants/theme.ts.
+
+Run with: python3 scripts/make-icons.py (needs Pillow and Xcode 26 on macOS)
 """
-import math
+import json
+import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = ROOT / 'assets/brand/icon-1024.png'
-ROUNDED = ROOT / 'assets/brand/icon-rounded.png'
+ICON = ROOT / 'assets/brand/icon.icon'
+THEME = ROOT / 'src/constants/theme.ts'
 OUT = ROOT / 'assets/images'
-BACKGROUND = (255, 255, 255, 255)
+ICTOOL = '/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool'
 SF_PRO = '/System/Library/Fonts/SFNS.ttf'
+# The render has the rounded corners of the iOS mask; cutting this margin leaves only the tile.
+TILE_MARGIN = 88
 
 
-def scaled(size: int, source: Path = SOURCE) -> Image.Image:
-    return Image.open(source).convert('RGBA').resize((size, size), Image.LANCZOS)
+def render(layer: bool = True) -> Image.Image:
+    """The 1024 px icon as Icon Composer draws it, optionally without the dog."""
+    with tempfile.TemporaryDirectory() as tmp:
+        icon = Path(tmp) / 'icon.icon'
+        shutil.copytree(ICON, icon)
+        spec = json.loads((icon / 'icon.json').read_text())
+        for group in spec['groups']:
+            group['hidden'] = not layer
+        (icon / 'icon.json').write_text(json.dumps(spec))
+        out = Path(tmp) / 'out.png'
+        subprocess.run([ICTOOL, str(icon), '--export-preview', 'iOS', 'Light', '1024', '1024', '1', str(out)], check=True, capture_output=True)
+        return Image.open(out).convert('RGBA')
+
+
+def full_bleed(rounded: Image.Image) -> Image.Image:
+    m = TILE_MARGIN
+    return rounded.crop((m, m, 1024 - m, 1024 - m)).resize((1024, 1024), Image.LANCZOS)
 
 
 def on_canvas(art: Image.Image, canvas: int, fill=(0, 0, 0, 0)) -> Image.Image:
@@ -27,34 +50,12 @@ def on_canvas(art: Image.Image, canvas: int, fill=(0, 0, 0, 0)) -> Image.Image:
     return out
 
 
-# iOS rejects icons with transparency, so the app icon is flattened onto white.
-on_canvas(scaled(1024), 1024, BACKGROUND).convert('RGB').save(OUT / 'icon.png')
-
-# The source is full-bleed, so Android gets it as the background layer under an empty foreground.
-Image.new('RGBA', (1024, 1024), (0, 0, 0, 0)).save(OUT / 'android-icon-foreground.png')
-scaled(1024).save(OUT / 'android-icon-background.png')
-art = scaled(660)
-dark = Image.eval(art.convert('L'), lambda v: 255 if v < 90 else 0)
-mono = Image.new('RGBA', art.size, (255, 255, 255, 0))
-mono.putalpha(Image.composite(dark, Image.new('L', art.size, 0), art.getchannel('A')))
-on_canvas(mono, 1024).save(OUT / 'android-icon-monochrome.png')
-
-scaled(512, ROUNDED).save(OUT / 'logo.png')
-scaled(400, ROUNDED).save(OUT / 'splash-icon.png')
-scaled(48, ROUNDED).save(OUT / 'favicon.png')
-
-
-def css_gradient(size: tuple[int, int], degrees: float, start, end) -> Image.Image:
-    """Matches CSS linear-gradient(<degrees>deg, start, end): 0deg points up, angles turn clockwise."""
-    w, h = size
-    dx, dy = math.sin(math.radians(degrees)), -math.cos(math.radians(degrees))
-    length = abs(w * dx) + abs(h * dy)
-    rows = bytearray()
-    for y in range(h):
-        for x in range(w):
-            t = min(1.0, max(0.0, ((x - w / 2) * dx + (y - h / 2) * dy) / length + 0.5))
-            rows += bytes(round(a + (b - a) * t) for a, b in zip(start, end))
-    return Image.frombytes('RGB', size, bytes(rows)).convert('RGBA')
+def theme() -> dict[str, dict[str, str]]:
+    source = THEME.read_text()
+    return {
+        scheme: dict(re.findall(r"(\w+): '(#[0-9A-Fa-f]{6})'", block))
+        for scheme, block in re.findall(r'(light|dark): \{(.*?)\}', source, re.S)
+    }
 
 
 def font(weight: bytes, size: int) -> ImageFont.FreeTypeFont:
@@ -63,21 +64,42 @@ def font(weight: bytes, size: int) -> ImageFont.FreeTypeFont:
     return f
 
 
-# The iOS launch screen mirrors the header of barry.support (web/site.css), at 3x on a 430 pt wide phone.
-# iOS scales it to fill the screen, so everything sits in the middle, away from edges that get cropped.
-splash = css_gradient((1290, 2796), 160, (0x34, 0xC7, 0x59), (0x00, 0x88, 0xFF))
-icon = scaled(360, ROUNDED)
+rounded = render()
+art = full_bleed(rounded)
+
+# iOS rejects icons with transparency; the full-bleed tile has none.
+art.convert('RGB').save(OUT / 'icon.png')
+
+# Android gets the full-bleed tile as the background layer under an empty foreground.
+Image.new('RGBA', (1024, 1024), (0, 0, 0, 0)).save(OUT / 'android-icon-foreground.png')
+art.save(OUT / 'android-icon-background.png')
+# The themed icon is the dog's dark fur, so the dark end of the rust gradient must not count.
+dog = ImageChops.difference(art, full_bleed(render(layer=False))).convert('L').point(lambda v: 255 if v > 24 else 0)
+fur = art.convert('L').point(lambda v: 255 if v < 90 else 0)
+mono = Image.new('RGBA', (1024, 1024), (255, 255, 255, 0))
+mono.putalpha(ImageChops.multiply(fur, dog))
+on_canvas(mono.resize((660, 660), Image.LANCZOS), 1024).save(OUT / 'android-icon-monochrome.png')
+
+rounded.resize((512, 512), Image.LANCZOS).save(OUT / 'logo.png')
+rounded.resize((400, 400), Image.LANCZOS).save(OUT / 'splash-icon.png')
+rounded.resize((48, 48), Image.LANCZOS).save(OUT / 'favicon.png')
+
+# The iOS launch screens, at 3x on a 430 pt wide phone, on the app's background in each appearance.
+# iOS scales them to fill the screen, so everything sits in the middle, away from edges that get cropped.
+icon = rounded.resize((360, 360), Image.LANCZOS)
 margin = 120
 shadow = Image.new('RGBA', (icon.width + 2 * margin, icon.height + 2 * margin), (0, 0, 0, 0))
 shadow.paste((0, 0, 0, 51), (margin, margin), icon.getchannel('A'))
 shadow = shadow.filter(ImageFilter.GaussianBlur(36))
 title, slogan = font(b'Bold', 132), font(b'Semibold', 78)
-draw = ImageDraw.Draw(splash)
-block = icon.height + 60 + 132 + 30 + 78
-top = (splash.height - block) // 2 - 120
-splash.alpha_composite(shadow, ((splash.width - shadow.width) // 2, top + 24 - margin))
-splash.alpha_composite(icon, ((splash.width - icon.width) // 2, top))
-draw.text((splash.width / 2, top + icon.height + 60), 'Barry', font=title, fill='white', anchor='mt')
-draw.text((splash.width / 2, top + icon.height + 60 + 132 + 30), 'Go alone, get home.', font=slogan, fill='white', anchor='mt')
-splash.convert('RGB').save(OUT / 'splash.png')
+for name, colors in (('splash.png', theme()['light']), ('splash-dark.png', theme()['dark'])):
+    splash = Image.new('RGBA', (1290, 2796), colors['background'])
+    draw = ImageDraw.Draw(splash)
+    block = icon.height + 60 + 132 + 30 + 78
+    top = (splash.height - block) // 2 - 120
+    splash.alpha_composite(shadow, ((splash.width - shadow.width) // 2, top + 24 - margin))
+    splash.alpha_composite(icon, ((splash.width - icon.width) // 2, top))
+    draw.text((splash.width / 2, top + icon.height + 60), 'Barry', font=title, fill=colors['text'], anchor='mt')
+    draw.text((splash.width / 2, top + icon.height + 60 + 132 + 30), 'Go alone, get home.', font=slogan, fill=colors['accent'], anchor='mt')
+    splash.convert('RGB').save(OUT / name)
 print('icons written to', OUT)
