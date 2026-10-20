@@ -251,7 +251,7 @@ function PlanForm({
             {t.plan.deadlineHint}
           </ThemedText>
           {Platform.OS === 'ios' ? (
-            <View style={{ alignItems: 'flex-start' }}>
+            <View style={styles.picker}>
               <DateTimePicker
                 value={form.deadline}
                 mode="datetime"
@@ -324,6 +324,7 @@ function PlanForm({
 }
 
 const styles = StyleSheet.create({
+  picker: { alignItems: 'flex-start' },
   contact: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   contactText: { flex: 1, paddingVertical: 10, gap: 2 },
 });
