@@ -8,13 +8,16 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useTexts } from '@/lib/texts';
 
+/** flush fits a row of a grouped list: the action fills the row's height edge to edge instead of being a card of its own. */
 export function SwipeToDelete({
   label,
   onDelete,
+  flush = false,
   children,
 }: {
   label: string;
   onDelete: () => void;
+  flush?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -23,7 +26,7 @@ export function SwipeToDelete({
       rightThreshold={40}
       overshootRight={false}
       renderRightActions={(progress, _translation, swipeable) => (
-        <DeleteAction label={label} progress={progress} swipeable={swipeable} onDelete={onDelete} />
+        <DeleteAction label={label} progress={progress} swipeable={swipeable} onDelete={onDelete} flush={flush} />
       )}>
       {children}
     </Swipeable>
@@ -35,11 +38,13 @@ function DeleteAction({
   progress,
   swipeable,
   onDelete,
+  flush,
 }: {
   label: string;
   progress: SharedValue<number>;
   swipeable: SwipeableMethods;
   onDelete: () => void;
+  flush: boolean;
 }) {
   const theme = useTheme();
   const t = useTexts();
@@ -54,7 +59,7 @@ function DeleteAction({
           swipeable.close();
           onDelete();
         }}
-        style={[styles.action, { backgroundColor: theme.danger }]}>
+        style={[styles.action, flush && styles.flush, { backgroundColor: theme.danger }]}>
         <ThemedText style={{ color: theme.onAccent, fontWeight: 600 }}>{t.common.delete}</ThemedText>
       </Pressable>
     </Animated.View>
@@ -69,4 +74,5 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.two,
     borderRadius: Spacing.three,
   },
+  flush: { marginLeft: 0, borderRadius: 0 },
 });
