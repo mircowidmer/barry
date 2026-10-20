@@ -257,6 +257,7 @@ function PlanForm({
                 mode="datetime"
                 display="compact"
                 minimumDate={new Date()}
+                accentColor={theme.accent}
                 onChange={(_, date) => date && setForm((f) => ({ ...f, deadline: date }))}
                 accessibilityLabel={t.plan.deadline}
               />

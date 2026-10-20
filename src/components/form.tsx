@@ -114,6 +114,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
       <TextInput
         accessibilityLabel={label}
         placeholderTextColor={theme.textSecondary}
+        selectionColor={theme.accent}
         style={[
           styles.input,
           {

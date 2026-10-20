@@ -43,6 +43,7 @@ export function InputRow({ label, ...input }: { label: string } & TextInputProps
       <TextInput
         accessibilityLabel={label}
         placeholderTextColor={theme.textSecondary}
+        selectionColor={theme.accent}
         style={[styles.input, { color: theme.text }]}
         textAlign="right"
         {...input}
@@ -58,6 +59,7 @@ export function TextAreaRow({ label, ...input }: { label: string } & TextInputPr
     <TextInput
       accessibilityLabel={label}
       placeholderTextColor={theme.textSecondary}
+      selectionColor={theme.accent}
       style={[styles.textArea, { color: theme.text }]}
       multiline
       {...input}
@@ -100,7 +102,7 @@ export function ActionRow({
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundSelected }]}>
       <ThemedText style={[styles.action, { color: theme[tone] }]}>{title}</ThemedText>
-      {busy && <ActivityIndicator />}
+      {busy && <ActivityIndicator color={theme.textSecondary} />}
       {chevron && (
         <SymbolView
           name="chevron.right"
