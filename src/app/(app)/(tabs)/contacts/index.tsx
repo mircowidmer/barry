@@ -1,8 +1,9 @@
 import { router, Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { type LayoutChangeEvent, Pressable, type ScrollViewInstance, StyleSheet, View } from 'react-native';
 
+import { Flash } from '@/components/flash';
 import { LoadState, Notice, Screen } from '@/components/form';
 import { ActionRow, Group } from '@/components/grouped-list';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
@@ -42,14 +43,31 @@ export default function ContactsScreen() {
   });
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
   const [picking, setPicking] = useState(false);
+  const [added, setAdded] = useState<EmergencyContact['id'] | null>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const t = useTexts();
+
+  // The list is sorted by name, so the new row can land off screen. iOS's zoomToRect scrolls it into view
+  // within the large title and the tab bar, which a plain scrollTo does not know about. The row sits inside
+  // its group, so it is measured against the scroll view's content rather than its parent.
+  const reveal = (event: LayoutChangeEvent) => {
+    const row = event.currentTarget;
+    const content = scroll.current?.getInnerViewRef();
+    if (typeof row === 'number' || !content) return;
+    row.measureLayout(content, (x, y, width, height) =>
+      scroll.current?.scrollResponderZoomTo({ x, y, width, height, animated: true }),
+    );
+  };
 
   const add = async () => {
     setPicking(true);
     setMessage(null);
     try {
       const outcome = await barry.addContactFromPhone();
-      if (outcome.kind === 'added') loaded.reload();
+      if (outcome.kind === 'added') {
+        setAdded(outcome.contact.id);
+        loaded.reload();
+      }
       else if (outcome.kind === 'duplicate') setMessage({ tone: 'danger', text: t.contacts.alreadyAdded(outcome.name) });
       else if (outcome.kind === 'unreachable') setMessage({ tone: 'danger', text: t.contacts.nothingToReach(outcome.name) });
     } catch {
@@ -78,7 +96,7 @@ export default function ContactsScreen() {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.contacts.addLabel} disabled={picking} onPress={add} />
       </Stack.Toolbar>
-      <Screen onRefresh={loaded.reload}>
+      <Screen ref={scroll} onRefresh={loaded.reload}>
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
         <LoadState loaded={loaded} failure={() => t.contacts.couldNotLoad} />
         {data && data.contacts.length === 0 && (
@@ -92,9 +110,11 @@ export default function ContactsScreen() {
         {data && data.contacts.length > 0 && (
           <Group footer={t.contacts.intro} inset={Spacing.three + AVATAR + 12}>
             {data.contacts.map((contact) => (
-              <SwipeToDelete key={contact.id} flush label={t.common.deleteLabel(contact.name)} onDelete={() => remove(contact)}>
-                <ContactRow contact={contact} reach={reach(contact, data.smsEnabled, t)} />
-              </SwipeToDelete>
+              <Flash key={contact.id} active={contact.id === added} onLayout={contact.id === added ? reveal : undefined}>
+                <SwipeToDelete flush label={t.common.deleteLabel(contact.name)} onDelete={() => remove(contact)}>
+                  <ContactRow contact={contact} reach={reach(contact, data.smsEnabled, t)} />
+                </SwipeToDelete>
+              </Flash>
             ))}
           </Group>
         )}
