@@ -8,15 +8,21 @@ export const generateMetadata = () => ({ title: 'Barry', robots: { index: false,
 
 type Landing = { error: string } | { confirmed: Confirmed };
 
+// The snapshot is the address itself: a string compares equal between renders, while a fresh object
+// each time makes React render without end.
+const landingAt = (href: string | null): Landing => {
+  if (href === null) return { confirmed: 'account' };
+  const error = confirmationError(href);
+  return error ? { error } : { confirmed: confirmedWhat(href) };
+};
+
 export default function ConfirmedRoute() {
-  const landing = useSyncExternalStore<Landing>(
+  const href = useSyncExternalStore(
     () => () => undefined,
-    () => {
-      const error = confirmationError(location.href);
-      return error ? { error } : { confirmed: confirmedWhat(location.href) };
-    },
-    () => ({ confirmed: 'account' }),
+    () => location.href,
+    () => null,
   );
+  const landing = landingAt(href);
   const t = siteText[useSiteLanguage()];
 
   if ('error' in landing) {
