@@ -164,3 +164,6 @@ export const hourAfterAlert = async (adventureId) => {
   );
   execFileSync('npx', ['supabase', 'db', 'query', '--local', 'select private.tick()'], { stdio: 'ignore' });
 };
+
+/** Runs the clock once now, as its next minute would, so an Adventure past its Deadline turns Overdue before the Grace Period ends. */
+export const tick = () => execFileSync('npx', ['supabase', 'db', 'query', '--local', 'select private.tick()'], { stdio: 'ignore' });
