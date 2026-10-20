@@ -1,10 +1,12 @@
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 
 import { Button, Field, Notice, Screen } from '@/components/form';
 import { LegalLinks } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
+import { Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { useTexts } from '@/lib/texts';
 
@@ -68,6 +70,14 @@ export default function SignInScreen() {
         busy={busy === 'sign_up'}
         disabled={!email || !password}
       />
+      <ThemedText
+        type="small"
+        themeColor="accent"
+        accessibilityRole="link"
+        style={styles.link}
+        onPress={() => router.push({ pathname: '/reset-password', params: { email: email.trim() } })}>
+        {t.signIn.forgotPassword}
+      </ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         {t.legal.accept} {t.legal.notEmergency}
       </ThemedText>
@@ -75,3 +85,8 @@ export default function SignInScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  // Padding brings the 20-point text up to the 44-point hit target iOS asks for.
+  link: { alignSelf: 'center', paddingVertical: 12, paddingHorizontal: Spacing.two },
+});

@@ -46,6 +46,8 @@ function Navigation() {
       <Stack.Protected guard={session === null}>
         <Stack.Screen name="sign-in" />
       </Stack.Protected>
+      {/* Unguarded: the recovery code signs the Adventurer in before the new password is saved, and the screen must outlive that. */}
+      <Stack.Screen name="reset-password" />
     </Stack>
   );
 }
