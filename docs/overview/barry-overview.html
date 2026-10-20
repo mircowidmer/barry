@@ -7,7 +7,7 @@
   @page { size: 1512px 982px; margin: 0; }
   :root {
     --text: #111418; --muted: #5b6470; --surface: #f2f4f7; --border: #e3e7ec;
-    --accent: #0b6bcb; --green: #34c759; --blue: #0088ff; --danger: #a51d1d; --success: #1f7a3d;
+    --accent: #b5562a; --rust: #b5562a; --rust-dark: #7a3518; --danger: #c62828; --success: #1f7a3d;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #fff; }
@@ -15,8 +15,8 @@
   .slide { width: 1512px; height: 982px; position: relative; overflow: hidden; page-break-after: always; break-after: page; background: #fff; }
   .slide:last-child { page-break-after: auto; break-after: auto; }
 
-  .band { background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; padding: 56px 80px 48px; display: flex; align-items: center; gap: 28px; }
-  .band img { width: 76px; height: 76px; border-radius: 18px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.2); }
+  .band { background: linear-gradient(160deg, var(--rust), var(--rust-dark)); color: #fff; padding: 56px 80px 48px; display: flex; align-items: center; gap: 28px; }
+  .band img { width: 76px; height: 76px; border-radius: 18px; box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85), 0 8px 24px rgb(0 0 0 / 0.2); }
   .band .kicker { font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
   .band h1 { font-size: 52px; line-height: 1.1; letter-spacing: -0.01em; }
   .body { padding: 48px 80px 0; }
@@ -32,25 +32,25 @@
   .card p, .card li { font-size: 19px; line-height: 1.45; color: #2a3038; }
   .card ul { padding-left: 18px; }
   .card li + li { margin-top: 3px; }
-  .card .tag { display: inline-block; font-size: 14px; font-weight: 600; color: var(--accent); background: #e6f0fb; border-radius: 999px; padding: 3px 10px; margin-bottom: 10px; }
+  .card .tag { display: inline-block; font-size: 14px; font-weight: 600; color: var(--accent); background: #f6e7df; border-radius: 999px; padding: 3px 10px; margin-bottom: 10px; }
   .group { font-size: 17px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 4px 0 12px; }
   .group + .grid { margin-bottom: 30px; }
   code { font-family: "SF Mono", Menlo, monospace; font-size: 0.9em; background: #e4e8ee; border-radius: 6px; padding: 1px 6px; }
 
-  .title { background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-  .title img { width: 260px; height: 260px; border-radius: 58px; box-shadow: 0 24px 60px rgb(0 0 0 / 0.25); margin-bottom: 44px; }
+  .title { background: linear-gradient(160deg, var(--rust), var(--rust-dark)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .title img { width: 260px; height: 260px; border-radius: 58px; box-shadow: 0 0 0 5px rgb(255 255 255 / 0.85), 0 24px 60px rgb(0 0 0 / 0.25); margin-bottom: 44px; }
   .title h1 { font-size: 120px; letter-spacing: -0.02em; line-height: 1; }
   .title .slogan { font-size: 46px; font-weight: 600; margin-top: 18px; }
   .title .sub { position: absolute; bottom: 44px; font-size: 18px; opacity: 0.85; }
 
   .stats { display: flex; gap: 22px; margin-bottom: 30px; }
-  .stat { flex: 1; background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; border-radius: 20px; padding: 18px 22px; }
+  .stat { flex: 1; background: linear-gradient(160deg, var(--rust), var(--rust-dark)); color: #fff; border-radius: 20px; padding: 18px 22px; }
   .stat b { display: block; font-size: 42px; line-height: 1.1; }
   .stat span { font-size: 17px; opacity: 0.9; }
 
   .steps { counter-reset: step; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 26px; }
   .step { counter-increment: step; display: flex; gap: 18px; background: var(--surface); border-radius: 20px; padding: 20px 24px; }
-  .step::before { content: counter(step); flex: none; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(160deg, var(--green), var(--blue)); color: #fff; font-weight: 700; font-size: 16px; display: grid; place-items: center; }
+  .step::before { content: counter(step); flex: none; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(160deg, var(--rust), var(--rust-dark)); color: #fff; font-weight: 700; font-size: 16px; display: grid; place-items: center; }
   .step h3 { font-size: 22px; margin-bottom: 4px; }
   .step p { font-size: 18px; line-height: 1.4; color: #2a3038; }
   .note { margin-top: 26px; font-size: 19px; color: var(--muted); }
