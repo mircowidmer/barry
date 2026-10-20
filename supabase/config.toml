@@ -249,6 +249,11 @@ otp_expiry = 3600
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
+# The recovery email carries the code the app asks for, because Barry resets a password without a link.
+[auth.email.template.recovery]
+subject = "Reset your password for Barry"
+content_path = "./supabase/templates/recovery.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true
