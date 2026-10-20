@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import { FirstLoad, LoadState, Notice, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, ValueRow } from '@/components/grouped-list';
-import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AccountEmail, createAccount } from '@/lib/account';
 import { supabase } from '@/lib/supabase';
@@ -27,9 +26,6 @@ export default function AccountScreen() {
     <Screen onRefresh={loaded.reload}>
       <Close />
       <LoadState loaded={loaded} failure={failure} />
-      <ThemedText type="small" themeColor="textSecondary">
-        {t.account.intro}
-      </ThemedText>
       <PasswordChange email={loaded.data.email} />
       <EmailChange stored={loaded.data} onRequested={loaded.reload} />
     </Screen>

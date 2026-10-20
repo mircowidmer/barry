@@ -208,7 +208,6 @@ const en = {
   },
   account: {
     title: 'Account',
-    intro: 'Your email address and your password are how you sign in to Barry.',
     password: 'Password',
     currentPassword: 'Current Password',
     newPassword: 'New Password',
@@ -448,7 +447,6 @@ const de: Texts = {
   },
   account: {
     title: 'Konto',
-    intro: 'Mit deiner E-Mail-Adresse und deinem Passwort meldest du dich bei Barry an.',
     password: 'Passwort',
     currentPassword: 'Aktuelles Passwort',
     newPassword: 'Neues Passwort',
