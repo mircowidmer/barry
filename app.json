@@ -37,6 +37,12 @@
       "./plugins/accent-color",
       "expo-router",
       [
+        "expo-contacts",
+        {
+          "contactsPermission": "Barry copies only the contact you pick, so it can tell them when you start an adventure and if you don’t check in on time."
+        }
+      ],
+      [
         "expo-font",
         {
           "ios": {

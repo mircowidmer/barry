@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { LoadState, Notice, Screen } from '@/components/form';
-import { Group } from '@/components/grouped-list';
+import { ActionRow, Group } from '@/components/grouped-list';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -41,7 +41,29 @@ export default function ContactsScreen() {
     return { contacts, smsEnabled: channels.has('sms') };
   });
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
+  const [picking, setPicking] = useState(false);
   const t = useTexts();
+
+  const add = async () => {
+    setPicking(true);
+    setMessage(null);
+    try {
+      const outcome = await barry.addContactFromPhone();
+      if (outcome.kind === 'cancelled') return;
+      setMessage(
+        outcome.kind === 'added'
+          ? { tone: 'success', text: t.contacts.added(outcome.contact.name) }
+          : outcome.kind === 'duplicate'
+            ? { tone: 'danger', text: t.contacts.alreadyAdded(outcome.name) }
+            : { tone: 'danger', text: t.contacts.nothingToReach(outcome.name) },
+      );
+      if (outcome.kind === 'added') loaded.reload();
+    } catch {
+      setMessage({ tone: 'danger', text: t.contacts.couldNotAdd });
+    } finally {
+      setPicking(false);
+    }
+  };
 
   const remove = async (contact: EmergencyContact) => {
     const outcome = await askToRemoveContact(contact);
@@ -60,12 +82,19 @@ export default function ContactsScreen() {
   return (
     <>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.contacts.addLabel} onPress={() => router.push('/contacts/edit')} />
+        <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.contacts.addLabel} disabled={picking} onPress={add} />
       </Stack.Toolbar>
       <Screen onRefresh={loaded.reload}>
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
         <LoadState loaded={loaded} failure={() => t.contacts.couldNotLoad} />
-        {data && data.contacts.length === 0 && <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>}
+        {data && data.contacts.length === 0 && (
+          <>
+            <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
+            <Group footer={t.contacts.empty}>
+              <ActionRow title={t.contacts.pick} onPress={add} busy={picking} />
+            </Group>
+          </>
+        )}
         {data && data.contacts.length > 0 && (
           <Group footer={t.contacts.intro} inset={Spacing.three + AVATAR + 12}>
             {data.contacts.map((contact) => (
@@ -88,8 +117,8 @@ function ContactRow({ contact, reach }: { contact: EmergencyContact; reach: { te
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${contact.name}, ${reach.text}`}
-      accessibilityHint={t.contacts.editLabel(contact.name)}
-      onPress={() => router.push({ pathname: '/contacts/edit', params: { id: contact.id } })}
+      accessibilityHint={t.common.openLabel(contact.name)}
+      onPress={() => router.push({ pathname: '/contacts/[id]', params: { id: contact.id } })}
       // The row must be opaque, so the swipe action shows only beside it, never through it.
       style={({ pressed }) => [styles.row, { backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement }]}>
       <View style={[styles.avatar, { backgroundColor: theme.accent }]}>

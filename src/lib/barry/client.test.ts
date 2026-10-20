@@ -6,7 +6,8 @@ import type { Database } from '@/lib/database.types';
 import { createAdventureCache } from './adventure-cache';
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
-import type { AdventureWithRelations } from './rows';
+import type { PhoneContact } from './phone-contact';
+import type { AdventureWithRelations, ContactRow } from './rows';
 import type { LocationService } from './trail';
 import type { AdventureId } from './types';
 
@@ -43,7 +44,20 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   ...overrides,
 });
 
-const setup = ({ cached = true } = {}) => {
+const contactRow = (overrides: Partial<ContactRow>): ContactRow => ({
+  id: 'c1',
+  adventurer_id: 'u1',
+  name: 'Sara',
+  email: 'sara@example.com',
+  email_enabled: true,
+  phone: null,
+  phone_enabled: false,
+  removed_at: null,
+  created_at: '2026-10-15T08:00:00Z',
+  ...overrides,
+});
+
+const setup = ({ cached = true, picked = null as PhoneContact | null, contacts = [] as ContactRow[] } = {}) => {
   const storage = memoryStorage();
   const now = () => new Date('2026-10-17T15:00:00Z');
   if (cached) createAdventureCache(storage, now).save(row({}));
@@ -52,7 +66,22 @@ const setup = ({ cached = true } = {}) => {
     signal: false,
     reads: true,
     server: ended,
+    contacts,
     session: { data: { session: { user: { id: 'u1' } } }, error: null } as { data: { session: unknown }; error: unknown },
+  };
+  const contactsQuery = {
+    select: () => contactsQuery,
+    is: () => contactsQuery,
+    order: async () => ({ data: world.contacts.filter((c) => c.removed_at === null), error: null }),
+    insert: (values: Partial<ContactRow>) => ({
+      select: () => ({
+        single: async () => {
+          const inserted = contactRow({ ...values, id: `c${world.contacts.length + 1}` });
+          world.contacts.push(inserted);
+          return { data: inserted, error: null };
+        },
+      }),
+    }),
   };
   const query = {
     select: () => query,
@@ -70,7 +99,7 @@ const setup = ({ cached = true } = {}) => {
       signOut: async (options: unknown) => void signOuts.push(options),
     },
     rpc: async () => (world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } }),
-    from: () => query,
+    from: (table: string) => (table === 'emergency_contacts' ? contactsQuery : query),
   } as unknown as SupabaseClient<Database>;
   const updates: string[] = [];
   const location: LocationService = {
@@ -93,6 +122,8 @@ const setup = ({ cached = true } = {}) => {
     timeZone: () => 'Europe/Zurich',
     language: () => 'de',
     now,
+    pickContact: async () => picked,
+    region: () => 'CH',
     storage,
     notificationsPermitted: async () => true,
     notifications,
@@ -164,6 +195,50 @@ describe('local notifications', () => {
 
     expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
     expect(scheduled()).toEqual({});
+  });
+});
+
+describe('addContactFromPhone', () => {
+  const luca: PhoneContact = {
+    fullName: 'Luca Meier',
+    company: null,
+    phones: [{ label: 'mobile', number: '079 111 11 11' }],
+    emails: [{ label: 'home', address: 'Luca@example.com' }],
+  };
+
+  it('copies the picked Phone Contact into the list with both addresses switched on', async () => {
+    const { barry, world } = setup({ picked: luca });
+    expect(await barry.addContactFromPhone()).toEqual({
+      kind: 'added',
+      contact: { id: 'c1', name: 'Luca Meier', email: 'Luca@example.com', emailEnabled: true, phone: '+41791111111', phoneEnabled: true },
+    });
+    expect(world.contacts).toHaveLength(1);
+  });
+
+  it('reports a cancelled pick and saves nothing', async () => {
+    const { barry, world } = setup({ picked: null });
+    expect(await barry.addContactFromPhone()).toEqual({ kind: 'cancelled' });
+    expect(world.contacts).toEqual([]);
+  });
+
+  it('refuses a pick whose email address, in any case, or phone number a contact already has', async () => {
+    const byEmail = setup({ picked: luca, contacts: [contactRow({ name: 'Luca', email: 'luca@example.com' })] });
+    expect(await byEmail.barry.addContactFromPhone()).toEqual({ kind: 'duplicate', name: 'Luca' });
+    expect(byEmail.world.contacts).toHaveLength(1);
+
+    const byPhone = setup({ picked: luca, contacts: [contactRow({ name: 'L. Meier', email: null, phone: '+41791111111', phone_enabled: true })] });
+    expect(await byPhone.barry.addContactFromPhone()).toEqual({ kind: 'duplicate', name: 'L. Meier' });
+  });
+
+  it('ignores a deleted contact when looking for a duplicate', async () => {
+    const { barry } = setup({ picked: luca, contacts: [contactRow({ name: 'Luca', email: 'luca@example.com', removed_at: '2026-10-16T08:00:00Z' })] });
+    expect(await barry.addContactFromPhone()).toMatchObject({ kind: 'added' });
+  });
+
+  it('refuses a pick with nothing Barry can reach, naming the contact', async () => {
+    const { barry, world } = setup({ picked: { ...luca, phones: [{ label: 'home', number: '12' }], emails: [] } });
+    expect(await barry.addContactFromPhone()).toEqual({ kind: 'unreachable', name: 'Luca Meier' });
+    expect(world.contacts).toEqual([]);
   });
 });
 

@@ -6,7 +6,7 @@ import { useTexts } from '@/lib/texts';
 export default function ContactsLayout() {
   return (
     <TabStack title={useTexts().contacts.title}>
-      <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="[id]" options={{ presentation: 'modal' }} />
     </TabStack>
   );
 }

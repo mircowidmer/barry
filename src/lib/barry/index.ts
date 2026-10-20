@@ -1,3 +1,5 @@
+import { presentContactPickerAsync } from 'expo-contacts/legacy';
+import { getLocales } from 'expo-localization';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 
@@ -8,6 +10,7 @@ import { notificationText } from '@/lib/wording';
 
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
+import type { PhoneContact } from './phone-contact';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
 import type { Position } from './types';
 
@@ -41,6 +44,21 @@ const readPosition = async (): Promise<Position | null> => {
   } catch {
     return null;
   }
+};
+
+// The legacy picker hands over the picked contact itself, so Barry never needs access to the phone's
+// contacts. The class API returns only an id, and reading it asks for full access.
+const pickContact = async (): Promise<PhoneContact | null> => {
+  const contact = await presentContactPickerAsync();
+  if (!contact) return null;
+  // The picker's copy carries the name parts but not always the formatted full name.
+  const parts = [contact.firstName, contact.middleName, contact.lastName].filter((part) => part?.trim());
+  return {
+    fullName: contact.name?.trim() || parts.join(' '),
+    company: contact.company ?? null,
+    phones: (contact.phoneNumbers ?? []).map((p) => ({ label: p.label, number: p.number, region: p.countryCode })),
+    emails: (contact.emails ?? []).map((e) => ({ label: e.label, address: e.email })),
+  };
 };
 
 const UPDATE_OPTIONS = {
@@ -122,6 +140,8 @@ export const barry = createBarry({
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   language: appLanguage,
   now: () => new Date(),
+  pickContact,
+  region: () => getLocales()[0]?.regionCode ?? null,
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
   notifications,
