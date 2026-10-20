@@ -5,6 +5,7 @@ import type { Database } from '@/lib/database.types';
 import { createAdventureCache } from './adventure-cache';
 import { createAlarms, dueAlarms, type NotificationService } from './alarms';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
+import { copyPhoneContact, type PhoneContact } from './phone-contact';
 import { createTrail, type LocationService } from './trail';
 import { createTrailBuffer } from './trail-buffer';
 import {
@@ -21,7 +22,9 @@ import type {
   AdventureId,
   Barry,
   Channel,
+  ContactDraft,
   DeliveryFailure,
+  EmergencyContact,
   EndedAdventure,
   InProgressAdventure,
   MessageLanguage,
@@ -37,6 +40,10 @@ export type BarryDeps = {
   /** The phone's language, which Barry also writes the messages to the contacts in. */
   language(): MessageLanguage;
   now(): Date;
+  /** The phone's picker: the picked Phone Contact, or null when the Adventurer cancels. */
+  pickContact(): Promise<PhoneContact | null>;
+  /** The phone's region, such as CH, which a number without a country code is read in. */
+  region(): string | null;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Whether the system lets Barry show notifications. */
   notificationsPermitted(): Promise<boolean>;
@@ -71,6 +78,8 @@ export const createBarry = ({
   timeZone,
   language,
   now,
+  pickContact,
+  region,
   storage,
   notificationsPermitted,
   notifications,
@@ -176,6 +185,25 @@ export const createBarry = ({
     },
   });
 
+  const listContacts = async (): Promise<EmergencyContact[]> => {
+    const { data, error } = await supabase
+      .from('emergency_contacts')
+      .select('*')
+      .is('removed_at', null)
+      .order('name');
+    if (error) fail('listContacts', error);
+    return (data ?? []).map(parseContact);
+  };
+
+  const saveContact = async ({ id, name, email, emailEnabled, phone, phoneEnabled }: ContactDraft): Promise<EmergencyContact> => {
+    const values = { name, email, email_enabled: emailEnabled, phone, phone_enabled: phoneEnabled };
+    const { data, error } = id
+      ? await supabase.from('emergency_contacts').update(values).eq('id', id).select().single()
+      : await supabase.from('emergency_contacts').insert(values).select().single();
+    if (error) fail('saveContact', error);
+    return parseContact(data!);
+  };
+
   const syncTrail = () => {
     trail.sync().catch(() => undefined);
   };
@@ -210,24 +238,29 @@ export const createBarry = ({
       if (error) fail('syncMessageLanguage', error);
     },
 
-    listContacts: async () => {
-      const { data, error } = await supabase
-        .from('emergency_contacts')
-        .select('*')
-        .is('removed_at', null)
-        .order('name');
-      if (error) fail('listContacts', error);
-      return (data ?? []).map(parseContact);
+    listContacts,
+
+    addContactFromPhone: async () => {
+      const picked = await pickContact();
+      if (!picked) return { kind: 'cancelled' };
+      const copy = copyPhoneContact(picked, region());
+      if (copy.email === null && copy.phone === null) return { kind: 'unreachable', name: copy.name };
+      const sameAddress = (await listContacts()).find(
+        (c) =>
+          (copy.email !== null && c.email?.toLowerCase() === copy.email.toLowerCase()) || (copy.phone !== null && c.phone === copy.phone),
+      );
+      if (sameAddress) return { kind: 'duplicate', name: sameAddress.name };
+      const contact = await saveContact({
+        name: copy.name,
+        email: copy.email,
+        emailEnabled: copy.email !== null,
+        phone: copy.phone,
+        phoneEnabled: copy.phone !== null,
+      });
+      return { kind: 'added', contact };
     },
 
-    saveContact: async ({ id, name, email, emailEnabled, phone, phoneEnabled }) => {
-      const values = { name, email, email_enabled: emailEnabled, phone, phone_enabled: phoneEnabled };
-      const { data, error } = id
-        ? await supabase.from('emergency_contacts').update(values).eq('id', id).select().single()
-        : await supabase.from('emergency_contacts').insert(values).select().single();
-      if (error) fail('saveContact', error);
-      return parseContact(data!);
-    },
+    saveContact,
 
     removeContact: async (id) => {
       const { error } = await supabase

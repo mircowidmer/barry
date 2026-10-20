@@ -109,6 +109,13 @@ export type MoveDeadlineResult =
 
 export type CheckInResult = { kind: 'ended'; adventure: EndedAdventure } | { kind: 'queued'; checkedInAt: Date };
 
+/** What came of the phone's picker. `duplicate` names the contact already in the list, `unreachable` the picked one. */
+export type AddContactResult =
+  | { kind: 'added'; contact: EmergencyContact }
+  | { kind: 'cancelled' }
+  | { kind: 'duplicate'; name: string }
+  | { kind: 'unreachable'; name: string };
+
 export type AdventureDraft = {
   id?: AdventureId;
   plan: Partial<Plan>;
@@ -129,6 +136,8 @@ export type Barry = {
   /** Writes the phone's language to the Profile, so the next messages to the contacts use it. */
   syncMessageLanguage(): Promise<void>;
   listContacts(): Promise<EmergencyContact[]>;
+  /** Opens the phone's picker and copies the picked Phone Contact into the list, both addresses switched on. */
+  addContactFromPhone(): Promise<AddContactResult>;
   saveContact(contact: ContactDraft): Promise<EmergencyContact>;
   removeContact(id: EmergencyContactId): Promise<{ kind: 'removed' } | { kind: 'in_use' }>;
   enabledChannels(): Promise<ReadonlySet<Channel>>;

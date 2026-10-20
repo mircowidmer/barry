@@ -34,6 +34,10 @@ The name and the phone number must be filled in before the Adventurer starts the
 
 - Each Adventurer keeps a saved list of Emergency Contacts.
 - An Emergency Contact has a name and a phone number, an email address, or both.
+- The Adventurer adds a contact only by picking a Phone Contact in the phone's own picker. Barry asks for no access to the phone's contacts beyond that pick.
+- Barry copies the name, the first mobile number it can use, else the first other number it can use, and the first email address, and switches both addresses on. A number without a country code is read in the phone's region. A contact without a name takes the company's name, else the email address, else the number.
+- The copy is not typed over. To change an address, the Adventurer deletes the contact and picks it again.
+- A pick whose email address or phone number a saved contact already has is refused, naming that contact. A pick with no email address and no usable phone number is refused.
 - The Adventurer can switch the email address and the phone number on and off. Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so switching it back on restores it.
 - A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved.
 - Emergency Contacts have no account and do not install Barry.
@@ -202,6 +206,7 @@ A few limits are implementation choices, not promises to the Adventurer. Their v
 - `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many minutes of Trail the phone keeps while it has no signal. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values.
 - `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading.
 - `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261016210100_deadline_update.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
+- `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
 - `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one. `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.
 
 ## Out of scope for the first version
