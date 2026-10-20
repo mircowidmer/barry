@@ -65,11 +65,12 @@ export function Screen({ title, onRefresh, children }: { title?: string; onRefre
   const top = useRef<number | null>(null);
   const navigation = useNavigation();
   // The parent is the tab's stack, which gains focus only when its tab is selected, not when a screen in it
-  // closes, so switching tabs starts at the top while going back within a tab keeps the place.
+  // closes, so switching tabs starts at the top while going back within a tab keeps the place. The scroll animates
+  // because a jump leaves the large title collapsed, and iOS then expands it and pushes the content below the top.
   useEffect(() => {
     if (!aboveTabBar) return;
     return navigation.getParent()?.addListener('focus', () => {
-      if (top.current !== null) scroll.current?.scrollTo({ y: top.current, animated: false });
+      if (top.current !== null) scroll.current?.scrollTo({ y: top.current, animated: true });
     });
   }, [aboveTabBar, navigation]);
   const refresh = async () => {
