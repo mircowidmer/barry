@@ -425,3 +425,42 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+[remotes.hosted]
+project_id = "kizggaicooqhdzpqzawu"
+
+[remotes.hosted.auth]
+additional_redirect_urls = []
+site_url = "https://barry.support/confirmed"
+
+[remotes.hosted.auth.email]
+enable_confirmations = true
+max_frequency = "1m0s"
+
+[remotes.hosted.auth.rate_limit]
+email_sent = 30
+
+[remotes.hosted.db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[remotes.hosted.storage.analytics]
+enabled = true
+max_namespaces = 10
+
+[remotes.hosted.storage.image_transformation]
+enabled = true
+
+[remotes.hosted.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+# The Resend key lives in supabase/.env.hosted, never here: scripts/hosted-auth.mjs passes it in.
+[remotes.hosted.auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(AUTH_SMTP_PASS)"
+admin_email = "help@barry.support"
+sender_name = "Barry"

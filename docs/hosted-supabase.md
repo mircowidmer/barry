@@ -8,7 +8,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
 - The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_FROM` and `HEALTHCHECK_URL`. Email goes through Resend from `barry@barry.support`, and text messages go through Twilio. [Text messages](text-messages.md) sets up Twilio. `TRAIL_MAP_URL` is `https://barry.support/adventure`.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
-- Auth sends sign-up confirmation emails through Resend's SMTP server, `smtp.resend.com`, from `help@barry.support`. This is set under Authentication, Emails, SMTP Settings in the dashboard.
+- The Auth settings in `[remotes.hosted]` of `supabase/config.toml`: the site URL `https://barry.support/confirmed`, email confirmations, the six-digit code and its email, and the SMTP server. Auth sends its emails through Resend's SMTP server, `smtp.resend.com`, from `help@barry.support`, with the Resend key `AUTH_SMTP_PASS` from `supabase/.env.hosted`. The sign-up email's template is the one exception and lives only in the dashboard.
 
 ## Ship a change
 
@@ -54,20 +54,29 @@ The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO
 3. Under **API Keys**, create a key with **Sending access**, limited to that domain.
 4. Put the key in `RESEND_API_KEY` and an address on the verified domain, such as `barry@barry.example.ch`, in `EMAIL_FROM` in `supabase/.env.hosted`, then run the script.
 
+## Set the Auth settings with the script
+
+`supabase/config.toml` holds the local stack's settings, and its `[remotes.hosted]` block overrides them for the hosted project. Change a hosted Auth setting there, not in the dashboard, or the next push undoes the dashboard change.
+
+1. Put a Resend key with **Sending access** for `barry.support` in `supabase/.env.hosted` as `AUTH_SMTP_PASS`. Use a key of its own, not `RESEND_API_KEY`, so rotating one cannot break the other.
+2. From the linked checkout, run:
+
+   ```bash
+   node scripts/hosted-auth.mjs
+   ```
+
+   The CLI shows each changed setting and asks before it writes. To only look, run `npx supabase config diff --project-ref kizggaicooqhdzpqzawu`.
+
+To rotate the key, put the new one in `AUTH_SMTP_PASS`, run the script, then delete the old key in Resend.
+
 ## Edit the sign-up email
 
 The confirmation email that Supabase Auth sends after **Create account** lives only in the dashboard, under **Authentication > Emails > Templates > Confirm signup**, and needs custom SMTP to be editable. Its subject is "Confirm your email for Barry". Supabase treats the template as HTML and builds the plain-text part from it, so write each sentence in its own `<p>`. Keep `{{ .ConfirmationURL }}` as the link target.
 
 ## Edit the password reset email
 
-The email Auth sends after **Forgot Password?** lives under **Authentication > Emails > Templates > Reset password**. Supabase's default carries a link, which Barry does not use: the app asks for the six-digit code instead, so the template must contain `{{ .Token }}`. Set the subject to `Reset your password for Barry` and paste this body, which is the same as `supabase/templates/recovery.html` for the local stack. As with the sign-up email, each sentence is in its own `<p>`.
+The email Auth sends after **Forgot Password?** is `supabase/templates/recovery.html`, with the subject `Reset your password for Barry`, for the local stack and the hosted project alike: `node scripts/hosted-auth.mjs` sends it. Supabase's default carries a link, which Barry does not use: the app asks for the six-digit code instead, so the template must contain `{{ .Token }}`. As with the sign-up email, each sentence is in its own `<p>`.
 
-```html
-<h2>Reset your password for Barry</h2>
-<p>Enter this code in Barry together with your new password:</p>
-<p><strong>{{ .Token }}</strong></p>
-<p>If you did not ask for a new password, you can ignore this email. Your password stays as it is.</p>
-```
 
 ## Check that it runs
 
