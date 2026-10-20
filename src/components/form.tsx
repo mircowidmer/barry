@@ -1,12 +1,13 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-import { useSegments } from 'expo-router';
+import { useNavigation, useSegments } from 'expo-router';
 import {
   ActivityIndicator,
   Animated,
   Pressable,
   RefreshControl,
   ScrollView,
+  type ScrollViewInstance,
   StyleSheet,
   Switch,
   TextInput,
@@ -58,6 +59,19 @@ export function Screen({ title, onRefresh, children }: { title?: string; onRefre
   const [refreshing, setRefreshing] = useState(false);
   // The tab bar needs a gap above it. Without one, the home indicator inset is gap enough.
   const aboveTabBar = (useSegments() as string[]).includes('(tabs)');
+  const scroll = useRef<ScrollViewInstance>(null);
+  // The top sits above 0 by the header's height, which iOS adds unseen by React Native, whose scrollTo stops at 0
+  // without scrollToOverflowEnabled. The first drag starts from the top, and a screen never dragged is still there.
+  const top = useRef<number | null>(null);
+  const navigation = useNavigation();
+  // The parent is the tab's stack, which gains focus only when its tab is selected, not when a screen in it
+  // closes, so switching tabs starts at the top while going back within a tab keeps the place.
+  useEffect(() => {
+    if (!aboveTabBar) return;
+    return navigation.getParent()?.addListener('focus', () => {
+      if (top.current !== null) scroll.current?.scrollTo({ y: top.current, animated: false });
+    });
+  }, [aboveTabBar, navigation]);
   const refresh = async () => {
     setRefreshing(true);
     try {
@@ -68,6 +82,11 @@ export function Screen({ title, onRefresh, children }: { title?: string; onRefre
   };
   return (
     <ScrollView
+      ref={scroll}
+      scrollToOverflowEnabled
+      onScrollBeginDrag={(event) => {
+        top.current ??= event.nativeEvent.contentOffset.y;
+      }}
       style={{ backgroundColor: theme.background }}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
