@@ -125,8 +125,11 @@ export const adventurer = async () => {
     return saved.adventure_id;
   };
 
-  return { client, userId: user.id, luca, sara, contact, start };
+  return { client, userId: user.id, email, password, luca, sara, contact, start };
 };
+
+/** A fresh sign-in with an email address and a password, the way the Sign In screen does it. */
+export const signIn = (email, password) => createClient(API, keys.PUBLISHABLE_KEY, options).auth.signInWithPassword({ email, password });
 
 /** Fails unless the clock ticked in the last two minutes, so a test that expects silence cannot pass on a stopped clock. */
 export const assertClockRan = async () => {
