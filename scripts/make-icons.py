@@ -12,7 +12,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 ICON = ROOT / 'assets/brand/icon.icon'
@@ -22,16 +23,22 @@ ICTOOL = '/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Conten
 SF_PRO = '/System/Library/Fonts/SFNS.ttf'
 # The render has the rounded corners of the iOS mask; cutting this margin leaves only the tile.
 TILE_MARGIN = 88
+# Android launchers show only the middle 72 of the icon's 108 dp, so the dog shrinks into the 66 dp safe zone.
+ANDROID_DOG_SCALE = 0.72
+BLACK, WHITE = 'extended-srgb:0.00000,0.00000,0.00000,1.00000', 'extended-srgb:1.00000,1.00000,1.00000,1.00000'
 
 
-def render(layer: bool = True) -> Image.Image:
-    """The 1024 px icon as Icon Composer draws it, optionally without the dog."""
+def render(layer: bool = True, fill: str = "") -> Image.Image:
+    """The 1024 px icon as Icon Composer draws it, optionally without the dog or on a solid fill."""
     with tempfile.TemporaryDirectory() as tmp:
         icon = Path(tmp) / 'icon.icon'
         shutil.copytree(ICON, icon)
         spec = json.loads((icon / 'icon.json').read_text())
         for group in spec['groups']:
             group['hidden'] = not layer
+        if fill:
+            for specialization in spec['fill-specializations']:
+                specialization['value'] = {'solid': fill}
         (icon / 'icon.json').write_text(json.dumps(spec))
         out = Path(tmp) / 'out.png'
         subprocess.run([ICTOOL, str(icon), '--export-preview', 'iOS', 'Light', '1024', '1024', '1', str(out)], check=True, capture_output=True)
@@ -41,6 +48,15 @@ def render(layer: bool = True) -> Image.Image:
 def full_bleed(rounded: Image.Image) -> Image.Image:
     m = TILE_MARGIN
     return rounded.crop((m, m, 1024 - m, 1024 - m)).resize((1024, 1024), Image.LANCZOS)
+
+
+def dog_layer() -> Image.Image:
+    """The dog with its glass and shadow on transparency, from renders over black and over white."""
+    black = np.asarray(full_bleed(render(fill=BLACK)).convert('RGB'), dtype=float)
+    white = np.asarray(full_bleed(render(fill=WHITE)).convert('RGB'), dtype=float)
+    alpha = np.clip(1 - (white - black).mean(axis=2) / 255, 0, 1)
+    rgb = np.clip(black / np.maximum(alpha, 1e-3)[..., None], 0, 255)
+    return Image.fromarray(np.dstack([rgb, alpha * 255]).round().astype(np.uint8))
 
 
 def on_canvas(art: Image.Image, canvas: int, fill=(0, 0, 0, 0)) -> Image.Image:
@@ -70,15 +86,17 @@ art = full_bleed(rounded)
 # iOS rejects icons with transparency; the full-bleed tile has none.
 art.convert('RGB').save(OUT / 'icon.png')
 
-# Android gets the full-bleed tile as the background layer under an empty foreground.
-Image.new('RGBA', (1024, 1024), (0, 0, 0, 0)).save(OUT / 'android-icon-foreground.png')
-art.save(OUT / 'android-icon-background.png')
-# The themed icon is the dog's dark fur, so the dark end of the rust gradient must not count.
-dog = ImageChops.difference(art, full_bleed(render(layer=False))).convert('L').point(lambda v: 255 if v > 24 else 0)
-fur = art.convert('L').point(lambda v: 255 if v < 90 else 0)
+# Android masks and moves its layers, so the dog sits on the foreground over the bare gradient.
+dog = dog_layer()
+size = round(1024 * ANDROID_DOG_SCALE)
+on_canvas(dog.resize((size, size), Image.LANCZOS), 1024).save(OUT / 'android-icon-foreground.png')
+full_bleed(render(layer=False)).save(OUT / 'android-icon-background.png')
+# The themed icon is the dog's dark fur, framed like the foreground.
+fur = dog.convert('L').point(lambda v: 255 if v < 90 else 0)
+solid = dog.getchannel('A').point(lambda v: 255 if v > 128 else 0)
 mono = Image.new('RGBA', (1024, 1024), (255, 255, 255, 0))
-mono.putalpha(ImageChops.multiply(fur, dog))
-on_canvas(mono.resize((660, 660), Image.LANCZOS), 1024).save(OUT / 'android-icon-monochrome.png')
+mono.putalpha(Image.composite(fur, Image.new('L', fur.size, 0), solid))
+on_canvas(mono.resize((size, size), Image.LANCZOS), 1024).save(OUT / 'android-icon-monochrome.png')
 
 rounded.resize((512, 512), Image.LANCZOS).save(OUT / 'logo.png')
 rounded.resize((400, 400), Image.LANCZOS).save(OUT / 'splash-icon.png')
