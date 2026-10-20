@@ -1,7 +1,7 @@
 import { NativeTabs } from 'expo-router/native-tabs';
 import { DynamicColorIOS, Platform } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Colors, FontFamily } from '@/constants/theme';
 import { useTabBarHidden } from '@/lib/tab-bar';
 import { useTexts } from '@/lib/texts';
 
@@ -13,7 +13,7 @@ export default function AppTabs() {
   const t = useTexts();
 
   return (
-    <NativeTabs tintColor={tint} minimizeBehavior="onScrollDown" hidden={useTabBarHidden()}>
+    <NativeTabs tintColor={tint} labelStyle={{ fontFamily: FontFamily }} minimizeBehavior="onScrollDown" hidden={useTabBarHidden()}>
       <NativeTabs.Trigger name="(adventure)">
         <NativeTabs.Trigger.Label>{t.tabs.adventure}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.hiking" md="hiking" />

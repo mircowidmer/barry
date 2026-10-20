@@ -16,7 +16,7 @@ import {
 
 import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { FontFamily, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useTexts } from '@/lib/texts';
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   field: { gap: Spacing.one },
   label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
-  input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
+  input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16, fontFamily: FontFamily },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
   hold: { minHeight: 64, overflow: 'hidden' },
   capsule: { borderRadius: 32 },

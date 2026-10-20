@@ -3,7 +3,7 @@ import { Children, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { FontFamily, Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -128,9 +128,9 @@ const styles = StyleSheet.create({
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three },
   // The label may wrap at large text sizes, but never takes the whole row from the input.
   label: { flexShrink: 1, maxWidth: '55%' },
-  input: { flex: 1, fontSize: 17, paddingVertical: 11 },
+  input: { flex: 1, fontSize: 17, fontFamily: FontFamily, paddingVertical: 11 },
   value: { flex: 1, textAlign: 'right' },
-  textArea: { minHeight: 88, fontSize: 17, paddingHorizontal: Spacing.three, paddingVertical: 11, textAlignVertical: 'top' },
+  textArea: { minHeight: 88, fontSize: 17, fontFamily: FontFamily, paddingHorizontal: Spacing.three, paddingVertical: 11, textAlignVertical: 'top' },
   action: { flex: 1 },
   chevron: { fontSize: 22 },
 });

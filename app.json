@@ -37,6 +37,19 @@
       "./plugins/accent-color",
       "expo-router",
       [
+        "expo-font",
+        {
+          "ios": {
+            "fonts": [
+              "./assets/fonts/NordwandMono-Regular.ttf",
+              "./assets/fonts/NordwandMono-Medium.ttf",
+              "./assets/fonts/NordwandMono-SemiBold.ttf",
+              "./assets/fonts/NordwandMono-Bold.ttf"
+            ]
+          }
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#FAF8F5",

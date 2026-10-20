@@ -25,6 +25,9 @@ export const Colors = {
   },
 } as const;
 
+// Bundled on iOS by the expo-font plugin and served from public/fonts on the web. Android falls back to its system font.
+export const FontFamily = 'Nordwand Mono';
+
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Spacing = {
