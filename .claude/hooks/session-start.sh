@@ -11,4 +11,4 @@ fi
 
 repo="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}"
 git -C "$repo" config user.name "Mirco Widmer"
-git -C "$repo" config user.email "mirco.widmer@nxt.engineering"
+git -C "$repo" config user.email "mirco.widmer@gmail.com"
