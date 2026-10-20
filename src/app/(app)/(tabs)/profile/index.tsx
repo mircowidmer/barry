@@ -34,34 +34,22 @@ export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
   const t = useTexts();
   const failure = (e: Error) => t.common.couldNotReach(e.message);
+  // One scroll view from the first load on, because iOS ties the large title to the first one it sees.
   // A failed first load must not show a blank Profile, or saving it would wipe the stored one.
-  if (loaded.data === undefined) {
-    return (
-      <Screen>
-        <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />
-      </Screen>
-    );
-  }
   return (
-    <ProfileForm
-      stored={loaded.data}
-      reloadFailure={<LoadState loaded={loaded} failure={failure} />}
-      onRefresh={loaded.reload}
-    />
+    <Screen onRefresh={loaded.data === undefined ? undefined : loaded.reload}>
+      {loaded.data === undefined ? (
+        <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />
+      ) : (
+        <ProfileForm stored={loaded.data} reloadFailure={<LoadState loaded={loaded} failure={failure} />} />
+      )}
+    </Screen>
   );
 }
 
 const formOf = (stored: AdventurerProfile | null) => (stored ? toForm(stored) : empty);
 
-function ProfileForm({
-  stored,
-  reloadFailure,
-  onRefresh,
-}: {
-  stored: AdventurerProfile | null;
-  reloadFailure: ReactNode;
-  onRefresh: () => Promise<void>;
-}) {
+function ProfileForm({ stored, reloadFailure }: { stored: AdventurerProfile | null; reloadFailure: ReactNode }) {
   const t = useTexts();
   const [seen, setSeen] = useState(stored);
   const [saved, setSaved] = useState<Form>(() => formOf(stored));
@@ -116,69 +104,64 @@ function ProfileForm({
           onPress={save}
         />
       </Stack.Toolbar>
-      <Screen onRefresh={onRefresh}>
-        {reloadFailure}
-        <ThemedText type="small" themeColor="textSecondary">
-          {t.profile.intro}
-        </ThemedText>
+      {reloadFailure}
+      <ThemedText type="small" themeColor="textSecondary">
+        {t.profile.intro}
+      </ThemedText>
 
-        <Group title={t.profile.about}>
-          <InputRow
-            label={t.profile.name}
-            value={profile.name}
-            onChangeText={set('name')}
-            placeholder={t.profile.required}
-            autoComplete="name"
-            textContentType="name"
-          />
-          <InputRow
-            label={t.profile.phone}
-            value={profile.phone}
-            onChangeText={(text) => set('phone')(phoneInput(text))}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            textContentType="telephoneNumber"
-          />
-        </Group>
+      <Group title={t.profile.about}>
+        <InputRow
+          label={t.profile.name}
+          value={profile.name}
+          onChangeText={set('name')}
+          placeholder={t.profile.required}
+          autoComplete="name"
+          textContentType="name"
+        />
+        <InputRow
+          label={t.profile.phone}
+          value={profile.phone}
+          onChangeText={(text) => set('phone')(phoneInput(text))}
+          keyboardType="phone-pad"
+          autoComplete="tel"
+          textContentType="telephoneNumber"
+        />
+      </Group>
 
-        <Group title={t.profile.car}>
-          <InputRow label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} placeholder={t.profile.optional} />
-          <InputRow label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} placeholder={t.profile.optional} />
-          <InputRow
-            label={t.profile.plate}
-            value={profile.carPlate}
-            onChangeText={set('carPlate')}
-            placeholder={t.profile.optional}
-            autoCapitalize="characters"
-          />
-        </Group>
+      <Group title={t.profile.car}>
+        <InputRow label={t.profile.make} value={profile.carMake} onChangeText={set('carMake')} placeholder={t.profile.optional} />
+        <InputRow label={t.profile.colour} value={profile.carColour} onChangeText={set('carColour')} placeholder={t.profile.optional} />
+        <InputRow
+          label={t.profile.plate}
+          value={profile.carPlate}
+          onChangeText={set('carPlate')}
+          placeholder={t.profile.optional}
+          autoCapitalize="characters"
+        />
+      </Group>
 
-        <Group title={t.profile.medical}>
-          <TextAreaRow
-            label={t.profile.medicalLabel}
-            value={profile.medicalNotes}
-            onChangeText={set('medicalNotes')}
-            placeholder={t.profile.medicalPlaceholder}
-          />
-        </Group>
+      <Group title={t.profile.medical}>
+        <TextAreaRow
+          label={t.profile.medicalLabel}
+          value={profile.medicalNotes}
+          onChangeText={set('medicalNotes')}
+          placeholder={t.profile.medicalPlaceholder}
+        />
+      </Group>
 
-        <Group footer={t.legal.notEmergency}>
-          <ActionRow title={t.legal.privacy} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/privacy`)} />
-          <ActionRow title={t.legal.terms} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/terms`)} />
-        </Group>
+      <Group title={t.profile.accountSection}>
+        <ActionRow title={t.profile.account} tone="text" onPress={() => router.push('/profile/account')} />
+        <ActionRow title={t.profile.logOut} onPress={askToLogOut} />
+      </Group>
 
-        <Group>
-          <ActionRow title={t.profile.account} tone="text" onPress={() => router.push('/profile/account')} />
-        </Group>
+      <Group>
+        <ActionRow title={t.profile.deleteAccount} tone="danger" onPress={deleteAccount} busy={deleting} />
+      </Group>
 
-        <Group>
-          <ActionRow title={t.profile.logOut} onPress={askToLogOut} />
-        </Group>
-
-        <Group>
-          <ActionRow title={t.profile.deleteAccount} tone="danger" onPress={deleteAccount} busy={deleting} />
-        </Group>
-      </Screen>
+      <Group footer={t.legal.notEmergency}>
+        <ActionRow title={t.legal.privacy} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/privacy`)} />
+        <ActionRow title={t.legal.terms} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/terms`)} />
+      </Group>
     </>
   );
 }

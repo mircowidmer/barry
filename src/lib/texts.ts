@@ -187,7 +187,7 @@ const en = {
   },
   profile: {
     title: 'Profile',
-    intro: 'An alert gives your emergency contacts this information, so rescuers know who and what to look for.',
+    intro: 'Your emergency contacts get this in an alert, so rescuers know who and what to look for.',
     about: 'About You',
     name: 'Name',
     account: 'Change Email Address and Password',
@@ -199,6 +199,7 @@ const en = {
     medical: 'Medical Notes (optional)',
     medicalLabel: 'Medical Notes',
     couldNotSave: 'Check that the phone number starts with + and the country code.',
+    accountSection: 'Account',
     logOut: 'Log Out',
     deleteAccount: 'Delete Account',
     required: 'Required',
@@ -426,7 +427,7 @@ const de: Texts = {
   },
   profile: {
     title: 'Profil',
-    intro: 'Ein Alarm gibt deinen Notfallkontakten diese Angaben, damit Rettungskräfte wissen, wen und was sie suchen.',
+    intro: 'Deine Notfallkontakte bekommen das in einem Alarm, damit Rettungskräfte wissen, wen und was sie suchen.',
     about: 'Über dich',
     name: 'Name',
     account: 'E-Mail-Adresse und Passwort ändern',
@@ -438,6 +439,7 @@ const de: Texts = {
     medical: 'Medizinische Hinweise (optional)',
     medicalLabel: 'Medizinische Hinweise',
     couldNotSave: 'Prüfe, ob die Telefonnummer mit + und der Ländervorwahl beginnt.',
+    accountSection: 'Konto',
     logOut: 'Abmelden',
     deleteAccount: 'Konto löschen',
     required: 'Erforderlich',
