@@ -24,7 +24,7 @@ function Navigation() {
         .then(() => barry.trail.sync())
         .catch(() => undefined);
       barry.syncMessageLanguage().catch(() => undefined);
-      askForNotifications();
+      askForNotifications().catch(() => undefined);
     };
     catchUp();
     const subscription = AppState.addEventListener('change', (state) => state === 'active' && catchUp());
