@@ -102,7 +102,7 @@ export type Trail = {
   onLocations(locations: readonly RawLocation[]): Promise<void>;
   /**
    * Geofence task entry, also after a relaunch. Entering the destination's region shows the Arrival
-   * Notice. Any event of the Trail's region takes one reading, then syncs. Never throws.
+   * Notice. Leaving the Trail's region takes one reading, then syncs. Never throws.
    */
   onFenceEvent(event: FenceEvent): Promise<void>;
 };
