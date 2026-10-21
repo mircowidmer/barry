@@ -112,7 +112,7 @@
       <div class="card"><span class="tag">Supabase</span><h3>Backend and Clock</h3><ul><li>Postgres schema with row-level security</li><li>37 migrations, commands as functions</li><li>A clock in <code>pg_cron</code>, every minute</li><li>Auth with email confirmation</li><li>Vault for the delivery secret</li></ul></div>
       <div class="card"><span class="tag">Edge Function</span><h3><code>deliver</code></h3><ul><li>Renders heads-up, plan update, deadline update, alert and all-clear</li><li>Email through Resend as "🐶 Barry"</li><li>Text messages through Twilio, with delivery reports</li><li>Retries and delivery failures</li></ul></div>
       <div class="card"><span class="tag">barry.support</span><h3>Web Pages</h3><ul><li>Landing page with all features</li><li>Adventure page for contacts, with an OpenStreetMap trail</li><li>Email confirmation page</li><li>Privacy Policy and Terms of Use</li><li>Published by a GitHub Pages workflow</li></ul></div>
-      <div class="card"><span class="tag">Quality</span><h3>Tests</h3><ul><li>15 database test files (pgTAP)</li><li>Unit tests for the app (Jest)</li><li>Tests for <code>deliver</code> (Deno)</li><li>11 end-to-end scripts against the local stack</li></ul></div>
+      <div class="card"><span class="tag">Quality</span><h3>Tests</h3><ul><li>15 database test files (pgTAP)</li><li>Unit tests for the app (Jest)</li><li>Tests for <code>deliver</code> (Deno)</li><li>45 end-to-end scripts against the local stack</li></ul></div>
       <div class="card"><span class="tag">Tooling</span><h3>Scripts and Skills</h3><ul><li><code>hosted-secrets.mjs</code> sets the hosted secrets</li><li><code>hosted-auth.mjs</code> pushes the hosted Auth settings</li><li><code>make-icons.py</code> draws icon and launch screen</li><li><code>without-push.js</code> config plugin</li><li>A verify skill with 8 feature maps</li></ul></div>
     </div>
   </div>
@@ -165,7 +165,7 @@
     <p class="lead">The services the live Barry depends on. The app talks only to Supabase; Supabase talks to the rest.</p>
     <div class="grid g3">
       <div class="card"><span class="tag">Backend</span><h3>Supabase</h3><p>Hosted project <code>kizggaicooqhdzpqzawu</code>: Postgres, Auth, the <code>deliver</code> Edge Function, <code>pg_cron</code> and Vault.</p></div>
-      <div class="card"><span class="tag">Email</span><h3>Resend</h3><p>Heads-ups, plan updates, alerts and all-clears from <code>barry@barry.support</code>, and sign-up emails over SMTP from <code>help@barry.support</code>.</p></div>
+      <div class="card"><span class="tag">Email</span><h3>Resend</h3><p>Heads-ups, plan updates, deadline updates, alerts and all-clears from <code>barry@barry.support</code>, and sign-up emails over SMTP from <code>help@barry.support</code>.</p></div>
       <div class="card"><span class="tag">Text messages</span><h3>Twilio</h3><p>The Messaging API sends every message as a text message to contacts with a phone number, and reports whether it arrived.</p></div>
       <div class="card"><span class="tag">Web hosting</span><h3>GitHub</h3><p>The repository <code>mircowidmer/barry</code>, Actions for the deploy, and Pages serving <code>barry.support</code>.</p></div>
       <div class="card"><span class="tag">Maps</span><h3>OpenStreetMap</h3><p>Map tiles for the adventure page, drawn with Leaflet. The app uses Apple Maps.</p></div>
