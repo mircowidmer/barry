@@ -92,7 +92,7 @@ The message to an Adventure's Emergency Contacts when the Adventurer changes the
 _Avoid_: Change notification, edit message
 
 **Deadline Update**:
-The message to an Adventure's Emergency Contacts a few minutes after the Adventurer moves the Deadline, carrying the Deadline the contact knew, the new one and the contact's Trail Map link. Quick moves in a row send one.
+The message to an Adventure's Emergency Contacts a few minutes after the Adventurer moves the Deadline, carrying the destination, the Deadline the contact knew, the new one and the contact's Trail Map link. Quick moves in a row send one.
 _Avoid_: Extension notice, delay message
 
 **Alert**:
