@@ -40,7 +40,7 @@ Docs: https://docs.expo.dev/eas/index.md
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a new development build: `npm run ios` locally, or `npm run build:dev` in the cloud.
-- Builds for the iPhone run prebuild with `BARRY_WITHOUT_PUSH=1`. Then `plugins/without-push.js` leaves out the Push Notifications entitlement, which a free Apple team cannot sign.
+- Local builds for the iPhone with a free Apple team run prebuild with `BARRY_WITHOUT_PUSH=1`. Then `plugins/without-push.js` leaves out the Push Notifications entitlement, which a free Apple team cannot sign.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 
 ## Read first
