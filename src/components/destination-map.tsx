@@ -16,9 +16,15 @@ export function DestinationMap({ point, camera, onPick }: DestinationMapProps) {
   const t = useTexts();
   const map = useRef<AppleMaps.MapView>(null);
   const [cameraPosition] = useState({ coordinates: camera.center, zoom: camera.zoom });
-  // A place found again moves the camera; the Adventurer's own panning stays otherwise.
+  // A place found again moves the camera; the Adventurer's own panning stays otherwise. The first
+  // camera is the view's own, because a move on mount reaches the native view before it exists.
+  const mounted = useRef(false);
   useEffect(() => {
-    map.current?.setCameraPosition({ coordinates: camera.center, zoom: camera.zoom });
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    map.current?.setCameraPosition({ coordinates: camera.center, zoom: camera.zoom }).catch(() => undefined);
   }, [camera]);
 
   if (Platform.OS !== 'ios') return null;

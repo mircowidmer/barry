@@ -37,7 +37,8 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     const camera = fitCamera(last ? [...trail, last] : trail);
     if (!camera) return;
     visible.current = regionOf(camera);
-    map.current?.setCameraPosition({ coordinates: camera.center, zoom: camera.zoom });
+    // A map removed while the move is on its way is nothing to move.
+    map.current?.setCameraPosition({ coordinates: camera.center, zoom: camera.zoom }).catch(() => undefined);
   }, [trail, last, newest]);
   const onCameraMove = ({ coordinates, latitudeDelta, longitudeDelta }: CameraMoveEvent) => {
     if (coordinates.latitude === undefined || coordinates.longitude === undefined) return;
