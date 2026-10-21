@@ -51,3 +51,4 @@ Each is a prompt under `.claude/skills/`, run in Claude Code as `/<name>`.
 - `barry-prune-tests` finds the tests whose failure would tell nothing, and the duplicates; `--fix` cuts them.
 - `barry-update-readme` keeps this file true to the repository; `--fix` edits it.
 - `barry-assure-code-quality` reviews the app code against current best practices in coding style and code quality; `--fix` applies the certain, behaviour-preserving fixes.
+- `barry-maintenance` runs the five skills above other than `barry-verify` in the order where each one's changes feed the next; `--fix` passes `--fix` to each.
