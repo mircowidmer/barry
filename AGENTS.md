@@ -31,7 +31,7 @@ Run lint and typecheck before declaring any task done. The tests are listed unde
 
 ## Building with EAS
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
+Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
 Docs: https://docs.expo.dev/eas/index.md
 
 `eas.json` has the profiles `development`, `development-simulator`, `preview` and `production`, and `app.config.js` turns `APP_VARIANT` into the bundle identifier, the name under the icon and the URL scheme. [Builds](docs/builds.md) describes the variants and the cloud builds, and [How to run Barry on your iPhone](docs/iphone.md) the local ones.
