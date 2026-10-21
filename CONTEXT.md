@@ -84,7 +84,7 @@ A notification the Adventurer's phone shows shortly before the Deadline.
 _Avoid_: Warning, nudge
 
 **Heads-up**:
-The message to an Adventure's Emergency Contacts when it starts, carrying the Plan, the Deadline and the contact's Trail Map link.
+The message to an Adventure's Emergency Contacts when it starts, or to a contact added while it is Active or Overdue, carrying the Plan, the Deadline and the contact's Trail Map link.
 _Avoid_: Start notification, invite
 
 **Plan Update**:
