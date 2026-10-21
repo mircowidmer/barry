@@ -15,7 +15,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 - An Adventurer who forgot the password asks for a new one with **Forgot Password?** on the sign-in screen. Barry emails a six-digit code from help@barry.support, valid for an hour. Entering the code with a new password signs the Adventurer in with the new password.
 - Each account has one Adventurer Profile.
 - The Adventurer changes the password and the email address on the Account screen, which slides up as a sheet from **Change Email Address and Password** in the Account group of the Profile tab, above **Log Out**. A password change needs the current password. A changed email address takes effect once the Adventurer has confirmed it from both the old and the new address, with the link Barry sends to each.
-- The Adventurer deletes the account from the Profile tab with **Delete**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
+- The Adventurer deletes the account from the Profile tab with **Delete Account**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
 - An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
 
 ## Adventurer Profile
