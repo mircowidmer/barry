@@ -243,7 +243,7 @@ function LiveAdventure({
         )}
       </Section>
 
-      {trail.length > 0 && <TrailMapView trail={trail} last={trail.at(-1)!} />}
+      {trail.length > 0 && <TrailMapView trail={trail} last={trail.at(-1) ?? null} />}
 
       {failures.length > 0 && (
         <Section title={t.adventure.failuresTitle}>
@@ -272,8 +272,9 @@ function useLiveTrail(id: AdventureId): Position[] {
       loading = true;
       try {
         const fresh = await barry.readings(id, newest);
-        if (mounted && fresh.length > 0) {
-          newest = fresh.at(-1)!.takenAt;
+        const last = fresh.at(-1);
+        if (mounted && last) {
+          newest = last.takenAt;
           setTrail((shown) => [...shown, ...fresh]);
         }
       } catch {
