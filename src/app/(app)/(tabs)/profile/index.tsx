@@ -21,7 +21,7 @@ const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
 const toForm = (p: AdventurerProfile): Form => ({
   name: p.name,
-  phone: formatPhoneNumber(p.phone),
+  phone: p.phone === null ? '' : formatPhoneNumber(p.phone),
   carMake: p.carMake ?? '',
   carColour: p.carColour ?? '',
   carPlate: p.carPlate ?? '',
@@ -66,14 +66,14 @@ function ProfileForm({ stored, reloadFailure }: { stored: AdventurerProfile | nu
   }
 
   const set = (field: keyof Form) => (text: string) => setProfile((p) => ({ ...p, [field]: text }));
-  const complete = profile.name.trim() !== '' && isPhoneNumber(profile.phone);
+  const complete = profile.name.trim() !== '' && (profile.phone.trim() === '' || isPhoneNumber(profile.phone));
 
   const save = async () => {
     setSaving(true);
     try {
       await barry.saveProfile({
         name: profile.name.trim(),
-        phone: profile.phone.replace(/\s/g, ''),
+        phone: orNull(profile.phone.replace(/\s/g, '')),
         carMake: orNull(profile.carMake),
         carColour: orNull(profile.carColour),
         carPlate: orNull(profile.carPlate),

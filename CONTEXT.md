@@ -11,7 +11,7 @@ A Barry user who plans Adventures and checks in from them.
 _Avoid_: User, hiker, member
 
 **Adventurer Profile**:
-What Barry knows about an Adventurer for rescuers: name, phone number, and optionally car make, colour and number plate, and medical notes.
+What Barry knows about an Adventurer for rescuers: name, and optionally phone number, car make, colour and number plate, and medical notes.
 _Avoid_: Account, user details, settings
 
 **Emergency Contact**:

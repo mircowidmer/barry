@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(36);
+select plan(37);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone, car_make, car_colour, car_plate, medical_notes)
@@ -181,6 +181,13 @@ select is(
   (select count(*)::int from net.http_request_queue where url = 'http://deliver.test/functions/v1/deliver'),
   1,
   'A new message wakes deliver'
+);
+
+update public.adventurer_profiles set phone = null;
+select is(
+  pg_temp.facts('e@example.com', 'alert') -> 'profile' -> 'phone',
+  'null'::jsonb,
+  'An Alert without a phone number carries none'
 );
 
 select * from finish();
