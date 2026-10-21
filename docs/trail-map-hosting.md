@@ -14,7 +14,7 @@ You need a hosted Supabase project. The page fetches the Trail from Supabase in 
    - `EXPO_PUBLIC_SUPABASE_URL`, the hosted project's URL, for example `https://abcd.supabase.co`.
    - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, the hosted project's publishable key. It is public by design, so a variable is enough.
 4. Point the links in Heads-ups and Alerts at the page. Set `TRAIL_MAP_URL=https://barry.support/adventure` in `supabase/.env.hosted` and run `node scripts/hosted-secrets.mjs`, as [The hosted Supabase project](hosted-supabase.md) describes. Do not run `npx supabase secrets set` by hand.
-5. In the Supabase dashboard, open **Authentication > URL Configuration** and set **Site URL** to `https://barry.support/confirmed`.
+5. Make `https://barry.support/confirmed` the Auth **Site URL**. It is `site_url` under `[remotes.hosted.auth]` in `supabase/config.toml` and goes out with `node scripts/hosted-auth.mjs`, as [The hosted Supabase project](hosted-supabase.md) describes. Do not set it in the dashboard, or the next push undoes it.
 
 ## Deploy
 
