@@ -453,7 +453,7 @@ export const createBarry = ({
         // Realtime does not replay the updates missed while the socket was down, so each connection refetches.
         .subscribe((status) => status === 'SUBSCRIBED' && refresh());
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(channel).catch(() => undefined);
       };
     },
   };
