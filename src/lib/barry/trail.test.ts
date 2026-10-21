@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { createTrail, type LocationService, type RecordTrailResponse, type TrailFacts, trailMode } from './trail';
+import { createTrail, type Fence, type LocationService, type RecordTrailResponse, type TrailFacts, trailMode } from './trail';
 import { createTrailBuffer } from './trail-buffer';
-import type { AdventureId, Position, RawLocation, TrailStatus } from './types';
+import type { AdventureId, Point, Position, RawLocation, TrailStatus } from './types';
 
 const memoryStorage = () => {
   const items = new Map<string, string>();
@@ -19,6 +19,7 @@ const fix = (iso: string, latitude: number): RawLocation => ({
   timestamp: new Date(iso).getTime(),
   coords: { latitude, longitude: 8.6885, accuracy: 8 },
 });
+const summit: Point = { latitude: 47.0336, longitude: 8.6703 };
 
 type World = {
   permitted?: boolean;
@@ -27,6 +28,7 @@ type World = {
   fenceFails?: boolean;
   signal?: boolean;
   afterCheckIn?: AdventureId | null;
+  destination?: Point | null;
 };
 
 const setup = (world: World = {}) => {
@@ -37,9 +39,12 @@ const setup = (world: World = {}) => {
     fenceFails: false,
     signal: false,
     afterCheckIn: null as AdventureId | null,
+    destination: null as Point | null,
     ...world,
   };
   const os = { updates: null as TrailStatus | null, fence: null as Position | null };
+  let regions: Fence[] = [];
+  const arrivals: AdventureId[] = [];
   let flushes = 0;
   const location: LocationService = {
     backgroundPermitted: async () => state.permitted,
@@ -53,9 +58,10 @@ const setup = (world: World = {}) => {
     stopUpdates: async () => {
       os.updates = null;
     },
-    setFence: async (center) => {
+    setFences: async (fences) => {
       if (state.fenceFails) throw new Error('kCLErrorDomain');
-      os.fence = center;
+      regions = fences;
+      os.fence = (fences.find((f) => f.identifier === 'trail')?.center as Position | undefined) ?? null;
     },
     lastReading: async () => here,
   };
@@ -67,6 +73,8 @@ const setup = (world: World = {}) => {
     buffer,
     signedIn: async () => true,
     inProgressId: () => state.inProgress,
+    destinationPoint: () => state.destination,
+    arrived: async (id) => void arrivals.push(id),
     pendingCheckIn: () => state.queued,
     flushCheckIns: async () => {
       flushes += 1;
@@ -82,7 +90,7 @@ const setup = (world: World = {}) => {
   const respond = (next: RecordTrailResponse) => {
     response = next;
   };
-  return { trail, state, os, uploads, buffer, respond, flushes: () => flushes };
+  return { trail, state, os, uploads, buffer, respond, flushes: () => flushes, regions: () => regions, arrivals };
 };
 
 describe('trailMode', () => {
@@ -165,7 +173,7 @@ describe('the Trail', () => {
 
   it('tries the queued Check-in when iOS relaunches Barry for the fence', async () => {
     const { trail, state, os, flushes } = setup({ queued: true, signal: true });
-    await trail.onFenceExit();
+    await trail.onFenceEvent({ region: 'trail', entered: false });
     expect(flushes()).toBe(1);
     expect(state.queued).toBe(false);
     expect(os).toEqual({ updates: null, fence: null });
@@ -227,8 +235,46 @@ describe('the Trail', () => {
 
   it('takes a reading and records again after iOS relaunches Barry for the fence', async () => {
     const { trail, os, uploads } = setup();
-    await trail.onFenceExit();
+    await trail.onFenceEvent({ region: 'trail', entered: false });
     expect(uploads).toEqual([{ id: 'a1', latitudes: [47.0286] }]);
     expect(os.updates).toBe('recording');
+  });
+
+  it('watches the destination for the Arrival Notice next to the Trail, until the Check-in', async () => {
+    const { trail, state, regions } = setup({ destination: summit });
+    await trail.sync();
+    expect(regions()).toEqual([
+      { identifier: 'trail', center: here, radiusM: 200, notifyOn: 'exit' },
+      { identifier: 'arrival.a1', center: summit, radiusM: 150, notifyOn: 'enter' },
+    ]);
+    state.queued = true;
+    await trail.sync();
+    expect(regions()).toEqual([]);
+  });
+
+  it('keeps the destination watched when the Trail fence moves', async () => {
+    const { trail, regions } = setup({ destination: summit });
+    await trail.sync();
+    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.03)]);
+    expect(regions().map((f) => f.identifier)).toEqual(['trail', 'arrival.a1']);
+    expect(regions()[0].center.latitude).toBe(47.03);
+  });
+
+  it('watches no destination without a point or without Always', async () => {
+    const withoutPoint = setup();
+    await withoutPoint.trail.sync();
+    expect(withoutPoint.regions().map((f) => f.identifier)).toEqual(['trail']);
+    const withoutAlways = setup({ destination: summit, permitted: false });
+    await withoutAlways.trail.sync();
+    expect(withoutAlways.regions()).toEqual([]);
+  });
+
+  it('reports the arrival on entering the destination, and nothing else of that region', async () => {
+    const { trail, os, arrivals, uploads } = setup({ destination: summit });
+    await trail.onFenceEvent({ region: 'arrival.a1', entered: false });
+    await trail.onFenceEvent({ region: 'arrival.a1', entered: true });
+    expect(arrivals).toEqual(['a1']);
+    expect(uploads).toEqual([]);
+    expect(os.updates).toBeNull();
   });
 });

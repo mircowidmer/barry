@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(62);
+select plan(64);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -118,6 +118,20 @@ select is(
   (select refusal from public.save_adventure(null, 'Rigi', null, 'Brunni car park', 'Bring a headlamp', null, '{}')),
   null::public.refusal,
   'An app that still sends a Starting Point and Notes can save its Plan'
+);
+create temporary table pinned on commit drop as
+  select * from public.save_adventure(null, 'Pilatus', null, null, '{}', '{"latitude": 46.9786, "longitude": 8.2547}');
+select is(
+  (select array[destination_latitude, destination_longitude] from public.adventures
+    where id = (select adventure_id from pinned)),
+  array[46.9786, 8.2547]::double precision[],
+  'save_adventure keeps the point of the destination on the map'
+);
+select throws_ok(
+  $$select * from public.save_adventure(null, 'Pilatus', null, null, '{}', '{"latitude": 46.9786}')$$,
+  '23514',
+  null,
+  'A point without its longitude is not saved'
 );
 
 -- start_adventure: every refusal, then a Start

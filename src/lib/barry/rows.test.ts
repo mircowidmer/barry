@@ -19,6 +19,8 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   adventurer_id: 'u1',
   stage: 'planned',
   destination: null,
+  destination_latitude: null,
+  destination_longitude: null,
   route: null,
   deadline: null,
   alert_at: null,
@@ -47,11 +49,18 @@ const started = {
 };
 
 describe('parseAdventure', () => {
+  it('parses the point of the destination, and none from a row an older app cached without it', () => {
+    const withPoint = parseAdventure(row({ ...started, stage: 'active', destination_latitude: 47.0336, destination_longitude: 8.6703 }));
+    expect(withPoint.plan.destinationPoint).toEqual({ latitude: 47.0336, longitude: 8.6703 });
+    const { destination_latitude, destination_longitude, ...cachedByOlderApp } = row({ ...started, stage: 'active' });
+    expect(parseAdventure(cachedByOlderApp as AdventureWithRelations).plan.destinationPoint).toBeNull();
+  });
+
   it('parses a Planned Adventure with nothing filled in yet', () => {
     expect(parseAdventure(row({}))).toEqual({
       id: 'a1',
       stage: 'planned',
-      plan: { destination: undefined, route: null },
+      plan: { destination: undefined, destinationPoint: null, route: null },
       deadline: null,
       contacts: [{ id: 'c1', name: 'Luca', email: 'luca@example.com', emailEnabled: true, phone: null, phoneEnabled: true }],
     });

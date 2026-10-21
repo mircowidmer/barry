@@ -1,4 +1,4 @@
-import type { LocationObject } from 'expo-location';
+import { type LocationObject, type LocationRegion, LocationGeofencingEventType } from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
 import { barry } from '@/lib/barry';
@@ -10,7 +10,10 @@ TaskManager.defineTask<{ locations: LocationObject[] }>(TRAIL_LOCATION_TASK, asy
   await barry.trail.onLocations(data.locations);
 });
 
-TaskManager.defineTask(TRAIL_FENCE_TASK, async ({ error }) => {
+TaskManager.defineTask<{ eventType: LocationGeofencingEventType; region: LocationRegion }>(TRAIL_FENCE_TASK, async ({ data, error }) => {
   if (error) return;
-  await barry.trail.onFenceExit();
+  await barry.trail.onFenceEvent({
+    region: data.region.identifier ?? '',
+    entered: data.eventType === LocationGeofencingEventType.Enter,
+  });
 });
