@@ -139,7 +139,7 @@ select throws_ok(
 select is(public.start_adventure('a0000000-0000-0000-0000-000000000015', 'Europe/Zurich'),
   'profile_incomplete'::public.refusal, 'Start needs a Profile');
 
-insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000001');
+insert into public.adventurer_profiles (id, name) values ('11111111-1111-1111-1111-111111111111', 'Anna');
 
 select is(public.start_adventure('a0000000-0000-0000-0000-000000000011', 'Europe/Zurich'),
   'destination_missing'::public.refusal, 'Start needs a destination');
@@ -153,7 +153,7 @@ select is(public.start_adventure('a0000000-0000-0000-0000-000000000015', 'Mars/O
   'invalid_time_zone'::public.refusal, 'Start needs a real time zone');
 
 select is(public.start_adventure('a0000000-0000-0000-0000-000000000015', 'Europe/Zurich', 47.03, 8.68, 12, null),
-  null::public.refusal, 'Start succeeds');
+  null::public.refusal, 'Start succeeds with a Profile that holds the name alone');
 select is(
   (select stage::text || ' ' || time_zone from public.adventures where id = 'a0000000-0000-0000-0000-000000000015'),
   'active Europe/Zurich',

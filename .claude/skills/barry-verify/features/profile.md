@@ -1,12 +1,12 @@
 # Profile
 
-The Profile tab holds what an Alert tells the Emergency Contacts about the Adventurer: the name and the phone number, which the first Start needs, and optionally the car and medical notes, which only an Alert carries. The checkmark in the header saves it. Signing out, deleting the account and the language of the messages are in [Sign in](./sign-in.md).
+The Profile tab holds what an Alert tells the Emergency Contacts about the Adventurer: the name, which the first Start needs, and optionally the phone number, the car and medical notes, which only an Alert carries. The checkmark in the header saves it. Signing out, deleting the account and the language of the messages are in [Sign in](./sign-in.md).
 
 ## Sub-features
 
-- `profile-required` saves the name and the phone number, which Start needs.
+- `profile-required` saves the name, which Start needs, and the phone number, which is optional.
 - `profile-optional` saves the car's make, colour and number plate, and the medical notes.
-- `profile-save-guard` keeps the checkmark disabled until the name and a valid phone number are filled in and something changed.
+- `profile-save-guard` keeps the checkmark disabled until the name is filled in, the phone number is empty or valid, and something changed.
 - `profile-reload` reloads the stored Profile on pull-down and keeps an unsaved edit.
 - `profile-save-failure` shows `Could Not Save` when the save does not reach Barry.
 - `profile-legal` opens the Privacy Policy and the Terms of Use.
