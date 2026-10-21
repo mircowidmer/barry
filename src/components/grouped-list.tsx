@@ -1,5 +1,5 @@
 import { SymbolView } from 'expo-symbols';
-import { Children, type ReactNode } from 'react';
+import { Children, isValidElement, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Switch, TextInput, type TextInputProps, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -33,7 +33,7 @@ export function Group({
       )}
       <View style={[styles.box, { backgroundColor: theme.backgroundElement }]}>
         {rows.map((row, i) => (
-          <View key={i}>
+          <View key={isValidElement(row) ? row.key : i}>
             {i > 0 && <View style={[styles.separator, { marginLeft: inset, backgroundColor: theme.backgroundSelected }]} />}
             {row}
           </View>
