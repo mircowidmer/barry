@@ -214,8 +214,8 @@ export const createBarry = ({
     const { data, error } = id
       ? await supabase.from('emergency_contacts').update(values).eq('id', id).select().single()
       : await supabase.from('emergency_contacts').insert(values).select().single();
-    if (error) fail('saveContact', error);
-    return parseContact(data!);
+    if (error) return fail('saveContact', error);
+    return parseContact(data);
   };
 
   const syncTrail = () => {
@@ -329,8 +329,8 @@ export const createBarry = ({
         p_deadline: orNull(deadline?.toISOString()),
         p_contact_ids: contactIds,
       });
-      if (error) fail('saveAdventure', error);
-      const [result] = data!;
+      if (error) return fail('saveAdventure', error);
+      const [result] = data;
       if (result.refusal) return { kind: 'refused', refusal: result.refusal };
       const adventure = await getAdventure(result.adventure_id as AdventureId);
       if (!adventure) throw new Error('saveAdventure: the saved Adventure is missing');
