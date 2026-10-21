@@ -78,7 +78,7 @@ const warningText = (w: StartWarning, t: Texts) => {
     case 'email_only':
       return t.plan.emailOnly(names(w.contacts));
     case 'unreachable':
-      return w.contacts.length === 1 ? t.plan.unreachableOne(w.contacts[0].name) : t.plan.unreachableMany(names(w.contacts));
+      return w.contacts.length === 1 ? t.plan.unreachableOne(names(w.contacts)) : t.plan.unreachableMany(names(w.contacts));
   }
 };
 
