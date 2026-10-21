@@ -34,7 +34,7 @@ const en = {
     deadline_not_later: 'The new deadline must be later than the current one.',
     no_contacts: 'Choose at least one emergency contact.',
     unknown_contact: 'One of the contacts was removed. Choose the contacts again.',
-    another_adventure_in_progress: 'Another adventure is already in progress. Check in from it first.',
+    another_adventure_in_progress: 'Another adventure has already started. Check in from it first.',
     wrong_stage: 'This adventure can no longer be changed.',
     invalid_time_zone: 'Your phone reported a time zone Barry does not know.',
     messages_pending: 'Barry is still sending messages for this adventure. Try again in a few minutes.',
