@@ -1,6 +1,6 @@
 # Plan and start
 
-From the Adventure tab, an Adventurer plans an Adventure in a sheet with a destination, an optional route, a Deadline and Emergency Contacts. `Cancel` and `Start` sit in the sheet's header; `Save for Later` and `Delete` at its bottom. The Start warnings say who will not be reached. Start records the position, sends each contact a Heads-up and closes the sheet.
+From the Adventure tab, an Adventurer plans an Adventure in a sheet with a destination, an optional route, a Deadline and Emergency Contacts. A close button (`Cancel`) and `Start` sit in the sheet's header; `Save for Later` and `Delete` at its bottom. The Start warnings say who will not be reached. Start records the position, sends each contact a Heads-up and closes the sheet.
 
 ## Sub-features
 
@@ -15,7 +15,7 @@ From the Adventure tab, an Adventurer plans an Adventure in a sheet with a desti
 
 - Tap `Plan an Adventure` on the Adventure tab (201, 250). The sheet `Plan an Adventure` slides up.
 - Tap a card under `Planned Adventures` to reopen a saved Adventure in the sheet `Planned Adventure`.
-- `Cancel` in the header, or swiping the sheet down, closes it. With unsaved changes the alert `Discard Changes?` offers `Cancel` and `Discard`.
+- The close button (`Cancel`) in the header, or swiping the sheet down, closes it. With unsaved changes the alert `Discard Changes?` offers `Cancel` and `Discard`.
 
 ## Driving it with the iOS Simulator
 
