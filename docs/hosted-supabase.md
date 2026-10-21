@@ -146,6 +146,6 @@ npx supabase db query --linked "select a.id, a.stage, a.deadline, p.name, p.phon
 
 Once Barry runs again, a waiting Alert goes out by itself. A failed one does not: call or message those Emergency Contacts yourself.
 
-## Not done yet
+## The app
 
-- The app. Barry on a phone reaches the hosted project only after a build with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set to the hosted values.
+The preview and production builds carry the hosted `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `eas.json`, so Barry on a phone reaches this project. [Builds](builds.md) has the details.
