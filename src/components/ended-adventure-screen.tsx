@@ -43,7 +43,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
       )}
       {readings.status === 'ready' &&
         (readings.data.length > 0 ? (
-          <TrailMapView trail={readings.data} last={readings.data.at(-1)!} />
+          <TrailMapView trail={readings.data} last={readings.data.at(-1) ?? null} />
         ) : (
           <ThemedText type="small" themeColor="textSecondary">
             {t.ended.noPositions}
