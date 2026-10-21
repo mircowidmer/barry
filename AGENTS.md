@@ -48,7 +48,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - [CONTEXT.md](CONTEXT.md) is the glossary. Code, texts, tests and commit messages use its capitalised terms (Adventurer, Adventure, Deadline, Grace Period, Check-in, Heads-up, Alert, All-clear, Trail, Trail Map) and avoid the words it lists under _Avoid_.
 - [docs/spec.md](docs/spec.md) is the behaviour contract. Its section **Limits that live in the code** names every tunable constant and the file that owns it.
 - [docs/adr/0001-server-owns-the-deadline.md](docs/adr/0001-server-owns-the-deadline.md) is the one decision everything else follows from.
-- [docs/design/backend/design.md](docs/design/backend/design.md) explains the backend shape (clock, outbox, commands, delivery, heartbeat) and the tradeoffs accepted. Read it before touching a migration or `deliver`. Its code files are the original sketch, not the implementation.
+- [docs/design/backend/design.md](docs/design/backend/design.md) explains the backend shape as first designed (clock, outbox, commands, delivery, heartbeat) and the tradeoffs accepted. Read it before touching a migration or `deliver`, but where it disagrees with the migrations, the migrations win: push, text messages, the Reminder and the All-clear have changed since. Its code files are the original sketch, not the implementation.
 
 ## More commands
 
