@@ -29,7 +29,7 @@ One solo outing an Adventurer plans in Barry, with a Plan and a Deadline. An Adv
 _Avoid_: Trip, outing, tour, activity
 
 **Plan**:
-What an Adventure records about the outing: destination and route.
+What an Adventure records about the outing: destination, optionally its place on the map, and route.
 _Avoid_: Itinerary, details
 
 **Deadline**:
@@ -106,6 +106,10 @@ _Avoid_: Cancellation, resolution
 **Overdue Notice**:
 A notification the Adventurer's phone shows when their Deadline passes, saying when the Alert will go out.
 _Avoid_: Second reminder, warning
+
+**Arrival Notice**:
+A notification the Adventurer's phone shows when they reach the destination they put on the map, reminding them to check in once back safe.
+_Avoid_: Arrival alert, geofence notification, destination reached
 
 **Delivery Failure**:
 A Heads-up, Plan Update, Deadline Update, Alert or All-clear that could not be delivered to an Emergency Contact, which Barry shows to the Adventurer.

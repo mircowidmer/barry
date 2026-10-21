@@ -2,13 +2,13 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { AdventureId, Alarm, InProgressAdventure } from '@/lib/barry';
 
-import { formatDurationGerman, formatMessageTimeGerman, notificationText } from './wording';
+import { arrivalText, formatDurationGerman, formatMessageTimeGerman, notificationText } from './wording';
 
 const adventure = {
   id: 'a1' as AdventureId,
   stage: 'active',
   contacts: [],
-  plan: { destination: 'Pilatus', route: null },
+  plan: { destination: 'Pilatus', destinationPoint: null, route: null },
   deadline: new Date('2026-10-17T16:00:00Z'),
   alertAt: new Date('2026-10-17T16:01:00Z'),
   timeZone: 'Europe/Zurich',
@@ -41,6 +41,16 @@ describe('notificationText', () => {
     expect(notificationText(alarm('overdue_notice'), 'de').body).toBe(
       'Deine Rückkehrzeit für Pilatus war am Sa, 17. Okt. um 18:00. Barry alarmiert deine Notfallkontakte am Sa, 17. Okt. um 18:01, ausser du meldest dich vorher zurück.',
     );
+  });
+});
+
+describe('arrivalText', () => {
+  it('names the destination and asks for the Check-in once back safe, in both languages', () => {
+    expect(arrivalText(adventure, 'en')).toEqual({ title: 'You have reached Pilatus', body: 'Check in once you are back safe.' });
+    expect(arrivalText(adventure, 'de')).toEqual({
+      title: 'Du hast Pilatus erreicht',
+      body: 'Melde dich zurück, sobald du wieder in Sicherheit bist.',
+    });
   });
 });
 

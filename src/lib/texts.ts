@@ -136,7 +136,7 @@ const en = {
   },
   plan: {
     couldNotLoad: 'Could not load the adventure.',
-    noTrail: 'Barry can share only where you started. Allow location Always to share your trail.',
+    noTrail: 'Barry can share only where you started. Allow location Always to share your trail and to hear when you reach your destination.',
     noNotifications: 'Notifications are off for Barry, so you will get no reminder or overdue notice.',
     emailOnly: (names: string) => `Text messages are not set up yet, so ${names} get email only.`,
     unreachableOne: (name: string) =>
@@ -151,6 +151,10 @@ const en = {
     titleNew: 'Plan an Adventure',
     where: 'Where are you going?',
     destination: 'Destination',
+    showOnMap: 'Show on Map',
+    removeFromMap: 'Remove from Map',
+    pinHint: 'Barry tells you when you reach the pin. Tap the map to move it.',
+    tapToPin: 'Tap the map where your destination is.',
     route: 'Route (optional)',
     deadline: 'Deadline',
     deadlineHint: 'If you have not checked in by then, Barry waits 1 minute and then alerts your contacts.',
@@ -383,7 +387,8 @@ const de: Texts = {
   },
   plan: {
     couldNotLoad: 'Das Abenteuer konnte nicht geladen werden.',
-    noTrail: 'Barry kann nur teilen, wo du gestartet bist. Erlaube den Standortzugriff «Immer», um deine Spur zu teilen.',
+    noTrail:
+      'Barry kann nur teilen, wo du gestartet bist. Erlaube den Standortzugriff «Immer», um deine Spur zu teilen und zu erfahren, wann du dein Ziel erreichst.',
     noNotifications: 'Mitteilungen sind für Barry ausgeschaltet, also erhältst du keine Erinnerung und keinen Überfällig-Hinweis.',
     emailOnly: (names) => `SMS sind noch nicht eingerichtet, darum erhalten ${names} nur E-Mails.`,
     unreachableOne: (name) =>
@@ -398,6 +403,10 @@ const de: Texts = {
     titleNew: 'Abenteuer planen',
     where: 'Wohin gehst du?',
     destination: 'Ziel',
+    showOnMap: 'Auf der Karte zeigen',
+    removeFromMap: 'Von der Karte entfernen',
+    pinHint: 'Barry sagt dir, wenn du die Stecknadel erreichst. Tippe auf die Karte, um sie zu verschieben.',
+    tapToPin: 'Tippe auf die Karte, wo dein Ziel ist.',
     route: 'Route (optional)',
     deadline: 'Rückkehrzeit',
     deadlineHint: 'Hast du dich bis dann nicht zurückgemeldet, wartet Barry 1 Minute und alarmiert dann deine Kontakte.',

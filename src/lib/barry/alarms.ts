@@ -14,6 +14,8 @@ export type NotificationService = {
   /** Replaces any scheduled notification with the same identifier. */
   schedule(alarm: Alarm): Promise<void>;
   cancel(identifier: string): Promise<void>;
+  /** Shows the Arrival Notice at once, outside the scheduled ones. */
+  showArrival(adventure: InProgressAdventure): Promise<void>;
 };
 
 const alarm = (kind: AlarmKind, at: Date, adventure: InProgressAdventure): Alarm => ({

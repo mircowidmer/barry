@@ -1,17 +1,31 @@
 import type { TrailBuffer, TrailSendOutcome } from './trail-buffer';
-import type { AdventureId, Position, RawLocation, Refusal, Trail, TrailStatus } from './types';
+import type { AdventureId, Point, Position, RawLocation, Refusal, Trail, TrailStatus } from './types';
 
 export const TRAIL_LOCATION_TASK = 'barry.trail.location';
 export const TRAIL_FENCE_TASK = 'barry.trail.fence';
 
 const FENCE_MOVE_M = 50;
+const TRAIL_RADIUS_M = 200;
+// How close to the destination's point the phone shows the Arrival Notice.
+const ARRIVAL_RADIUS_M = 150;
+
+const TRAIL_REGION = 'trail';
+const ARRIVAL_REGION = 'arrival.';
+
+/**
+ * A region iOS watches. Both live in the one fence task: expo-location restarts every region of the
+ * app whenever any geofence task changes, so a second task would lose its region each time the
+ * Trail's fence moves.
+ */
+export type Fence = { identifier: string; center: Point; radiusM: number; notifyOn: 'enter' | 'exit' };
 
 export type LocationService = {
   backgroundPermitted(): Promise<boolean>;
   requestBackground(): Promise<boolean>;
   startUpdates(mode: Exclude<TrailStatus, 'off'>): Promise<void>;
   stopUpdates(): Promise<void>;
-  setFence(center: Position | null): Promise<void>;
+  /** Replaces the watched regions. None stops the fence task. */
+  setFences(fences: Fence[]): Promise<void>;
   lastReading(): Promise<Position | null>;
 };
 
@@ -22,6 +36,10 @@ export type TrailDeps = {
   buffer: TrailBuffer;
   signedIn(): Promise<boolean>;
   inProgressId(): AdventureId | null;
+  /** Where the Adventure in progress is headed, if the Adventurer put it on the map. */
+  destinationPoint(): Point | null;
+  /** The phone entered the destination's region of this Adventure. */
+  arrived(id: AdventureId): Promise<void>;
   pendingCheckIn(): boolean;
   flushCheckIns(): Promise<void>;
   recordTrail(id: AdventureId, batch: readonly Position[]): Promise<RecordTrailResponse>;
@@ -47,7 +65,7 @@ const toReading = (l: RawLocation): Position => ({
   accuracyM: l.coords.accuracy ?? null,
 });
 
-const metresBetween = (a: Position, b: Position) => {
+const metresBetween = (a: Point, b: Point) => {
   const rad = Math.PI / 180;
   const dLat = (b.latitude - a.latitude) * rad;
   const dLon = (b.longitude - a.longitude) * rad;
@@ -60,6 +78,8 @@ export const createTrail = ({
   buffer,
   signedIn,
   inProgressId,
+  destinationPoint,
+  arrived,
   pendingCheckIn,
   flushCheckIns,
   recordTrail,
@@ -75,11 +95,21 @@ export const createTrail = ({
     inProgressId: inProgressId(),
   });
 
-  // The fence only brings the Trail back after a force-quit. When iOS refuses it, recording and
-  // uploading go on without it.
-  const moveFence = async (center: Position | null) => {
+  const fences = (center: Position | null, id: AdventureId | null): Fence[] => {
+    const destination = id ? destinationPoint() : null;
+    return [
+      ...(center ? [{ identifier: TRAIL_REGION, center, radiusM: TRAIL_RADIUS_M, notifyOn: 'exit' as const }] : []),
+      ...(id && destination
+        ? [{ identifier: `${ARRIVAL_REGION}${id}`, center: destination, radiusM: ARRIVAL_RADIUS_M, notifyOn: 'enter' as const }]
+        : []),
+    ];
+  };
+
+  // The Trail's fence only brings the Trail back after a force-quit. When iOS refuses the fences,
+  // recording and uploading go on without them, and there is no Arrival Notice.
+  const moveFence = async (center: Position | null, id: AdventureId | null) => {
     try {
-      await location.setFence(center);
+      await location.setFences(fences(center, id));
       fence = center;
     } catch {}
   };
@@ -93,7 +123,7 @@ export const createTrail = ({
     const id = mode === 'recording' ? now.inProgressId : null;
     const center = id ? buffer.newest(id) : null;
     await flush();
-    await moveFence(id ? (center ?? (await location.lastReading())) : null);
+    await moveFence(id ? (center ?? (await location.lastReading())) : null, id);
     return mode;
   };
 
@@ -125,11 +155,17 @@ export const createTrail = ({
         buffer.add(id, locations.map(toReading));
         const newest = buffer.newest(id);
         await flush();
-        if (newest && (!fence || metresBetween(fence, newest) > FENCE_MOVE_M)) await moveFence(newest);
+        if (newest && (!fence || metresBetween(fence, newest) > FENCE_MOVE_M)) await moveFence(newest, id);
       }),
 
-    onFenceExit: () =>
+    onFenceEvent: ({ region, entered }) =>
       quietly(async () => {
+        // iOS also reports the state of each region whenever the fences are set, so this fires again
+        // while the Adventurer stays at the destination. `arrived` shows the notice once.
+        if (region.startsWith(ARRIVAL_REGION)) {
+          if (entered) await arrived(region.slice(ARRIVAL_REGION.length) as AdventureId);
+          return;
+        }
         const id = await wake();
         const reading = id ? await location.lastReading() : null;
         if (id && reading) buffer.add(id, [reading]);

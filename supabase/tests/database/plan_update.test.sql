@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(11);
+select plan(13);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000001');
@@ -46,6 +46,14 @@ select is(
   null::public.refusal, 'Saving an unchanged Plan is accepted');
 select is(pg_temp.updates('a0000000-0000-0000-0000-000000000001'), '{}'::text[],
   'An unchanged Plan sends no Plan update');
+
+select is(
+  (select refusal from public.save_adventure('a0000000-0000-0000-0000-000000000001', 'Pilatus', 'Tomlishorn', null,
+     array['aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002']::uuid[],
+     '{"latitude": 46.9786, "longitude": 8.2547}')),
+  null::public.refusal, 'The destination can be put on the map while the Adventure is Active');
+select is(pg_temp.updates('a0000000-0000-0000-0000-000000000001'), '{}'::text[],
+  'A point on the map alone sends no Plan update, because the contacts are not told it');
 
 select pg_temp.save('a0000000-0000-0000-0000-000000000001', 'Kriesiloch',
   array['aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002']::uuid[]);

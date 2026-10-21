@@ -26,6 +26,8 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   adventurer_id: 'u1',
   stage: 'active',
   destination: 'Grosser Mythen',
+  destination_latitude: null,
+  destination_longitude: null,
   route: null,
   deadline: '2026-10-17T16:00:00Z',
   alert_at: '2026-10-17T16:30:00Z',
@@ -102,23 +104,27 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     from: (table: string) => (table === 'emergency_contacts' ? contactsQuery : query),
   } as unknown as SupabaseClient<Database>;
   const updates: string[] = [];
+  const fences: string[][] = [];
   const location: LocationService = {
     backgroundPermitted: async () => true,
     requestBackground: async () => true,
     startUpdates: async (mode) => void updates.push(mode),
     stopUpdates: async () => void updates.push('off'),
-    setFence: async () => undefined,
+    setFences: async (watched) => void fences.push(watched.map((f) => f.identifier)),
     lastReading: async () => null,
   };
   const scheduled = new Map<string, string>();
+  const arrivals: string[] = [];
   const notifications: NotificationService = {
     scheduledIdentifiers: async () => [...scheduled.keys()],
     schedule: async (alarm) => void scheduled.set(alarm.identifier, alarm.at.toISOString()),
     cancel: async (id) => void scheduled.delete(id),
+    showArrival: async (adventure) => void arrivals.push(adventure.plan.destination),
   };
   const barry = createBarry({
     supabase,
     readPosition: async () => null,
+    geocode: async () => null,
     timeZone: () => 'Europe/Zurich',
     language: () => 'de',
     now,
@@ -129,7 +135,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     notifications,
     location,
   });
-  return { barry, world, updates, signOuts, scheduled: () => Object.fromEntries(scheduled) };
+  return { barry, world, updates, fences, arrivals, signOuts, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -180,6 +186,32 @@ describe('the Trail', () => {
     await barry.getInProgressAdventure();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(updates).toEqual(['off', 'recording']);
+  });
+
+  it('watches the destination once the Adventurer puts it on the map while the Adventure is in progress', async () => {
+    const { barry, world, fences } = setup();
+    world.signal = true;
+    world.server = row({});
+    await barry.getInProgressAdventure();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fences).toEqual([]);
+
+    world.server = row({ destination_latitude: 47.0336, destination_longitude: 8.6703 });
+    await barry.getInProgressAdventure();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fences).toEqual([['arrival.a1']]);
+  });
+
+  it('shows the Arrival Notice once when iOS reports the destination, and not after the Check-in', async () => {
+    const { barry, arrivals } = setup();
+    await barry.trail.onFenceEvent({ region: 'arrival.a1', entered: true });
+    await barry.trail.onFenceEvent({ region: 'arrival.a1', entered: true });
+    expect(arrivals).toEqual(['Grosser Mythen']);
+
+    const later = setup();
+    await later.barry.checkIn(a1);
+    await later.barry.trail.onFenceEvent({ region: 'arrival.a1', entered: true });
+    expect(later.arrivals).toEqual([]);
   });
 });
 

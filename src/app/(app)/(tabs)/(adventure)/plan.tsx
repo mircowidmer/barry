@@ -3,6 +3,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { DestinationMap, type MapCamera } from '@/components/destination-map';
 import { Button, Field, FirstLoad, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
@@ -15,6 +16,7 @@ import {
   barry,
   type EmergencyContact,
   type EmergencyContactId,
+  type Point,
   reachableAddresses,
   type StartConditions,
   type StartWarning,
@@ -26,6 +28,7 @@ import { refusalText, type Texts, useTexts } from '@/lib/texts';
 
 type Form = {
   destination: string;
+  destinationPoint: Point | null;
   route: string;
   deadline: Date;
   contactIds: EmergencyContactId[];
@@ -41,10 +44,17 @@ const inFourHours = () => {
 // while the form still held the old date, so the sheet proposes a fresh one instead.
 const toForm = (a: Adventure | null): Form => ({
   destination: a?.plan.destination ?? '',
+  destinationPoint: a?.plan.destinationPoint ?? null,
   route: a?.plan.route ?? '',
   deadline: a?.deadline && a.deadline.getTime() > Date.now() ? a.deadline : inFourHours(),
   contactIds: a?.contacts.map((c) => c.id) ?? [],
 });
+
+// A place on the map is close enough to tap the pin onto it; the middle of Switzerland is not.
+const PLACE_ZOOM = 14;
+const SWITZERLAND: MapCamera = { center: { latitude: 46.8, longitude: 8.23 }, zoom: 7 };
+
+const samePoint = (a: Point | null, b: Point | null) => a?.latitude === b?.latitude && a?.longitude === b?.longitude;
 
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim());
 
@@ -52,6 +62,7 @@ const sorted = (ids: EmergencyContactId[]) => [...ids].sort().join(',');
 
 const same = (a: Form, b: Form) =>
   a.destination === b.destination &&
+  samePoint(a.destinationPoint, b.destinationPoint) &&
   a.route === b.route &&
   a.deadline.getTime() === b.deadline.getTime() &&
   sorted(a.contactIds) === sorted(b.contactIds);
@@ -117,7 +128,10 @@ function PlanForm({
   const [initial, setInitial] = useState<Form>(() => toForm(data.adventure));
   const [form, setForm] = useState<Form>(initial);
   const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
-  const [busy, setBusy] = useState<'save' | 'start' | null>(null);
+  const [busy, setBusy] = useState<'save' | 'start' | 'find' | null>(null);
+  const [camera, setCamera] = useState<MapCamera | null>(() =>
+    initial.destinationPoint && { center: initial.destinationPoint, zoom: PLACE_ZOOM },
+  );
   const theme = useTheme();
   const t = useTexts();
   const leave = useDiscardGuard(!same(form, initial));
@@ -130,6 +144,25 @@ function PlanForm({
   const live = adventure !== null && adventure.stage !== 'planned';
   const set = (field: 'destination' | 'route') => (text: string) =>
     setForm((f) => ({ ...f, [field]: text }));
+  const pin = (point: Point | null) => setForm((f) => ({ ...f, destinationPoint: point }));
+
+  // Apple Maps suggests where the destination is. Without a match, the map opens where the
+  // Adventurer is, and they tap the place themselves.
+  const showOnMap = async () => {
+    setBusy('find');
+    const found = await barry.findPlace(form.destination);
+    const here = found ? null : await barry.currentPosition();
+    setBusy(null);
+    if (found) pin(found);
+    const center = found ?? here;
+    setCamera(center ? { center, zoom: PLACE_ZOOM } : SWITZERLAND);
+  };
+
+  const removeFromMap = () => {
+    pin(null);
+    setCamera(null);
+  };
+
   const toggle = (contactId: EmergencyContactId) =>
     setForm((f) => ({
       ...f,
@@ -143,6 +176,7 @@ function PlanForm({
       id,
       plan: {
         destination: orNull(form.destination) ?? undefined,
+        destinationPoint: form.destinationPoint,
         route: orNull(form.route),
       },
       deadline: form.deadline,
@@ -242,6 +276,18 @@ function PlanForm({
 
       <Section title={t.plan.where}>
         <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} />
+        {Platform.OS === 'ios' &&
+          (camera ? (
+            <>
+              <DestinationMap point={form.destinationPoint} camera={camera} onPick={pin} />
+              <ThemedText type="small" themeColor="textSecondary">
+                {form.destinationPoint ? t.plan.pinHint : t.plan.tapToPin}
+              </ThemedText>
+              <Button title={t.plan.removeFromMap} kind="secondary" disabled={busy !== null} onPress={removeFromMap} />
+            </>
+          ) : (
+            <Button title={t.plan.showOnMap} kind="secondary" busy={busy === 'find'} disabled={busy !== null} onPress={showOnMap} />
+          ))}
         <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
       </Section>
 
