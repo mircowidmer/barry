@@ -59,6 +59,7 @@ export function InputRow({ label, ...input }: { label: string } & TextInputProps
         accessibilityLabel={label}
         {...inputColors}
         spellCheck={false}
+        autoCorrect={false}
         style={[styles.input, { color: theme.text }]}
         textAlign="right"
         {...input}
@@ -76,6 +77,7 @@ export function TextAreaRow({ label, ...input }: { label: string } & TextInputPr
       accessibilityLabel={label}
       {...inputColors}
       spellCheck={false}
+      autoCorrect={false}
       style={[styles.textArea, { color: theme.text }]}
       multiline
       {...input}
