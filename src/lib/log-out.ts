@@ -1,21 +1,10 @@
-import { Alert } from 'react-native';
-
 import { barry } from '@/lib/barry';
+import { confirmDestructive } from '@/lib/confirm-destructive';
 import { currentTexts } from '@/lib/texts';
 
 const confirmed = () => {
   const t = currentTexts();
-  return new Promise<boolean>((resolve) =>
-    Alert.alert(
-      t.dialogs.logOutTitle,
-      t.dialogs.logOutMessage,
-      [
-        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
-        { text: t.profile.logOut, style: 'destructive', onPress: () => resolve(true) },
-      ],
-      { cancelable: true, onDismiss: () => resolve(false) },
-    ),
-  );
+  return confirmDestructive({ title: t.dialogs.logOutTitle, message: t.dialogs.logOutMessage, action: t.profile.logOut });
 };
 
 export const askToLogOut = async () => {
