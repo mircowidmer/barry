@@ -6,13 +6,13 @@ import * as Notifications from 'expo-notifications';
 import { storage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
 import { appLanguage } from '@/lib/language';
-import { notificationText } from '@/lib/wording';
+import { arrivalText, notificationText } from '@/lib/wording';
 
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
 import type { PhoneContact } from './phone-contact';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
-import type { Position } from './types';
+import type { Point, Position } from './types';
 
 export type * from './types';
 export type { Alarm } from './alarms';
@@ -41,6 +41,15 @@ const readPosition = async (): Promise<Position | null> => {
     const permission = await Location.requestForegroundPermissionsAsync();
     if (permission.status !== 'granted') return null;
     return await currentPosition();
+  } catch {
+    return null;
+  }
+};
+
+const geocode = async (name: string): Promise<Point | null> => {
+  try {
+    const [place] = await Location.geocodeAsync(name);
+    return place ? { latitude: place.latitude, longitude: place.longitude } : null;
   } catch {
     return null;
   }
@@ -94,18 +103,19 @@ const location: LocationService = {
       await Location.stopLocationUpdatesAsync(TRAIL_LOCATION_TASK);
     }
   },
-  setFence: async (center) => {
-    if (center) {
-      await Location.startGeofencingAsync(TRAIL_FENCE_TASK, [
-        {
-          identifier: 'trail',
+  setFences: async (fences) => {
+    if (fences.length > 0) {
+      await Location.startGeofencingAsync(
+        TRAIL_FENCE_TASK,
+        fences.map(({ identifier, center, radiusM, notifyOn }) => ({
+          identifier,
           latitude: center.latitude,
           longitude: center.longitude,
-          radius: 200,
-          notifyOnEnter: false,
-          notifyOnExit: true,
-        },
-      ]);
+          radius: radiusM,
+          notifyOnEnter: notifyOn === 'enter',
+          notifyOnExit: notifyOn === 'exit',
+        })),
+      );
     } else if (await Location.hasStartedGeofencingAsync(TRAIL_FENCE_TASK)) {
       await Location.stopGeofencingAsync(TRAIL_FENCE_TASK);
     }
@@ -132,11 +142,19 @@ const notifications: NotificationService = {
     });
   },
   cancel: (identifier) => Notifications.cancelScheduledNotificationAsync(identifier),
+  showArrival: async (adventure) => {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `barry.arrival.${adventure.id}`,
+      content: arrivalText(adventure),
+      trigger: null,
+    });
+  },
 };
 
 export const barry = createBarry({
   supabase,
   readPosition,
+  geocode,
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   language: appLanguage,
   now: () => new Date(),

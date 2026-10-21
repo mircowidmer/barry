@@ -7,6 +7,7 @@ import type {
   AdventurerProfile,
   EmergencyContact,
   EmergencyContactId,
+  Point,
   Position,
 } from './types';
 
@@ -61,6 +62,10 @@ export const parsePosition = (row: PositionRow): Position => ({
   accuracyM: row.accuracy_m,
 });
 
+// A row cached by an older version of the app has no point columns at all.
+const destinationPoint = ({ destination_latitude: latitude, destination_longitude: longitude }: AdventureRow): Point | null =>
+  typeof latitude === 'number' && typeof longitude === 'number' ? { latitude, longitude } : null;
+
 const latestPosition = (rows: PositionRow[] | undefined): Position | null => {
   const latest = rows?.[0];
   return latest ? parsePosition(latest) : null;
@@ -81,6 +86,7 @@ export const parseAdventure = (row: AdventureWithRelations): Adventure => {
       stage: 'planned',
       plan: {
         destination: row.destination ?? undefined,
+        destinationPoint: destinationPoint(row),
         route: row.route,
       },
       deadline: row.deadline === null ? null : new Date(row.deadline),
@@ -91,7 +97,7 @@ export const parseAdventure = (row: AdventureWithRelations): Adventure => {
   const started = {
     id,
     contacts,
-    plan: { destination: row.destination, route: row.route },
+    plan: { destination: row.destination, destinationPoint: destinationPoint(row), route: row.route },
     deadline: date(row.deadline, 'deadline'),
     alertAt: date(row.alert_at, 'alert_at'),
     timeZone: row.time_zone ?? 'UTC',

@@ -1,4 +1,4 @@
-import type { Alarm } from '@/lib/barry';
+import type { Alarm, InProgressAdventure } from '@/lib/barry';
 import { type AppLanguage, appLanguage } from '@/lib/language';
 
 export const formatWhen = (at: Date) =>
@@ -67,4 +67,11 @@ export const notificationText = ({ kind, adventure }: Alarm, language: AppLangua
         title: 'You are overdue',
         body: `Your deadline for ${destination} was ${time(adventure.deadline)}. Barry alerts your emergency contacts at ${time(adventure.alertAt)} unless you check in.`,
       };
+};
+
+export const arrivalText = (adventure: InProgressAdventure, language: AppLanguage = appLanguage()): { title: string; body: string } => {
+  const destination = adventure.plan.destination;
+  return language === 'de'
+    ? { title: `Du hast ${destination} erreicht`, body: 'Melde dich zurück, sobald du wieder in Sicherheit bist.' }
+    : { title: `You have reached ${destination}`, body: 'Check in once you are back safe.' };
 };

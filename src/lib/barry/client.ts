@@ -4,6 +4,7 @@ import type { Database } from '@/lib/database.types';
 
 import { createAdventureCache } from './adventure-cache';
 import { createAlarms, dueAlarms, type NotificationService } from './alarms';
+import { createArrival } from './arrival';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { copyPhoneContact, type PhoneContact } from './phone-contact';
 import { createTrail, type LocationService } from './trail';
@@ -28,6 +29,7 @@ import type {
   EndedAdventure,
   InProgressAdventure,
   MessageLanguage,
+  Point,
   Position,
   Refusal,
 } from './types';
@@ -36,6 +38,8 @@ export type BarryDeps = {
   supabase: SupabaseClient<Database>;
   /** One reading, or null when permission is denied or there is no fix in time. */
   readPosition(): Promise<Position | null>;
+  /** The first place Apple Maps finds for a name, or null. */
+  geocode(name: string): Promise<Point | null>;
   timeZone(): string;
   /** The phone's language, which Barry also writes the messages to the contacts in. */
   language(): MessageLanguage;
@@ -75,6 +79,7 @@ const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
 export const createBarry = ({
   supabase,
   readPosition,
+  geocode,
   timeZone,
   language,
   now,
@@ -100,22 +105,29 @@ export const createBarry = ({
     return isInProgress(adventure) ? adventure : null;
   };
 
+  const checkedIn = (id: AdventureId | undefined) => queue.pending().some((c) => c.adventureId === id);
+
   const alarms = createAlarms({
     notifications,
     due: () => {
       const adventure = cachedInProgress();
-      const checkedIn = queue.pending().some((c) => c.adventureId === adventure?.id);
-      return dueAlarms(adventure, checkedIn, now());
+      return dueAlarms(adventure, checkedIn(adventure?.id), now());
     },
   });
 
+  const arrival = createArrival({ storage, show: (adventure) => notifications.showArrival(adventure), inProgress: cachedInProgress, checkedIn });
+
   const syncAlarms = () => alarms.sync().catch(() => undefined);
 
+  // The fences follow the live Adventure and where its destination is.
+  const fenceKey = (row: AdventureWithRelations | null | undefined) =>
+    row ? [row.id, row.destination_latitude, row.destination_longitude].join(' ') : null;
+
   const remember = (row: AdventureWithRelations | null) => {
-    const before = cache.load()?.row.id ?? null;
+    const before = fenceKey(cache.load()?.row);
     cache.save(row);
     syncAlarms();
-    if ((row?.id ?? null) !== before) syncTrail();
+    if (fenceKey(row) !== before) syncTrail();
   };
 
   const getAdventure = async (id: AdventureId) => {
@@ -167,6 +179,8 @@ export const createBarry = ({
       return data.session !== null || (error !== null && isAuthRetryableFetchError(error));
     },
     inProgressId: () => (cache.load()?.row.id as AdventureId | undefined) ?? null,
+    destinationPoint: () => cachedInProgress()?.plan.destinationPoint ?? null,
+    arrived: arrival.arrived,
     pendingCheckIn: () => queue.pending().length > 0,
     flushCheckIns: async () => {
       await flushCheckIns();
@@ -310,6 +324,7 @@ export const createBarry = ({
       const { data, error } = await supabase.rpc('save_adventure', {
         p_id: orNull(id),
         p_destination: orNull(plan.destination),
+        p_destination_point: plan.destinationPoint ?? undefined,
         p_route: orNull(plan.route),
         p_deadline: orNull(deadline?.toISOString()),
         p_contact_ids: contactIds,
@@ -321,6 +336,10 @@ export const createBarry = ({
       if (!adventure) throw new Error('saveAdventure: the saved Adventure is missing');
       return { kind: 'saved', adventure };
     },
+
+    findPlace: async (name) => (name.trim() ? geocode(name.trim()) : null),
+
+    currentPosition: readPosition,
 
     deleteAdventure: async (id) => {
       const { data, error } = await supabase.rpc('delete_adventure', { p_id: id });

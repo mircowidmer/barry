@@ -10,7 +10,7 @@ const adventure = (deadline: string, stage: InProgressAdventure['stage'] = 'acti
     id: 'a1' as AdventureId,
     stage,
     contacts: [],
-    plan: { destination: 'Pilatus', route: null },
+    plan: { destination: 'Pilatus', destinationPoint: null, route: null },
     deadline: new Date(deadline),
     alertAt: new Date(new Date(deadline).getTime() + 60_000),
     timeZone: 'Europe/Zurich',
@@ -54,6 +54,7 @@ const fakeNotifications = (initial: string[] = []) => {
     scheduledIdentifiers: async () => [...scheduled.keys()],
     schedule: async (a) => void scheduled.set(a.identifier, a.at.toISOString()),
     cancel: async (id) => void scheduled.delete(id),
+    showArrival: async () => undefined,
   };
   return { service, scheduled: () => Object.fromEntries(scheduled) };
 };

@@ -34,12 +34,16 @@ export type EmergencyContact = {
 
 export type ContactDraft = Omit<EmergencyContact, 'id'> & { id?: EmergencyContactId };
 
+export type Point = { latitude: number; longitude: number };
+
 export type Plan = {
   destination: string;
+  /** Where the destination is on the map. The phone shows the Arrival Notice there. */
+  destinationPoint: Point | null;
   route: string | null;
 };
 
-export type Position = { takenAt: Date; latitude: number; longitude: number; accuracyM: number | null };
+export type Position = Point & { takenAt: Date; accuracyM: number | null };
 
 type AdventureBase = { id: AdventureId; contacts: EmergencyContact[] };
 
@@ -84,6 +88,9 @@ export type StartConditions = { smsEnabled: boolean; notificationsPermitted: boo
 
 export type RawLocation = { timestamp: number; coords: { latitude: number; longitude: number; accuracy: number | null } };
 
+/** What iOS reports for a monitored region: its identifier and whether the phone is now inside it. */
+export type FenceEvent = { region: string; entered: boolean };
+
 export type TrailStatus = 'delivering' | 'recording' | 'off';
 
 export type Trail = {
@@ -93,8 +100,11 @@ export type Trail = {
   requestPermission(): Promise<boolean>;
   /** Background task entry. Recording: buffers, re-centres the fence, flushes. Delivering: sends the queued Check-ins, then syncs. Never throws. */
   onLocations(locations: readonly RawLocation[]): Promise<void>;
-  /** Geofence task entry after a relaunch. Takes one reading, then syncs. Never throws. */
-  onFenceExit(): Promise<void>;
+  /**
+   * Geofence task entry, also after a relaunch. Entering the destination's region shows the Arrival
+   * Notice. Any event of the Trail's region takes one reading, then syncs. Never throws.
+   */
+  onFenceEvent(event: FenceEvent): Promise<void>;
 };
 
 export type StartResult =
@@ -146,6 +156,10 @@ export type Barry = {
   getAdventure(id: AdventureId): Promise<Adventure | null>;
   getInProgressAdventure(): Promise<InProgressView>;
   saveAdventure(draft: AdventureDraft): Promise<SaveAdventureResult>;
+  /** Where Apple Maps finds a place name, or null when it finds none or there is no signal. */
+  findPlace(name: string): Promise<Point | null>;
+  /** One reading of where the phone is, or null without permission or a fix in time. */
+  currentPosition(): Promise<Position | null>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
   /** Deletes the signed-in account with everything it owns, then signs out on this phone. */
   deleteAccount(): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;

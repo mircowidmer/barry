@@ -54,6 +54,7 @@ The name and the phone number must be filled in before the Adventurer starts the
 | Field | Required to start | Notes |
 | --- | --- | --- |
 | Destination | Yes | Part of the Plan. |
+| Destination on the map | No | Part of the Plan. **Show on Map** suggests the place Apple Maps finds for the destination, and the Adventurer moves the pin with a tap. Without a match, the map opens where the Adventurer is. The contacts are not told the point. |
 | Route | No | Part of the Plan. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
@@ -90,7 +91,7 @@ Before Start, the app shows these warnings when they apply. Start is still allow
 
 - The Adventurer has not allowed notifications. The app shows "you will get no Reminder or Overdue Notice".
 - While text messages are switched off, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
-- The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started".
+- The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started", and that Barry cannot tell them when they reach their destination.
 
 ### Move the Deadline
 
@@ -112,14 +113,14 @@ The Adventurer can move the Deadline later at any time before the Alert. Each mo
 - The Alert always carries the latest Plan.
 - A change to the destination or route sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
 - Several changes before a Plan Update goes out send only one, with the latest Plan.
-- Changing only the contacts, or moving the Deadline, sends no Plan Update.
+- Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update.
 - A contact added to the Adventure gets a Heads-up.
 - A contact removed from the Adventure gets no further messages, and their Trail Map link stops working.
 - The Adventure always keeps at least one contact. Removing the last one is refused.
 
 ## Messages
 
-Barry sends every message to an Emergency Contact from Supabase. The phone never sends a message to an Emergency Contact. The Reminder and the Overdue Notice go to the Adventurer only, so the phone shows them itself as local notifications.
+Barry sends every message to an Emergency Contact from Supabase. The phone never sends a message to an Emergency Contact. The Reminder, the Overdue Notice and the Arrival Notice go to the Adventurer only, so the phone shows them itself as local notifications.
 
 | Message | Recipient | Channel | Sent when | Content |
 | --- | --- | --- | --- | --- |
@@ -128,6 +129,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Deadline Update | Each contact whose Heads-up went out | Every channel the contact has | 3 minutes after the Adventurer moves the Deadline | Adventurer's name, destination, the Deadline the contact knew, the new Deadline, the contact's Trail Map link |
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
+| Arrival Notice | Adventurer | Local notification | The phone enters the region around the destination on the map | The destination, and a prompt to check in once back safe |
 | Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts in total | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |
 | All-clear | Each contact of the Adventure | Every channel the contact has | The Adventurer checks in | The time of the Check-in, the contact's Trail Map link to see where the Adventurer has been |
 
@@ -150,6 +152,13 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - A notification whose time has already passed is not scheduled. A Deadline set less than 30 minutes ahead therefore gets no Reminder.
 - Supabase does not push either notification. The push channel is turned off, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
 - The phone's clock decides when they show. The Alert still follows the server's clock.
+
+### Arrival Notice
+
+- With the "Always" location permission, the phone watches a region around the destination on the map from the Start until the Check-in, whether Barry is open or not. iOS wakes Barry when the Adventurer walks into it, and the phone shows the Arrival Notice. It needs no signal and no push.
+- Each Adventure shows it at most once, even when the Adventurer walks out of the region and back in.
+- It does not check in. A Check-in stays the Adventurer's deliberate press and hold, because reaching the destination is not being back safe.
+- Without a point on the map, without the "Always" permission, or once a Check-in waits for signal, there is no Arrival Notice.
 
 ### Channels
 
@@ -204,7 +213,7 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 A few limits are implementation choices, not promises to the Adventurer. Their values live only in the code, next to what they protect, with a test where one matters, so a changed value needs no change here. Each is named so it can be found.
 
 - `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many minutes of Trail the phone keeps while it has no signal. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values.
-- `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading.
+- `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading. `ARRIVAL_RADIUS_M` there is how close to the destination on the map the Arrival Notice shows. `trail.test.ts` pins it.
 - `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261016210100_deadline_update.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
 - `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
 - `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one. `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.
