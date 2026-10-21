@@ -167,7 +167,7 @@ const en = {
     saveForLater: 'Save for Later',
   },
   contacts: {
-    title: 'Contacts',
+    title: 'Emergency Contacts',
     couldNotLoad: 'Could not load your contacts.',
     intro:
       'Barry can tell these contacts when you start an adventure, and again if you don’t check in on time. They don’t need to use Barry.',
@@ -419,7 +419,7 @@ const de: Texts = {
     saveForLater: 'Für später speichern',
   },
   contacts: {
-    title: 'Kontakte',
+    title: 'Notfallkontakte',
     couldNotLoad: 'Deine Kontakte konnten nicht geladen werden.',
     intro:
       'Barry kann diese Kontakte informieren, wenn du ein Abenteuer startest, und nochmals, wenn du dich nicht rechtzeitig zurückmeldest. Sie brauchen Barry nicht.',
