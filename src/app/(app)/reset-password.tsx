@@ -1,10 +1,11 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button, Field, Notice, Screen } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useStringParam } from '@/hooks/use-string-param';
 import { createPasswordReset } from '@/lib/password-reset';
 import { supabase } from '@/lib/supabase';
 import { useTexts } from '@/lib/texts';
@@ -12,8 +13,7 @@ import { useTexts } from '@/lib/texts';
 const passwordReset = createPasswordReset(supabase.auth);
 
 export default function ResetPasswordScreen() {
-  const params = useLocalSearchParams<{ email?: string }>();
-  const [email, setEmail] = useState(params.email ?? '');
+  const [email, setEmail] = useState(useStringParam('email') ?? '');
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [sent, setSent] = useState(false);

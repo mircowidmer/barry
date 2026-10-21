@@ -1,10 +1,11 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 
 import { FirstLoad, Notice, Screen } from '@/components/form';
 import { ActionRow, Group, SwitchRow, ValueRow } from '@/components/grouped-list';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
+import { useStringParam } from '@/hooks/use-string-param';
 import { barry, type EmergencyContact, type EmergencyContactId } from '@/lib/barry';
 import { formatPhoneNumber } from '@/lib/phone';
 import { askToRemoveContact } from '@/lib/remove-contact';
@@ -16,7 +17,7 @@ const same = (a: Switches, b: Switches) => a.emailEnabled === b.emailEnabled && 
 
 /** The sheet of one contact: what was copied from the Phone Contact, the switches of its addresses, and Delete. */
 export default function ContactSheet() {
-  const { id } = useLocalSearchParams<{ id: EmergencyContactId }>();
+  const id = useStringParam<EmergencyContactId>('id');
   const loaded = useLoad(async () => (await barry.listContacts()).find((c) => c.id === id) ?? null);
   const t = useTexts();
 
