@@ -10,7 +10,7 @@ export type Plan = {
 export type Position = { takenAt: Date; latitude: number; longitude: number; accuracyM: number | null };
 
 export type ProfileDetails = {
-  phone: string;
+  phone: string | null;
   carMake: string | null;
   carColour: string | null;
   carPlate: string | null;
@@ -99,7 +99,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
         round: Number(f.round),
         trailToken: optionalText(f.trail_token),
         profile: {
-          phone: text(p.phone, 'profile.phone'),
+          phone: optionalText(p.phone),
           carMake: optionalText(p.car_make),
           carColour: optionalText(p.car_colour),
           carPlate: optionalText(p.car_plate),

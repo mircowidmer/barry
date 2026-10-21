@@ -23,12 +23,12 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 | Field | Required | Sent in |
 | --- | --- | --- |
 | Name | Yes | Heads-up, Plan Update, Deadline Update, Alert, All-clear, Trail Map |
-| Phone number | Yes | Alert |
+| Phone number | No | Alert |
 | Car make, colour, and number plate | No | Alert |
 | Medical notes | No | Alert |
 | Message language | Yes, set by the app to the phone's language, German or English | Decides the language of every message to the contacts |
 
-The name and the phone number must be filled in before the Adventurer starts their first Adventure. Only the Alert carries the full Profile.
+The name must be filled in before the Adventurer starts their first Adventure. Only the Alert carries the full Profile, and it leaves the phone line out when there is no phone number.
 
 ## Emergency Contacts
 

@@ -51,14 +51,14 @@ isOneToOne: false
                   ]
                 },"adventurer_profiles": {
                   Row: {
-                    "car_colour": string | null,"car_make": string | null,"car_plate": string | null,"id": string,"medical_notes": string | null,"message_language": string,"name": string,"phone": string,"updated_at": string
+                    "car_colour": string | null,"car_make": string | null,"car_plate": string | null,"id": string,"medical_notes": string | null,"message_language": string,"name": string,"phone": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "car_colour"?: string | null,"car_make"?: string | null,"car_plate"?: string | null,"id": string,"medical_notes"?: string | null,"message_language"?: string,"name": string,"phone": string,"updated_at"?: string
+                    "car_colour"?: string | null,"car_make"?: string | null,"car_plate"?: string | null,"id": string,"medical_notes"?: string | null,"message_language"?: string,"name": string,"phone"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "car_colour"?: string | null,"car_make"?: string | null,"car_plate"?: string | null,"id"?: string,"medical_notes"?: string | null,"message_language"?: string,"name"?: string,"phone"?: string,"updated_at"?: string
+                    "car_colour"?: string | null,"car_make"?: string | null,"car_plate"?: string | null,"id"?: string,"medical_notes"?: string | null,"message_language"?: string,"name"?: string,"phone"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     

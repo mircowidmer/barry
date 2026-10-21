@@ -27,7 +27,7 @@ const en = {
   tabs: { adventure: 'Adventure', history: 'History', contacts: 'Contacts', profile: 'Profile' },
   refusals: {
     not_found: 'This adventure no longer exists.',
-    profile_incomplete: 'Add your name and phone number in Profile first.',
+    profile_incomplete: 'Add your name in Profile first.',
     destination_missing: 'Add a destination.',
     deadline_missing: 'Set a deadline.',
     deadline_not_in_future: 'The deadline must be in the future.',
@@ -277,7 +277,7 @@ const de: Texts = {
   tabs: { adventure: 'Abenteuer', history: 'Verlauf', contacts: 'Kontakte', profile: 'Profil' },
   refusals: {
     not_found: 'Dieses Abenteuer gibt es nicht mehr.',
-    profile_incomplete: 'Trage zuerst im Profil deinen Namen und deine Telefonnummer ein.',
+    profile_incomplete: 'Trage zuerst im Profil deinen Namen ein.',
     destination_missing: 'Gib ein Ziel an.',
     deadline_missing: 'Lege eine Rückkehrzeit fest.',
     deadline_not_in_future: 'Die Rückkehrzeit muss in der Zukunft liegen.',

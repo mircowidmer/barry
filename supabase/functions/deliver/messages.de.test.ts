@@ -144,3 +144,8 @@ Deno.test('every German text message body uses only the GSM-7 alphabet, so it is
     assertEquals([...body].filter((c) => !GSM_7.includes(c)), [], body.split('\n')[0]);
   }
 });
+
+Deno.test('a German Alert without a phone number leaves the phone line out', () => {
+  const { text } = render(parseFacts({ ...base, kind: 'alert', round: 1, profile: { phone: null }, last_known_position: null }), links);
+  assertEquals(text.includes('Telefon von Anna'), false);
+});

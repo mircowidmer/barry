@@ -112,7 +112,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
             `Map: https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=15/${p.latitude}/${p.longitude}`,
           trailLine(facts.trailToken),
           '',
-          `${name}'s phone: ${facts.profile.phone}`,
+          facts.profile.phone !== null && `${name}'s phone: ${facts.profile.phone}`,
           car !== '' && `Car: ${car}`,
           facts.profile.medicalNotes !== null && `Medical notes: ${facts.profile.medicalNotes}`,
         ),

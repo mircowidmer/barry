@@ -15,7 +15,7 @@ export type MessageLanguage = AppLanguage;
 
 export type AdventurerProfile = {
   name: string;
-  phone: string;
+  phone: string | null;
   carMake: string | null;
   carColour: string | null;
   carPlate: string | null;
