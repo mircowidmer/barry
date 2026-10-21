@@ -1,23 +1,12 @@
-import { Alert } from 'react-native';
-
 import { barry, type EmergencyContact } from '@/lib/barry';
+import { confirmDestructive } from '@/lib/confirm-destructive';
 import { currentTexts } from '@/lib/texts';
 
 export type RemoveOutcome = { kind: 'cancelled' } | { kind: 'removed' } | { kind: 'in_use' } | { kind: 'failed' };
 
 const confirmed = (name: string) => {
   const t = currentTexts();
-  return new Promise<boolean>((resolve) =>
-    Alert.alert(
-      t.contacts.deleteTitle(name),
-      t.contacts.deleteMessage(name),
-      [
-        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
-        { text: t.common.delete, style: 'destructive', onPress: () => resolve(true) },
-      ],
-      { cancelable: true, onDismiss: () => resolve(false) },
-    ),
-  );
+  return confirmDestructive({ title: t.contacts.deleteTitle(name), message: t.contacts.deleteMessage(name) });
 };
 
 export const askToRemoveContact = async (contact: EmergencyContact): Promise<RemoveOutcome> => {

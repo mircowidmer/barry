@@ -1,6 +1,5 @@
-import { Alert } from 'react-native';
-
 import { barry, type Refusal } from '@/lib/barry';
+import { confirmDestructive } from '@/lib/confirm-destructive';
 import { currentTexts, refusalText } from '@/lib/texts';
 
 export type DeleteAccountOutcome = { kind: 'cancelled' } | { kind: 'deleted' } | { kind: 'failed'; message: string };
@@ -12,17 +11,7 @@ const accountRefusals = (): Partial<Record<Refusal, string>> => ({
 
 const confirmed = () => {
   const t = currentTexts();
-  return new Promise<boolean>((resolve) =>
-    Alert.alert(
-      t.dialogs.deleteAccountTitle,
-      t.dialogs.deleteAccountMessage,
-      [
-        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
-        { text: t.common.delete, style: 'destructive', onPress: () => resolve(true) },
-      ],
-      { cancelable: true, onDismiss: () => resolve(false) },
-    ),
-  );
+  return confirmDestructive({ title: t.dialogs.deleteAccountTitle, message: t.dialogs.deleteAccountMessage });
 };
 
 export const askToDeleteAccount = async (onConfirmed: () => void): Promise<DeleteAccountOutcome> => {

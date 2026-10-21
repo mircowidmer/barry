@@ -1,6 +1,5 @@
-import { Alert } from 'react-native';
-
 import { type AdventureId, barry } from '@/lib/barry';
+import { confirmDestructive } from '@/lib/confirm-destructive';
 import { currentTexts, refusalText } from '@/lib/texts';
 
 export type DeleteOutcome = { kind: 'cancelled' } | { kind: 'deleted' } | { kind: 'failed'; message: string };
@@ -9,17 +8,10 @@ export type DeletableStage = 'planned' | 'ended';
 
 const confirmed = (stage: DeletableStage) => {
   const t = currentTexts();
-  return new Promise<boolean>((resolve) =>
-    Alert.alert(
-      t.dialogs.deleteAdventureTitle,
-      stage === 'planned' ? t.dialogs.deletePlanned : t.dialogs.deleteEnded,
-      [
-        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
-        { text: t.common.delete, style: 'destructive', onPress: () => resolve(true) },
-      ],
-      { cancelable: true, onDismiss: () => resolve(false) },
-    ),
-  );
+  return confirmDestructive({
+    title: t.dialogs.deleteAdventureTitle,
+    message: stage === 'planned' ? t.dialogs.deletePlanned : t.dialogs.deleteEnded,
+  });
 };
 
 export type DeleteManyOutcome = { kind: 'cancelled' } | { kind: 'done'; failures: string[] };
@@ -27,17 +19,10 @@ export type DeleteManyOutcome = { kind: 'cancelled' } | { kind: 'done'; failures
 /** One confirmation for all of them; each refusal, such as an All-clear still on its way, is collected. */
 export const askToDeleteAdventures = async (ids: AdventureId[]): Promise<DeleteManyOutcome> => {
   const t = currentTexts();
-  const ok = await new Promise<boolean>((resolve) =>
-    Alert.alert(
-      t.history.deleteTitle(ids.length),
-      ids.length === 1 ? t.dialogs.deleteEnded : t.history.deleteMany,
-      [
-        { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
-        { text: t.common.delete, style: 'destructive', onPress: () => resolve(true) },
-      ],
-      { cancelable: true, onDismiss: () => resolve(false) },
-    ),
-  );
+  const ok = await confirmDestructive({
+    title: t.history.deleteTitle(ids.length),
+    message: ids.length === 1 ? t.dialogs.deleteEnded : t.history.deleteMany,
+  });
   if (!ok) return { kind: 'cancelled' };
   const failures: string[] = [];
   for (const id of ids) {
