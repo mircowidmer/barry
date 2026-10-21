@@ -28,7 +28,7 @@ const initials = (name: string) =>
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
+    .map((part) => part.charAt(0).toUpperCase())
     .join('');
 
 /** How Barry reaches the contact, and whether that line is a warning: a number Barry cannot text yet. */
