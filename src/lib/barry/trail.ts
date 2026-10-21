@@ -85,6 +85,8 @@ export const createTrail = ({
   recordTrail,
 }: TrailDeps): Trail => {
   let fence: Position | null = null;
+  // The regions last handed to iOS. Null until the first since the launch, so a relaunch sets them once.
+  let applied: Fence[] | null = null;
 
   const flush = () => buffer.flush(async (id, batch) => trailOutcome(await recordTrail(id, batch)));
 
@@ -105,11 +107,26 @@ export const createTrail = ({
     ];
   };
 
+  // A Trail fence that moved less than FENCE_MOVE_M counts as unchanged.
+  const sameFences = (a: Fence[], b: Fence[]) =>
+    a.length === b.length &&
+    a.every(
+      (f, i) =>
+        f.identifier === b[i].identifier &&
+        (f.identifier === TRAIL_REGION
+          ? metresBetween(f.center, b[i].center) <= FENCE_MOVE_M
+          : f.center.latitude === b[i].center.latitude && f.center.longitude === b[i].center.longitude),
+    );
+
   // The Trail's fence only brings the Trail back after a force-quit. When iOS refuses the fences,
-  // recording and uploading go on without them, and there is no Arrival Notice.
+  // recording and uploading go on without them, and there is no Arrival Notice. Setting them restarts
+  // every region and makes iOS report each one again, so unchanged fences are left alone.
   const moveFence = async (center: Position | null, id: AdventureId | null) => {
+    const wanted = fences(center, id);
+    if (applied && sameFences(applied, wanted)) return;
     try {
-      await location.setFences(fences(center, id));
+      await location.setFences(wanted);
+      applied = wanted;
       fence = center;
     } catch {}
   };
@@ -166,6 +183,9 @@ export const createTrail = ({
           if (entered) await arrived(region.slice(ARRIVAL_REGION.length) as AdventureId);
           return;
         }
+        // The Trail's fence is centred on the newest reading, so iOS reports it entered each time it
+        // is set. Acting on that would move the fence and set it again, in a loop. Only leaving counts.
+        if (entered) return;
         const id = await wake();
         const reading = id ? await location.lastReading() : null;
         if (id && reading) buffer.add(id, [reading]);

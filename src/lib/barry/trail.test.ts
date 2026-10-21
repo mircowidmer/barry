@@ -29,6 +29,8 @@ type World = {
   signal?: boolean;
   afterCheckIn?: AdventureId | null;
   destination?: Point | null;
+  /** Like iOS, report the Trail's region entered each time the fences are set. */
+  echo?: boolean;
 };
 
 const setup = (world: World = {}) => {
@@ -40,10 +42,13 @@ const setup = (world: World = {}) => {
     signal: false,
     afterCheckIn: null as AdventureId | null,
     destination: null as Point | null,
+    echo: false,
     ...world,
   };
   const os = { updates: null as TrailStatus | null, fence: null as Position | null };
   let regions: Fence[] = [];
+  let fenceCalls = 0;
+  let readings = 0;
   const arrivals: AdventureId[] = [];
   let flushes = 0;
   const location: LocationService = {
@@ -59,11 +64,17 @@ const setup = (world: World = {}) => {
       os.updates = null;
     },
     setFences: async (fences) => {
+      fenceCalls += 1;
       if (state.fenceFails) throw new Error('kCLErrorDomain');
       regions = fences;
       os.fence = (fences.find((f) => f.identifier === 'trail')?.center as Position | undefined) ?? null;
+      // Capped, so a loop fails the test instead of running forever.
+      if (state.echo && fenceCalls < 10 && os.fence) await trail.onFenceEvent({ region: 'trail', entered: true });
     },
-    lastReading: async () => here,
+    lastReading: async () => {
+      readings += 1;
+      return here;
+    },
   };
   const uploads: { id: string; latitudes: number[] }[] = [];
   let response: RecordTrailResponse = { data: null, error: null };
@@ -90,7 +101,7 @@ const setup = (world: World = {}) => {
   const respond = (next: RecordTrailResponse) => {
     response = next;
   };
-  return { trail, state, os, uploads, buffer, respond, flushes: () => flushes, regions: () => regions, arrivals };
+  return { trail, state, os, uploads, buffer, respond, flushes: () => flushes, regions: () => regions, arrivals, fenceCalls: () => fenceCalls, readings: () => readings };
 };
 
 describe('trailMode', () => {
@@ -275,6 +286,45 @@ describe('the Trail', () => {
     await trail.onFenceEvent({ region: 'arrival.a1', entered: true });
     expect(arrivals).toEqual(['a1']);
     expect(uploads).toEqual([]);
+    expect(os.updates).toBeNull();
+  });
+
+  it('sets the fences once, although iOS reports the Trail region entered each time they are set', async () => {
+    const { trail, fenceCalls, readings } = setup({ echo: true });
+    await trail.sync();
+    expect(fenceCalls()).toBe(1);
+    expect(readings()).toBe(1);
+  });
+
+  it('leaves unchanged fences alone, and sets them again once the destination or the Trail moves', async () => {
+    const { trail, state, fenceCalls, regions } = setup({ destination: summit });
+    await trail.sync();
+    await trail.sync();
+    expect(fenceCalls()).toBe(1);
+
+    state.destination = { latitude: 47.04, longitude: 8.67 };
+    await trail.sync();
+    expect(fenceCalls()).toBe(2);
+    expect(regions()[1].center).toEqual({ latitude: 47.04, longitude: 8.67 });
+
+    await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.0287)]);
+    expect(fenceCalls()).toBe(2);
+    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.03)]);
+    expect(fenceCalls()).toBe(3);
+  });
+
+  it('sets the fences again on the next sync after iOS refused them', async () => {
+    const { trail, state, regions } = setup({ fenceFails: true });
+    await trail.sync();
+    state.fenceFails = false;
+    await trail.sync();
+    expect(regions().map((f) => f.identifier)).toEqual(['trail']);
+  });
+
+  it('ignores the Trail region reported entered', async () => {
+    const { trail, os, readings } = setup();
+    await trail.onFenceEvent({ region: 'trail', entered: true });
+    expect(readings()).toBe(0);
     expect(os.updates).toBeNull();
   });
 });
