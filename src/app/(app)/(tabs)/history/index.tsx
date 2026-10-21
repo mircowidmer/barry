@@ -137,9 +137,8 @@ function useDragSelect(
     runOnJS: true,
     onActivate: (e) => {
       const { ids: current, selected: shown } = latest.current;
-      const row = rowUnder(e.y);
-      if (row === -1) return;
-      const id = current[row];
+      const id: AdventureId | undefined = current[rowUnder(e.y)];
+      if (id === undefined) return;
       const next = new Set(shown);
       if (!next.delete(id)) next.add(id);
       setSelected(next);
