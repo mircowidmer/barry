@@ -10,7 +10,7 @@ The app opens on the sign-in screen until an Adventurer signs in or creates an a
 - `signin-push` asks for notification permission, for the Reminder and the Overdue Notice.
 - `signin-persist` keeps the session after the app restarts.
 - `signin-signout` signs out from the Profile tab.
-- `account-delete` deletes the account from the Profile tab with `Delete`.
+- `account-delete` deletes the account from the Profile tab with `Delete Account`.
 - `profile-language` writes the messages to the contacts in the phone's language, without a choice on the Profile.
 
 ## How to get to it (user POV)
