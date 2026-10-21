@@ -32,7 +32,7 @@ Each feature file starts with an H1 title and one paragraph describing the user-
 ## Features
 
 - [Sign in](./sign-in.md) covers sign-in, account creation, the notification prompt and staying signed in.
-- [Profile](./profile.md) covers the Adventurer Profile: the required name, the optional phone number, car and medical notes, the save guard, pull to reload and the legal links.
+- [Profile](./profile.md) covers the Adventurer Profile: the required name, the optional phone number, car and medical notes, the save guard, pull to reload, the Account sheet and the legal links.
 - [Emergency Contacts](./contacts.md) covers picking contacts from the phone's contacts, the address switches, removing contacts, and the text-message marker.
 - [Plan and start](./plan-and-start.md) covers planning, Start warnings, Start and the Heads-up.
 - [Live Adventure](./live-adventure.md) covers the countdown, Deadline moves, Overdue, editing, Check-in, the short-tap guard and offline Check-in.
