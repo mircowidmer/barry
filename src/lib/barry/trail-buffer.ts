@@ -40,14 +40,15 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
       for (;;) {
         const contents = read();
         const batchKeys = slots(contents, adventureId).slice(0, BATCH);
-        if (batchKeys.length === 0) break;
+        const lastKey = batchKeys.at(-1);
+        if (lastKey === undefined) break;
         const batch = batchKeys.map((k) => toReading(contents[adventureId][k]));
         const outcome = await send(adventureId as AdventureId, batch);
         if (outcome === 'retry') return;
         const after = read();
         if (outcome === 'refused') delete after[adventureId];
         else {
-          writeSent({ ...readSent(), [adventureId]: batchKeys.at(-1)! });
+          writeSent({ ...readSent(), [adventureId]: lastKey });
           if (after[adventureId]) {
             for (const k of batchKeys) delete after[adventureId][k];
             if (Object.keys(after[adventureId]).length === 0) delete after[adventureId];
