@@ -204,7 +204,7 @@ function PlanForm({
 
   const allowTrail = async () => {
     const granted = await barry.trail.requestPermission().catch(() => false);
-    if (!granted) await Linking.openSettings();
+    if (!granted) await Linking.openSettings().catch(() => undefined);
     reload();
   };
 
