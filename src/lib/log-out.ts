@@ -19,5 +19,5 @@ const confirmed = () => {
 };
 
 export const askToLogOut = async () => {
-  if (await confirmed()) await barry.logOut();
+  if (await confirmed()) await barry.logOut().catch(() => undefined);
 };

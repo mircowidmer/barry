@@ -1,10 +1,10 @@
 import { router, Stack } from 'expo-router';
 import { type ReactNode, useState } from 'react';
-import { Alert, Linking } from 'react-native';
+import { Alert } from 'react-native';
 
 import { FirstLoad, LoadState, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, TextAreaRow } from '@/components/grouped-list';
-import { SITE } from '@/components/legal-links';
+import { openPrivacy, openTerms } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry, isPhoneNumber } from '@/lib/barry';
@@ -158,8 +158,8 @@ function ProfileForm({ stored, reloadFailure }: { stored: AdventurerProfile | nu
       </Group>
 
       <Group footer={t.legal.notEmergency}>
-        <ActionRow title={t.legal.privacy} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/privacy`)} />
-        <ActionRow title={t.legal.terms} tone="text" chevron onPress={() => Linking.openURL(`${SITE}/terms`)} />
+        <ActionRow title={t.legal.privacy} tone="text" chevron onPress={openPrivacy} />
+        <ActionRow title={t.legal.terms} tone="text" chevron onPress={openTerms} />
       </Group>
     </>
   );
