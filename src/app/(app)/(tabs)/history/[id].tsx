@@ -1,14 +1,13 @@
-import { useLocalSearchParams } from 'expo-router';
-
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { FirstLoad, Notice, Screen } from '@/components/form';
 import { useLoad } from '@/hooks/use-load';
+import { useStringParam } from '@/hooks/use-string-param';
 import { type AdventureId, barry } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
 
 export default function PastAdventureRoute() {
-  const { id } = useLocalSearchParams<{ id: AdventureId }>();
-  const loaded = useLoad(() => barry.getAdventure(id));
+  const id = useStringParam<AdventureId>('id');
+  const loaded = useLoad(async () => (id ? barry.getAdventure(id) : null));
   const t = useTexts();
 
   if (loaded.data === undefined) {

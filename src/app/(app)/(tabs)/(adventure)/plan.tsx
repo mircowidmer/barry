@@ -1,5 +1,5 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
@@ -9,6 +9,7 @@ import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
+import { useStringParam } from '@/hooks/use-string-param';
 import { useTheme } from '@/hooks/use-theme';
 import {
   type Adventure,
@@ -88,8 +89,7 @@ const addresses = (contact: EmergencyContact) => {
 };
 
 export default function PlanScreen() {
-  const params = useLocalSearchParams<{ id?: string }>();
-  const [id, setId] = useState<AdventureId | undefined>(params.id as AdventureId | undefined);
+  const [id, setId] = useState(useStringParam<AdventureId>('id'));
   const loaded = useLoad(async () => {
     const [contacts, adventure, conditions] = await Promise.all([
       barry.listContacts(),
