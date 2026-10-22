@@ -63,12 +63,15 @@ const fail = (what: string, error: PostgrestError): never => {
   throw new Error(`${what}: ${error.message}`);
 };
 
-const positionArgs = (position: Position | null) => ({
-  p_latitude: position?.latitude,
-  p_longitude: position?.longitude,
-  p_accuracy_m: position?.accuracyM ?? undefined,
-  p_position_taken_at: position?.takenAt.toISOString(),
-});
+const positionArgs = (position: Position | null) =>
+  position
+    ? {
+        p_latitude: position.latitude,
+        p_longitude: position.longitude,
+        p_position_taken_at: position.takenAt.toISOString(),
+        ...(position.accuracyM !== null && { p_accuracy_m: position.accuracyM }),
+      }
+    : {};
 
 // The generated argument types mark every parameter as required, but Postgres takes null for them.
 const orNull = <T,>(value: T | null | undefined): T => (value ?? null) as T;
@@ -324,7 +327,7 @@ export const createBarry = ({
       const { data, error } = await supabase.rpc('save_adventure', {
         p_id: orNull(id),
         p_destination: orNull(plan.destination),
-        p_destination_point: plan.destinationPoint ?? undefined,
+        ...(plan.destinationPoint && { p_destination_point: plan.destinationPoint }),
         p_route: orNull(plan.route),
         p_deadline: orNull(deadline?.toISOString()),
         p_contact_ids: contactIds,

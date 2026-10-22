@@ -43,13 +43,16 @@ export type Plan = {
   route: string | null;
 };
 
+/** The Plan of a Planned Adventure, where any part may still be missing. */
+export type UnfinishedPlan = { [K in keyof Plan]?: Plan[K] | undefined };
+
 export type Position = Point & { takenAt: Date; accuracyM: number | null };
 
 type AdventureBase = { id: AdventureId; contacts: EmergencyContact[] };
 
 export type PlannedAdventure = AdventureBase & {
   stage: 'planned';
-  plan: Partial<Plan>;
+  plan: UnfinishedPlan;
   deadline: Date | null;
 };
 
@@ -129,8 +132,8 @@ export type AddContactResult =
   | { kind: 'unreachable'; name: string };
 
 export type AdventureDraft = {
-  id?: AdventureId;
-  plan: Partial<Plan>;
+  id?: AdventureId | undefined;
+  plan: UnfinishedPlan;
   deadline: Date | null;
   contactIds: EmergencyContactId[];
 };
