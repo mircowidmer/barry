@@ -1,6 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { Alert } from 'react-native';
 
+import { DoneSeal } from '@/components/done-seal';
 import { Button, Notice, Screen, Section } from '@/components/form';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -33,7 +34,6 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
         {t.ended.checkedIn(t.when(adventure.checkedInAt))}
         {onDone && t.ended.welcome}
       </Notice>
-      {onDone && <Button title={t.common.done} onPress={onDone} />}
 
       {readings.status === 'error' && (
         <>
@@ -49,6 +49,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
             {t.ended.noPositions}
           </ThemedText>
         ))}
+      {onDone && <DoneSeal title={t.common.done} onPress={onDone} />}
 
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
