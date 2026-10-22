@@ -189,7 +189,6 @@ function LiveAdventure({
   return (
     <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={checkIn} disabled={busy} />}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
-      {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
       {adventure.stage === 'active' && (
         <Notice tone="success">
           {t.adventure.watching(t.when(adventure.deadline), t.duration(adventure.deadline.getTime() - now.getTime()))}
@@ -224,6 +223,8 @@ function LiveAdventure({
           ))}
         </Row>
       </Section>
+
+      {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
 
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
