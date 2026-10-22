@@ -64,7 +64,7 @@ Extract every duration and count from `docs/spec.md` and CONTEXT.md and find whe
 - Overdue Notice timing.
 - Number of Alerts and the interval between them.
 - The Deadline Update delay and the coalescing of quick moves in a row.
-- Trail reading cadence. Note that a migration is named `ten_second_trail` while CONTEXT.md, `locales/de.json`, and the `app.json` permission strings say about once a minute. Establish what the server enforces, what the phone uploads, what the unique index collapses to, and what each text promises, and report every disagreement.
+- Trail reading cadence. Note that a migration is named `ten_second_trail` while CONTEXT.md, `locales/de.json`, and the `app.json` permission strings say about every 5 minutes. Establish what the server enforces, what the phone uploads, what the unique index collapses to, and what each text promises, and report every disagreement.
 - How long the Trail Map stays reachable after a Check-in, and after an Ended Adventure is deleted.
 - Any retention, cleanup, or health-check interval in the migrations and in `scripts/` or the barry-verify doctor.
 
