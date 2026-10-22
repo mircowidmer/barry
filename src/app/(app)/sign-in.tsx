@@ -62,11 +62,11 @@ export default function SignInScreen() {
       />
       {error && <Notice tone="danger">{error}</Notice>}
       {confirmEmail && <Notice>{t.signIn.confirmEmail}</Notice>}
-      <Button title={t.signIn.signIn} onPress={() => submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
+      <Button title={t.signIn.signIn} onPress={() => void submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
       <Button
         title={t.signIn.createAccount}
         kind="secondary"
-        onPress={() => submit('sign_up')}
+        onPress={() => void submit('sign_up')}
         busy={busy === 'sign_up'}
         disabled={!email || !password}
       />

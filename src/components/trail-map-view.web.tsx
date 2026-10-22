@@ -56,7 +56,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
         m.fitBounds(bounds, { padding: [32, 32], maxZoom: 16 });
         fitted.current = true;
       }
-    });
+    }, () => undefined);
     return () => {
       cancelled = true;
     };

@@ -28,7 +28,7 @@ export default function ContactSheet() {
       <Stack.Toolbar placement="left">
         <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
       </Stack.Toolbar>
-      <FirstLoad failure={loaded.status === 'loading' ? undefined : t.contacts.couldNotLoad} onRetry={loaded.reload} />
+      <FirstLoad failure={loaded.status === 'loading' ? undefined : t.contacts.couldNotLoad} onRetry={() => void loaded.reload()} />
     </Screen>
   );
 }
@@ -79,7 +79,7 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
           icon="checkmark"
           accessibilityLabel={t.common.save}
           disabled={!complete || busy !== null}
-          onPress={save}
+          onPress={() => void save()}
         />
       </Stack.Toolbar>
       <Screen>
@@ -108,7 +108,7 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
         </Group>
         {error && <Notice tone="danger">{error}</Notice>}
         <Group>
-          <ActionRow title={t.contacts.deleteContact} tone="danger" centered onPress={remove} busy={busy === 'delete'} />
+          <ActionRow title={t.contacts.deleteContact} tone="danger" centered onPress={() => void remove()} busy={busy === 'delete'} />
         </Group>
       </Screen>
     </>

@@ -126,7 +126,7 @@ export const createBarry = ({
   const remember = (row: AdventureWithRelations | null) => {
     const before = fenceKey(cache.load()?.row);
     cache.save(row);
-    syncAlarms();
+    void syncAlarms();
     if (fenceKey(row) !== before) syncTrail();
   };
 
@@ -311,7 +311,7 @@ export const createBarry = ({
         .maybeSingle();
       if (error) {
         if (!isNoSignal(error)) fail('getInProgressAdventure', error);
-        syncAlarms();
+        void syncAlarms();
         return { adventure: cachedInProgress(), offlineSince: cache.load()?.savedAt ?? now() };
       }
       const row = data as unknown as AdventureWithRelations | null;
@@ -449,9 +449,9 @@ export const createBarry = ({
       const refresh = () => getAdventure(id).then((adventure) => adventure && onChange(adventure), () => undefined);
       const channel = supabase
         .channel(`adventure:${id}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'adventures', filter: `id=eq.${id}` }, refresh)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'adventures', filter: `id=eq.${id}` }, () => void refresh())
         // Realtime does not replay the updates missed while the socket was down, so each connection refetches.
-        .subscribe((status) => status === 'SUBSCRIBED' && refresh());
+        .subscribe((status) => status === 'SUBSCRIBED' && void refresh());
       return () => {
         supabase.removeChannel(channel).catch(() => undefined);
       };
