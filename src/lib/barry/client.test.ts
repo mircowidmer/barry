@@ -35,6 +35,7 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   time_zone: 'Europe/Zurich',
   started_at: '2026-10-17T06:00:00Z',
   alerts_sent: 0,
+  earlier_alerts: 0,
   plan_revision: 0,
   last_alert_at: null,
   checked_in_at: null,

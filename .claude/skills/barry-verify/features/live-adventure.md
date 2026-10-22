@@ -48,4 +48,4 @@ Preconditions:
 - `fixture.mjs offline` stops the whole API gateway, so Realtime and every screen lose the server too. Always run `fixture.mjs online` before the next journey.
 - With "Always", a queued Check-in is sent on the next background location wake (the screen shows `Barry keeps trying in the background.`). Without "Always", it is sent only when the app comes to the foreground or another Check-in starts.
 - **Background Check-in (`live-background-checkin`).** Start a simulated walk with `xcrun simctl location booted start --speed=2 --distance=15 <waypoints>` so iOS delivers wakes. `fixture.mjs offline`, hold `Hold to Check In`, press `button HOME`, `fixture.mjs online`, and do not open Barry. Within about a minute the latest Adventure is `ended`, with `checked_in_at` at the hold and `ended_at` at a location wake after `online`. Verified on 15 October: hold 14:35:54, delivered 14:37:17.
-- While Alerted, `Need More Time?` and `Edit Plan or Contacts` are hidden by design.
+- While Alerted, `Edit Plan or Contacts` is hidden by design. `Need More Time?` stays, and a move makes the Adventure Active again.

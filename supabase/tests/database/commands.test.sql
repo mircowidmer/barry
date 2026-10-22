@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(64);
+select plan(66);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -327,8 +327,17 @@ select is(
 );
 
 set local request.jwt.claims = '{"sub": "22222222-2222-2222-2222-222222222222", "role": "authenticated"}';
+select is(public.move_deadline('b0000000-0000-0000-0000-000000000021', now() - interval '1 minute'),
+  'deadline_not_in_future'::public.refusal, 'An Alerted Adventure cannot move its Deadline into the past');
+savepoint before_move;
 select is(public.move_deadline('b0000000-0000-0000-0000-000000000021', now() + interval '1 hour'),
-  'wrong_stage'::public.refusal, 'An Alerted Adventure cannot move its Deadline');
+  null::public.refusal, 'An Alerted Adventure can move its Deadline into the future');
+select is(
+  (select concat_ws(' ', stage, alerts_sent, earlier_alerts) from public.adventures where id = 'b0000000-0000-0000-0000-000000000021'),
+  'active 0 1',
+  'The move makes it Active again and keeps its Alert as an earlier one'
+);
+rollback to savepoint before_move;
 set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", "role": "authenticated"}';
 
 -- check_in

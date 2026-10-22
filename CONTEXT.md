@@ -70,7 +70,7 @@ An Adventure whose Deadline has passed and whose Grace Period is still running. 
 _Avoid_: Late, missed
 
 **Alerted**:
-An Adventure whose Alert has gone out.
+An Adventure whose Alert has gone out for its current Deadline. Moving the Deadline makes it Active again.
 _Avoid_: Escalated, emergency
 
 **Ended**:

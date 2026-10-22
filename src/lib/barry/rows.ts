@@ -112,6 +112,6 @@ export const parseAdventure = (row: AdventureWithRelations): Adventure => {
     case 'alerted':
       return { ...started, stage: 'alerted', alertsSent: row.alerts_sent };
     case 'ended':
-      return { ...started, stage: 'ended', alertsSent: row.alerts_sent, checkedInAt: date(row.checked_in_at, 'checked_in_at') };
+      return { ...started, stage: 'ended', alertsSent: row.earlier_alerts + row.alerts_sent, checkedInAt: date(row.checked_in_at, 'checked_in_at') };
   }
 };

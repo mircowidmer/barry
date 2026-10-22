@@ -218,15 +218,13 @@ function LiveAdventure({
 
       <HoldButton title={t.adventure.hold} onComplete={checkIn} disabled={busy} />
 
-      {adventure.stage !== 'alerted' && (
-        <Section title={t.adventure.needMoreTime}>
-          <Row>
-            {t.adventure.moves.map((m) => (
-              <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => move(m.minutes)} />
-            ))}
-          </Row>
-        </Section>
-      )}
+      <Section title={t.adventure.needMoreTime}>
+        <Row>
+          {t.adventure.moves.map((m) => (
+            <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => move(m.minutes)} />
+          ))}
+        </Row>
+      </Section>
 
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
