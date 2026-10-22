@@ -45,11 +45,11 @@ The Adventurer's single confirmation that they are back safe, which ends the Adv
 _Avoid_: Ping, heartbeat, check-out
 
 **Last Known Position**:
-The Adventurer's most recent location reading. Barry takes one when they start an Adventure or move its Deadline, and, if the Adventurer lets Barry read the location in the background, about every minute until they check in.
+The Adventurer's most recent location reading. Barry takes one when they start an Adventure or move its Deadline, and, if the Adventurer lets Barry read the location in the background, about every 5 minutes until they check in.
 _Avoid_: Location, GPS fix, track
 
 **Trail**:
-The location readings Barry takes in the background during an Adventure, about one a minute, until the Check-in. After the Check-in the Adventurer and their Emergency Contacts can still see them.
+The location readings Barry takes in the background during an Adventure, about one every 5 minutes, until the Check-in. After the Check-in the Adventurer and their Emergency Contacts can still see them.
 _Avoid_: Track, breadcrumbs, route, live location
 
 **Trail Map**:

@@ -12,10 +12,15 @@ export type TrailBuffer = {
 const KEY = 'barry.trailBuffer';
 const SENT_KEY = 'barry.trailSent';
 const BATCH = 200;
-const MAX_SLOTS = 1_440;
+/** One day of slots. */
+const MAX_SLOTS = 288;
 
-/** The UTC minute a reading falls in. The database's `slot` column is finer, so one reading a minute always fits. */
-export const slotKey = (reading: Pick<Position, 'takenAt'>): string => reading.takenAt.toISOString().slice(0, 16);
+/** How often the Trail keeps a reading. */
+export const SLOT_MS = 5 * 60_000;
+
+/** The UTC five minutes a reading falls in. The database's `slot` column is finer, so one reading per slot always fits. */
+export const slotKey = (reading: Pick<Position, 'takenAt'>): string =>
+  new Date(Math.floor(reading.takenAt.getTime() / SLOT_MS) * SLOT_MS).toISOString().slice(0, 16);
 
 type Stored = { t: string; lat: number; lon: number; acc: number | null };
 type Contents = Record<string, Record<string, Stored>>;

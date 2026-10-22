@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { fetchTrailMap, mergeTrailMap, newestReading, tokenFromHash } from './fetch';
 import type { TrailMap, TrailMapState } from './types';
 
-const POLL_MS = 60_000;
+const POLL_MS = 5 * 60_000;
 
 const load = fetchTrailMap(
   (input, init) => fetch(input, init),

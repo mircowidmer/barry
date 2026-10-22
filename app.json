@@ -79,8 +79,8 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "Barry records where you are when you start an adventure or move its deadline, so an alert can tell your emergency contacts where to look.",
-          "locationAlwaysAndWhenInUsePermission": "With Always, Barry records your trail about once a minute until you check in, so your emergency contacts can follow it and an alert can show where you were last.",
-          "locationAlwaysPermission": "With Always, Barry records your trail about once a minute until you check in, so your emergency contacts can follow it and an alert can show where you were last.",
+          "locationAlwaysAndWhenInUsePermission": "With Always, Barry records your trail about every 5 minutes until you check in, so your emergency contacts can follow it and an alert can show where you were last.",
+          "locationAlwaysPermission": "With Always, Barry records your trail about every 5 minutes until you check in, so your emergency contacts can follow it and an alert can show where you were last.",
           "isIosBackgroundLocationEnabled": true,
           "motionUsagePermission": false,
           "locationFullAccuracyPermission": "Barry needs your precise location, so your trail and your last known position show where you really are."

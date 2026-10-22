@@ -49,7 +49,7 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
           .addTo(m);
         if (last.accuracyM) L.circle([last.latitude, last.longitude], { radius: last.accuracyM, color: TRAIL, weight: 1 }).addTo(m);
       }
-      // The view fits the Trail once. A minute later the new readings must not undo the reader's zoom and pan.
+      // The view fits the Trail once. Five minutes later the new readings must not undo the reader's zoom and pan.
       if (fitted.current) return;
       const bounds = L.latLngBounds(last ? [...line, L.latLng(last.latitude, last.longitude)] : line);
       if (bounds.isValid()) {
