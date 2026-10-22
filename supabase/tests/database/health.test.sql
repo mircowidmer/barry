@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(7);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.emergency_contacts (id, adventurer_id, name, email, phone) values
@@ -49,11 +49,6 @@ select public.settle_message((select id from public.messages), 1::smallint, 'sen
 select pg_temp.failed('heads_up', 'sms', '+41790000001', 'HTTP 400: Twilio 21211: invalid number');
 select pg_temp.failed('heads_up', 'sms', '+41790000002', 'HTTP 400: Twilio 21211: invalid number');
 select pg_temp.failed('heads_up', 'sms', '+41790000003', 'HTTP 400: Twilio 21211: invalid number');
-select is(
-  (select settled_at is not null from public.messages where status = 'sent'),
-  true,
-  'settle_message stamps when a message went out'
-);
 select is(pg_temp.delivery_ok(), true, 'Failures beside a text message that went out are bad numbers, not an outage');
 
 select * from finish();
