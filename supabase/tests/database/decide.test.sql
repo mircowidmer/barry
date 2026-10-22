@@ -40,9 +40,9 @@ insert into cases values
   ('Overdue at the Deadline owes the Overdue Notice',
     'overdue', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 0, null, '2026-10-17 18:00+02', row(null, false, true, null)),
   ('Overdue one second before the Grace Period ends owes the Overdue Notice',
-    'overdue', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 0, null, '2026-10-17 18:00:59+02', row(null, false, true, null)),
+    'overdue', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 0, null, '2026-10-17 18:04:59+02', row(null, false, true, null)),
   ('Overdue when the Grace Period ends becomes Alerted with Alert 1',
-    'overdue', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 0, null, '2026-10-17 18:01+02', row('alerted', false, false, 1)),
+    'overdue', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 0, null, '2026-10-17 18:05+02', row('alerted', false, false, 1)),
   ('Overdue long after the Grace Period skips the Overdue Notice and sends Alert 1',
     'overdue', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 0, null, '2026-10-17 21:00+02', row('alerted', false, false, 1)),
 

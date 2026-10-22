@@ -10,7 +10,7 @@ test('moving the Deadline of an Adventure the clock marked Overdue makes it Acti
   const id = await anna.start();
   await waitForMail(anna.luca.email, 'Anna is heading out to Grosser Mythen');
 
-  await missDeadline(id, 0.2);
+  await missDeadline(id, 4.5);
   tick();
   const stage = async () => must(await admin.from('adventures').select('stage').eq('id', id).single(), 'adventure').stage;
   assert.equal(await stage(), 'overdue', 'the clock marked the Adventure Overdue');
