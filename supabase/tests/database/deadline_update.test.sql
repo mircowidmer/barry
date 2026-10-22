@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(8);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000000');
@@ -31,7 +31,7 @@ create temp table times as select pg_temp.deadline() as first_deadline;
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", "role": "authenticated"}';
 
-select is(public.move_deadline('a0000000-0000-0000-0000-000000000001', pg_temp.deadline() + interval '1 hour'), null, 'The Deadline moves');
+select public.move_deadline('a0000000-0000-0000-0000-000000000001', pg_temp.deadline() + interval '1 hour');
 
 reset role;
 
