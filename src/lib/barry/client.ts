@@ -331,6 +331,7 @@ export const createBarry = ({
       });
       if (error) return fail('saveAdventure', error);
       const [result] = data;
+      if (!result) throw new Error('saveAdventure: the command returned no row');
       if (result.refusal) return { kind: 'refused', refusal: result.refusal };
       const adventure = await getAdventure(result.adventure_id as AdventureId);
       if (!adventure) throw new Error('saveAdventure: the saved Adventure is missing');

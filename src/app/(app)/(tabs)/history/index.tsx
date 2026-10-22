@@ -89,7 +89,8 @@ function useDragSelect(
     const { ids: current, selected: shown, selecting: already } = latest.current;
     if (!already) startSelecting();
     const before = already ? shown : new Set<AdventureId>();
-    drag.current = { anchor, select: !before.has(current[anchor]), before };
+    const id = current[anchor];
+    drag.current = { anchor, select: id === undefined || !before.has(id), before };
     extendTo(anchor);
   };
 
