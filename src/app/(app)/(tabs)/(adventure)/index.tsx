@@ -187,8 +187,9 @@ function LiveAdventure({
   };
 
   return (
-    <Screen onRefresh={onChanged}>
+    <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={checkIn} disabled={busy} />}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
+      {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
       {adventure.stage === 'active' && (
         <Notice tone="success">
           {t.adventure.watching(t.when(adventure.deadline), t.duration(adventure.deadline.getTime() - now.getTime()))}
@@ -216,8 +217,6 @@ function LiveAdventure({
       )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
-      <HoldButton title={t.adventure.hold} onComplete={checkIn} disabled={busy} />
-
       <Section title={t.adventure.needMoreTime}>
         <Row>
           {t.adventure.moves.map((m) => (
@@ -240,8 +239,6 @@ function LiveAdventure({
           />
         )}
       </Section>
-
-      {trail.length > 0 && <TrailMapView trail={trail} last={trail.at(-1) ?? null} />}
 
       {failures.length > 0 && (
         <Section title={t.adventure.failuresTitle}>
