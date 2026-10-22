@@ -157,7 +157,7 @@ describe('the Trail', () => {
     const { trail, os, uploads, buffer, flushes } = setup({ queued: true });
     await trail.sync();
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
-    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.031)]);
+    await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.031)]);
     expect(flushes()).toBe(2);
     expect(uploads).toEqual([]);
     expect(buffer.newest(a1)).toBeNull();
@@ -190,9 +190,9 @@ describe('the Trail', () => {
     expect(os).toEqual({ updates: null, fence: null });
   });
 
-  it('uploads the background readings, one per minute', async () => {
+  it('uploads the background readings, one per five minutes', async () => {
     const { trail, uploads } = setup();
-    await trail.onLocations([fix('2026-10-15T09:01:01Z', 47.03), fix('2026-10-15T09:01:40Z', 47.031), fix('2026-10-15T09:02:05Z', 47.032)]);
+    await trail.onLocations([fix('2026-10-15T09:01:01Z', 47.03), fix('2026-10-15T09:01:40Z', 47.031), fix('2026-10-15T09:06:05Z', 47.032)]);
     expect(uploads).toEqual([{ id: 'a1', latitudes: [47.03, 47.032] }]);
   });
 
@@ -200,7 +200,7 @@ describe('the Trail', () => {
     const { trail, os, uploads } = setup({ fenceFails: true });
     expect(await trail.sync()).toBe('recording');
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
-    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.032)]);
+    await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.032)]);
     expect(os).toMatchObject({ updates: 'recording', fence: null });
     expect(uploads).toEqual([
       { id: 'a1', latitudes: [47.03] },
@@ -213,7 +213,7 @@ describe('the Trail', () => {
     respond({ data: null, error: { message: 'JWT expired' } });
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.03)]);
     respond({ data: null, error: null });
-    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.04)]);
+    await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.04)]);
     expect(uploads).toEqual([
       { id: 'a1', latitudes: [47.03] },
       { id: 'a1', latitudes: [47.03, 47.04] },
@@ -240,7 +240,7 @@ describe('the Trail', () => {
     await trail.sync();
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.0287)]);
     expect(os.fence?.latitude).toBe(47.0286);
-    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.03)]);
+    await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.03)]);
     expect(os.fence?.latitude).toBe(47.03);
   });
 
@@ -266,7 +266,7 @@ describe('the Trail', () => {
   it('keeps the destination watched when the Trail fence moves', async () => {
     const { trail, regions } = setup({ destination: summit });
     await trail.sync();
-    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.03)]);
+    await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.03)]);
     expect(regions().map((f) => f.identifier)).toEqual(['trail', 'arrival.a1']);
     expect(regions()[0].center.latitude).toBe(47.03);
   });
@@ -309,7 +309,7 @@ describe('the Trail', () => {
 
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.0287)]);
     expect(fenceCalls()).toBe(2);
-    await trail.onLocations([fix('2026-10-15T09:02:05Z', 47.03)]);
+    await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.03)]);
     expect(fenceCalls()).toBe(3);
   });
 

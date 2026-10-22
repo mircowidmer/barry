@@ -41,7 +41,7 @@ export const siteText = {
     linkBroken: 'This link does not work.',
     unreachable: 'Barry cannot be reached. Try again in a moment.',
     adventureOf: (name: string) => `${name}'s Adventure`,
-    updatesEveryMinute: 'Barry updates this map every minute.',
+    updatesEveryFiveMinutes: 'Barry updates this map every 5 minutes.',
     staleSince: (since: Date) => `Barry cannot be reached since ${formatWhen(since)}. This is the last update it sent.`,
     alerted: (name: string) => `${name} has not checked in. Barry has raised the alert.`,
     checkedIn: (name: string, at: Date) => `${name} checked in at ${formatWhen(at)}.`,
@@ -72,7 +72,7 @@ export const siteText = {
     linkBroken: 'Dieser Link funktioniert nicht.',
     unreachable: 'Barry ist nicht erreichbar. Versuch es gleich nochmals.',
     adventureOf: (name: string) => (/[sxzß]$/i.test(name) ? `${name}’ Abenteuer` : `${name}s Abenteuer`),
-    updatesEveryMinute: 'Barry aktualisiert diese Karte jede Minute.',
+    updatesEveryFiveMinutes: 'Barry aktualisiert diese Karte alle 5 Minuten.',
     staleSince: (since: Date) =>
       `Barry ist seit ${formatWhenGerman(since)} nicht erreichbar. Das ist die letzte Aktualisierung, die er gesendet hat.`,
     alerted: (name: string) => `${name} hat sich nicht zurückgemeldet. Barry hat Alarm geschlagen.`,
