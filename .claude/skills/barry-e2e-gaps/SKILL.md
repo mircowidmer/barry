@@ -25,7 +25,7 @@ One behaviour an Adventurer, an Emergency Contact or the operator would notice, 
 - A procedure a guide promises: the delivery reports in `docs/text-messages.md`, the monitor in `docs/hosted-supabase.md`, the links in `docs/trail-map-hosting.md`.
 - A sub-feature id in `.claude/skills/barry-verify/features/*.md`, such as `live-offline-checkin` or `contacts-in-use`.
 
-One use case per observable outcome. "The Alert carries the Plan, the Deadline, the Last Known Position, the Profile and the link" is five use cases, because a case can prove four of them and miss one. A design sketch under `docs/design/` promises nothing; both say so themselves.
+One use case per observable outcome. "The Alert carries the Plan, the Deadline, the Last Position, the Profile and the link" is five use cases, because a case can prove four of them and miss one. A design sketch under `docs/design/` promises nothing; both say so themselves.
 
 ## What counts as end to end
 
