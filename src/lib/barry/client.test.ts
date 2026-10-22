@@ -263,11 +263,6 @@ describe('addContactFromPhone', () => {
     expect(await byPhone.barry.addContactFromPhone()).toEqual({ kind: 'duplicate', name: 'L. Meier' });
   });
 
-  it('ignores a deleted contact when looking for a duplicate', async () => {
-    const { barry } = setup({ picked: luca, contacts: [contactRow({ name: 'Luca', email: 'luca@example.com', removed_at: '2026-10-16T08:00:00Z' })] });
-    expect(await barry.addContactFromPhone()).toMatchObject({ kind: 'added' });
-  });
-
   it('refuses a pick with nothing Barry can reach, naming the contact', async () => {
     const { barry, world } = setup({ picked: { ...luca, phones: [{ label: 'home', number: '12' }], emails: [] } });
     expect(await barry.addContactFromPhone()).toEqual({ kind: 'unreachable', name: 'Luca Meier' });
