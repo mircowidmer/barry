@@ -25,7 +25,7 @@ export default function AdventureScreen() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={() => void loaded.reload()} />
       </Screen>
     );
   }
@@ -63,7 +63,7 @@ function Overview({
   const planned = adventures.filter((a) => a.stage === 'planned');
   const remove = async (id: AdventureId) => {
     const outcome = await askToDeleteAdventure(id, 'planned');
-    if (outcome.kind === 'deleted') onReload();
+    if (outcome.kind === 'deleted') void onReload();
     else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
   // A Live Adventure names the header after its destination; the overview takes the tab's name back.
@@ -77,7 +77,7 @@ function Overview({
       {offlineSince && (
         <>
           <Notice tone="warning">{t.adventure.noSignal}</Notice>
-          <Button title={t.common.tryAgain} kind="secondary" onPress={onReload} />
+          <Button title={t.common.tryAgain} kind="secondary" onPress={() => void onReload()} />
         </>
       )}
       <ThemedText themeColor="textSecondary">{t.adventure.intro}</ThemedText>
@@ -86,7 +86,7 @@ function Overview({
         <SwipeToDelete
           key={a.id}
           label={t.common.deleteLabel(a.plan.destination ?? t.adventure.fallbackName)}
-          onDelete={() => remove(a.id)}>
+          onDelete={() => void remove(a.id)}>
           <Pressable
             accessibilityRole="button"
             // A hint, not a label, so VoiceOver still reads the card's own lines.
@@ -154,7 +154,7 @@ function LiveAdventure({
   }, [initial.id, adventure]);
 
   if (adventure.stage === 'planned') return null;
-  if (adventure.stage === 'ended') return <EndedAdventureScreen adventure={adventure} onDone={onChanged} />;
+  if (adventure.stage === 'ended') return <EndedAdventureScreen adventure={adventure} onDone={() => void onChanged()} />;
 
   const lastKnown = trail.at(-1) ?? adventure.lastKnownPosition;
 
@@ -177,17 +177,17 @@ function LiveAdventure({
     try {
       const result = await barry.checkIn(adventure.id);
       if (result.kind === 'ended') setAdventure(result.adventure);
-      else onChanged();
+      else void onChanged();
     } catch {
       // The Check-in is saved before it is sent, so the reload shows it as waiting.
-      onChanged();
+      void onChanged();
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={checkIn} disabled={busy} />}>
+    <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       {adventure.stage === 'active' && (
         <Notice tone="success">
@@ -219,7 +219,7 @@ function LiveAdventure({
       <Section title={t.adventure.needMoreTime}>
         <Row>
           {t.adventure.moves.map((m) => (
-            <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => move(m.minutes)} />
+            <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => void move(m.minutes)} />
           ))}
         </Row>
       </Section>
@@ -279,8 +279,8 @@ function useLiveTrail(id: AdventureId): Position[] {
         loading = false;
       }
     };
-    load();
-    const timer = setInterval(load, TRAIL_REFRESH_MS);
+    void load();
+    const timer = setInterval(() => void load(), TRAIL_REFRESH_MS);
     return () => {
       mounted = false;
       clearInterval(timer);

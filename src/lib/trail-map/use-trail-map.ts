@@ -33,8 +33,8 @@ export function useTrailMap(): TrailMapState {
     };
     const reload = () => window.location.reload();
     window.addEventListener('hashchange', reload);
-    poll();
-    const timer = token ? setInterval(poll, POLL_MS) : undefined;
+    void poll();
+    const timer = token ? setInterval(() => void poll(), POLL_MS) : undefined;
     return () => {
       stopped = true;
       clearInterval(timer);

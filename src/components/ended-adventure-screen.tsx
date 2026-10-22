@@ -27,7 +27,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       {!onDone && (
         <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={remove} />
+          <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={() => void remove()} />
         </Stack.Toolbar>
       )}
       <Notice tone="success">
@@ -38,7 +38,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
       {readings.status === 'error' && (
         <>
           <Notice tone="warning">{t.ended.mapFailed(readings.error.message)}</Notice>
-          <Button title={t.common.tryAgain} kind="secondary" onPress={readings.reload} />
+          <Button title={t.common.tryAgain} kind="secondary" onPress={() => void readings.reload()} />
         </>
       )}
       {readings.status === 'ready' &&

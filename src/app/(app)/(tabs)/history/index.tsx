@@ -169,7 +169,7 @@ export default function HistoryScreen() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={() => void loaded.reload()} />
       </Screen>
     );
   }
@@ -177,7 +177,7 @@ export default function HistoryScreen() {
   const inProgress = loaded.data.find(isInProgress);
   const remove = async (id: AdventureId) => {
     const outcome = await askToDeleteAdventure(id, 'ended');
-    if (outcome.kind === 'deleted') loaded.reload();
+    if (outcome.kind === 'deleted') void loaded.reload();
     else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
 
@@ -196,7 +196,7 @@ export default function HistoryScreen() {
     const outcome = await askToDeleteAdventures([...selected]);
     if (outcome.kind === 'cancelled') return;
     finishSelecting();
-    loaded.reload();
+    void loaded.reload();
     if (outcome.failures.length > 0) {
       Alert.alert(t.history.notDeleted(outcome.failures.length), [...new Set(outcome.failures)].join('\n'));
     }
@@ -221,7 +221,7 @@ export default function HistoryScreen() {
             {allSelected ? t.history.deselectAll : t.history.selectAll}
           </Stack.Toolbar.Button>
           <Stack.Toolbar.Spacer />
-          <Stack.Toolbar.Button tintColor={theme.danger} disabled={selected.size === 0} onPress={removeSelected}>
+          <Stack.Toolbar.Button tintColor={theme.danger} disabled={selected.size === 0} onPress={() => void removeSelected()}>
             {t.history.deleteSelected(selected.size)}
           </Stack.Toolbar.Button>
         </Stack.Toolbar>
@@ -277,7 +277,7 @@ export default function HistoryScreen() {
                     <View style={styles.selectableCard}>{card}</View>
                   </Pressable>
                 ) : (
-                  <SwipeToDelete label={t.common.deleteLabel(a.plan.destination)} onDelete={() => remove(a.id)}>
+                  <SwipeToDelete label={t.common.deleteLabel(a.plan.destination)} onDelete={() => void remove(a.id)}>
                     <Pressable
                       accessibilityRole="button"
                       accessibilityHint={t.common.openLabel(a.plan.destination)}
