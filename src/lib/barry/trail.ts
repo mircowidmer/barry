@@ -110,13 +110,16 @@ export const createTrail = ({
   // A Trail fence that moved less than FENCE_MOVE_M counts as unchanged.
   const sameFences = (a: Fence[], b: Fence[]) =>
     a.length === b.length &&
-    a.every(
-      (f, i) =>
-        f.identifier === b[i].identifier &&
+    a.every((f, i) => {
+      const g = b[i];
+      return (
+        g !== undefined &&
+        f.identifier === g.identifier &&
         (f.identifier === TRAIL_REGION
-          ? metresBetween(f.center, b[i].center) <= FENCE_MOVE_M
-          : f.center.latitude === b[i].center.latitude && f.center.longitude === b[i].center.longitude),
-    );
+          ? metresBetween(f.center, g.center) <= FENCE_MOVE_M
+          : f.center.latitude === g.center.latitude && f.center.longitude === g.center.longitude)
+      );
+    });
 
   // The Trail's fence only brings the Trail back after a force-quit. When iOS refuses the fences,
   // recording and uploading go on without them, and there is no Arrival Notice. Setting them restarts
