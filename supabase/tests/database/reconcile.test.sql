@@ -139,11 +139,11 @@ select is(
   'During the Grace Period no Alert is queued'
 );
 
-select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:01+02');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:05+02');
 
 select is((pg_temp.anna()).stage, 'alerted'::public.adventure_stage, 'When the Grace Period ends the Adventure becomes Alerted');
 select is((pg_temp.anna()).alerts_sent, 1::smallint, 'One Alert round is recorded');
-select is((pg_temp.anna()).last_alert_at, '2026-10-17 20:01+02'::timestamptz, 'The Alert time is when reconcile ran');
+select is((pg_temp.anna()).last_alert_at, '2026-10-17 20:05+02'::timestamptz, 'The Alert time is when reconcile ran');
 
 select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'alert'),
@@ -200,7 +200,7 @@ select is(
   'It is Active again, with no Alert yet for the new Deadline and the three earlier ones kept'
 );
 
-select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '1 minute');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '5 minutes');
 
 select is((pg_temp.anna()).stage, 'alerted'::public.adventure_stage, 'When the new Grace Period ends the Adventure is Alerted again');
 
@@ -212,9 +212,9 @@ select is(
   'Alert 1 for the new Deadline goes to every contact row again'
 );
 
-select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '61 minutes');
-select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '121 minutes');
-select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '181 minutes');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '65 minutes');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '125 minutes');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '185 minutes');
 select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '10 hours');
 
 select is(
