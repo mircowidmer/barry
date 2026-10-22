@@ -75,7 +75,6 @@ Deno.test('the German Alert carries the Last Known Position and the Profile', ()
       'Route: Ostgrat',
       '',
       'Letzter bekannter Standort am Sa, 17. Okt. um 14:12: 47.03000, 8.68000 (auf 12 m genau)',
-      'Karte: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68',
       '',
       'Telefon von Anna: +41790000001',
       'Auto: rot Subaru, SZ 12345',

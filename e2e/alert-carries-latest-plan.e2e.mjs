@@ -43,7 +43,7 @@ test('the Alert carries the latest Plan, the Deadline in the Adventurer’s time
   assert.doesNotMatch(alert.Text, /Europe|Zurich|CET|CEST|UTC|GMT/);
   assert.match(alert.Text, /Destination: Grosser Mythen\r?\nRoute: West ridge/, 'the Alert carries the latest Plan');
   assert.match(alert.Text, /Last known position at .+: 47\.03000, 8\.68000/);
-  assert.match(alert.Text, /Map: https:\/\/www\.openstreetmap\.org\/\?mlat=47\.03&mlon=8\.68/, 'the Last Known Position has a map link');
+  assert.doesNotMatch(alert.Text, /openstreetmap/, 'the Alert carries no map link');
   assert.match(alert.Text, /Anna's phone: \+41790000001/);
   assert.match(alert.Text, /Car: red Subaru, SZ 12345/);
   assert.match(alert.Text, /Medical notes: Type 1 diabetic/, 'the Alert carries the medical notes');
