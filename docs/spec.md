@@ -137,7 +137,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Message rules
 
-- The Grace Period is 1 minute. The Reminder lead time is 30 minutes. The Adventurer cannot change either value.
+- The Grace Period is 5 minutes. The Reminder lead time is 30 minutes. The Adventurer cannot change either value.
 - If the Adventurer sets a Deadline less than 30 minutes ahead, at Start or with a move, Barry sends no Reminder for it. The Overdue Notice still goes out.
 - The Last Position in an Alert gives the time of the reading and the coordinates.
 - Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".

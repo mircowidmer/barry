@@ -137,8 +137,8 @@ export const assertClockRan = async () => {
   assert.equal(health.clock_ok, true, 'the clock ticked while the test waited');
 };
 
-/** Moves the Deadline into the past, as if the Adventurer had not come back in time. */
-export const missDeadline = async (adventureId, minutesAgo = 2) =>
+/** Moves the Deadline into the past, as if the Adventurer had not come back in time. By default past the 5-minute Grace Period. */
+export const missDeadline = async (adventureId, minutesAgo = 6) =>
   must(
     await admin.from('adventures').update({ deadline: new Date(Date.now() - minutesAgo * 60_000).toISOString() }).eq('id', adventureId),
     'move the Deadline into the past',

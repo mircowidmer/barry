@@ -50,7 +50,7 @@ select throws_ok(
 
 select is(
   (select alert_at from public.adventures where id = 'a0000000-0000-0000-0000-000000000001'),
-  '2026-10-17 18:01+02'::timestamptz,
+  '2026-10-17 18:05+02'::timestamptz,
   'alert_at is the Deadline plus the Grace Period'
 );
 

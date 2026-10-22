@@ -11,7 +11,7 @@ test('a Check-in while Overdue sends the All-clear, and no Alert follows', async
   await waitForMail(anna.luca.email, 'Anna is heading out to Grosser Mythen');
   await waitForText(anna.sara.phone, 'Anna is going on an adventure alone');
 
-  await missDeadline(id, 0.2);
+  await missDeadline(id, 4.5);
   tick();
   const { stage } = must(await admin.from('adventures').select('stage').eq('id', id).single(), 'adventure');
   assert.equal(stage, 'overdue', 'the Adventure is Overdue and the Grace Period still runs');
