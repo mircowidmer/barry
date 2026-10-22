@@ -105,7 +105,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 
 ### Check-in
 
-- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**. One tap is not enough.
+- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**, which floats above the tab bar on the live Adventure screen. One tap is not enough.
 - A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
 - With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
@@ -185,7 +185,7 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Position is the newest reading, from Start, a Deadline move, or the Trail.
-- The Trail stays with the Adventure after the Check-in. The app shows the map below the Plan on the live Adventure screen, where it adds new readings every 5 minutes and the Plan's Last Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
+- The Trail stays with the Adventure after the Check-in. The app shows the map at the top of the live Adventure screen, where it adds new readings every 5 minutes and the Plan's Last Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
 - The Trail is deleted with the Adventurer's account.
 
 ## Trail Map
