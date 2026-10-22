@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(8);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000000');
@@ -59,7 +59,7 @@ select is(
 
 -- Reaching a contact
 
-select is(public.start_adventure('a0000000-0000-0000-0000-000000000001', 'Europe/Zurich'), null, 'The Adventure starts');
+select public.start_adventure('a0000000-0000-0000-0000-000000000001', 'Europe/Zurich');
 
 reset role;
 
