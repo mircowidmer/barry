@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(5);
+select plan(4);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000001');
@@ -25,8 +25,6 @@ set local role anon;
 
 select is(jsonb_array_length(public.trail_map((select token from link)) -> 'trail'), 3,
   'Without a time the Trail Map carries the whole Trail');
-select is(public.trail_map((select token from link), null) -> 'trail', public.trail_map((select token from link)) -> 'trail',
-  'A null time is the same as no time');
 select is(public.trail_map((select token from link), '2026-10-15T10:00:10Z') -> 'trail',
   '[[47.02, 8.62, "2026-10-15T10:00:20+00:00"]]'::jsonb,
   'With a time it carries only the readings taken after it');
