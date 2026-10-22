@@ -9,7 +9,7 @@ import { barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 SplashScreen.setOptions({ fade: true, duration: 300 });
 
 function Navigation() {
@@ -32,7 +32,7 @@ function Navigation() {
   }, [session]);
 
   useEffect(() => {
-    if (!loading) SplashScreen.hideAsync();
+    if (!loading) SplashScreen.hideAsync().catch(() => undefined);
   }, [loading]);
 
   if (loading) return null;

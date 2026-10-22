@@ -23,7 +23,7 @@ export default function AccountScreen() {
     return (
       <Screen>
         <Close />
-        <FirstLoad failure={loaded.error && failure()} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && failure()} onRetry={() => void loaded.reload()} />
       </Screen>
     );
   }
@@ -92,7 +92,7 @@ function PasswordChange({ email }: { email: string }) {
           autoComplete="new-password"
           textContentType="newPassword"
         />
-        <ActionRow title={t.account.changePassword} onPress={change} busy={busy} disabled={current === '' || next === ''} />
+        <ActionRow title={t.account.changePassword} onPress={() => void change()} busy={busy} disabled={current === '' || next === ''} />
       </Group>
       {shown && <Notice tone={shown.tone}>{shown.text}</Notice>}
     </>
@@ -151,7 +151,7 @@ function EmailChange({
           keyboardType="email-address"
           textContentType="emailAddress"
         />
-        <ActionRow title={t.account.changeEmail} onPress={change} busy={busy} disabled={unchanged} />
+        <ActionRow title={t.account.changeEmail} onPress={() => void change()} busy={busy} disabled={unchanged} />
       </Group>
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
       {!notice && stored.pendingEmail && <Notice>{t.account.pendingEmail(stored.pendingEmail)}</Notice>}

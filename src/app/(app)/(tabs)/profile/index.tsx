@@ -39,7 +39,7 @@ export default function ProfileScreen() {
   return (
     <Screen onRefresh={loaded.data === undefined ? undefined : loaded.reload}>
       {loaded.data === undefined ? (
-        <FirstLoad failure={loaded.error && failure()} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && failure()} onRetry={() => void loaded.reload()} />
       ) : (
         <ProfileForm stored={loaded.data} reloadFailure={<LoadState loaded={loaded} failure={failure} />} />
       )}
@@ -101,7 +101,7 @@ function ProfileForm({ stored, reloadFailure }: { stored: AdventurerProfile | nu
           icon="checkmark"
           accessibilityLabel={t.common.save}
           disabled={!complete || saving || same(profile, saved)}
-          onPress={save}
+          onPress={() => void save()}
         />
       </Stack.Toolbar>
       {reloadFailure}
@@ -150,16 +150,16 @@ function ProfileForm({ stored, reloadFailure }: { stored: AdventurerProfile | nu
 
       <Group title={t.profile.accountSection}>
         <ActionRow title={t.profile.account} tone="text" onPress={() => router.push('/profile/account')} />
-        <ActionRow title={t.profile.logOut} onPress={askToLogOut} />
+        <ActionRow title={t.profile.logOut} onPress={() => void askToLogOut()} />
       </Group>
 
       <Group>
-        <ActionRow title={t.profile.deleteAccount} tone="danger" onPress={deleteAccount} busy={deleting} />
+        <ActionRow title={t.profile.deleteAccount} tone="danger" onPress={() => void deleteAccount()} busy={deleting} />
       </Group>
 
       <Group footer={t.legal.notEmergency}>
-        <ActionRow title={t.legal.privacy} tone="text" chevron onPress={openPrivacy} />
-        <ActionRow title={t.legal.terms} tone="text" chevron onPress={openTerms} />
+        <ActionRow title={t.legal.privacy} tone="text" chevron onPress={() => void openPrivacy()} />
+        <ActionRow title={t.legal.terms} tone="text" chevron onPress={() => void openTerms()} />
       </Group>
     </>
   );

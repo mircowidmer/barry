@@ -107,11 +107,11 @@ export default function PlanScreen() {
         <Stack.Toolbar placement="left">
           <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
         </Stack.Toolbar>
-        <FirstLoad failure={loaded.error && t.plan.couldNotLoad} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && t.plan.couldNotLoad} onRetry={() => void loaded.reload()} />
       </Screen>
     );
   }
-  return <PlanForm data={loaded.data} id={id} setId={setId} reload={loaded.reload} />;
+  return <PlanForm data={loaded.data} id={id} setId={setId} reload={() => void loaded.reload()} />;
 }
 
 function PlanForm({
@@ -262,10 +262,10 @@ function PlanForm({
             icon="checkmark"
             accessibilityLabel={t.common.save}
             disabled={busy !== null}
-            onPress={onSave}
+            onPress={() => void onSave()}
           />
         ) : (
-          <Stack.Toolbar.Button variant="prominent" disabled={busy !== null} onPress={onStart}>
+          <Stack.Toolbar.Button variant="prominent" disabled={busy !== null} onPress={() => void onStart()}>
             {t.plan.start}
           </Stack.Toolbar.Button>
         )}
@@ -286,7 +286,7 @@ function PlanForm({
               <Button title={t.plan.removeFromMap} kind="secondary" disabled={busy !== null} onPress={removeFromMap} />
             </>
           ) : (
-            <Button title={t.plan.showOnMap} kind="secondary" busy={busy === 'find'} disabled={busy !== null} onPress={showOnMap} />
+            <Button title={t.plan.showOnMap} kind="secondary" busy={busy === 'find'} disabled={busy !== null} onPress={() => void showOnMap()} />
           ))}
         <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
       </Section>
@@ -354,14 +354,14 @@ function PlanForm({
             </Notice>
           ))}
           {warnings.some((w) => w.kind === 'no_trail') && (
-            <Button title={t.plan.allowAlways} kind="secondary" onPress={allowTrail} />
+            <Button title={t.plan.allowAlways} kind="secondary" onPress={() => void allowTrail()} />
           )}
           <ThemedText type="small" themeColor="textSecondary">
             {t.plan.startHint(t.when(form.deadline))}
           </ThemedText>
           <Row>
-            <Button title={t.plan.saveForLater} kind="secondary" onPress={onSave} busy={busy === 'save'} />
-            {id && <Button title={t.common.delete} kind="danger" onPress={onDelete} />}
+            <Button title={t.plan.saveForLater} kind="secondary" onPress={() => void onSave()} busy={busy === 'save'} />
+            {id && <Button title={t.common.delete} kind="danger" onPress={() => void onDelete()} />}
           </Row>
         </>
       )}

@@ -80,7 +80,7 @@ export default function ContactsScreen() {
       const outcome = await barry.addContactFromPhone();
       if (outcome.kind === 'added') {
         setAdded(outcome.contact.id);
-        loaded.reload();
+        void loaded.reload();
       }
       else if (outcome.kind === 'duplicate') setMessage({ tone: 'danger', text: t.contacts.alreadyAdded(outcome.name) });
       else if (outcome.kind === 'unreachable') setMessage({ tone: 'danger', text: t.contacts.nothingToReach(outcome.name) });
@@ -101,14 +101,14 @@ export default function ContactsScreen() {
           ? { tone: 'danger', text: t.contacts.inUse(contact.name) }
           : { tone: 'danger', text: t.contacts.couldNotDelete(contact.name) },
     );
-    loaded.reload();
+    void loaded.reload();
   };
 
   const data = loaded.data;
   return (
     <>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.contacts.addLabel} disabled={picking} onPress={add} />
+        <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.contacts.addLabel} disabled={picking} onPress={() => void add()} />
       </Stack.Toolbar>
       <Screen ref={scroll} onRefresh={loaded.reload}>
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
@@ -117,7 +117,7 @@ export default function ContactsScreen() {
           <>
             <ThemedText themeColor="textSecondary">{t.contacts.intro}</ThemedText>
             <Group footer={t.contacts.empty}>
-              <ActionRow title={t.contacts.pick} onPress={add} busy={picking} />
+              <ActionRow title={t.contacts.pick} onPress={() => void add()} busy={picking} />
             </Group>
           </>
         )}
@@ -125,7 +125,7 @@ export default function ContactsScreen() {
           <Group footer={t.contacts.intro} inset={Spacing.three + AVATAR + 12}>
             {data.contacts.map((contact) => (
               <Flash key={contact.id} active={contact.id === added} onLayout={contact.id === added ? reveal : undefined}>
-                <SwipeToDelete flush label={t.common.deleteLabel(contact.name)} onDelete={() => remove(contact)}>
+                <SwipeToDelete flush label={t.common.deleteLabel(contact.name)} onDelete={() => void remove(contact)}>
                   <ContactRow contact={contact} reach={reach(contact, data.smsEnabled, t)} />
                 </SwipeToDelete>
               </Flash>

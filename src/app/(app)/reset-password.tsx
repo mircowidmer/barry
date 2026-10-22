@@ -66,8 +66,8 @@ export default function ResetPasswordScreen() {
             textContentType="newPassword"
           />
           {error && <Notice tone="danger">{error}</Notice>}
-          <Button title={t.resetPassword.setPassword} onPress={setNewPassword} busy={busy === 'set'} disabled={!code || !password} />
-          <Button title={t.resetPassword.sendAgain} kind="secondary" onPress={sendCode} busy={busy === 'send'} disabled={busy === 'set'} />
+          <Button title={t.resetPassword.setPassword} onPress={() => void setNewPassword()} busy={busy === 'set'} disabled={!code || !password} />
+          <Button title={t.resetPassword.sendAgain} kind="secondary" onPress={() => void sendCode()} busy={busy === 'send'} disabled={busy === 'set'} />
         </>
       ) : (
         <>
@@ -81,7 +81,7 @@ export default function ResetPasswordScreen() {
             textContentType="emailAddress"
           />
           {error && <Notice tone="danger">{error}</Notice>}
-          <Button title={t.resetPassword.sendCode} onPress={sendCode} busy={busy === 'send'} disabled={!email.trim()} />
+          <Button title={t.resetPassword.sendCode} onPress={() => void sendCode()} busy={busy === 'send'} disabled={!email.trim()} />
         </>
       )}
       <ThemedText type="small" themeColor="accent" accessibilityRole="link" style={styles.link} onPress={() => router.back()}>
