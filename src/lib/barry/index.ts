@@ -12,6 +12,7 @@ import type { NotificationService } from './alarms';
 import { createBarry } from './client';
 import type { PhoneContact } from './phone-contact';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
+import { SLOT_MS } from './trail-buffer';
 import type { Point, Position } from './types';
 
 export type * from './types';
@@ -74,7 +75,7 @@ const UPDATE_OPTIONS = {
   recording: {
     accuracy: Location.Accuracy.BestForNavigation,
     distanceInterval: 10,
-    deferredUpdatesInterval: 60_000,
+    deferredUpdatesInterval: SLOT_MS,
     deferredUpdatesDistance: 0,
     pausesUpdatesAutomatically: false,
     activityType: Location.ActivityType.Fitness,

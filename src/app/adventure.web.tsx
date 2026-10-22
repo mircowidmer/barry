@@ -39,7 +39,7 @@ function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date })
   const t = siteText[useSiteLanguage()];
   const { plan } = map;
   return (
-    <SitePage title={t.adventureOf(map.adventurerName)} lead={map.status === 'checked_in' ? undefined : t.updatesEveryMinute}>
+    <SitePage title={t.adventureOf(map.adventurerName)} lead={map.status === 'checked_in' ? undefined : t.updatesEveryFiveMinutes}>
       {staleSince && <p className="note">{t.staleSince(staleSince)}</p>}
       {map.status === 'alerted' && <p className="note danger">{t.alerted(map.adventurerName)}</p>}
       {map.status === 'checked_in' && <p className="note success">{t.checkedIn(map.adventurerName, map.checkedInAt)}</p>}

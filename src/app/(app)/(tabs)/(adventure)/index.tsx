@@ -256,7 +256,7 @@ function LiveAdventure({
   );
 }
 
-const TRAIL_REFRESH_MS = 60_000;
+const TRAIL_REFRESH_MS = 5 * 60_000;
 
 /** The Trail so far, growing with the readings that reach the server, so the Plan and the map agree. */
 function useLiveTrail(id: AdventureId): Position[] {

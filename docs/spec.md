@@ -180,12 +180,12 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 
 - Barry reads the location at Start and at each Deadline move. This needs only the "while using the app" location permission.
 - If the Adventurer allows the "Always" location permission, Barry also records the Trail. There is no switch for each Adventure.
-- The Trail keeps about one reading a minute, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
-- iOS sends background readings when the phone moves, not on a timer. Barry keeps the first one of each minute.
+- The Trail keeps about one reading every 5 minutes, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
+- iOS sends background readings when the phone moves, not on a timer. Barry keeps the first one of every 5 minutes.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Known Position is the newest reading, from Start, a Deadline move, or the Trail.
-- The Trail stays with the Adventure after the Check-in. The app shows the map below the Plan on the live Adventure screen, where it adds new readings every minute and the Plan's Last Known Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
+- The Trail stays with the Adventure after the Check-in. The app shows the map below the Plan on the live Adventure screen, where it adds new readings every 5 minutes and the Plan's Last Known Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
 - The Trail is deleted with the Adventurer's account.
 
 ## Trail Map
@@ -194,7 +194,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 
 - Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
 - The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
-- The page adds new readings every minute while it is open, the same pace as the Adventurer's live screen.
+- The page adds new readings every 5 minutes while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. While the Adventure is Alerted, it shows that.
 - After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Known Position. Barry records no readings after the Check-in.
 - The link never expires. After the Check-in it keeps showing the Check-in time and the Trail until the Adventurer deletes the Adventure or the account.
@@ -214,7 +214,7 @@ Supabase checks Deadlines every minute. Each run reports to an outside monitor, 
 
 A few limits are implementation choices, not promises to the Adventurer. Their values live only in the code, next to what they protect, with a test where one matters, so a changed value needs no change here. Each is named so it can be found.
 
-- `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many minutes of Trail the phone keeps while it has no signal. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values.
+- `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many readings of Trail the phone keeps while it has no signal, and `SLOT_MS` there is how often the Trail keeps one. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values.
 - `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading. `ARRIVAL_RADIUS_M` there is how close to the destination on the map the Arrival Notice shows. `trail.test.ts` pins it.
 - `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261016210100_deadline_update.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
 - `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
