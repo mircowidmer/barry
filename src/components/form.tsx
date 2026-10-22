@@ -65,7 +65,7 @@ export function Screen({
 }: {
   ref?: Ref<ScrollViewInstance>;
   title?: string;
-  onRefresh?: () => Promise<unknown>;
+  onRefresh?: (() => Promise<unknown>) | undefined;
   footer?: ReactNode;
   children: ReactNode;
 }) {

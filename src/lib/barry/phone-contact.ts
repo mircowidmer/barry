@@ -9,8 +9,8 @@ export type PhoneContact = {
   fullName: string;
   company: string | null;
   /** `region` is the phone's own reading of the number's country, such as `ch`, when it has one. */
-  phones: { label?: string; number?: string; region?: string }[];
-  emails: { label?: string; address?: string }[];
+  phones: { label?: string | undefined; number?: string | undefined; region?: string | undefined }[];
+  emails: { label?: string | undefined; address?: string | undefined }[];
 };
 
 /** What an Emergency Contact keeps of a Phone Contact. */

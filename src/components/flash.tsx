@@ -15,7 +15,7 @@ export function Flash({
   children,
 }: {
   active: boolean;
-  onLayout?: (event: LayoutChangeEvent) => void;
+  onLayout?: ((event: LayoutChangeEvent) => void) | undefined;
   children: ReactNode;
 }) {
   const theme = useTheme();

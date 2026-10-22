@@ -5,7 +5,7 @@ import { Image, StyleSheet } from 'react-native';
 
 import { siteText, useSiteLanguage } from '@/lib/site-language';
 
-export function SitePage({ title, lead, children }: { title: string; lead?: string; children: ReactNode }) {
+export function SitePage({ title, lead, children }: { title: string; lead?: string | undefined; children: ReactNode }) {
   const t = siteText[useSiteLanguage()];
   return (
     <div className="site page">
