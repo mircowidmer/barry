@@ -13,7 +13,7 @@ test('a contact of an Overdue or Alerted Adventure cannot be deleted from the li
   const remove = async (contact) =>
     (await anna.client.from('emergency_contacts').update({ removed_at: new Date().toISOString() }).eq('id', contact.id)).error?.message ?? '';
 
-  await missDeadline(id, 0.2);
+  await missDeadline(id, 4.5);
   tick();
   assert.equal(await stage(), 'overdue');
   assert.match(await remove(anna.luca), /contact_in_use/, 'Luca cannot be deleted while the Adventure is Overdue');
