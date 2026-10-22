@@ -102,7 +102,7 @@ describe('the Trail buffer', () => {
     const { sent, send } = recorder();
     await buffer.flush(send);
     expect(sent.flatMap((s) => s.times)).toHaveLength(288);
-    expect(sent[0].times[0]).toBe('2026-10-15T00:05:00.000Z');
+    expect(sent[0]?.times[0]).toBe('2026-10-15T00:05:00.000Z');
   });
 
   it('forgets every other Adventure', () => {

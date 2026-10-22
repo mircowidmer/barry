@@ -268,7 +268,7 @@ describe('the Trail', () => {
     await trail.sync();
     await trail.onLocations([fix('2026-10-15T09:06:05Z', 47.03)]);
     expect(regions().map((f) => f.identifier)).toEqual(['trail', 'arrival.a1']);
-    expect(regions()[0].center.latitude).toBe(47.03);
+    expect(regions()[0]?.center.latitude).toBe(47.03);
   });
 
   it('watches no destination without a point or without Always', async () => {
@@ -305,7 +305,7 @@ describe('the Trail', () => {
     state.destination = { latitude: 47.04, longitude: 8.67 };
     await trail.sync();
     expect(fenceCalls()).toBe(2);
-    expect(regions()[1].center).toEqual({ latitude: 47.04, longitude: 8.67 });
+    expect(regions()[1]?.center).toEqual({ latitude: 47.04, longitude: 8.67 });
 
     await trail.onLocations([fix('2026-10-15T09:01:05Z', 47.0287)]);
     expect(fenceCalls()).toBe(2);

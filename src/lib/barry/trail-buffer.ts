@@ -36,26 +36,26 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
   const write = (contents: Contents) => storage.setItem(KEY, JSON.stringify(contents));
   const readSent = (): Sent => JSON.parse(storage.getItem(SENT_KEY) ?? '{}') as Sent;
   const writeSent = (sent: Sent) => storage.setItem(SENT_KEY, JSON.stringify(sent));
-  const slots = (contents: Contents, adventureId: string) => Object.keys(contents[adventureId] ?? {}).sort();
+  // The slot keys sort in time order, and no two are equal.
+  const slots = (contents: Contents, adventureId: string) =>
+    Object.entries(contents[adventureId] ?? {}).sort(([a], [b]) => (a < b ? -1 : 1));
 
   let running: Promise<void> | null = null;
 
   const run = async (send: Parameters<TrailBuffer['flush']>[0]) => {
     for (const adventureId of Object.keys(read())) {
       for (;;) {
-        const contents = read();
-        const batchKeys = slots(contents, adventureId).slice(0, BATCH);
-        const lastKey = batchKeys.at(-1);
+        const batch = slots(read(), adventureId).slice(0, BATCH);
+        const lastKey = batch.at(-1)?.[0];
         if (lastKey === undefined) break;
-        const batch = batchKeys.map((k) => toReading(contents[adventureId][k]));
-        const outcome = await send(adventureId as AdventureId, batch);
+        const outcome = await send(adventureId as AdventureId, batch.map(([, stored]) => toReading(stored)));
         if (outcome === 'retry') return;
         const after = read();
         if (outcome === 'refused') delete after[adventureId];
         else {
           writeSent({ ...readSent(), [adventureId]: lastKey });
           if (after[adventureId]) {
-            for (const k of batchKeys) delete after[adventureId][k];
+            for (const [k] of batch) delete after[adventureId][k];
             if (Object.keys(after[adventureId]).length === 0) delete after[adventureId];
           }
         }
@@ -74,7 +74,7 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
         if (slot > sent) own[slot] ??= { t: r.takenAt.toISOString(), lat: r.latitude, lon: r.longitude, acc: r.accuracyM };
       }
       if (Object.keys(own).length === 0) delete contents[adventureId];
-      for (const k of slots(contents, adventureId).slice(0, -MAX_SLOTS)) delete own[k];
+      for (const [k] of slots(contents, adventureId).slice(0, -MAX_SLOTS)) delete own[k];
       write(contents);
     },
     flush: (send) => {
@@ -90,9 +90,8 @@ export const createTrailBuffer = (storage: Pick<Storage, 'getItem' | 'setItem'>)
       writeSent(adventureId && sent[adventureId] ? { [adventureId]: sent[adventureId] } : {});
     },
     newest: (adventureId) => {
-      const contents = read();
-      const last = slots(contents, adventureId).at(-1);
-      return last ? toReading(contents[adventureId][last]) : null;
+      const last = slots(read(), adventureId).at(-1);
+      return last ? toReading(last[1]) : null;
     },
   };
 };
