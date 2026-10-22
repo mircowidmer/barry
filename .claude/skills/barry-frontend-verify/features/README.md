@@ -4,10 +4,10 @@ This directory is the maintained source for verifying what a Barry user can do. 
 
 ## Baseline preconditions
 
-- The doctor (`.claude/skills/barry-verify/scripts/doctor.sh`) shows every line `ok`.
+- The doctor (`.claude/skills/barry-frontend-verify/scripts/doctor.sh`) shows every line `ok`.
 - The `support.barry.dev` development build, Barry Dev, runs in the booted iPhone 18 Pro simulator and is signed in as the test account from `.env.local`.
 - The test account has a Profile with a name and phone number, and two contacts: `Luca` with the email `luca@example.com`, and `Sara` with only the phone number `+41792222222`.
-- `.claude/skills/barry-verify/scripts/fixture.mjs state` prints `no live Adventure`.
+- `.claude/skills/barry-frontend-verify/scripts/fixture.mjs state` prints `no live Adventure`.
 - Notifications are allowed for `Barry Dev`, the name the development build shows.
 
 ## Driving conventions

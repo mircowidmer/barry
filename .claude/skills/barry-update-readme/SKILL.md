@@ -24,7 +24,7 @@ Four sections after the title and one paragraph, in this order. Each must match 
 | --- | --- | --- |
 | The opening paragraph | What Barry is, for whom, and what it is built with | `CONTEXT.md`, the first paragraph of `docs/spec.md`, `package.json` (`expo`, `@supabase/supabase-js`) |
 | **Run it locally** | The commands that start the backend and the app, the env file to copy and the keys to fill in, and which build the app needs | `package.json` scripts, `.env.example`, `supabase/config.toml`, `docs/iphone.md`, `docs/builds.md`, `AGENTS.md` |
-| **Check it** | Every command that checks the repository, one per line, and what each needs before it runs | `package.json` scripts (`lint`, `test`, `e2e`), `tsconfig.json`, `supabase/functions/deliver/*.test.ts`, `supabase/tests/database/`, `e2e/stack.mjs`, `.claude/skills/barry-verify/SKILL.md` |
+| **Check it** | Every command that checks the repository, one per line, and what each needs before it runs | `package.json` scripts (`lint`, `test`, `e2e`), `tsconfig.json`, `supabase/functions/deliver/*.test.ts`, `supabase/tests/database/`, `e2e/stack.mjs`, `.claude/skills/barry-backend-verify/SKILL.md`, `.claude/skills/barry-frontend-verify/SKILL.md` |
 | **Guides** | One link per document a person would read, with the document's title as the link text | every `docs/**/*.md`, `docs/adr/*.md`, `docs/overview/`, `barry-prompts.html`, `CONTEXT.md` |
 | **Skills** | One line per skill under `.claude/skills/`: its name, what it does in one sentence, and `--fix` where it has one | the `name` and `description` of every `.claude/skills/*/SKILL.md` |
 
