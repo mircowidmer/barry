@@ -64,7 +64,9 @@ type StartedFields = AdventureBase & {
 
 export type ActiveAdventure = StartedFields & { stage: 'active' };
 export type OverdueAdventure = StartedFields & { stage: 'overdue' };
+/** alertsSent counts the Alerts for the current Deadline, at most three. */
 export type AlertedAdventure = StartedFields & { stage: 'alerted'; alertsSent: number };
+/** alertsSent counts every Alert of the Adventure, for each Deadline it missed. */
 export type EndedAdventure = StartedFields & { stage: 'ended'; checkedInAt: Date; alertsSent: number };
 
 export type InProgressAdventure = ActiveAdventure | OverdueAdventure | AlertedAdventure;

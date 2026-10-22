@@ -15,7 +15,7 @@ const inZurich = (at) => {
 // docs/spec.md:106 "The Alert always carries the latest Plan."
 // docs/spec.md:125 the Alert carries "Plan, Deadline, Last Known Position, Adventurer Profile"
 // docs/spec.md:29 "Only the Alert carries the full Profile."
-// docs/spec.md:132 "The Last Known Position in an Alert gives the time of the reading, the coordinates, and a map link."
+// docs/spec.md:142 "The Last Known Position in an Alert gives the time of the reading and the coordinates."
 // docs/spec.md:133 "Every time in a message is in the Adventurer's time zone at Start and does not name the time zone"
 // docs/spec.md:151 "from the sender name 🐶 Barry"
 test('the Alert carries the latest Plan, the Deadline in the Adventurer’s time zone, a map link and the full Profile, which the Heads-up leaves out', async () => {

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(29);
+select plan(35);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -148,10 +148,10 @@ select is((pg_temp.anna()).last_alert_at, '2026-10-17 20:01+02'::timestamptz, 'T
 select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'alert'),
   array[
-    'email luca@example.com pending 1',
-    'email mia@example.com pending 1',
-    'sms +41791111111 pending 1',
-    'sms +41792222222 pending 1'
+    'email luca@example.com pending 1 2026-10-17 18:00:00+00',
+    'email mia@example.com pending 1 2026-10-17 18:00:00+00',
+    'sms +41791111111 pending 1 2026-10-17 18:00:00+00',
+    'sms +41792222222 pending 1 2026-10-17 18:00:00+00'
   ],
   'Alert 1 goes to every channel of every contact'
 );
@@ -185,6 +185,54 @@ select is(
   'No further Overdue Notice after the Alert'
 );
 
+-- Anna moves the Deadline after the third Alert, and misses the new one too.
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", "role": "authenticated"}';
+select is(public.move_deadline('a0000000-0000-0000-0000-000000000001', date_trunc('minute', now()) + interval '1 hour'),
+  null::public.refusal, 'An Alerted Adventure moves its Deadline into the future');
+reset role;
+
+select is(
+  (select concat_ws(' ', stage, alerts_sent, earlier_alerts, last_alert_at) from public.adventures
+    where id = 'a0000000-0000-0000-0000-000000000001'),
+  'active 0 3',
+  'It is Active again, with no Alert yet for the new Deadline and the three earlier ones kept'
+);
+
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '1 minute');
+
+select is((pg_temp.anna()).stage, 'alerted'::public.adventure_stage, 'When the new Grace Period ends the Adventure is Alerted again');
+
+select is(
+  (select count(*)::int from public.messages
+    where adventure_id = 'a0000000-0000-0000-0000-000000000001' and kind = 'alert' and round = 1
+      and for_deadline = (pg_temp.anna()).deadline),
+  4,
+  'Alert 1 for the new Deadline goes to every contact row again'
+);
+
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '61 minutes');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '121 minutes');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '181 minutes');
+select private.reconcile('a0000000-0000-0000-0000-000000000001', (pg_temp.anna()).deadline + interval '10 hours');
+
+select is(
+  (select array_agg(round order by round) from (
+     select distinct round from public.messages
+      where adventure_id = 'a0000000-0000-0000-0000-000000000001' and kind = 'alert'
+        and for_deadline = (pg_temp.anna()).deadline) r),
+  array[1, 2, 3]::smallint[],
+  'The new Deadline gets three Alerts of its own, an hour apart, and no more'
+);
+
+select is(
+  (select concat_ws(' ', alerts_sent, earlier_alerts) from public.adventures
+    where id = 'a0000000-0000-0000-0000-000000000001'),
+  '3 3',
+  'Six Alerts in all, three for each Deadline'
+);
+
 -- Ben's Adventure: the clock was down from before the Reminder until long after the Grace Period.
 
 select private.reconcile('b0000000-0000-0000-0000-000000000001', '2026-10-17 23:00+02');
@@ -197,7 +245,7 @@ select is(
 
 select is(
   pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'alert'),
-  array['email noah@example.com pending 1'],
+  array['email noah@example.com pending 1 2026-10-17 16:00:00+00'],
   'Catch-up: only Alert 1 goes out, never a burst'
 );
 

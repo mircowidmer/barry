@@ -4,8 +4,8 @@ import { test } from 'node:test';
 import { admin, adventurer, mailCount, missDeadline, must, waitForMail } from './stack.mjs';
 
 // docs/spec.md:71 "The Adventure cannot be cancelled. A Check-in is the only way to end it."
-// docs/spec.md:72 "Alerted. The Adventurer cannot move the Deadline or edit the Adventure. A Check-in is the only way to end it."
-test('an Alerted Adventure refuses a Deadline move, an edit and a deletion, and only the Check-in ends it', async () => {
+// docs/spec.md:79 "Alerted. The Adventurer can move the Deadline later, but cannot edit the Adventure. A Check-in is the only way to end it."
+test('an Alerted Adventure refuses an edit and a deletion, and only the Check-in ends it', async () => {
   const anna = await adventurer();
   const id = await anna.start();
   await waitForMail(anna.luca.email, 'Anna is heading out to Grosser Mythen');
@@ -16,8 +16,6 @@ test('an Alerted Adventure refuses a Deadline move, an edit and a deletion, and 
   const before = must(await admin.from('adventures').select('stage, deadline, route').eq('id', id).single(), 'adventure');
   assert.equal(before.stage, 'alerted');
 
-  const later = new Date(Date.now() + 3 * 3600_000).toISOString();
-  assert.equal(must(await anna.client.rpc('move_deadline', { p_id: id, p_deadline: later }), 'move_deadline'), 'wrong_stage', 'the Deadline cannot move after the Alert');
   const [edit] = must(
     await anna.client.rpc('save_adventure', {
       p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],

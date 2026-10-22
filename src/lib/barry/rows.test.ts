@@ -28,6 +28,7 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   time_zone: null,
   started_at: null,
   alerts_sent: 0,
+  earlier_alerts: 0,
   plan_revision: 0,
   last_alert_at: null,
   checked_in_at: null,
@@ -85,6 +86,13 @@ describe('parseAdventure', () => {
     expect(
       parseAdventure(row({ ...started, stage: 'ended', alerts_sent: 2, checked_in_at: '2026-10-17T18:00:00Z', ended_at: '2026-10-17T18:00:00Z' })),
     ).toMatchObject({ stage: 'ended', alertsSent: 2, checkedInAt: new Date('2026-10-17T18:00:00Z') });
+  });
+
+  it('counts the Alerts for an earlier Deadline in an Ended Adventure, but not in an Alerted one', () => {
+    expect(
+      parseAdventure(row({ ...started, stage: 'ended', alerts_sent: 1, earlier_alerts: 3, checked_in_at: '2026-10-17T18:00:00Z', ended_at: '2026-10-17T18:00:00Z' })),
+    ).toMatchObject({ stage: 'ended', alertsSent: 4 });
+    expect(parseAdventure(row({ ...started, stage: 'alerted', alerts_sent: 1, earlier_alerts: 3 }))).toMatchObject({ stage: 'alerted', alertsSent: 1 });
   });
 
   it('refuses a started row the database checks should have made impossible', () => {
