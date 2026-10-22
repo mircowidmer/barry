@@ -18,7 +18,7 @@ test('a missed Deadline alerts every contact, and the Check-in sends the All-cle
 
   await missDeadline(id);
   const alert = await waitForMail(anna.luca.email, 'Anna has not checked in');
-  assert.match(alert.Text, /Last known position at .+: 47\.03000, 8\.68000/);
+  assert.match(alert.Text, /Last position at .+: 47\.03000, 8\.68000/);
   assert.match(alert.Text, /Car: red Subaru, SZ 12345/);
   assert.equal(trailToken(alert.Text), token, 'the Alert carries the same Trail Map link');
   assert.match(alert.Text, /Anna's phone: \+41790000001/);
@@ -34,6 +34,6 @@ test('a missed Deadline alerts every contact, and the Check-in sends the All-cle
   const checkedIn = await trailMap(token);
   assert.equal(checkedIn.status, 'checked_in');
   assert.ok(checkedIn.trail?.length > 0, 'the Trail Map keeps the Trail after the Check-in');
-  assert.equal(checkedIn.last_known_position?.latitude, 47.03, 'the Trail Map keeps the Last Known Position after the Check-in');
+  assert.equal(checkedIn.last_known_position?.latitude, 47.03, 'the Trail Map keeps the Last Position after the Check-in');
   assert.deepEqual(must(await anna.client.from('delivery_failures').select('kind').eq('adventure_id', id), 'Delivery Failures'), []);
 });

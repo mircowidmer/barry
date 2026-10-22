@@ -20,5 +20,5 @@ test('the Trail stops at the Check-in, and the Trail Map shows the Check-in time
   assert.equal(map.status, 'checked_in');
   assert.equal(new Date(map.checked_in_at).getTime(), new Date(checked_in_at).getTime(), 'the Trail Map shows the time of the Check-in');
   assert.deepEqual(map.trail.map(([latitude]) => latitude), [47.03, 47.04], 'the Trail holds the Start and the reading before the Check-in, and nothing after');
-  assert.equal(map.last_known_position.latitude, 47.04, 'the Last Known Position is the last reading before the Check-in');
+  assert.equal(map.last_known_position.latitude, 47.04, 'the Last Position is the last reading before the Check-in');
 });

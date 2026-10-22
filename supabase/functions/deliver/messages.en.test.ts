@@ -64,7 +64,7 @@ Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map li
   );
 });
 
-Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', () => {
+Deno.test('an Alert carries the Plan, the Last Position and the Profile', () => {
   const { subject, text } = render(
     parseFacts({
       ...base,
@@ -85,7 +85,7 @@ Deno.test('an Alert carries the Plan, the Last Known Position and the Profile', 
       'Destination: Grosser Mythen',
       'Route: East ridge',
       '',
-      'Last known position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
+      'Last position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
       "Follow Anna's trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
       '',
       "Anna's phone: +41790000001",
@@ -102,7 +102,7 @@ Deno.test('a later Alert says which round it is, and a missing position says so'
   );
   assertEquals(subject, 'Anna has still not checked in (alert 2 of 3)');
   assertStringIncludes(text, 'Anna has still not checked in from an adventure (alert 2 of 3).');
-  assertStringIncludes(text, 'Last known position: not recorded');
+  assertStringIncludes(text, 'Last position: not recorded');
 });
 
 Deno.test('the Overdue Notice says when the Alert goes out', () => {
@@ -193,5 +193,5 @@ Deno.test('every text message body uses only the GSM-7 alphabet, so it is not se
 Deno.test('an Alert without a phone number leaves the phone line out', () => {
   const { text } = render(parseFacts({ ...base, kind: 'alert', round: 1, profile: { phone: null }, last_known_position: null }), links);
   assertEquals(text.includes("Anna's phone"), false);
-  assertStringIncludes(text, 'Last known position: not recorded');
+  assertStringIncludes(text, 'Last position: not recorded');
 });

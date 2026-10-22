@@ -172,7 +172,7 @@ select is(
 select is(
   (select array_agg(reason) from public.position_readings where adventure_id = 'a0000000-0000-0000-0000-000000000015'),
   array['start'],
-  'Start records the Last Known Position'
+  'Start records the Last Position'
 );
 select is(public.start_adventure('a0000000-0000-0000-0000-000000000015', 'Europe/Zurich'),
   null::public.refusal, 'Starting again is accepted, so a retry is safe');
@@ -296,7 +296,7 @@ select is(
 select is(
   (select count(*)::int from public.position_readings where adventure_id = 'a0000000-0000-0000-0000-000000000015' and reason = 'deadline_move'),
   1,
-  'The move records a new Last Known Position'
+  'The move records a new Last Position'
 );
 select is(public.move_deadline('a0000000-0000-0000-0000-000000000015', now() + interval '10 hours', 47.05, 8.70, 8, null),
   null::public.refusal, 'Sending the same move again is accepted');
