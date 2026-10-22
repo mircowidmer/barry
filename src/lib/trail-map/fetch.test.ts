@@ -31,7 +31,7 @@ describe('tokenFromHash', () => {
 });
 
 describe('parseTrailMap', () => {
-  it('parses an Adventure underway with its Trail and Last Known Position', () => {
+  it('parses an Adventure underway with its Trail and Last Position', () => {
     expect(parseTrailMap(underway)).toEqual({
       status: 'underway',
       adventurerName: 'Anna',

@@ -108,9 +108,9 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
           ...planLines(facts.plan),
           '',
           p
-            ? `Letzter bekannter Standort am ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
+            ? `Letzter Standort am ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
                 (p.accuracyM === null ? '' : ` (auf ${Math.round(p.accuracyM)} m genau)`)
-            : 'Letzter bekannter Standort: nicht erfasst',
+            : 'Letzter Standort: nicht erfasst',
           trailLine(facts.trailToken),
           '',
           facts.profile.phone !== null && `Telefon von ${name}: ${facts.profile.phone}`,

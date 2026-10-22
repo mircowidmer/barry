@@ -53,7 +53,7 @@ Deno.test('the German Heads-up carries the Plan, the Deadline and the Trail Map 
   );
 });
 
-Deno.test('the German Alert carries the Last Known Position and the Profile', () => {
+Deno.test('the German Alert carries the Last Position and the Profile', () => {
   const { subject, text } = render(
     parseFacts({
       ...base,
@@ -74,7 +74,7 @@ Deno.test('the German Alert carries the Last Known Position and the Profile', ()
       'Ziel: Grosser Mythen',
       'Route: Ostgrat',
       '',
-      'Letzter bekannter Standort am Sa, 17. Okt. um 14:12: 47.03000, 8.68000 (auf 12 m genau)',
+      'Letzter Standort am Sa, 17. Okt. um 14:12: 47.03000, 8.68000 (auf 12 m genau)',
       '',
       'Telefon von Anna: +41790000001',
       'Auto: rot Subaru, SZ 12345',
