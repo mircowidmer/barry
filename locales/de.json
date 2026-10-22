@@ -4,7 +4,7 @@
     "NSLocationAlwaysAndWhenInUseUsageDescription": "Mit «Immer» zeichnet Barry deine Spur etwa alle 5 Minuten auf, bis du dich zurückmeldest, damit deine Notfallkontakte ihr folgen können und ein Alarm zeigt, wo du zuletzt warst.",
     "NSLocationAlwaysUsageDescription": "Mit «Immer» zeichnet Barry deine Spur etwa alle 5 Minuten auf, bis du dich zurückmeldest, damit deine Notfallkontakte ihr folgen können und ein Alarm zeigt, wo du zuletzt warst.",
     "NSContactsUsageDescription": "Barry kopiert nur den Kontakt, den du wählst, damit es ihn informieren kann, wenn du ein Abenteuer startest und wenn du dich nicht rechtzeitig zurückmeldest.",
-    "ExpoLocationFullAccuracy": "Barry braucht deinen genauen Standort, damit deine Spur und dein letzter bekannter Standort zeigen, wo du wirklich bist.",
+    "ExpoLocationFullAccuracy": "Barry braucht deinen genauen Standort, damit deine Spur und dein letzter Standort zeigen, wo du wirklich bist.",
     "NSLocalNetworkUsageDescription": "Barry verbindet sich mit deinem Entwicklungs-Mac in diesem Netzwerk, während du die App testest."
   }
 }

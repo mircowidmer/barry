@@ -44,9 +44,9 @@ _Avoid_: Buffer, timeout
 The Adventurer's single confirmation that they are back safe, which ends the Adventure.
 _Avoid_: Ping, heartbeat, check-out
 
-**Last Known Position**:
+**Last Position**:
 The Adventurer's most recent location reading. Barry takes one when they start an Adventure or move its Deadline, and, if the Adventurer lets Barry read the location in the background, about every 5 minutes until they check in.
-_Avoid_: Location, GPS fix, track
+_Avoid_: Last known position, location, GPS fix, track
 
 **Trail**:
 The location readings Barry takes in the background during an Adventure, about one every 5 minutes, until the Check-in. After the Check-in the Adventurer and their Emergency Contacts can still see them.
@@ -96,7 +96,7 @@ The message to an Adventure's Emergency Contacts a few minutes after the Adventu
 _Avoid_: Extension notice, delay message
 
 **Alert**:
-The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Deadline, the Last Known Position, the Adventurer Profile and the contact's Trail Map link.
+The message to an Adventure's Emergency Contacts when the Grace Period ends without a Check-in, carrying the Plan, the Deadline, the Last Position, the Adventurer Profile and the contact's Trail Map link.
 _Avoid_: Notification, alarm, SOS
 
 **All-clear**:

@@ -105,9 +105,9 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
           ...planLines(facts.plan),
           '',
           p
-            ? `Last known position at ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
+            ? `Last position at ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
                 (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
-            : 'Last known position: not recorded',
+            : 'Last position: not recorded',
           trailLine(facts.trailToken),
           '',
           facts.profile.phone !== null && `${name}'s phone: ${facts.profile.phone}`,

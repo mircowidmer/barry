@@ -138,7 +138,7 @@ select is(jsonb_array_length(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000
 select is(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'trail' -> 0 -> 0, '47.0'::jsonb,
   'The Trail line starts at the Start reading');
 select is((pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'last_known_position' ->> 'latitude')::numeric, 47.06,
-  'The Last Known Position is the newest reading');
+  'The Last Position is the newest reading');
 
 reset role;
 
@@ -210,7 +210,7 @@ select is(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'status',
 select is(jsonb_array_length(pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'trail'), 8,
   'After the Check-in the Trail Map keeps every reading up to the Check-in');
 select is((pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') -> 'last_known_position' ->> 'latitude')::numeric, 47.08,
-  'After the Check-in the Trail Map keeps the Last Known Position');
+  'After the Check-in the Trail Map keeps the Last Position');
 select is((pg_temp.map('Luca:a0000000-0000-0000-0000-000000000001') ->> 'checked_in_at')::timestamptz, now(),
   'After the Check-in the Trail Map shows the Check-in time');
 

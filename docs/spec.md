@@ -58,7 +58,7 @@ The name must be filled in before the Adventurer starts their first Adventure. O
 | Route | No | Part of the Plan. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
-| Last Known Position | No | Recorded by Barry, not entered. |
+| Last Position | No | Recorded by Barry, not entered. |
 
 ### Stages
 
@@ -81,7 +81,7 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 ### Start
 
 1. The Adventurer taps **Start**.
-2. The app records the Last Known Position.
+2. The app records the Last Position.
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
 
@@ -95,7 +95,7 @@ Before Start, the app shows these warnings when they apply. Start is still allow
 
 ### Move the Deadline
 
-The Adventurer can move the Deadline later at any time until the Check-in, also after the Alert, as long as the new Deadline is in the future. Each move records a new Last Known Position. Moving the Deadline of an Overdue or Alerted Adventure makes it Active again.
+The Adventurer can move the Deadline later at any time until the Check-in, also after the Alert, as long as the new Deadline is in the future. Each move records a new Last Position. Moving the Deadline of an Overdue or Alerted Adventure makes it Active again.
 
 - When a moved Deadline passes too, the contacts get up to three Alerts for it, the same way as for the first one. The History counts the Alerts for every Deadline.
 
@@ -132,14 +132,14 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Arrival Notice | Adventurer | Local notification | The phone enters the region around the destination on the map | The destination, and a prompt to check in once back safe |
-| Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts for each Deadline | Plan, Deadline, Last Known Position, Adventurer Profile, the contact's Trail Map link |
+| Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts for each Deadline | Plan, Deadline, Last Position, Adventurer Profile, the contact's Trail Map link |
 | All-clear | Each contact of the Adventure | Every channel the contact has | The Adventurer checks in | The time of the Check-in, the contact's Trail Map link to see where the Adventurer has been |
 
 ### Message rules
 
 - The Grace Period is 1 minute. The Reminder lead time is 30 minutes. The Adventurer cannot change either value.
 - If the Adventurer sets a Deadline less than 30 minutes ahead, at Start or with a move, Barry sends no Reminder for it. The Overdue Notice still goes out.
-- The Last Known Position in an Alert gives the time of the reading and the coordinates.
+- The Last Position in an Alert gives the time of the reading and the coordinates.
 - Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".
 - An Alert states facts only. It gives no guidance on what to do.
 - Messages are in English or German. The text of the messages Supabase sends is kept in one place per language, and the text of the Reminder and the Overdue Notice in the app's texts, so that other languages can be added.
@@ -184,8 +184,8 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 - iOS sends background readings when the phone moves, not on a timer. Barry keeps the first one of every 5 minutes.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
-- The Last Known Position is the newest reading, from Start, a Deadline move, or the Trail.
-- The Trail stays with the Adventure after the Check-in. The app shows the map below the Plan on the live Adventure screen, where it adds new readings every 5 minutes and the Plan's Last Known Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
+- The Last Position is the newest reading, from Start, a Deadline move, or the Trail.
+- The Trail stays with the Adventure after the Check-in. The app shows the map below the Plan on the live Adventure screen, where it adds new readings every 5 minutes and the Plan's Last Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
 - The Trail is deleted with the Adventurer's account.
 
 ## Trail Map
@@ -193,10 +193,10 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
 
 - Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
-- The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Known Position with the time of the reading.
+- The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Position with the time of the reading.
 - The page adds new readings every 5 minutes while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. While the Adventure is Alerted, it shows that.
-- After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Known Position. Barry records no readings after the Check-in.
+- After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Position. Barry records no readings after the Check-in.
 - The link never expires. After the Check-in it keeps showing the Check-in time and the Trail until the Adventurer deletes the Adventure or the account.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.

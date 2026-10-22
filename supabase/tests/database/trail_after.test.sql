@@ -35,7 +35,7 @@ select is(public.trail_map((select token from link), '2026-10-15T10:00:20Z') -> 
 select is(
   public.trail_map((select token from link), '2026-10-15T10:00:20Z') - 'trail',
   public.trail_map((select token from link)) - 'trail',
-  'The status, the Plan and the Last Known Position come with every answer');
+  'The status, the Plan and the Last Position come with every answer');
 
 select * from finish();
 rollback;

@@ -36,7 +36,7 @@ export const siteText = {
   en: {
     logo: "Barry's icon, a St. Bernard with a little barrel on its collar",
     adventure: 'Adventure',
-    lastKnown: (at: Date) => `Last known position, ${formatWhen(at)}`,
+    lastKnown: (at: Date) => `Last position, ${formatWhen(at)}`,
     loading: 'Loading…',
     linkBroken: 'This link does not work.',
     unreachable: 'Barry cannot be reached. Try again in a moment.',
@@ -47,8 +47,8 @@ export const siteText = {
     checkedIn: (name: string, at: Date) => `${name} checked in at ${formatWhen(at)}.`,
     lastKnownPosition: (p: Position | null) =>
       p
-        ? `Last known position at ${formatWhen(p.takenAt)}: ${position(p)}` + (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
-        : 'Last known position: not recorded',
+        ? `Last position at ${formatWhen(p.takenAt)}: ${position(p)}` + (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
+        : 'Last position: not recorded',
     plan: 'Plan',
     destination: 'Destination',
     route: 'Route',
@@ -67,7 +67,7 @@ export const siteText = {
   de: {
     logo: 'Barrys Symbol, ein Bernhardiner mit einem kleinen Fässchen am Halsband',
     adventure: 'Abenteuer',
-    lastKnown: (at: Date) => `Letzter bekannter Standort, ${formatWhenGerman(at)}`,
+    lastKnown: (at: Date) => `Letzter Standort, ${formatWhenGerman(at)}`,
     loading: 'Wird geladen…',
     linkBroken: 'Dieser Link funktioniert nicht.',
     unreachable: 'Barry ist nicht erreichbar. Versuch es gleich nochmals.',
@@ -79,9 +79,9 @@ export const siteText = {
     checkedIn: (name: string, at: Date) => `${name} hat sich am ${formatWhenGerman(at)} zurückgemeldet.`,
     lastKnownPosition: (p: Position | null) =>
       p
-        ? `Letzter bekannter Standort am ${formatWhenGerman(p.takenAt)}: ${position(p)}` +
+        ? `Letzter Standort am ${formatWhenGerman(p.takenAt)}: ${position(p)}` +
           (p.accuracyM === null ? '' : ` (auf ${Math.round(p.accuracyM)} m genau)`)
-        : 'Letzter bekannter Standort: nicht erfasst',
+        : 'Letzter Standort: nicht erfasst',
     plan: 'Plan',
     destination: 'Ziel',
     route: 'Route',
