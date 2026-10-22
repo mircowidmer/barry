@@ -10,7 +10,7 @@ npx supabase start
 npm start
 ```
 
-Copy `.env.example` to `.env.local` first, and set `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the publishable key that `npx supabase start` prints. `EXPO_PUBLIC_SUPABASE_URL` already points at the local stack for the simulator; the iPhone guide says what a phone needs there. `BARRY_TEST_EMAIL` and `BARRY_TEST_PASSWORD` name the test account that the barry-verify skill drives the app with; the app itself does not read them.
+Copy `.env.example` to `.env.local` first, and set `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the publishable key that `npx supabase start` prints. `EXPO_PUBLIC_SUPABASE_URL` already points at the local stack for the simulator; the iPhone guide says what a phone needs there. `BARRY_TEST_EMAIL` and `BARRY_TEST_PASSWORD` name the test account that the barry-frontend-verify skill drives the app with; the app itself does not read them.
 
 The app needs the development build, Barry Dev. `npm run ios` builds it into the iOS Simulator. [How to run Barry on your iPhone](docs/iphone.md) covers a phone, and [Builds](docs/builds.md) the variants and the cloud builds with EAS.
 
@@ -45,10 +45,11 @@ npm run e2e
 
 Each is a prompt under `.claude/skills/`, run in Claude Code as `/<name>`.
 
-- `barry-verify` drives the app in the iOS Simulator against the local stack, the way a user does, and captures proof.
+- `barry-backend-verify` proves a change to the migrations, the commands, the clock or `deliver` against the local stack, without the app, and captures proof. It runs in a cloud session too.
+- `barry-frontend-verify` drives the app in the iOS Simulator against the local stack, the way a user does, and captures proof.
 - `barry-audit-consistency` finds where the repository disagrees with itself and reports it; `--fix` applies the safe fixes.
 - `barry-e2e-gaps` lists the use cases the documents promise that no end-to-end case proves; `--fix` writes the missing cases against the running stack.
 - `barry-prune-tests` finds the tests whose failure would tell nothing, and the duplicates; `--fix` cuts them.
 - `barry-update-readme` keeps this file true to the repository; `--fix` edits it.
 - `barry-assure-code-quality` reviews the app code against current best practices in coding style and code quality; `--fix` applies the certain, behaviour-preserving fixes.
-- `barry-maintenance` runs the five skills above other than `barry-verify` in the order where each one's changes feed the next; `--fix` passes `--fix` to each.
+- `barry-maintenance` runs the other skills above in the order where each one's changes feed the next, with `barry-e2e-gaps` twice and the two verify skills last; `--fix` passes `--fix` to each.

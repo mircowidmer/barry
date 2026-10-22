@@ -38,7 +38,7 @@ Not an inconsistency: a style preference, a thing you would have done differentl
 3. **CONTEXT.md**, the glossary. Every capitalised term and every "Avoid" list is a rule for user-facing text.
 4. **docs/spec.md**, the specification, including its numeric constants and its tables of who receives which message with which content.
 5. **Config**: `app.json`, `app.config.js`, `eas.json`, `supabase/config.toml`, `supabase/seed.sql`, `.env.example`, `tsconfig.json`, `eslint.config.js`, the `jest` block in `package.json`, `.github/workflows/trail-map.yml`, `plugins/without-push.js`.
-6. **Guides**: `README.md`, `AGENTS.md`, everything in `docs/*.md`, `docs/adr/`, and the barry-verify skill in `.claude/skills/barry-verify/` with its feature files and scripts.
+6. **Guides**: `README.md`, `AGENTS.md`, everything in `docs/*.md`, `docs/adr/`, and the two verify skills, `.claude/skills/barry-backend-verify/` and `.claude/skills/barry-frontend-verify/` with its feature files, with their scripts.
 7. **Tests**: `src/**/*.test.ts`, `supabase/tests/database/*.test.sql`, `supabase/functions/deliver/*.test.ts`, `e2e/*.e2e.mjs`.
 8. **Web and static content**: `web/*.html`, `locales/de.json`, `barry-prompts.html`, `docs/overview/`.
 
@@ -66,7 +66,7 @@ Extract every duration and count from `docs/spec.md` and CONTEXT.md and find whe
 - The Deadline Update delay and the coalescing of quick moves in a row.
 - Trail reading cadence. Note that a migration is named `ten_second_trail` while CONTEXT.md, `locales/de.json`, and the `app.json` permission strings say about every 5 minutes. Establish what the server enforces, what the phone uploads, what the unique index collapses to, and what each text promises, and report every disagreement.
 - How long the Trail Map stays reachable after a Check-in, and after an Ended Adventure is deleted.
-- Any retention, cleanup, or health-check interval in the migrations and in `scripts/` or the barry-verify doctor.
+- Any retention, cleanup, or health-check interval in the migrations and in `scripts/` or the verify skills' doctors.
 
 Compare each against the SQL, the TypeScript in `src/lib/barry/`, the Edge Function, the e2e tests, and the design documents. A number that appears in a test but nowhere in a document is also a finding, with low severity.
 
@@ -110,17 +110,17 @@ Report an export on one side that is missing on the other, a differing signature
 ### 7. Build and run configuration
 
 - `app.json` versus `app.config.js`: which keys the config function overrides, and whether anything in `app.json` becomes wrong for a non-production variant (scheme, bundle identifier, display name, permission strings).
-- `eas.json` profiles versus the `build:*` scripts in `package.json`, versus `docs/builds.md`, versus `docs/iphone.md`, versus the barry-verify skill's launch steps (bundle identifier `support.barry.dev`, simulator name, Metro port, relay port).
+- `eas.json` profiles versus the `build:*` scripts in `package.json`, versus `docs/builds.md`, versus `docs/iphone.md`, versus the launch steps of the two verify skills (bundle identifier `support.barry.dev`, simulator name, Metro port, relay port).
 - `plugins/without-push.js` versus the `BARRY_WITHOUT_PUSH` rule in `AGENTS.md` and `docs/iphone.md`.
 - `AGENTS.md` says to use `bunx` when `bun.lock` is present. State whether it is present and whether any doc or script assumes bun anyway.
-- The commands under **Check it** in `README.md` versus `package.json` scripts, versus `AGENTS.md`, versus the barry-verify skill. Every command must exist and run from the repo root.
+- The commands under **Check it** in `README.md` versus `package.json` scripts, versus `AGENTS.md`, versus the two verify skills. Every command must exist and run from the repo root.
 - `tsconfig.json` excludes, `eslint.config.js` ignores, and the `jest.testPathIgnorePatterns` block: do they agree on what is app code and what is not? Is there a test file that none of the runners picks up?
 - The Expo SDK major in `package.json` versus every version mentioned in docs and skill files.
 
 ### 8. Tests versus promises
 
-- The barry-verify skill's description of the e2e suite lists the cases it covers. Compare with the files actually in `e2e/`. Report cases listed but absent and files present but unlisted.
-- Map each feature file in `.claude/skills/barry-verify/features/` to the screens in `src/app/`. Report screens with no recipe and recipes for screens that no longer exist, and quoted button labels that do not appear in `texts.ts`.
+- barry-backend-verify's description of the e2e suite lists the cases it covers, and its table **Which tests cover what** names pgTAP and e2e files. Compare both with the files actually in `e2e/` and `supabase/tests/database/`. Report cases listed but absent and files present but unlisted.
+- Map each feature file in `.claude/skills/barry-frontend-verify/features/` to the screens in `src/app/`. Report screens with no recipe and recipes for screens that no longer exist, and quoted button labels that do not appear in `texts.ts`.
 - For each row in the spec's stage table and message table, name the test that covers it, or say none does.
 - Compare `supabase/tests/database/*.test.sql` names and assertions with the migrations they test. A test that still asserts a behaviour a later migration changed is a finding.
 

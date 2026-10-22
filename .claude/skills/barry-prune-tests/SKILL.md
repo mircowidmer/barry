@@ -16,7 +16,7 @@ You are pruning the tests of the repository at the current working directory, Ba
 | Edge Function | `supabase/functions/deliver/*.test.ts`, one `Deno.test(...)` per test | `deno test supabase/functions/deliver` | deno |
 | End to end | `e2e/*.e2e.mjs`, one `test(...)` per file | `npm run e2e` | the local stack and `node scripts/sms-relay.mjs` |
 
-Each pgTAP file declares `select plan(N)` near the top, or computes N from a `cases` table as `decide.test.sql` does. Every assertion removed lowers N by one, or removes one row from `cases`. `e2e/stack.mjs` is the helper the cases share, not a test. The sentence in `.claude/skills/barry-verify/SKILL.md` that begins with `npm run e2e` names every e2e case.
+Each pgTAP file declares `select plan(N)` near the top, or computes N from a `cases` table as `decide.test.sql` does. Every assertion removed lowers N by one, or removes one row from `cases`. `e2e/stack.mjs` is the helper the cases share, not a test. The sentence in `.claude/skills/barry-backend-verify/SKILL.md` that begins with `npm run e2e` names every e2e case.
 
 ## Arguments
 
@@ -77,7 +77,7 @@ With `--fix`, append a list of the commits made, in order, with one line each, a
 Only after the report is complete. Apply a cut only when every rule below holds. Skip it otherwise and say which rule stopped it.
 
 1. **The report names it with its proof.** A suspected cut, and a cut in a suite you could not run, is never applied.
-2. **The whole test goes, nothing less.** Remove the whole `it`, `test` or `Deno.test` block, the fixtures and helpers only it used, and the imports that become unused. In pgTAP, remove the assertion or the `cases` row and lower `plan(N)`. When an e2e file goes, remove its case from the sentence in `.claude/skills/barry-verify/SKILL.md` in the same commit. An assertion is never weakened, and a test's inputs are never changed so that a duplicate looks different.
+2. **The whole test goes, nothing less.** Remove the whole `it`, `test` or `Deno.test` block, the fixtures and helpers only it used, and the imports that become unused. In pgTAP, remove the assertion or the `cases` row and lower `plan(N)`. When an e2e file goes, remove its case from the sentence in `.claude/skills/barry-backend-verify/SKILL.md`, and from its table **Which tests cover what** with every pgTAP file that goes, in the same commit. An assertion is never weakened, and a test's inputs are never changed so that a duplicate looks different.
 3. **Nothing else changes.** The implementation is never touched: the scratch break from step 3 is reverted before anything is committed. No test is added, because a gap is a finding for the author. Tests outside the path given as the argument stay.
 4. **One file, one commit.** After each file's cuts run the suite you touched, `npx expo lint` and `npx tsc --noEmit`. If anything fails, `git checkout -- <files>` and mark the cuts skipped with the failing output. If all pass, commit that file's cuts alone, with a message in the style of the repository's history: one sentence that says what the reader now sees, not what the diff does, for example "The rows tests keep one case per branch of parseAdventure instead of one per column", followed by the attribution lines the session requires.
 5. **A suite is never cut to turn it green.** A failing test is a finding for the author, not a cut.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Read-only: is the local Barry stack worth driving? Exit 0 only when every check passes.
+# Read-only: is the local Supabase stack worth proving against? Exit 0 only when every check passes.
 set -u
 cd "$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
 fail=0
@@ -12,9 +12,5 @@ check "Edge runtime container is up"           "docker ps --format '{{.Names}}' 
 check "API answers on :54321"                  "node -e \"fetch('http://127.0.0.1:54321/rest/v1/').then(r=>process.exit(r.status<500?0:1),()=>process.exit(1))\""
 check "pg_cron ticked in the last 2 minutes"   "[ \"\$(docker exec supabase_db_barry-local psql -U postgres -tAc \"select last_tick_at > now() - interval '2 minutes' from private.clock_status\")\" = t ]"
 check "Text message relay listens on :8788"    "lsof -nP -iTCP:8788 -sTCP:LISTEN"
-check "Metro listens on :8081"                "lsof -nP -iTCP:8081 -sTCP:LISTEN"
-check "A simulator is booted"                  "xcrun simctl list devices booted | grep -q Booted"
-check "Development build support.barry.dev is installed" "xcrun simctl listapps booted | grep -q support.barry.dev"
-check "Test account in .env.local"             "grep -q '^BARRY_TEST_EMAIL=' .env.local && grep -q '^BARRY_TEST_PASSWORD=' .env.local"
 
 exit $fail

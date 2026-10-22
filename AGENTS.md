@@ -66,7 +66,7 @@ The four test suites, each with its single-file form. The README's **Check it** 
 - The local Edge Runtime does not always reload `supabase/functions`. After a change there, run `docker restart supabase_edge_runtime_barry-local`.
 - `src/lib/database.types.ts` is generated: `npx supabase gen types typescript --local > src/lib/database.types.ts` with the stack running, after a migration changes a table, view, function or enum.
 - Hosted changes go out with `npx supabase db push` and `npx supabase functions deploy deliver`. Hosted secrets are set with `node scripts/hosted-secrets.mjs` from `supabase/.env.hosted`, never with `npx supabase secrets set`, which would also upload the local values from `supabase/config.toml`. Hosted Auth settings live in `[remotes.hosted]` of `supabase/config.toml` and go out with `node scripts/hosted-auth.mjs`, never through the dashboard. [docs/hosted-supabase.md](docs/hosted-supabase.md) has the details.
-- A change to a screen, to `src/lib/barry`, to a command or to delivery is done once `/barry-verify` has driven it in the iOS Simulator and captured proof. The other skills are listed in the README.
+- A change to a screen or to `src/lib/barry` is done once `/barry-frontend-verify` has driven it in the iOS Simulator and captured proof. A change to a migration, a command, the clock or `deliver` is done once `/barry-backend-verify` has proven it against the local stack, which also runs in a cloud session. The other skills are listed in the README.
 
 Where to watch what Barry sends locally: [docs/local-messages.md](docs/local-messages.md).
 
@@ -107,5 +107,5 @@ A text change usually touches more than one of them, and the tests of each pin t
 
 ## Conventions
 
-- Commit titles are one prose sentence naming the behaviour that changed, in the glossary's terms, as in `git log`. A change to a skill or the README is prefixed with its name, such as `barry-verify:` or `README:`.
+- Commit titles are one prose sentence naming the behaviour that changed, in the glossary's terms, as in `git log`. A change to a skill or the README is prefixed with its name, such as `barry-frontend-verify:` or `README:`.
 - Constants that are implementation choices stay in the code next to what they protect, with a test that pins them, and the spec names them instead of their values.
