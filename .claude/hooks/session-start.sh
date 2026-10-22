@@ -24,3 +24,26 @@ if [ -f "$ca" ]; then
   printf 'DENO_TLS_CA_STORE=mozilla,system\nSSL_CERT_FILE=%s\n' \
     "$repo/supabase/functions/proxy-ca.pem" > "$repo/supabase/functions/.env"
 fi
+
+# The tests and linters need node_modules, which a fresh checkout lacks. npm install rather than
+# npm ci, so the cached container keeps what an earlier session installed, and --no-save, because
+# the container's older npm would rewrite package-lock.json.
+(cd "$repo" && npm install --no-save --no-audit --no-fund)
+
+# `npx tsc --noEmit` needs expo-env.d.ts, which `npm start` writes on its first run and git ignores.
+if [ ! -f "$repo/expo-env.d.ts" ]; then
+  printf '/// <reference types="expo/types" />\n\n// NOTE: This file should not be edited and should be in your git ignore' \
+    > "$repo/expo-env.d.ts"
+fi
+
+# The container has Docker but does not start its daemon, and `npx supabase start` needs it.
+# The Supabase stack itself stays a manual step: it takes minutes, and only the pgTAP and e2e
+# suites need it.
+if ! docker info > /dev/null 2>&1; then
+  setsid nohup dockerd > /tmp/dockerd.log 2>&1 < /dev/null &
+  for _ in $(seq 1 30); do
+    docker info > /dev/null 2>&1 && break
+    sleep 1
+  done
+  docker info > /dev/null 2>&1 || echo "dockerd did not start, see /tmp/dockerd.log" >&2
+fi
