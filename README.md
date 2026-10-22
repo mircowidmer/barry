@@ -47,6 +47,7 @@ Each is a prompt under `.claude/skills/`, run in Claude Code as `/<name>`.
 
 - `barry-backend-verify` proves a change to the migrations, the commands, the clock or `deliver` against the local stack, without the app, and captures proof. It runs in a cloud session too.
 - `barry-frontend-verify` drives the app in the iOS Simulator against the local stack, the way a user does, and captures proof.
+- `barry-verify` runs the two above, the backend first, and reports both; `--fix` fixes each failure on the side that is wrong, commits it and proves it again.
 - `barry-audit-consistency` finds where the repository disagrees with itself and reports it; `--fix` applies the safe fixes.
 - `barry-e2e-gaps` lists the use cases the documents promise that no end-to-end case proves; `--fix` writes the missing cases against the running stack.
 - `barry-prune-tests` finds the tests whose failure would tell nothing, and the duplicates; `--fix` cuts them.
