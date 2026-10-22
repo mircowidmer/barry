@@ -40,6 +40,9 @@ fi
 # The Supabase stack itself stays a manual step: it takes minutes, and only the pgTAP and e2e
 # suites need it.
 if ! docker info > /dev/null 2>&1; then
+  # A resumed container keeps the pid files of the daemons that ran before it was saved. dockerd
+  # then takes a stranger with containerd's old pid for containerd and gives up after 15 seconds.
+  rm -f /var/run/docker.pid /var/run/docker/containerd/containerd.pid
   setsid nohup dockerd > /tmp/dockerd.log 2>&1 < /dev/null &
   for _ in $(seq 1 30); do
     docker info > /dev/null 2>&1 && break
