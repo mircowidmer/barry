@@ -14,6 +14,7 @@ import {
   type TextInputProps,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
@@ -54,15 +55,18 @@ export function LoadState({
 
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
 
+/** With a footer, the footer floats above the tab bar, and the content scrolls up past it. */
 export function Screen({
   ref,
   title,
   onRefresh,
+  footer,
   children,
 }: {
   ref?: Ref<ScrollViewInstance>;
   title?: string;
   onRefresh?: () => Promise<unknown>;
+  footer?: ReactNode;
   children: ReactNode;
 }) {
   const theme = useTheme();
@@ -92,7 +96,7 @@ export function Screen({
       setRefreshing(false);
     }
   };
-  return (
+  const content = (
     <ScrollView
       ref={scroll}
       scrollToOverflowEnabled
@@ -104,10 +108,20 @@ export function Screen({
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets
       refreshControl={onRefresh && <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={theme.textSecondary} />}
-      contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }]}>
+      contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }, footer !== undefined && styles.underFooter]}>
       {title && <ThemedText type="subtitle">{title}</ThemedText>}
       {children}
     </ScrollView>
+  );
+  if (footer === undefined) return content;
+  // The safe area of a tab's screen ends at the top of the tab bar, so the footer floats just above it.
+  return (
+    <View style={styles.withFooter}>
+      {content}
+      <SafeAreaView edges={['bottom']} pointerEvents="box-none" style={styles.footer}>
+        {footer}
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -243,6 +257,10 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
   },
+  withFooter: { flex: 1 },
+  // The footer's height and the gaps around it, so the last content scrolls clear of it.
+  underFooter: { paddingBottom: 64 + Spacing.three * 3 },
+  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: Spacing.three, paddingBottom: Spacing.three },
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   field: { gap: Spacing.one },
   label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
