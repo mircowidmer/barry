@@ -13,7 +13,12 @@ const account = createAccount(supabase.auth);
 export default function AccountScreen() {
   const loaded = useLoad(() => account.email());
   const t = useTexts();
+  const [pulls, setPulls] = useState(0);
   const failure = () => t.common.couldNotReach;
+  const pull = () => {
+    setPulls((n) => n + 1);
+    return loaded.reload();
+  };
   if (loaded.data === undefined) {
     return (
       <Screen>
@@ -23,11 +28,11 @@ export default function AccountScreen() {
     );
   }
   return (
-    <Screen onRefresh={loaded.reload}>
+    <Screen onRefresh={pull}>
       <Close />
       <LoadState loaded={loaded} failure={failure} />
       <PasswordChange email={loaded.data.email} />
-      <EmailChange stored={loaded.data} onRequested={loaded.reload} />
+      <EmailChange stored={loaded.data} pulls={pulls} onRequested={loaded.reload} />
     </Screen>
   );
 }
@@ -42,7 +47,8 @@ function Close() {
 }
 
 // whileEmail: a notice about a requested change is done once the stored address is no longer the one it was requested from.
-type Shown = { tone: 'success' | 'danger'; text: string; whileEmail?: string } | null;
+// atPull: the notice is done once the Adventurer pulls the sheet down, so the reload can show what is stored.
+type Shown = { tone: 'success' | 'danger'; text: string; whileEmail?: string; atPull?: number } | null;
 
 function PasswordChange({ email }: { email: string }) {
   const t = useTexts();
@@ -93,14 +99,24 @@ function PasswordChange({ email }: { email: string }) {
   );
 }
 
-function EmailChange({ stored, onRequested }: { stored: AccountEmail; onRequested: () => Promise<void> }) {
+function EmailChange({
+  stored,
+  pulls,
+  onRequested,
+}: {
+  stored: AccountEmail;
+  pulls: number;
+  onRequested: () => Promise<void>;
+}) {
   const t = useTexts();
   const [next, setNext] = useState('');
   const [busy, setBusy] = useState(false);
   const [shown, setShown] = useState<Shown>(null);
   const address = next.trim().toLowerCase();
   const unchanged = address === '' || address === stored.email.toLowerCase();
-  const notice = shown && (shown.whileEmail === undefined || shown.whileEmail === stored.email) ? shown : null;
+  const current = (s: NonNullable<Shown>) =>
+    (s.whileEmail === undefined || s.whileEmail === stored.email) && (s.atPull === undefined || s.atPull === pulls);
+  const notice = shown && current(shown) ? shown : null;
 
   const change = async () => {
     setBusy(true);
@@ -109,10 +125,15 @@ function EmailChange({ stored, onRequested }: { stored: AccountEmail; onRequeste
     setBusy(false);
     if (outcome.kind === 'confirmation_sent') {
       setNext('');
-      setShown({ tone: 'success', text: t.account.confirmationSent(outcome.from, outcome.to), whileEmail: stored.email });
+      setShown({
+        tone: 'success',
+        text: t.account.confirmationSent(outcome.from, outcome.to),
+        whileEmail: stored.email,
+        atPull: pulls,
+      });
       await onRequested();
     } else {
-      setShown({ tone: 'danger', text: outcome.message });
+      setShown({ tone: 'danger', text: outcome.message, atPull: pulls });
     }
   };
 
