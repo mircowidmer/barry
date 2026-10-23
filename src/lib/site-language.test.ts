@@ -17,11 +17,11 @@ describe('preferredLanguage', () => {
 });
 
 describe('English page text', () => {
-  it('says "at" once before the time of the Check-in and of the Last Position', () => {
+  it('says "at" once in the time of the Check-in and of the Last Position', () => {
     const at = new Date(2026, 9, 22, 23, 14);
-    expect(siteText.en.checkedIn('Anna', at)).toBe('Anna checked in at Thu 22 Oct, 23:14.');
+    expect(siteText.en.checkedIn('Anna', at)).toBe('Anna checked in on Thu 22 Oct at 23:14.');
     expect(siteText.en.lastKnownPosition({ takenAt: at, latitude: 47.03, longitude: 8.68, accuracyM: null })).toMatch(
-      /^Last position at Thu 22 Oct, 23:14: /,
+      /^Last position on Thu 22 Oct at 23:14: /,
     );
   });
 });
