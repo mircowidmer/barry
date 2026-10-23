@@ -16,6 +16,16 @@ describe('preferredLanguage', () => {
   });
 });
 
+describe('English page text', () => {
+  it('says "at" once before the time of the Check-in and of the Last Position', () => {
+    const at = new Date(2026, 9, 22, 23, 14);
+    expect(siteText.en.checkedIn('Anna', at)).toBe('Anna checked in at Thu 22 Oct, 23:14.');
+    expect(siteText.en.lastKnownPosition({ takenAt: at, latitude: 47.03, longitude: 8.68, accuracyM: null })).toMatch(
+      /^Last position at Thu 22 Oct, 23:14: /,
+    );
+  });
+});
+
 describe('German page text', () => {
   it('writes the time like the German messages', () => {
     expect(formatWhenGerman(new Date(2026, 9, 17, 18, 5))).toBe('Sa, 17. Okt. um 18:05');
