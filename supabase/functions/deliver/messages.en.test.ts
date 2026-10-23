@@ -151,7 +151,7 @@ Deno.test('a Deadline Update gives the earlier and the new check-in time, the de
   assertEquals(
     text,
     [
-      'Anna needs more time and moved the check-in time from Sat 17 Oct, 18:00 to Sat 17 Oct, 20:00. Barry has picked up the new scent and keeps watching.',
+      'Anna needs more time and moved the deadline from Sat 17 Oct, 18:00 to Sat 17 Oct, 20:00. Barry has picked up the new scent and keeps watching.',
       '',
       'Destination: Grosser Mythen',
       '',
