@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
@@ -52,6 +52,9 @@ export default function ProfileScreen() {
   const named = profile !== undefined && profile !== null;
   return (
     <Screen onRefresh={loaded.reload}>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button onPress={() => router.push('/profile/about')}>{t.profile.edit}</Stack.Toolbar.Button>
+      </Stack.Toolbar>
       {profile === undefined ? (
         <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={() => void loaded.reload()} />
       ) : (
@@ -101,19 +104,17 @@ export default function ProfileScreen() {
   );
 }
 
-/** Who the Adventurer is: the initials, the name and the phone number, with Edit for both. */
+/** Who the Adventurer is: the initials, the name and the phone number. Edit in the header changes them. */
 function Header({ profile }: { profile: AdventurerProfile | null }) {
   const theme = useTheme();
   const t = useTexts();
   const name = profile?.name ?? '';
   const phone = profile?.phone ? formatPhoneNumber(profile.phone) : t.profile.noPhone;
   return (
-    <Pressable
-      accessibilityRole="button"
+    <View
+      accessible
       accessibilityLabel={name === '' ? t.profile.addName : `${name}, ${phone}`}
-      accessibilityHint={t.profile.editHint}
-      onPress={() => router.push('/profile/about')}
-      style={({ pressed }) => [styles.header, { backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement }]}>
+      style={[styles.header, { backgroundColor: theme.backgroundElement }]}>
       <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
         {name === '' ? (
           <SymbolView
@@ -134,10 +135,7 @@ function Header({ profile }: { profile: AdventurerProfile | null }) {
           {phone}
         </ThemedText>
       )}
-      <ThemedText themeColor="accent" style={styles.line}>
-        {t.profile.edit}
-      </ThemedText>
-    </Pressable>
+    </View>
   );
 }
 
