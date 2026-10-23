@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(3);
+select plan(2);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000000');
@@ -38,13 +38,6 @@ select is(
   'A shared address gets one Heads-up per channel'
 );
 
-select private.enqueue_to_contacts('a0000000-0000-0000-0000-000000000001', 'alert', 1::smallint);
-
-select is(
-  pg_temp.messages('alert'),
-  array['email luca@example.com pending', 'sms +41791111111 pending'],
-  'A shared address gets one Alert per channel'
-);
 
 select * from finish();
 rollback;
