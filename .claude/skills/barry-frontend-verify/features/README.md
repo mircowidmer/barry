@@ -14,7 +14,7 @@ This directory is the maintained source for verifying what a Barry user can do. 
 
 - Start every recipe from the baseline unless its preconditions say otherwise.
 - Locate every control by its visible text in a fresh screenshot. Coordinates are hints for an unscrolled iPhone 18 Pro screen.
-- Enter text only through `clip.sh` and the long-press Paste menu.
+- Enter text with Maestro's `type` flow through `maestro.sh`, or through `clip.sh` and the long-press Paste menu when Maestro is unavailable.
 - Use `fixture.mjs` only for preconditions and to skip waiting. Never use it for the step being verified.
 - End every recipe with `fixture.mjs end` if an Adventure is still live.
 
