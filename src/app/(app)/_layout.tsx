@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
-import { Colors, FontFamily } from '@/constants/theme';
+import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
@@ -52,7 +52,8 @@ function Navigation() {
   );
 }
 
-// Headers, sheets and screens take Barry's colours and font instead of the navigation library's white, grey and system font.
+// Headers, sheets and screens take Barry's colours instead of the navigation library's white and grey. Titles take
+// Barry's font in each tab's stack; back buttons keep the system font.
 const navigationTheme = (scheme: 'light' | 'dark') => {
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const colors = Colors[scheme];
@@ -65,12 +66,6 @@ const navigationTheme = (scheme: 'light' | 'dark') => {
       card: colors.background,
       text: colors.text,
       border: colors.backgroundSelected,
-    },
-    fonts: {
-      regular: { ...base.fonts.regular, fontFamily: FontFamily },
-      medium: { ...base.fonts.medium, fontFamily: FontFamily },
-      bold: { ...base.fonts.bold, fontFamily: FontFamily },
-      heavy: { ...base.fonts.heavy, fontFamily: FontFamily },
     },
   };
 };

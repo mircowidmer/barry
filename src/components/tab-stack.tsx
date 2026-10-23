@@ -1,6 +1,10 @@
 import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
 
+import { FontFamily } from '@/constants/theme';
+
+const titleStyle = { fontFamily: FontFamily };
+
 /**
  * The navigator of one tab. Its first screen carries the tab's name as a large title, and a screen
  * pushed on top keeps the tab bar, as iOS expects, and sets its own title. The children declare
@@ -8,7 +12,7 @@ import type { ReactNode } from 'react';
  */
 export function TabStack({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <Stack screenOptions={{ title }}>
+    <Stack screenOptions={{ title, headerTitleStyle: titleStyle, headerLargeTitleStyle: titleStyle }}>
       <Stack.Screen name="index" options={{ headerLargeTitle: true }} />
       {children}
     </Stack>

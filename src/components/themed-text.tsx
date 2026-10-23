@@ -6,15 +6,18 @@ import { useTheme } from '@/hooks/use-theme';
 type ThemedTextProps = TextProps & {
   type?: 'default' | 'small' | 'smallBold' | 'subtitle';
   themeColor?: ThemeColor;
+  /** Nordwand Mono, for titles, section headers and numbers that stand on their own. Everything else reads in the system font. */
+  mono?: boolean;
 };
 
-export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
+export function ThemedText({ style, type = 'default', themeColor, mono = type === 'subtitle', ...rest }: ThemedTextProps) {
   const theme = useTheme();
 
   return (
     <Text
       style={[
-        { color: theme[themeColor ?? 'text'], fontFamily: FontFamily },
+        { color: theme[themeColor ?? 'text'] },
+        mono && { fontFamily: FontFamily },
         type === 'default' && styles.default,
         type === 'small' && styles.small,
         type === 'smallBold' && styles.smallBold,

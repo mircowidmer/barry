@@ -129,7 +129,11 @@ export function Section({ title, children }: { title?: string; children: ReactNo
   const theme = useTheme();
   return (
     <View style={[styles.section, { backgroundColor: theme.backgroundElement }]}>
-      {title && <ThemedText type="smallBold">{title}</ThemedText>}
+      {title && (
+        <ThemedText type="smallBold" mono>
+          {title}
+        </ThemedText>
+      )}
       {children}
     </View>
   );
@@ -137,7 +141,14 @@ export function Section({ title, children }: { title?: string; children: ReactNo
 
 type Toggle = { value: boolean; onValueChange: (value: boolean) => void; disabled?: boolean };
 
-export function Field({ label, hint, toggle, ...input }: { label: string; hint?: string; toggle?: Toggle } & TextInputProps) {
+/** `mono` sets a code or a number the Adventurer types in Nordwand Mono. */
+export function Field({
+  label,
+  hint,
+  toggle,
+  mono = false,
+  ...input
+}: { label: string; hint?: string; toggle?: Toggle; mono?: boolean } & TextInputProps) {
   const theme = useTheme();
   const inputColors = useInputColors();
   const t = useTexts();
@@ -171,6 +182,7 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
             borderColor: theme.backgroundSelected,
           },
           input.multiline && styles.multiline,
+          mono && { fontFamily: FontFamily },
         ]}
         {...input}
       />
@@ -264,7 +276,7 @@ const styles = StyleSheet.create({
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   field: { gap: Spacing.one },
   label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
-  input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16, fontFamily: FontFamily },
+  input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
   hold: { minHeight: 64, overflow: 'hidden' },
   capsule: { borderRadius: 32 },

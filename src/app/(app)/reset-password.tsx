@@ -51,6 +51,7 @@ export default function ResetPasswordScreen() {
           <Notice>{t.resetPassword.codeSent(email.trim())}</Notice>
           <Field
             label={t.resetPassword.code}
+            mono
             value={code}
             onChangeText={setCode}
             keyboardType="number-pad"
