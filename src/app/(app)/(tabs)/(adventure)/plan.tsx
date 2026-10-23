@@ -1,10 +1,11 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { DestinationMap, type MapCamera } from '@/components/destination-map';
-import { Button, Field, FirstLoad, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, Field, FirstLoad, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Note } from '@/components/grouped-list';
 import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
@@ -127,7 +128,6 @@ function PlanForm({
 }) {
   const [initial, setInitial] = useState<Form>(() => toForm(data.adventure));
   const [form, setForm] = useState<Form>(initial);
-  const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [busy, setBusy] = useState<'save' | 'start' | 'find' | null>(null);
   const [camera, setCamera] = useState<MapCamera | null>(() =>
     initial.destinationPoint && { center: initial.destinationPoint, zoom: PLACE_ZOOM },
@@ -142,6 +142,11 @@ function PlanForm({
     data.conditions,
   );
   const live = adventure !== null && adventure.stage !== 'planned';
+  // Each Start warning sits in the group it is about; a live Adventure has started, so it shows none.
+  const shown = live ? [] : warnings;
+  const noTrail = shown.some((w) => w.kind === 'no_trail');
+  const noNotifications = shown.some((w) => w.kind === 'no_notifications');
+  const contactWarnings = shown.filter((w) => w.kind === 'email_only' || w.kind === 'unreachable');
   const set = (field: 'destination' | 'route') => (text: string) =>
     setForm((f) => ({ ...f, [field]: text }));
   const pin = (point: Point | null) => setForm((f) => ({ ...f, destinationPoint: point }));
@@ -183,7 +188,7 @@ function PlanForm({
       contactIds: form.contactIds,
     });
     if (result.kind === 'refused') {
-      setNotice({ tone: 'danger', text: refusalText(result.refusal) });
+      Alert.alert(t.common.couldNotSave, refusalText(result.refusal));
       return null;
     }
     setId(result.adventure.id);
@@ -193,9 +198,8 @@ function PlanForm({
 
   const onSave = async () => {
     setBusy('save');
-    setNotice(null);
     const saved = await save().catch(() => {
-      setNotice({ tone: 'danger', text: t.plan.couldNotSave });
+      Alert.alert(t.common.couldNotSave, t.plan.couldNotSave);
       return null;
     });
     setBusy(null);
@@ -210,19 +214,18 @@ function PlanForm({
 
   const onStart = async () => {
     setBusy('start');
-    setNotice(null);
     const result = await save()
       .then((saved) => saved && barry.start(saved))
       .catch(() => 'failed' as const);
     setBusy(null);
-    if (result === 'failed') setNotice({ tone: 'danger', text: t.plan.couldNotStart });
+    if (result === 'failed') Alert.alert(t.plan.couldNotStartTitle, t.plan.couldNotStart);
     else if (result?.kind === 'protected') leave();
-    else if (result?.kind === 'refused') setNotice({ tone: 'danger', text: refusalText(result.refusal) });
+    else if (result?.kind === 'refused') Alert.alert(t.plan.couldNotStartTitle, refusalText(result.refusal));
     else if (result) {
-      setNotice({
-        tone: 'warning',
-        text: t.plan.notProtected,
-      });
+      Alert.alert(t.plan.notProtectedTitle, t.plan.notProtected, [
+        { text: t.common.cancel, style: 'cancel' },
+        { text: t.common.tryAgain, onPress: () => void onStart() },
+      ]);
     }
   };
 
@@ -230,7 +233,7 @@ function PlanForm({
     if (!id) return;
     const outcome = await askToDeleteAdventure(id, 'planned');
     if (outcome.kind === 'deleted') leave();
-    else if (outcome.kind === 'failed') setNotice({ tone: 'danger', text: outcome.message });
+    else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
 
   const pickAndroid = () =>
@@ -271,9 +274,6 @@ function PlanForm({
         )}
       </Stack.Toolbar>
 
-      {/* A refusal or a failed Start must be seen; below the contacts it could sit off screen. */}
-      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
-
       <Section title={t.plan.where}>
         <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} />
         {Platform.OS === 'ios' &&
@@ -289,6 +289,14 @@ function PlanForm({
             <Button title={t.plan.showOnMap} kind="secondary" busy={busy === 'find'} disabled={busy !== null} onPress={() => void showOnMap()} />
           ))}
         <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
+        {noTrail && (
+          <>
+            <Note tone="warning" icon="location.slash">
+              {t.plan.noTrail}
+            </Note>
+            <Button title={t.plan.allowAlways} kind="secondary" onPress={() => void allowTrail()} />
+          </>
+        )}
       </Section>
 
       {!live && (
@@ -310,6 +318,11 @@ function PlanForm({
             </View>
           ) : (
             <Button title={t.when(form.deadline)} kind="secondary" onPress={pickAndroid} />
+          )}
+          {noNotifications && (
+            <Note tone="warning" icon="bell.slash">
+              {t.plan.noNotifications}
+            </Note>
           )}
         </Section>
       )}
@@ -344,18 +357,15 @@ function PlanForm({
             </Pressable>
           );
         })}
+        {contactWarnings.map((w) => (
+          <Note key={w.kind} tone="warning">
+            {warningText(w, t)}
+          </Note>
+        ))}
       </Section>
 
       {!live && (
         <>
-          {warnings.map((w) => (
-            <Notice key={w.kind} tone="warning">
-              {warningText(w, t)}
-            </Notice>
-          ))}
-          {warnings.some((w) => w.kind === 'no_trail') && (
-            <Button title={t.plan.allowAlways} kind="secondary" onPress={() => void allowTrail()} />
-          )}
           <ThemedText type="small" themeColor="textSecondary">
             {t.plan.startHint(t.when(form.deadline))}
           </ThemedText>

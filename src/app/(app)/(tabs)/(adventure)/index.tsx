@@ -4,8 +4,8 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Screen, Section } from '@/components/form';
-import { GroupHeader } from '@/components/grouped-list';
+import { FirstLoad, HoldButton, LoadState, pressedStyle, Screen, Section } from '@/components/form';
+import { GroupHeader, Note } from '@/components/grouped-list';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -14,7 +14,7 @@ import { Spacing } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
-import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position } from '@/lib/barry';
+import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position, type TrailStatus } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { refusalText, useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
@@ -80,10 +80,9 @@ function Overview({
       </Stack.Toolbar>
       {reloadFailure}
       {offlineSince && (
-        <>
-          <Notice tone="warning">{t.adventure.noSignal}</Notice>
-          <Button title={t.common.tryAgain} kind="secondary" onPress={() => void onReload()} />
-        </>
+        <Note tone="warning" icon="wifi.slash">
+          {`${t.adventure.noSignal} ${t.common.pullToRetry}`}
+        </Note>
       )}
       <ThemedText themeColor="textSecondary">{t.adventure.intro}</ThemedText>
       {planned.length > 0 && (
@@ -139,16 +138,17 @@ function LiveAdventure({
   const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
-  const [notice, setNotice] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
+  // The Deadline before the last move, shown in the card until the stage changes.
+  const [movedFrom, setMovedFrom] = useState<Date | null>(null);
   const [busy, setBusy] = useState(false);
   const stage = useRef<Adventure['stage']>(initial.stage);
 
   useEffect(() => {
     stage.current = adventure.stage;
   }, [adventure]);
-  // A notice about a move or a failed one is stale once the stage changes.
+  // A move is old news once the stage changes.
   const apply = useCallback((next: Adventure) => {
-    if (next.stage !== stage.current) setNotice(null);
+    if (next.stage !== stage.current) setMovedFrom(null);
     setAdventure(next);
   }, []);
   useEffect(() => barry.watchAdventure(initial.id, apply), [initial.id, apply]);
@@ -156,7 +156,7 @@ function LiveAdventure({
   const [seen, setSeen] = useState(initial);
   if (seen !== initial) {
     setSeen(initial);
-    if (initial.stage !== adventure.stage) setNotice(null);
+    if (initial.stage !== adventure.stage) setMovedFrom(null);
     setAdventure(initial);
   }
   useEffect(() => {
@@ -173,12 +173,12 @@ function LiveAdventure({
     const result = await barry.moveDeadline(adventure.id, movedDeadline(adventure.deadline, minutes)).catch(() => null);
     setBusy(false);
     if (result?.kind === 'moved') {
+      setMovedFrom(adventure.deadline);
       setAdventure(result.adventure);
-      setNotice({ tone: 'success', text: t.adventure.newDeadline(t.when(result.adventure.deadline)) });
     } else if (result?.kind === 'refused') {
-      setNotice({ tone: 'danger', text: refusalText(result.refusal) });
+      Alert.alert(t.adventure.notMovedTitle, refusalText(result.refusal));
     } else {
-      setNotice({ tone: 'warning', text: t.adventure.notMoved });
+      Alert.alert(t.adventure.notMovedTitle, t.adventure.notMoved);
     }
   };
 
@@ -197,7 +197,15 @@ function LiveAdventure({
   };
 
   return (
-    <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />}>
+    <Screen
+      onRefresh={onChanged}
+      footer={
+        queuedAt ? (
+          <WaitingCheckIn at={queuedAt} keepsTrying={trailStatus === 'delivering'} />
+        ) : (
+          <HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />
+        )
+      }>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="clock" accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
@@ -217,25 +225,25 @@ function LiveAdventure({
           onPress={() => router.push({ pathname: '/watching', params: { id: adventure.id } })}
         />
       </Stack.Toolbar>
-      {(adventure.stage === 'active' || adventure.stage === 'overdue') && <DeadlineCard adventure={adventure} now={now} />}
-      {adventure.stage === 'alerted' && (
-        <Notice tone="danger">{t.adventure.alerted(adventure.alertsSent)}</Notice>
-      )}
       {offlineSince && (
-        <Notice tone="warning">{t.adventure.offline(t.when(offlineSince))}</Notice>
+        <Note tone="warning" icon="wifi.slash">
+          {t.adventure.offline(t.when(offlineSince))}
+        </Note>
       )}
       {reloadFailure}
-      {trailStatus === 'recording' && <Notice>{t.adventure.recording}</Notice>}
-      {trailStatus === 'off' && <Notice>{t.adventure.trailOff}</Notice>}
-      {queuedAt && (
-        <Notice tone="warning">
-          {t.adventure.queued(t.when(queuedAt))}
-          {trailStatus === 'delivering' && t.adventure.keepsTrying}
-        </Notice>
-      )}
-      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
+      <DeadlineCard adventure={adventure} now={now} movedFrom={movedFrom} />
 
-      {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
+      {lastKnown ? (
+        <View>
+          <TrailMapView trail={trail} last={lastKnown} />
+          {trailStatus && <TrailBadge status={trailStatus} />}
+        </View>
+      ) : (
+        <>
+          {trailStatus === 'recording' && <Note icon="location.fill">{t.adventure.recording}</Note>}
+          {trailStatus === 'off' && <Note icon="location.slash">{t.adventure.trailOff}</Note>}
+        </>
+      )}
 
       <View style={styles.titledCard}>
         <GroupHeader title={t.adventure.planSection} />
@@ -273,21 +281,37 @@ function LiveAdventure({
 }
 
 /**
- * The time that matters next, large: the Deadline while Barry watches, the Alert once overdue. VoiceOver reads the
- * whole sentence, so the card says as much as the notice it replaced.
+ * The time that matters next, large: the Deadline while Barry watches, the Alert once overdue. Once alerted the card
+ * says so in red. VoiceOver reads the whole sentence, and a move shows here as the Deadline it replaced.
  */
-function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure & { stage: 'active' | 'overdue' }; now: Date }) {
+function DeadlineCard({ adventure, now, movedFrom }: { adventure: InProgressAdventure; now: Date; movedFrom: Date | null }) {
   const theme = useTheme();
   const t = useTexts();
+  if (adventure.stage === 'alerted') {
+    return (
+      <View accessible accessibilityLabel={t.adventure.alerted(adventure.alertsSent)} style={[styles.card, { backgroundColor: `${theme.danger}1F` }]}>
+        <ThemedText type="small" mono style={[styles.cardLabel, { color: theme.danger }]}>
+          {t.adventure.alertedLabel.toUpperCase()}
+        </ThemedText>
+        <ThemedText mono style={styles.cardClock}>
+          {`${adventure.alertsSent}/3`}
+        </ThemedText>
+        <ThemedText type="small" style={{ color: theme.text }}>
+          {t.adventure.alerted(adventure.alertsSent)}
+        </ThemedText>
+      </View>
+    );
+  }
   const overdue = adventure.stage === 'overdue';
   const at = overdue ? adventure.alertAt : adventure.deadline;
   const left = t.duration(at.getTime() - now.getTime());
   const color = overdue ? theme.warning : theme.success;
   const otherDay = at.toDateString() !== now.toDateString();
+  const said = overdue ? t.adventure.overdue(t.when(at), left) : t.adventure.watching(t.when(at), left);
   return (
     <View
       accessible
-      accessibilityLabel={overdue ? t.adventure.overdue(t.when(at), left) : t.adventure.watching(t.when(at), left)}
+      accessibilityLabel={movedFrom ? `${said} ${t.adventure.movedFrom(t.when(movedFrom))}` : said}
       style={[styles.card, { backgroundColor: `${color}1F` }]}>
       <ThemedText type="small" mono style={[styles.cardLabel, { color }]}>
         {(overdue ? t.adventure.alertAt : t.adventure.checkInBy).toUpperCase()}
@@ -308,6 +332,52 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure & { s
       <ThemedText type="small" style={{ color: theme.text }}>
         {overdue ? t.adventure.overdueNote : t.adventure.watchingNote}
       </ThemedText>
+      {movedFrom && (
+        <View style={styles.moved}>
+          <SymbolView name="checkmark" size={13} weight="bold" tintColor={color} fallback={null} />
+          <ThemedText type="small" style={{ color }}>
+            {t.adventure.movedFrom(t.when(movedFrom))}
+          </ThemedText>
+        </View>
+      )}
+    </View>
+  );
+}
+
+/** What the Trail is doing, as a badge on the map it belongs to. */
+function TrailBadge({ status }: { status: TrailStatus }) {
+  const theme = useTheme();
+  const t = useTexts();
+  if (status !== 'recording' && status !== 'off') return null;
+  const recording = status === 'recording';
+  const color = recording ? theme.accent : theme.textSecondary;
+  return (
+    <View
+      accessible
+      accessibilityLabel={recording ? t.adventure.recording : t.adventure.trailOff}
+      style={[styles.badge, { backgroundColor: `${theme.background}EB` }]}>
+      <SymbolView name={recording ? 'location.fill' : 'location.slash'} size={13} tintColor={color} fallback={null} />
+      <ThemedText type="small" style={[styles.badgeText, { color }]}>
+        {recording ? t.adventure.recordingBadge : t.adventure.startOnlyBadge}
+      </ThemedText>
+    </View>
+  );
+}
+
+/** In place of the Hold button while a Check-in waits for signal: it is done, so nothing is left to hold. */
+function WaitingCheckIn({ at, keepsTrying }: { at: Date; keepsTrying: boolean }) {
+  const theme = useTheme();
+  const t = useTexts();
+  const line = t.adventure.waitingForSignal + (keepsTrying ? t.adventure.keepsTrying : '');
+  return (
+    <View
+      accessible
+      accessibilityLabel={`${t.adventure.queued(t.when(at))}${keepsTrying ? t.adventure.keepsTrying : ''}`}
+      style={[styles.waiting, { backgroundColor: theme.backgroundSelected }]}>
+      <ThemedText style={styles.waitingTitle}>{t.adventure.waitingCheckIn(formatClock(at))}</ThemedText>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.waitingLine}>
+        {line}
+      </ThemedText>
     </View>
   );
 }
@@ -319,6 +389,12 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
+  moved: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
+  badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
+  waiting: { minHeight: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },
+  waitingTitle: { fontSize: 17, lineHeight: 22, fontWeight: 600 },
+  waitingLine: { textAlign: 'center' },
   titledCard: { gap: 6 },
   chevron: { position: 'absolute', right: Spacing.three, top: 0, bottom: 0, justifyContent: 'center' },
 });

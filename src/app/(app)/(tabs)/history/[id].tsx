@@ -1,5 +1,5 @@
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { FirstLoad, Notice, Screen } from '@/components/form';
+import { FirstLoad, Screen, Unavailable } from '@/components/form';
 import { useLoad } from '@/hooks/use-load';
 import { useStringParam } from '@/hooks/use-string-param';
 import { type AdventureId, barry } from '@/lib/barry';
@@ -20,7 +20,7 @@ export default function PastAdventureRoute() {
   if (loaded.data?.stage !== 'ended') {
     return (
       <Screen>
-        <Notice tone="warning">{t.ended.notInHistory}</Notice>
+        <Unavailable symbol="clock.arrow.circlepath" title={t.ended.notFoundTitle} message={t.ended.notInHistory} />
       </Screen>
     );
   }

@@ -1,7 +1,8 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
+import { Alert } from 'react-native';
 
-import { FirstLoad, Notice, Screen } from '@/components/form';
+import { FirstLoad, Screen } from '@/components/form';
 import { ActionRow, Group, SwitchRow, ValueRow } from '@/components/grouped-list';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
@@ -63,8 +64,8 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
     const outcome = await askToRemoveContact(contact);
     setBusy(null);
     if (outcome.kind === 'removed') leave();
-    else if (outcome.kind === 'in_use') setError(t.contacts.inUse(contact.name));
-    else if (outcome.kind === 'failed') setError(t.contacts.couldNotDelete(contact.name));
+    else if (outcome.kind === 'in_use') Alert.alert(t.contacts.inUse(contact.name));
+    else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, t.contacts.couldNotDelete(contact.name));
   };
 
   return (
@@ -96,7 +97,10 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
             onValueChange={(emailEnabled) => setSwitches((s) => ({ ...s, emailEnabled }))}
           />
         </Group>
-        <Group title={t.contacts.textSection} footer={t.contacts.switchesHint}>
+        <Group
+          title={t.contacts.textSection}
+          footer={error ?? t.contacts.switchesHint}
+          footerTone={error ? 'danger' : undefined}>
           <ValueRow label={t.contacts.number} value={contact.phone ? formatPhoneNumber(contact.phone) : ''} mono />
           <SwitchRow
             label={t.contacts.useForMessages}
@@ -106,7 +110,6 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
             onValueChange={(phoneEnabled) => setSwitches((s) => ({ ...s, phoneEnabled }))}
           />
         </Group>
-        {error && <Notice tone="danger">{error}</Notice>}
         <Group>
           <ActionRow title={t.contacts.deleteContact} tone="danger" centered onPress={() => void remove()} busy={busy === 'delete'} />
         </Group>

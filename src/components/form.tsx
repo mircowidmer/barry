@@ -1,6 +1,7 @@
 import { type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useNavigation, useSegments } from 'expo-router';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import {
   ActivityIndicator,
   Animated,
@@ -17,7 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
-import { GroupHeader } from '@/components/grouped-list';
+import { GroupHeader, Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { FontFamily, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
@@ -34,11 +35,38 @@ export function Loading() {
 export function FirstLoad({ failure, onRetry }: { failure: string | undefined; onRetry: () => void }) {
   const t = useTexts();
   if (failure === undefined) return <Loading />;
+  return <Unavailable symbol="wifi.slash" title={t.common.cantReachTitle} message={failure} action={{ title: t.common.tryAgain, onPress: onRetry }} />;
+}
+
+/** In place of a screen's content when there is none to show, as iOS's content-unavailable view. */
+export function Unavailable({
+  symbol,
+  title,
+  message,
+  action,
+  compact = false,
+}: {
+  symbol: SymbolViewProps['name'];
+  title: string;
+  message: string;
+  action?: { title: string; onPress: () => void };
+  /** Inside a card, such as the map's place, instead of filling the screen. */
+  compact?: boolean;
+}) {
+  const theme = useTheme();
   return (
-    <>
-      <Notice tone="danger">{failure}</Notice>
-      <Button title={t.common.tryAgain} onPress={onRetry} />
-    </>
+    <View style={[styles.unavailable, compact && styles.unavailableCompact]}>
+      <SymbolView name={symbol} size={48} tintColor={theme.textSecondary} fallback={null} />
+      <ThemedText style={styles.unavailableTitle}>{title}</ThemedText>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.unavailableText}>
+        {message}
+      </ThemedText>
+      {action && (
+        <View style={styles.unavailableAction}>
+          <Button title={action.title} kind="secondary" onPress={action.onPress} />
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -51,7 +79,11 @@ export function LoadState({
   failure: (error: Error) => string;
 }) {
   if (loaded.data === undefined) return <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />;
-  return loaded.error ? <Notice tone="danger">{failure(loaded.error)}</Notice> : null;
+  return loaded.error ? (
+    <Note tone="warning" icon="wifi.slash">
+      {failure(loaded.error)}
+    </Note>
+  ) : null;
 }
 
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
@@ -244,18 +276,6 @@ export function HoldButton({ title, onComplete, disabled }: { title: string; onC
   );
 }
 
-type Tone = 'info' | 'success' | 'warning' | 'danger';
-
-export function Notice({ tone = 'info', children }: { tone?: Tone; children: ReactNode }) {
-  const theme = useTheme();
-  const color = tone === 'info' ? theme.accent : theme[tone];
-  return (
-    <View style={[styles.notice, { borderColor: color }]}>
-      <ThemedText style={{ color }}>{children}</ThemedText>
-    </View>
-  );
-}
-
 export function Row({ children }: { children: ReactNode }) {
   return <View style={styles.row}>{children}</View>;
 }
@@ -282,7 +302,11 @@ const styles = StyleSheet.create({
   hold: { minHeight: 64, overflow: 'hidden' },
   capsule: { borderRadius: 32 },
   holdTarget: { flex: 1, minHeight: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
-  notice: { borderLeftWidth: 4, paddingLeft: Spacing.two, paddingVertical: Spacing.one },
   loading: { marginTop: Spacing.four },
+  unavailable: { alignItems: 'center', gap: Spacing.two, marginTop: 96, paddingHorizontal: Spacing.four },
+  unavailableCompact: { marginTop: Spacing.four },
+  unavailableAction: { alignSelf: 'stretch', marginHorizontal: Spacing.four },
+  unavailableTitle: { fontSize: 22, lineHeight: 28, fontWeight: 700, textAlign: 'center' },
+  unavailableText: { textAlign: 'center', marginBottom: Spacing.two },
   row: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap' },
 });

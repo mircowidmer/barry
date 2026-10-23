@@ -1,8 +1,8 @@
 import { router, Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { FirstLoad, Notice, Screen } from '@/components/form';
-import { ActionRow, Group, InfoNote } from '@/components/grouped-list';
+import { FirstLoad, Screen } from '@/components/form';
+import { ActionRow, Group, InfoNote, Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useLoad } from '@/hooks/use-load';
@@ -81,7 +81,7 @@ export default function WatchingSheet() {
       )}
 
       {adventure.stage === 'alerted' ? (
-        <Notice tone="danger">{t.adventure.alerted(adventure.alertsSent)}</Notice>
+        <Note tone="danger">{t.adventure.alerted(adventure.alertsSent)}</Note>
       ) : (
         <Group title={t.adventure.nextSection}>
           <View style={styles.nextAlert} accessible accessibilityLabel={`${t.adventure.nextAlert}, ${t.when(alertAt)}`}>

@@ -1,11 +1,11 @@
 import { router, Stack } from 'expo-router';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { useRef, useState } from 'react';
-import { type LayoutChangeEvent, Pressable, type ScrollViewInstance, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Alert, type LayoutChangeEvent, Pressable, type ScrollViewInstance, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Flash } from '@/components/flash';
-import { LoadState, Notice, Screen } from '@/components/form';
+import { LoadState, Screen } from '@/components/form';
 import { ActionRow, Group } from '@/components/grouped-list';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
@@ -58,7 +58,6 @@ export default function ContactsScreen() {
     const [contacts, channels] = await Promise.all([barry.listContacts(), barry.enabledChannels()]);
     return { contacts, smsEnabled: channels.has('sms') };
   });
-  const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
   const [picking, setPicking] = useState(false);
   const [added, setAdded] = useState<EmergencyContact['id'] | null>(null);
   const scroll = useRef<ScrollViewInstance>(null);
@@ -88,17 +87,16 @@ export default function ContactsScreen() {
 
   const add = async () => {
     setPicking(true);
-    setMessage(null);
     try {
       const outcome = await barry.addContactFromPhone();
       if (outcome.kind === 'added') {
         setAdded(outcome.contact.id);
         void loaded.reload();
       }
-      else if (outcome.kind === 'duplicate') setMessage({ tone: 'danger', text: t.contacts.alreadyAdded(outcome.name) });
-      else if (outcome.kind === 'unreachable') setMessage({ tone: 'danger', text: t.contacts.nothingToReach(outcome.name) });
+      else if (outcome.kind === 'duplicate') Alert.alert(t.contacts.alreadyAdded(outcome.name));
+      else if (outcome.kind === 'unreachable') Alert.alert(t.contacts.nothingToReach(outcome.name));
     } catch {
-      setMessage({ tone: 'danger', text: t.contacts.couldNotAdd });
+      Alert.alert(t.contacts.couldNotAdd);
     } finally {
       setPicking(false);
     }
@@ -107,13 +105,9 @@ export default function ContactsScreen() {
   const remove = async (contact: EmergencyContact) => {
     const outcome = await askToRemoveContact(contact);
     if (outcome.kind === 'cancelled') return;
-    setMessage(
-      outcome.kind === 'removed'
-        ? { tone: 'success', text: t.contacts.deleted(contact.name) }
-        : outcome.kind === 'in_use'
-          ? { tone: 'danger', text: t.contacts.inUse(contact.name) }
-          : { tone: 'danger', text: t.contacts.couldNotDelete(contact.name) },
-    );
+    // A removed contact leaves the list, which says enough; a refusal is an alert, as iOS refuses a delete.
+    if (outcome.kind === 'in_use') Alert.alert(t.contacts.inUse(contact.name));
+    else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, t.contacts.couldNotDelete(contact.name));
     void loaded.reload();
   };
 
@@ -130,7 +124,6 @@ export default function ContactsScreen() {
         />
       </Stack.Toolbar>
       <Screen ref={scroll} onRefresh={loaded.reload}>
-        {message && <Notice tone={message.tone}>{message.text}</Notice>}
         <LoadState loaded={loaded} failure={() => t.contacts.couldNotLoad} />
         {data && data.contacts.length === 0 && (
           <>
