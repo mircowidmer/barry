@@ -23,7 +23,7 @@ Preconditions:
 
 - Baseline from the index. The simulator location is set: `xcrun simctl location booted set 47.0286,8.6885`.
 
-- **Refusal (`plan-refusals`).** Tick `Luca` and tap `Start` in the header without a destination. The notice at the top of the sheet reads `Add a destination.`
+- **Refusal (`plan-refusals`).** Tick `Luca` and tap `Start` in the header without a destination. The alert `Could Not Start` reads `Add a destination.`; tap `OK`.
 - **Warnings (`plan-warnings`).** Tick `Sara` as well. With text messages on, no warning names Sara. While `sms` is switched off in `private.channel_config`, the warning reads `Text messages are not set up yet, and Sara only has a phone number, so they will get no message at all.`
 - **Start (`plan-start`).** Paste `Grosser Mythen` into `Destination` and tap `Start` in the header. On first use iOS asks for location: choose `Allow While Using App`. The sheet closes and the live screen shows `Barry is watching.` `fixture.mjs state` prints `adventure | active | Grosser Mythen`.
 - **Heads-up (`plan-headsup`).** Within a few seconds Mailpit at http://127.0.0.1:54324 has `Anna is heading out to Grosser Mythen` from `🐶 Barry` for `luca@example.com`. For each contact with a phone number, the text message relay prints `texted <number> from Barry: Anna is going on an adventure alone and chose you as an emergency contact on Barry.` and the rest of the text. `fixture.mjs state` lists `heads_up | email | luca@example.com | sent` and `heads_up | sms | <number> | sent`.
