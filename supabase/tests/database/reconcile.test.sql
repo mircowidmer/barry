@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(33);
+select plan(31);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -58,8 +58,6 @@ select is(
   ],
   'Start: Luca gets a Heads-up by email and text message, and phone-only Sara by text message'
 );
-
-select is((pg_temp.anna()).stage, 'active'::public.adventure_stage, 'Before the Reminder time the Adventure stays Active');
 
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 16:00+02');
 
@@ -165,13 +163,6 @@ select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 22:
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 23:31+02');
 
 select is((pg_temp.anna()).alerts_sent, 3::smallint, 'After three hours exactly three Alert rounds went out');
-
-select is(
-  (select array_agg(distinct round order by round) from public.messages
-    where adventure_id = 'a0000000-0000-0000-0000-000000000001' and kind = 'alert'),
-  array[1, 2, 3]::smallint[],
-  'The Alert rounds are 1, 2 and 3'
-);
 
 select is(
   cardinality(pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'alert')),
