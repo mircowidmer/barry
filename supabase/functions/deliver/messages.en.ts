@@ -64,7 +64,7 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
       return {
         subject: `${name} needs more time for ${facts.plan.destination}`,
         text: lines(
-          `${name} needs more time and moved the check-in time from ${time(facts.previousDeadline)} to ${time(facts.deadline)}. Barry has picked up the new scent and keeps watching.`,
+          `${name} needs more time and moved the deadline from ${time(facts.previousDeadline)} to ${time(facts.deadline)}. Barry has picked up the new scent and keeps watching.`,
           '',
           `Destination: ${facts.plan.destination}`,
           '',
