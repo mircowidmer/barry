@@ -15,7 +15,7 @@ The Profile tab holds what an Alert tells the Emergency Contacts about the Adven
 
 ## How to get to it (user POV)
 
-- Tap `Profile` in the tab bar (329, 820). The screen titled `Profile` opens with its large title expanded, `Edit` at the top right (364, 84), then the card with the initials on the accent colour, the name and the phone number.
+- Tap `Profile` in the tab bar (329, 820). The screen titled `Profile` opens with its large title expanded, `Edit` at the top right (364, 84), then the card with the initials on the accent colour at its left and the name above the phone number beside them, as in the Account row of Settings.
 
 ## Driving it with the iOS Simulator
 
