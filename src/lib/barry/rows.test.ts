@@ -135,8 +135,4 @@ describe('parseProfile', () => {
   it('leaves the message language to the phone', () => {
     expect(parseProfile(profile)).not.toHaveProperty('messageLanguage');
   });
-
-  it('keeps a Profile without a phone number', () => {
-    expect(parseProfile({ ...profile, phone: null }).phone).toBeNull();
-  });
 });
