@@ -1,4 +1,10 @@
 {
+  "env": {
+    "GIT_AUTHOR_NAME": "Mirco Widmer",
+    "GIT_AUTHOR_EMAIL": "mirco.widmer@gmail.com",
+    "GIT_COMMITTER_NAME": "Mirco Widmer",
+    "GIT_COMMITTER_EMAIL": "mirco.widmer@gmail.com"
+  },
   "attribution": {
     "commit": "",
     "pr": "",
