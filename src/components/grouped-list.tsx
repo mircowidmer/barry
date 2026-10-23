@@ -29,11 +29,7 @@ export function Group({
   const rows = Children.toArray(children).filter(Boolean);
   return (
     <View style={styles.group}>
-      {title && (
-        <ThemedText type="small" mono themeColor="textSecondary" style={styles.header}>
-          {title.toUpperCase()}
-        </ThemedText>
-      )}
+      {title && <GroupHeader title={title} />}
       <View style={[styles.box, { backgroundColor: theme.backgroundElement }]}>
         {rows.map((row, i) => (
           <View key={isValidElement(row) ? row.key : i}>
@@ -51,6 +47,15 @@ export function Group({
           </ThemedText>
         ))}
     </View>
+  );
+}
+
+/** The header above a group, such as `IN AN ALERT`, for a card that is not a Group. */
+export function GroupHeader({ title }: { title: string }) {
+  return (
+    <ThemedText type="small" mono themeColor="textSecondary" style={styles.header}>
+      {title.toUpperCase()}
+    </ThemedText>
   );
 }
 
