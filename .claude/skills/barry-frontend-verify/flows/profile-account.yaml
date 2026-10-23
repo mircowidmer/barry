@@ -3,10 +3,10 @@
 appId: support.barry.dev
 ---
 - scrollUntilVisible:
-    element: "Change Email Address and Password"
+    element: "Email and Password"
     visibilityPercentage: 50
     centerElement: true
-- tapOn: "Change Email Address and Password"
+- tapOn: "Email and Password"
 - extendedWaitUntil:
     visible: "Barry checks your current password before it changes anything\\."
     timeout: 10000
