@@ -141,7 +141,7 @@ export default function ContactsScreen() {
           </>
         )}
         {data && data.contacts.length > 0 && (
-          <Group title={t.contacts.count(data.contacts.length)} footer={t.contacts.intro} inset={Spacing.three + AVATAR + 12}>
+          <Group footer={t.contacts.intro} inset={Spacing.three + AVATAR + 12}>
             {data.contacts.map((contact) => (
               <Flash key={contact.id} active={contact.id === added} onLayout={contact.id === added ? reveal : undefined}>
                 <SwipeToDelete flush label={t.common.deleteLabel(contact.name)} onDelete={() => void remove(contact)}>
