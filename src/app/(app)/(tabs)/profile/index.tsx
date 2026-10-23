@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { FirstLoad, LoadState, Screen } from '@/components/form';
-import { ActionRow, Group } from '@/components/grouped-list';
+import { ActionRow, Group, InfoNote } from '@/components/grouped-list';
 import { openPrivacy, openTerms } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, type ThemeColor } from '@/constants/theme';
@@ -58,7 +58,11 @@ export default function ProfileScreen() {
         <>
           <LoadState loaded={loaded} failure={() => t.common.couldNotReach} />
           <Header profile={profile} />
-          <Group title={t.profile.inAlert} footer={named ? t.profile.alertFooter : t.profile.nameFirst} inset={Spacing.three + TILE + TILE_GAP}>
+          <Group
+            title={t.profile.inAlert}
+            footer={named ? t.profile.alertFooter : t.profile.nameFirst}
+            footerInfo
+            inset={Spacing.three + TILE + TILE_GAP}>
             <SummaryRow
               symbol="car.fill"
               fallback="C"
@@ -92,7 +96,7 @@ export default function ProfileScreen() {
         <ActionRow title={t.profile.deleteAccount} tone="danger" centered onPress={() => void deleteAccount()} busy={deleting} />
       </Group>
 
-      <Disclaimer />
+      <InfoNote>{t.legal.notEmergency}</InfoNote>
     </Screen>
   );
 }
@@ -192,25 +196,6 @@ function SummaryRow({
   );
 }
 
-/** Barry is not an emergency service, said where the Adventurer reads it last. */
-function Disclaimer() {
-  const theme = useTheme();
-  const t = useTexts();
-  return (
-    <View style={styles.disclaimer}>
-      <SymbolView
-        name="info.circle"
-        size={17}
-        tintColor={theme.textSecondary}
-        fallback={<ThemedText themeColor="textSecondary">i</ThemedText>}
-      />
-      <ThemedText themeColor="textSecondary" style={styles.disclaimerText}>
-        {t.legal.notEmergency}
-      </ThemedText>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   header: { borderRadius: 12, alignItems: 'center', gap: 4, paddingVertical: Spacing.four, paddingHorizontal: Spacing.three },
   avatar: { width: AVATAR, height: AVATAR, borderRadius: AVATAR / 2, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
@@ -222,6 +207,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 17, lineHeight: 22 },
   line: { fontSize: 15, lineHeight: 20 },
   chevron: { fontSize: 22 },
-  disclaimer: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingHorizontal: Spacing.three },
-  disclaimerText: { flex: 1, fontSize: 13, lineHeight: 18 },
 });
