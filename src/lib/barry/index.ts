@@ -160,7 +160,7 @@ export const barry = createBarry({
   language: appLanguage,
   now: () => new Date(),
   pickContact,
-  region: () => getLocales()[0]?.regionCode ?? null,
+  region: () => getLocales()[0].regionCode ?? null,
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
   notifications,
