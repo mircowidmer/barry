@@ -3,7 +3,7 @@ import { Children, isValidElement, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Switch, TextInput, type TextInputProps, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { FontFamily, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -27,7 +27,7 @@ export function Group({
   return (
     <View style={styles.group}>
       {title && (
-        <ThemedText type="small" themeColor="textSecondary" style={styles.header}>
+        <ThemedText type="small" mono themeColor="textSecondary" style={styles.header}>
           {title.toUpperCase()}
         </ThemedText>
       )}
@@ -85,12 +85,12 @@ export function TextAreaRow({ label, ...input }: { label: string } & TextInputPr
   );
 }
 
-/** A label and a value that cannot be changed here. */
-export function ValueRow({ label, value }: { label: string; value: string }) {
+/** A label and a value that cannot be changed here; `mono` sets a number such as a phone number in Nordwand Mono. */
+export function ValueRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
     <View style={styles.row} accessible accessibilityLabel={`${label}, ${value}`}>
       <ThemedText style={styles.label}>{label}</ThemedText>
-      <ThemedText themeColor="textSecondary" numberOfLines={1} style={styles.value}>
+      <ThemedText themeColor="textSecondary" mono={mono} numberOfLines={1} style={styles.value}>
         {value}
       </ThemedText>
     </View>
@@ -176,9 +176,9 @@ const styles = StyleSheet.create({
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three },
   // The label may wrap at large text sizes, but never takes the whole row from the input.
   label: { flexShrink: 1, maxWidth: '55%' },
-  input: { flex: 1, fontSize: 17, fontFamily: FontFamily, paddingVertical: 11 },
+  input: { flex: 1, fontSize: 17, paddingVertical: 11 },
   value: { flex: 1, textAlign: 'right' },
-  textArea: { minHeight: 88, fontSize: 17, fontFamily: FontFamily, paddingHorizontal: Spacing.three, paddingVertical: 11, textAlignVertical: 'top' },
+  textArea: { minHeight: 88, fontSize: 17, paddingHorizontal: Spacing.three, paddingVertical: 11, textAlignVertical: 'top' },
   action: { flex: 1 },
   centered: { textAlign: 'center' },
   chevron: { fontSize: 22 },

@@ -97,7 +97,7 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
           />
         </Group>
         <Group title={t.contacts.textSection} footer={t.contacts.switchesHint}>
-          <ValueRow label={t.contacts.number} value={contact.phone ? formatPhoneNumber(contact.phone) : ''} />
+          <ValueRow label={t.contacts.number} value={contact.phone ? formatPhoneNumber(contact.phone) : ''} mono />
           <SwitchRow
             label={t.contacts.useForMessages}
             accessibilityLabel={t.common.useLabel(t.contacts.phone)}

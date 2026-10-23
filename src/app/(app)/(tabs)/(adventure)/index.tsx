@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Pressable } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
@@ -9,10 +9,12 @@ import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
+import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { refusalText, useTexts } from '@/lib/texts';
+import { formatClock } from '@/lib/wording';
 
 export default function AdventureScreen() {
   const loaded = useLoad(async () => {
@@ -81,7 +83,11 @@ function Overview({
         </>
       )}
       <ThemedText themeColor="textSecondary">{t.adventure.intro}</ThemedText>
-      {planned.length > 0 && <ThemedText type="smallBold">{t.adventure.planned}</ThemedText>}
+      {planned.length > 0 && (
+        <ThemedText type="smallBold" mono>
+          {t.adventure.planned}
+        </ThemedText>
+      )}
       {planned.map((a) => (
         <SwipeToDelete
           key={a.id}
@@ -189,16 +195,7 @@ function LiveAdventure({
   return (
     <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
-      {adventure.stage === 'active' && (
-        <Notice tone="success">
-          {t.adventure.watching(t.when(adventure.deadline), t.duration(adventure.deadline.getTime() - now.getTime()))}
-        </Notice>
-      )}
-      {adventure.stage === 'overdue' && (
-        <Notice tone="warning">
-          {t.adventure.overdue(t.when(adventure.alertAt), t.duration(adventure.alertAt.getTime() - now.getTime()))}
-        </Notice>
-      )}
+      {(adventure.stage === 'active' || adventure.stage === 'overdue') && <DeadlineCard adventure={adventure} now={now} />}
       {adventure.stage === 'alerted' && (
         <Notice tone="danger">{t.adventure.alerted(adventure.alertsSent)}</Notice>
       )}
@@ -253,6 +250,55 @@ function LiveAdventure({
     </Screen>
   );
 }
+
+/**
+ * The time that matters next, large: the Deadline while Barry watches, the Alert once overdue. VoiceOver reads the
+ * whole sentence, so the card says as much as the notice it replaced.
+ */
+function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure & { stage: 'active' | 'overdue' }; now: Date }) {
+  const theme = useTheme();
+  const t = useTexts();
+  const overdue = adventure.stage === 'overdue';
+  const at = overdue ? adventure.alertAt : adventure.deadline;
+  const left = t.duration(at.getTime() - now.getTime());
+  const color = overdue ? theme.warning : theme.success;
+  const otherDay = at.toDateString() !== now.toDateString();
+  return (
+    <View
+      accessible
+      accessibilityLabel={overdue ? t.adventure.overdue(t.when(at), left) : t.adventure.watching(t.when(at), left)}
+      style={[styles.card, { backgroundColor: `${color}1F` }]}>
+      <ThemedText type="small" mono style={[styles.cardLabel, { color }]}>
+        {(overdue ? t.adventure.alertAt : t.adventure.checkInBy).toUpperCase()}
+      </ThemedText>
+      {otherDay && (
+        <ThemedText mono style={styles.cardDay}>
+          {t.day(at, now)}
+        </ThemedText>
+      )}
+      <View style={styles.cardTime}>
+        <ThemedText mono style={styles.cardClock}>
+          {formatClock(at)}
+        </ThemedText>
+        <ThemedText mono style={[styles.cardLeft, { color }]}>
+          {left}
+        </ThemedText>
+      </View>
+      <ThemedText type="small" style={{ color: theme.text }}>
+        {overdue ? t.adventure.overdueNote : t.adventure.watchingNote}
+      </ThemedText>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: { borderRadius: 26, paddingHorizontal: 20, paddingVertical: 18, gap: 2 },
+  cardLabel: { fontSize: 12, letterSpacing: 0.3 },
+  cardDay: { fontSize: 17, lineHeight: 22, fontWeight: 500, marginTop: 4 },
+  cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
+  cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
+  cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
+});
 
 const TRAIL_REFRESH_MS = 5 * 60_000;
 

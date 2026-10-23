@@ -206,8 +206,22 @@ function Chevron() {
   );
 }
 
-/** One row of a day: the destination over what came of it, opaque so the swipe action shows only beside it. */
-function Row({ leading, title, line, warning, trailing }: { leading: React.ReactNode; title: string; line: string; warning: boolean; trailing: boolean }) {
+/** One row of a day: the destination over what came of it, the time on the right, opaque so the swipe action shows only beside it. */
+function Row({
+  leading,
+  title,
+  line,
+  warning,
+  time,
+  trailing,
+}: {
+  leading: React.ReactNode;
+  title: string;
+  line: string;
+  warning: boolean;
+  time?: string;
+  trailing: boolean;
+}) {
   return (
     <View style={styles.rowContent}>
       {leading}
@@ -219,6 +233,11 @@ function Row({ leading, title, line, warning, trailing }: { leading: React.React
           {line}
         </ThemedText>
       </View>
+      {time !== undefined && (
+        <ThemedText mono themeColor="textSecondary" style={styles.time}>
+          {time}
+        </ThemedText>
+      )}
       {trailing && <Chevron />}
     </View>
   );
@@ -364,8 +383,9 @@ export default function HistoryScreen() {
             <Group key={day.key} title={dayTitle(day, t, now)} inset={ROW_INSET}>
               {day.rows.map(({ adventure: a, position: i }) => {
                 const alerted = a.alertsSent > 0;
-                const line = t.history.checkedIn(formatClock(a.checkedInAt)) + (alerted ? t.history.alertsSent(a.alertsSent) : '');
-                const label = `${a.plan.destination}, ${line}`;
+                const time = formatClock(a.checkedInAt);
+                const line = alerted ? t.ended.alertsSent(a.alertsSent) : t.history.checkedInShort;
+                const label = `${a.plan.destination}, ${t.history.checkedIn(time)}${alerted ? t.history.alertsSent(a.alertsSent) : ''}`;
                 return (
                   <View key={a.id} onLayout={dragSelect.measure(i)}>
                     {selecting ? (
@@ -384,6 +404,7 @@ export default function HistoryScreen() {
                           title={a.plan.destination}
                           line={line}
                           warning={alerted}
+                          time={time}
                           trailing={false}
                         />
                       </Pressable>
@@ -406,6 +427,7 @@ export default function HistoryScreen() {
                             title={a.plan.destination}
                             line={line}
                             warning={alerted}
+                            time={time}
                             trailing
                           />
                         </Pressable>
@@ -435,5 +457,6 @@ const styles = StyleSheet.create({
   text: { flex: 1, paddingVertical: 10 },
   title: { fontSize: 17, lineHeight: 22, fontWeight: 600 },
   line: { fontSize: 15, lineHeight: 20, fontWeight: 400 },
+  time: { fontSize: 15, lineHeight: 20, fontWeight: 500 },
   chevron: { fontSize: 22 },
 });

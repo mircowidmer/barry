@@ -122,8 +122,14 @@ function Header({ profile }: { profile: AdventurerProfile | null }) {
           <ThemedText style={[styles.initials, { color: theme.onAccent }]}>{initials(name)}</ThemedText>
         )}
       </View>
-      <ThemedText style={styles.name}>{name === '' ? t.profile.addName : name}</ThemedText>
-      {name !== '' && <ThemedText themeColor="textSecondary" style={styles.line}>{phone}</ThemedText>}
+      <ThemedText mono={name !== ''} style={styles.name}>
+        {name === '' ? t.profile.addName : name}
+      </ThemedText>
+      {name !== '' && (
+        <ThemedText themeColor="textSecondary" mono={profile?.phone != null} style={styles.line}>
+          {phone}
+        </ThemedText>
+      )}
       <ThemedText themeColor="accent" style={styles.line}>
         {t.profile.edit}
       </ThemedText>

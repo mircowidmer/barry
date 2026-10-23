@@ -2,7 +2,6 @@ import { Host, HStack, ProgressView, Button as SwiftUIButton, Text } from '@expo
 import { accessibilityLabel, buttonStyle, controlSize, disabled as disable, font, frame, tint } from '@expo/ui/swift-ui/modifiers';
 import { StyleSheet } from 'react-native';
 
-import { FontFamily } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 import type { ButtonProps } from './button';
@@ -24,7 +23,7 @@ export function Button({ title, onPress, kind = 'primary', disabled, busy }: But
         ]}>
         <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity })]}>
           {busy && <ProgressView />}
-          <Text modifiers={[font({ family: FontFamily, size: 17 })]}>{title}</Text>
+          <Text modifiers={[font({ size: 17 })]}>{title}</Text>
         </HStack>
       </SwiftUIButton>
     </Host>
