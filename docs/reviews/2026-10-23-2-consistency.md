@@ -138,7 +138,7 @@ Branch `maintenance-2026-10-23`, the second step of the maintenance pass of 23 O
 - `supabase/functions/deliver/messages.en.ts:102`: "The deadline was ${time(facts.deadline)}"; `messages.de.ts:70`: "hat die Rückkehrzeit von … verschoben" (the German word for the Deadline everywhere); `web/index.html:66`: "check-in time" for the time of the Check-in; `CONTEXT.md:35`: Deadline.
 - What is true: the English names one concept two ways, and "check-in time" also means the Check-in's time three lines later; the German is consistent. The 21 October pass skipped this because the Deno tests could not run there; they run here.
 - Fix: "deadline" in both places, and in the Deno fixture that pins the text.
-- Outcome: **fixed** 48c8075
+- Outcome: **fixed** 48c8075, and the end-to-end case that pins the wording followed in a later commit of the pass, after the pruning step found it still expecting "check-in time"
 
 **L10. The reviews under `docs/reviews/` are reachable from no document.** Confidence: high.
 - `README.md:32-44` lists every guide under `docs/` except `docs/reviews/`; `ls docs/reviews`: six reports.
