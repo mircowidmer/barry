@@ -62,7 +62,7 @@ export default function WatchingSheet() {
     <Screen onRefresh={loaded.reload}>
       <Stack.Screen options={{ title: t.adventure.watchingTitle }} />
       {close}
-      <Group title={t.contacts.count(adventure.contacts.length)} inset={Spacing.three + AVATAR + 12}>
+      <Group inset={Spacing.three + AVATAR + 12}>
         {adventure.contacts.map((c) => (
           <ContactLine key={c.id} contact={c} />
         ))}
