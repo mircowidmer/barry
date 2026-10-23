@@ -44,11 +44,11 @@ Work from the fastest proof to the slowest, and stop at the first failure.
 | `move_deadline` and the Deadline Update | `commands`, `deadline_update` | `move-deadline`, `move-records-position`, `move-sends-no-plan-update`, `overdue-move`, `move-after-alert`, `deadline-update`, `deadline-update-cancelled-by-check-in`, `deadline-update-cancelled-by-alert` |
 | `check_in` and the All-clear | `commands` | `check-in-in-time`, `check-in-while-overdue`, `queued-check-in-after-alert`, `missed-deadline` |
 | The Plan Update | `plan_update` | `plan-update`, `alert-carries-latest-plan`, `move-sends-no-plan-update` |
-| Emergency Contacts and their addresses | `contact_switches`, `shared_address` | `contact-switches`, `contact-switched-back-on`, `contact-needs-address`, `contact-in-use`, `contact-in-use-while-overdue`, `contact-added-while-overdue`, `last-contact-stays`, `removed-contact`, `shared-address` |
+| Emergency Contacts and their addresses | `contact_switches`, `shared_address` | `contact-switches`, `contact-switched-back-on`, `contact-needs-address`, `contact-in-use`, `contact-in-use-while-overdue`, `contact-added-while-overdue`, `last-contact-stays`, `removed-contact`, `shared-address`, `alert-reaches-every-channel`, `all-clear-reaches-every-channel` |
 | `delete_account` and Auth | `account` | `delete-account`, `delete-account-refused-while-alerted`, `delete-account-refused-while-overdue`, `delete-account-waits-for-all-clear`, `account-changes`, `password-reset` |
 | `record_trail` and the Trail Map data | `trail`, `trail_after` | `trail`, `trail-stops-at-check-in`, `trail-map-hides-overdue`, `trail-map-shows-plan`, `own-trail-map-link` |
 | `deliver`: `messages.en.ts`, `messages.de.ts`, `facts.ts`, `links.ts`, `senders.ts`, `claim_messages` | `deliver` | `german`, `alert-states-facts`, `alert-carries-latest-plan`, `own-trail-map-link`, `undelivered-alert` |
-| Twilio's delivery reports | `delivery_report` | `delivery-report`, `forged-delivery-report`, `undelivered-alert` |
+| Twilio's delivery reports | `delivery_report` | `delivery-report`, `forged-delivery-report`, `undelivered-alert`, `undelivered-all-clear` |
 | `health()` and the heartbeat | `health` | `health` |
 | Grants and privileges | `access` | none: the pgTAP file is the proof |
 
