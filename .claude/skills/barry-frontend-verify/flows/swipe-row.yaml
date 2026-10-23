@@ -1,0 +1,9 @@
+# Swipes the row whose label starts with ROW to the left. The red Delete it uncovers is not in the
+# accessibility tree: tap it with the simulator tool at (333, y), then run alert.yaml.
+appId: support.barry.dev
+---
+- swipe:
+    from:
+      text: "${ROW}.*"
+    direction: LEFT
+    duration: 400

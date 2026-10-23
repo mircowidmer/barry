@@ -1,0 +1,40 @@
+# profile-account in features/profile.md, up to the requested email change. Only on a throwaway
+# account: PW is its password, PW2 the new one, NEW the new address.
+appId: support.barry.dev
+---
+- scrollUntilVisible:
+    element: "Change Email Address and Password"
+    visibilityPercentage: 50
+    centerElement: true
+- tapOn: "Change Email Address and Password"
+- extendedWaitUntil:
+    visible: "Barry checks your current password before it changes anything\\."
+    timeout: 10000
+- assertVisible:
+    text: "Change Password"
+    enabled: false
+- takeScreenshot: profile-account-sheet
+- tapOn: "Current Password"
+- inputText: "wrongpass123"
+- tapOn: "New Password"
+- inputText: "${PW2}"
+- tapOn: "Change Password"
+- extendedWaitUntil:
+    visible: "That is not your current password\\. Nothing was changed\\."
+    timeout: 15000
+- takeScreenshot: profile-account-wrong-password
+- tapOn: "Current Password"
+- eraseText: 40
+- inputText: "${PW}"
+- tapOn: "Change Password"
+- extendedWaitUntil:
+    visible: "Your password is changed\\."
+    timeout: 15000
+- takeScreenshot: profile-account-password-changed
+- tapOn: "New Address"
+- inputText: "${NEW}"
+- tapOn: "Change Email Address"
+- extendedWaitUntil:
+    visible: "Barry sent a link to .*"
+    timeout: 15000
+- takeScreenshot: profile-account-email-requested

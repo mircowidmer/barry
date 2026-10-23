@@ -1,0 +1,19 @@
+# account-delete in features/sign-in.md, from the Profile tab. Only on a throwaway account.
+appId: support.barry.dev
+---
+- scrollUntilVisible:
+    element: "Delete Account"
+    visibilityPercentage: 50
+    centerElement: true
+- tapOn: "Delete Account"
+- extendedWaitUntil:
+    visible: "Delete Your Account\\?"
+    timeout: 5000
+- assertVisible: ".*The links your emergency contacts got no longer work\\..*"
+- takeScreenshot: account-delete-alert
+- tapOn:
+    point: "275,527"
+- extendedWaitUntil:
+    visible: "Forgot Password\\?"
+    timeout: 20000
+- takeScreenshot: account-delete

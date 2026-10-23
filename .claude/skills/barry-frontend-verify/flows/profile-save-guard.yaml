@@ -1,0 +1,43 @@
+# profile-save-guard and profile-required in features/profile.md, on the Profile tab of the test account.
+appId: support.barry.dev
+---
+- assertVisible:
+    text: "Save"
+    enabled: false
+- tapOn:
+    point: "368,308"
+- eraseText: 20
+- assertVisible: "Required"
+- assertVisible:
+    text: "Save"
+    enabled: false
+- takeScreenshot: profile-save-guard-name-empty
+- inputText: "${NAME || 'Anna'}"
+- tapOn:
+    point: "368,353"
+- eraseText: 30
+- inputText: "+4179"
+- assertVisible:
+    text: "Save"
+    enabled: false
+- takeScreenshot: profile-save-guard-short-number
+- eraseText: 10
+- inputText: "+41791234567"
+- assertVisible:
+    text: "Save"
+    enabled: true
+- takeScreenshot: profile-save-guard-valid-number
+- tapOn: "Save"
+- extendedWaitUntil:
+    visible:
+      text: "Save"
+      enabled: false
+    timeout: 15000
+- swipe:
+    start: "200,250"
+    end: "200,600"
+    duration: 600
+- extendedWaitUntil:
+    visible: "\\+41 79 123 45 67"
+    timeout: 15000
+- takeScreenshot: profile-required

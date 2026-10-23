@@ -30,19 +30,21 @@ Only one instance exists: one database, one Metro port, one booted simulator. Ne
 
 ## Drive
 
-The harness is the iOS Simulator control tool: `screenshot`, `tap` (with `duration` for a long-press), `swipe`, `button HOME`, `open_url`. Coordinates are device points on the iPhone 18 Pro, 402 × 874. A screenshot is shown scaled, so convert with the factor the tool reports.
+There are two harnesses. The iOS Simulator control tool (`screenshot`, `tap` with `duration` for a long-press, `swipe`, `touch_path`, `button HOME`, `open_url`) does tabs, switches, long-presses and anything found by position. [Maestro](https://maestro.mobile.dev), through `.claude/skills/barry-frontend-verify/scripts/maestro.sh`, types text and finds controls by accessibility label (every field and button in `src/components/form.tsx` sets one). Coordinates are device points on the iPhone 18 Pro, 402 × 874, in both. A screenshot is shown scaled, so convert with the factor the tool reports.
 
 - **Wait after every tap.** The debug build reacts one to three seconds late. Wait 2 to 3 seconds after a tap before the next screenshot, or the screenshot shows the old screen and the next tap lands on the new one.
 - **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign In`, `Plan an Adventure`, `Start`, `Hold to Check In`, `+1 h`, `Edit Plan or Contacts`. A header's close button and checkmark have no text: VoiceOver reads them as `Cancel` and `Save` or `Add`. Coordinates in the feature files are hints for an unscrolled screen only.
 - **Language.** The app follows the simulator's language, and every recipe quotes the English texts, so keep the simulator in English. To check the German texts, run `xcrun simctl spawn booted defaults write -g AppleLanguages -array de-CH en`, then `xcrun simctl shutdown booted` and boot it again. Set it back with `-array en-CH` the same way.
-- **Text entry.** The `text` action does not reach the field. Use the clipboard:
+- **Text entry.** The simulator tool's `text` action does not reach the field. Type with Maestro: `maestro.sh field "Destination"` prints the point of the field's input box, and `maestro.sh run <run-id> type AT=<x,y> VALUE="Grosser Mythen"` replaces its text. Tap the input box, never the field's name: a tap on the name lands on the label and the field gets no focus, so the text goes nowhere. Without Maestro, use the clipboard, which breaks whenever someone copies on the Mac during the run:
   1. `.claude/skills/barry-frontend-verify/scripts/clip.sh set "Grosser Mythen"` (or `clip.sh email`, `clip.sh password`).
   2. Long-press the field: `tap` at its centre with `duration: 0.9`.
   3. Wait one second, then take a screenshot. A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
   4. Tap `Paste`. Never tap `AutoFill`.
   5. After pasting the password, run `clip.sh clear`.
 - **Sign in.** Paste the email and the password, then tap `Sign In`. The first sign-in shows `"Barry Dev" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
-- **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content.
+- **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content. On a screen with a map, start the swipe on the header: a swipe that starts on the map pans the map, in Maestro's `scrollUntilVisible` too.
+- **Tab bar.** Switch tabs with the simulator tool's `tap` at the tab's position (the recipes give them). Maestro's taps on the iOS 27 tab bar do not register. After scrolling, the tab bar can collapse into a single icon at the bottom left, about (52, 824): tap it to expand the bar, take a screenshot, then tap the tab. A row near the bottom of the screen can sit under the floating tab bar, so scroll it to the middle before tapping (`centerElement: true` in Maestro).
+- **Swipe to delete.** The red `Delete` behind a swiped row is not in the accessibility tree. Swipe with `touch_path` or `maestro.sh run <run-id> swipe-row ROW=<name>`, then tap `Delete` with the simulator tool at (333, y).
 - **Hold to Check In.** A Check-in needs `tap` with `duration: 2.2` on `Hold to Check In`. A shorter press must not end the Adventure.
 - **Preconditions and time.** `.claude/skills/barry-frontend-verify/scripts/fixture.mjs` creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`) and the Trail (`trail`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
 - **Refreshing banner.** A blue `Refreshing…` bar at the top means Metro reloaded after a file in the repo changed, including files in this skill. It does not affect the run.
@@ -66,6 +68,14 @@ Proof standards: drive the real screens, not the database. Capture the action an
 - Stop only the processes this run started: Metro by its task ID, and the stack as barry-backend-verify's **Cleanup** says.
 - Keep `.verify-artifacts/`. Cleanup never deletes proof.
 
-## Upgrade path
+## Maestro
 
-Every tap here goes by coordinates read from screenshots, because no selector-based driver is installed. [Maestro](https://maestro.mobile.dev) would drive the same flows by accessibility label (every field and button in `src/components/form.tsx` sets one) and type text directly. Install it only with the user's approval.
+Maestro and OpenJDK come from Homebrew (`brew install openjdk mobile-dev-inc/tap/maestro`); install them only with the user's approval. Homebrew's JDK is not on the system Java path, so `maestro.sh` sets `JAVA_HOME` itself. Run it with the sandbox disabled.
+
+- `maestro.sh run <run-id> <flow> [KEY=VALUE ...]` runs `flows/<flow>.yaml` on the booted simulator and copies its screenshots to `.verify-artifacts/<run-id>/`. A failed flow also leaves Maestro's debug output, with the screen's hierarchy, in `.verify-artifacts/<run-id>/maestro/`. Each run takes 20 to 60 seconds to start.
+- `maestro.sh labels` lists every accessibility label on screen with its bounds, and `maestro.sh field <label>` prints the point of a field's input box.
+- `flows/` holds building blocks (`type`, `pull`, `alert`, `swipe-row`, `sign-in`) and the recipe steps that run whole (`profile-save-guard`, `profile-account`, `plan-start`, `history-select`, `logout`, `reset`, `reset-set`, `delete-account`). Each file names its parameters in its first comment. Screenshots are named after the recipe step.
+- Maestro reads every text as a regular expression that must match the whole label: escape `?`, `.`, `+`, `(` and `)` (`"Log Out\\?"`), or `Log Out?` also matches the `Log Out` row. A row's label joins its parts with commas, such as `Terms of Use, Forward` or `Current, <address>`, so match it as `"Terms of Use.*"` or `".*<address>.*"`.
+- Defaults in a flow's `env:` block override the values given on the command line. Write a default inline instead: `"${BUTTON || 'Sign In'}"`.
+- Alert buttons go by position (`alert.yaml` takes `AT`): the destructive button sits at (275, 507) in a two-line alert such as `Delete <name>?`, at (275, 497) in `Log Out?` and at (275, 527) in `Delete Your Account?`.
+- Maestro does not see the system contact picker's rows reliably; tap the contact with the simulator tool.

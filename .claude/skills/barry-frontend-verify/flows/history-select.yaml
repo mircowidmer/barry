@@ -1,0 +1,24 @@
+# history-select in features/history.md: selects the first two cards under Past Adventures and deletes them.
+appId: support.barry.dev
+---
+- tapOn: "Select"
+- extendedWaitUntil:
+    visible: "Select All"
+    timeout: 5000
+- tapOn:
+    point: "220,464"
+- tapOn:
+    point: "220,571"
+- assertVisible: "Delete \\(2\\)"
+- takeScreenshot: history-select
+- tapOn: "Delete \\(2\\)"
+- extendedWaitUntil:
+    visible: "Delete 2 Adventures\\?"
+    timeout: 5000
+- takeScreenshot: history-select-alert
+- tapOn:
+    point: "275,507"
+- extendedWaitUntil:
+    visible: "Select"
+    timeout: 10000
+- takeScreenshot: history-select-deleted

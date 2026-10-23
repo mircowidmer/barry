@@ -1,0 +1,22 @@
+# signin-logout in features/sign-in.md, from the Profile tab: Cancel keeps you signed in, Log Out signs out.
+appId: support.barry.dev
+---
+- scrollUntilVisible:
+    element: "Log Out"
+    visibilityPercentage: 50
+    centerElement: true
+- tapOn: "Log Out"
+- assertVisible: "Log Out\\?"
+- takeScreenshot: signin-logout-alert
+- tapOn: "Cancel"
+- extendedWaitUntil:
+    notVisible: "Log Out\\?"
+    timeout: 5000
+- tapOn: "Log Out"
+- assertVisible: "Log Out\\?"
+- tapOn:
+    point: "275,497"
+- extendedWaitUntil:
+    visible: "Forgot Password\\?"
+    timeout: 15000
+- takeScreenshot: signin-logout

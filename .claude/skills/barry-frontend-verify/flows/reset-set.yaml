@@ -1,0 +1,15 @@
+# signin-reset, step two: types CODE and the new password PW and signs in.
+appId: support.barry.dev
+---
+- tapOn:
+    point: "201,355"
+- inputText: "${CODE}"
+- tapOn:
+    point: "201,449"
+- inputText: "${PW}"
+- takeScreenshot: signin-reset-filled
+- tapOn: "Set New Password"
+- extendedWaitUntil:
+    visible: "Plan where you are going.*"
+    timeout: 20000
+- takeScreenshot: signin-reset-signed-in

@@ -1,0 +1,14 @@
+# signin-reset in features/sign-in.md, step one: asks for a code for the address already in the
+# Email field. Step two is reset-set.yaml with the code from Mailpit.
+appId: support.barry.dev
+---
+- tapOn: "Forgot Password\\?"
+- extendedWaitUntil:
+    visible: "Reset Password"
+    timeout: 10000
+- tapOn: "Send Code"
+- extendedWaitUntil:
+    visible: "Barry sent a code to .*Check your inbox\\."
+    timeout: 15000
+- assertVisible: "Set New Password"
+- takeScreenshot: signin-reset-code-sent
