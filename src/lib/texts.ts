@@ -132,7 +132,7 @@ const en = {
     deleteSelected: (n: number) => (n === 0 ? 'Delete' : `Delete (${n})`),
     deleteTitle: (n: number) => (n === 1 ? 'Delete this Adventure?' : `Delete ${n} Adventures?`),
     notDeleted: (n: number) => `${n} ${plural(n, 'adventure', 'adventures')} could not be deleted.`,
-    deleteMany: 'Their plans, trails and messages are removed. Links your emergency contacts got stop working.',
+    deleteMany: 'Their plans, trails and messages are removed. The links your emergency contacts got no longer work.',
   },
   plan: {
     couldNotLoad: 'Could not load the adventure.',
@@ -240,12 +240,12 @@ const en = {
   dialogs: {
     deleteAccountTitle: 'Delete Your Account?',
     deleteAccountMessage:
-      'Your profile, your emergency contacts and every adventure with its trail are deleted. Links your emergency contacts got stop working. This cannot be undone.',
+      'Your profile, your emergency contacts and every adventure with its trail are deleted. The links your emergency contacts got no longer work. This cannot be undone.',
     accountInProgress: 'Check in from your adventure before you delete your account.',
     accountMessagesPending: 'Barry is still sending messages for one of your adventures. Try again in a few minutes.',
     deleteAdventureTitle: 'Delete this Adventure?',
     deletePlanned: 'Its plan is removed. Nobody was told about it yet.',
-    deleteEnded: 'Its plan, its trail and its messages are removed. Links your emergency contacts got stop working.',
+    deleteEnded: 'Its plan, its trail and its messages are removed. The links your emergency contacts got no longer work.',
     couldNotDelete: 'Try again when you have signal.',
     logOutTitle: 'Log Out?',
     logOutMessage: 'You need your email address and password to sign in again.',
