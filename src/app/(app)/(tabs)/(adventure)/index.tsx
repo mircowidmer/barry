@@ -5,6 +5,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Screen, Section } from '@/components/form';
+import { GroupHeader } from '@/components/grouped-list';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -236,21 +237,24 @@ function LiveAdventure({
 
       {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityHint={adventure.stage === 'alerted' ? undefined : t.adventure.edit}
-        disabled={adventure.stage === 'alerted'}
-        style={pressedStyle}
-        onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}>
-      <Section title={t.adventure.planSection}>
-        <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
-        {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
-        <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
-        {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
-        <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>
-      </Section>
-        {adventure.stage !== 'alerted' && <Chevron />}
-      </Pressable>
+      <View style={styles.planGroup}>
+        <GroupHeader title={t.adventure.planSection} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint={adventure.stage === 'alerted' ? undefined : t.adventure.edit}
+          disabled={adventure.stage === 'alerted'}
+          style={pressedStyle}
+          onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}>
+          <Section>
+            <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
+            {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
+            <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
+            {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
+            <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>
+          </Section>
+          {adventure.stage !== 'alerted' && <Chevron />}
+        </Pressable>
+      </View>
 
       {failures.length > 0 && (
         <Section title={t.adventure.failuresTitle}>
@@ -312,6 +316,7 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
+  planGroup: { gap: 6 },
   chevron: { position: 'absolute', right: Spacing.three, top: 0, bottom: 0, justifyContent: 'center' },
 });
 
