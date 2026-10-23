@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 
+import { signedOnly } from '@/lib/signed-fetch';
 import { storage } from '@/lib/storage';
 
 const REQUEST_TIMEOUT_MS = 10_000;
@@ -23,7 +24,7 @@ export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL!,
   process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
   {
-    global: { fetch: fetchWithTimeout },
+    global: { fetch: signedOnly(fetchWithTimeout, process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY!) },
     auth: {
       storage,
       autoRefreshToken: true,
