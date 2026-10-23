@@ -16,7 +16,7 @@ import { askToLogOut } from '@/lib/log-out';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
 
-const AVATAR = 76;
+const AVATAR = 60;
 const TILE = 30;
 const TILE_GAP = 14;
 
@@ -119,7 +119,7 @@ function Header({ profile }: { profile: AdventurerProfile | null }) {
         {name === '' ? (
           <SymbolView
             name="person.fill"
-            size={34}
+            size={26}
             tintColor={theme.onAccent}
             fallback={<ThemedText style={[styles.initials, { color: theme.onAccent }]}>?</ThemedText>}
           />
@@ -127,14 +127,16 @@ function Header({ profile }: { profile: AdventurerProfile | null }) {
           <ThemedText style={[styles.initials, { color: theme.onAccent }]}>{initials(name)}</ThemedText>
         )}
       </View>
-      <ThemedText mono={name !== ''} style={styles.name}>
-        {name === '' ? t.profile.addName : name}
-      </ThemedText>
-      {name !== '' && (
-        <ThemedText themeColor="textSecondary" mono={profile?.phone != null} style={styles.line}>
-          {phone}
+      <View style={styles.text}>
+        <ThemedText mono={name !== ''} numberOfLines={1} style={styles.name}>
+          {name === '' ? t.profile.addName : name}
         </ThemedText>
-      )}
+        {name !== '' && (
+          <ThemedText themeColor="textSecondary" mono={profile?.phone != null} numberOfLines={1} style={styles.line}>
+            {phone}
+          </ThemedText>
+        )}
+      </View>
     </View>
   );
 }
@@ -195,10 +197,10 @@ function SummaryRow({
 }
 
 const styles = StyleSheet.create({
-  header: { borderRadius: 12, alignItems: 'center', gap: 4, paddingVertical: Spacing.four, paddingHorizontal: Spacing.three },
-  avatar: { width: AVATAR, height: AVATAR, borderRadius: AVATAR / 2, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
-  initials: { fontSize: 30, lineHeight: 36, fontWeight: 600 },
-  name: { fontSize: 22, lineHeight: 28, fontWeight: 700, textAlign: 'center' },
+  header: { flexDirection: 'row', alignItems: 'center', gap: TILE_GAP, borderRadius: 12, paddingVertical: 12, paddingHorizontal: Spacing.three },
+  avatar: { width: AVATAR, height: AVATAR, borderRadius: AVATAR / 2, alignItems: 'center', justifyContent: 'center' },
+  initials: { fontSize: 22, lineHeight: 28, fontWeight: 600 },
+  name: { fontSize: 20, lineHeight: 25, fontWeight: 600 },
   row: { flexDirection: 'row', alignItems: 'center', gap: TILE_GAP, minHeight: 60, paddingHorizontal: Spacing.three },
   tile: { width: TILE, height: TILE, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   text: { flex: 1, paddingVertical: 9 },
