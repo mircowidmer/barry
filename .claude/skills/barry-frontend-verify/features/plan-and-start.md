@@ -13,7 +13,7 @@ From the Adventure tab, an Adventurer plans an Adventure in a sheet with a desti
 
 ## How to get to it (user POV)
 
-- Tap `Plan an Adventure` on the Adventure tab (201, 250). The sheet `Plan an Adventure` slides up.
+- Tap `+` in the header of the Adventure tab (364, 84), which VoiceOver reads as `Plan an Adventure`. The sheet `Plan an Adventure` slides up.
 - Tap a card under `Planned Adventures` to reopen a saved Adventure in the sheet `Planned Adventure`.
 - The close button (`Cancel`) in the header, or swiping the sheet down, closes it. With unsaved changes the alert `Discard Changes?` offers `Cancel` and `Discard`.
 
