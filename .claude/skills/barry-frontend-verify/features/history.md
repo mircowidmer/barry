@@ -5,7 +5,7 @@ The History tab, second in the tab bar, shows the Adventure in progress under `C
 ## Sub-features
 
 - `history-tab` shows four tabs in the order `Adventure`, `History`, `Contacts`, `Profile`, with a list icon on `History`.
-- `history-past` lists Ended Adventures as rows reading `<destination>` and `Checked in <hh:mm>`, newest first. Each row has a green checkmark, or an orange warning triangle and `· <n> alerts sent` when contacts were alerted, and a chevron on the right.
+- `history-past` lists Ended Adventures as rows reading `<destination>` over `Checked in`, with the Check-in time `<hh:mm>` in Nordwand Mono on the right, newest first. VoiceOver reads a row as `<destination>, Checked in <hh:mm>`. Each row has a green checkmark, or an orange warning triangle and `<n> alerts sent` in place of `Checked in` when contacts were alerted, and a chevron on the right.
 - `history-now` shows the live Adventure under `Current Adventure` with `Back by <time>`, `Overdue since <time>` or `Emergency contacts alerted`. Tapping it opens the Adventure tab's live screen.
 - `history-search` filters the rows by destination as you type, and reads `No adventure matches your search.` when none matches.
 - `history-empty` reads `Your adventures show up here once you start one.` when there is no live or Ended Adventure.
