@@ -7,6 +7,7 @@ export default function AdventureLayout() {
   return (
     <TabStack title={useTexts().adventure.title}>
       <Stack.Screen name="plan" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="watching" options={{ presentation: 'modal' }} />
     </TabStack>
   );
 }

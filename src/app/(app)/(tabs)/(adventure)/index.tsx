@@ -1,13 +1,15 @@
 import { router, Stack } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
 import { useLoad } from '@/hooks/use-load';
+import { Spacing } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
@@ -131,6 +133,7 @@ function LiveAdventure({
 }) {
   const now = useNow();
   const t = useTexts();
+  const theme = useTheme();
   const trailStatus = useTrailStatus(queuedAt);
   const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
@@ -195,6 +198,24 @@ function LiveAdventure({
   return (
     <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Menu icon="clock" accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
+          {t.adventure.moves.map((m) => (
+            <Stack.Toolbar.MenuAction
+              key={m.minutes}
+              subtitle={t.when(movedDeadline(adventure.deadline, m.minutes))}
+              onPress={() => void move(m.minutes)}>
+              {m.label}
+            </Stack.Toolbar.MenuAction>
+          ))}
+        </Stack.Toolbar.Menu>
+        <Stack.Toolbar.Button
+          icon="person.2"
+          tintColor={failures.length > 0 ? theme.warning : undefined}
+          accessibilityLabel={t.adventure.watchingTitle}
+          onPress={() => router.push({ pathname: '/watching', params: { id: adventure.id } })}
+        />
+      </Stack.Toolbar>
       {(adventure.stage === 'active' || adventure.stage === 'overdue') && <DeadlineCard adventure={adventure} now={now} />}
       {adventure.stage === 'alerted' && (
         <Notice tone="danger">{t.adventure.alerted(adventure.alertsSent)}</Notice>
@@ -213,30 +234,23 @@ function LiveAdventure({
       )}
       {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
-      <Section title={t.adventure.needMoreTime}>
-        <Row>
-          {t.adventure.moves.map((m) => (
-            <Button key={m.minutes} title={m.label} kind="secondary" busy={busy} onPress={() => void move(m.minutes)} />
-          ))}
-        </Row>
-      </Section>
-
       {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
 
+      <Pressable
+        accessibilityRole="button"
+        accessibilityHint={adventure.stage === 'alerted' ? undefined : t.adventure.edit}
+        disabled={adventure.stage === 'alerted'}
+        style={pressedStyle}
+        onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}>
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
         {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
         <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
         {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
         <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>
-        {adventure.stage !== 'alerted' && (
-          <Button
-            title={t.adventure.edit}
-            kind="secondary"
-            onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}
-          />
-        )}
       </Section>
+        {adventure.stage !== 'alerted' && <Chevron />}
+      </Pressable>
 
       {failures.length > 0 && (
         <Section title={t.adventure.failuresTitle}>
@@ -298,7 +312,24 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
+  chevron: { position: 'absolute', right: Spacing.three, top: 0, bottom: 0, justifyContent: 'center' },
 });
+
+/** The Plan card's chevron: the card opens the Plan sheet while the Plan can still change. */
+function Chevron() {
+  const theme = useTheme();
+  return (
+    <View pointerEvents="none" style={styles.chevron}>
+      <SymbolView
+        name="chevron.right"
+        size={14}
+        weight="semibold"
+        tintColor={theme.textSecondary}
+        fallback={<ThemedText themeColor="textSecondary">›</ThemedText>}
+      />
+    </View>
+  );
+}
 
 const TRAIL_REFRESH_MS = 5 * 60_000;
 
