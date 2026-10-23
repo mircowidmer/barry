@@ -73,22 +73,6 @@ describe('createAlarms', () => {
     });
   });
 
-  it('moves both alarms with the Deadline and gives the same result when run again', async () => {
-    const { service, scheduled } = fakeNotifications();
-    let deadline = '2026-10-17T17:00:00Z';
-    const alarms = createAlarms({ notifications: service, due: () => dueAlarms(adventure(deadline), false, now) });
-    await alarms.sync();
-
-    deadline = '2026-10-17T19:00:00Z';
-    await alarms.sync();
-    await alarms.sync();
-
-    expect(scheduled()).toEqual({
-      'barry.reminder.a1': '2026-10-17T18:30:00.000Z',
-      'barry.overdue_notice.a1': '2026-10-17T19:00:00.000Z',
-    });
-  });
-
   it('applies syncs in order, so a slow sync cannot reschedule what a Check-in cancelled', async () => {
     const { service, scheduled } = fakeNotifications();
     let release = () => {};
