@@ -2,7 +2,22 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { AdventureId, Alarm, InProgressAdventure } from '@/lib/barry';
 
-import { arrivalText, formatDurationGerman, formatMessageTimeGerman, notificationText } from './wording';
+import { arrivalText, formatClock, formatDay, formatDayGerman, formatDurationGerman, formatMessageTimeGerman, notificationText } from './wording';
+
+describe('the History day headers', () => {
+  const now = new Date(2026, 9, 23, 13, 0);
+
+  it('name the weekday, day and month, and the year only when it is another year', () => {
+    expect(formatDay(new Date(2026, 9, 21, 9, 5), now)).toBe('Wed 21 Oct');
+    expect(formatDay(new Date(2025, 11, 30, 9, 5), now)).toBe('Tue 30 Dec 2025');
+    expect(formatDayGerman(new Date(2026, 9, 21, 9, 5), now)).toBe('Mi, 21. Okt.');
+    expect(formatDayGerman(new Date(2025, 2, 4, 9, 5), now)).toBe('Di, 4. März 2025');
+  });
+
+  it('give the Check-in time with two digits for hour and minute', () => {
+    expect(formatClock(new Date(2026, 9, 23, 7, 5))).toBe('07:05');
+  });
+});
 
 const adventure = {
   id: 'a1' as AdventureId,
