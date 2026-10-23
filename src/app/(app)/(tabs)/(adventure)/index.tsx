@@ -3,7 +3,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, Pressable } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { Button, FirstLoad, HoldButton, LoadState, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
+import { Button, FirstLoad, LoadState, Notice, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -12,6 +12,7 @@ import { useNow } from '@/hooks/use-now';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
+import { useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
 
 export default function AdventureScreen() {
@@ -154,6 +155,23 @@ function LiveAdventure({
     barry.deliveryFailures(initial.id).then(setFailures, () => undefined);
   }, [initial.id, adventure]);
 
+  const checkIn = async () => {
+    setBusy(true);
+    try {
+      const result = await barry.checkIn(adventure.id);
+      if (result.kind === 'ended') setAdventure(result.adventure);
+      else void onChanged();
+    } catch {
+      // The Check-in is saved before it is sent, so the reload shows it as waiting.
+      void onChanged();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Hold to Check In sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
+  useOfferCheckIn(adventure.stage !== 'planned' && adventure.stage !== 'ended', busy, () => void checkIn());
+
   if (adventure.stage === 'planned') return null;
   if (adventure.stage === 'ended') return <EndedAdventureScreen adventure={adventure} onDone={() => void onChanged()} />;
 
@@ -173,22 +191,8 @@ function LiveAdventure({
     }
   };
 
-  const checkIn = async () => {
-    setBusy(true);
-    try {
-      const result = await barry.checkIn(adventure.id);
-      if (result.kind === 'ended') setAdventure(result.adventure);
-      else void onChanged();
-    } catch {
-      // The Check-in is saved before it is sent, so the reload shows it as waiting.
-      void onChanged();
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
-    <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />}>
+    <Screen onRefresh={onChanged}>
       {/* An inline title, because a Live Adventure has no header buttons to fill the bar above a large one. */}
       <Stack.Screen options={{ title: adventure.plan.destination, headerLargeTitle: false }} />
       {adventure.stage === 'active' && (

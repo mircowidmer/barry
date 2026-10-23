@@ -1,5 +1,4 @@
 import { type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useNavigation, useSegments } from 'expo-router';
 import {
   ActivityIndicator,
@@ -14,7 +13,6 @@ import {
   type TextInputProps,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
@@ -55,18 +53,15 @@ export function LoadState({
 
 export const pressedStyle = ({ pressed }: { pressed: boolean }) => pressed && { opacity: 0.6 };
 
-/** With a footer, the footer floats above the tab bar, and the content scrolls up past it. */
 export function Screen({
   ref,
   title,
   onRefresh,
-  footer,
   children,
 }: {
   ref?: Ref<ScrollViewInstance>;
   title?: string;
   onRefresh?: (() => Promise<unknown>) | undefined;
-  footer?: ReactNode;
   children: ReactNode;
 }) {
   const theme = useTheme();
@@ -96,7 +91,7 @@ export function Screen({
       setRefreshing(false);
     }
   };
-  const content = (
+  return (
     <ScrollView
       ref={scroll}
       scrollToOverflowEnabled
@@ -108,20 +103,10 @@ export function Screen({
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets
       refreshControl={onRefresh && <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={theme.textSecondary} />}
-      contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }, footer !== undefined && styles.underFooter]}>
+      contentContainerStyle={[styles.screen, !aboveTabBar && { paddingBottom: 0 }]}>
       {title && <ThemedText type="subtitle">{title}</ThemedText>}
       {children}
     </ScrollView>
-  );
-  if (footer === undefined) return content;
-  // The safe area of a tab's screen ends at the top of the tab bar, so the footer floats just above it.
-  return (
-    <View style={styles.withFooter}>
-      {content}
-      <SafeAreaView edges={['bottom']} pointerEvents="box-none" style={styles.footer}>
-        {footer}
-      </SafeAreaView>
-    </View>
   );
 }
 
@@ -185,8 +170,21 @@ export function Field({ label, hint, toggle, ...input }: { label: string; hint?:
 
 const HOLD_MS = 1500;
 
-/** Completes only after a deliberate hold, so a pocket press cannot end protection. */
-export function HoldButton({ title, onComplete, disabled }: { title: string; onComplete: () => void; disabled?: boolean }) {
+/**
+ * Completes only after a deliberate hold, so a pocket press cannot end protection. It fills the tab bar's bottom
+ * accessory, whose glass capsule surrounds it, and VoiceOver reads `label` even when the shown title is shorter.
+ */
+export function HoldButton({
+  title,
+  label = title,
+  onComplete,
+  disabled,
+}: {
+  title: string;
+  label?: string;
+  onComplete: () => void;
+  disabled?: boolean;
+}) {
   const theme = useTheme();
   const t = useTexts();
   const [progress] = useState(() => new Animated.Value(0));
@@ -206,30 +204,26 @@ export function HoldButton({ title, onComplete, disabled }: { title: string; onC
     setHolding(false);
   };
 
-  const glass = isLiquidGlassAvailable();
   return (
-    <GlassView
-      isInteractive
-      tintColor={theme.success}
-      style={[styles.hold, glass ? styles.capsule : { backgroundColor: theme.success, borderRadius: Spacing.two }, disabled && { opacity: 0.6 }]}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={title}
-        accessibilityHint={t.adventure.holdHint}
-        accessibilityState={{ disabled, busy: disabled }}
-        disabled={disabled}
-        onPressIn={start}
-        onPressOut={cancel}
-        style={styles.holdTarget}>
-        <Animated.View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: theme.onAccent, opacity: 0.25, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) },
-          ]}
-        />
-        <ThemedText style={{ color: theme.onAccent, fontWeight: 700 }}>{holding ? t.adventure.keepHolding : title}</ThemedText>
-      </Pressable>
-    </GlassView>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={t.adventure.holdHint}
+      accessibilityState={{ disabled, busy: disabled }}
+      disabled={disabled}
+      onPressIn={start}
+      onPressOut={cancel}
+      style={[styles.hold, { backgroundColor: theme.success }, disabled && { opacity: 0.6 }]}>
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: theme.onAccent, opacity: 0.25, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) },
+        ]}
+      />
+      <ThemedText numberOfLines={1} style={{ color: theme.onAccent, fontWeight: 700 }}>
+        {holding ? t.adventure.keepHolding : title}
+      </ThemedText>
+    </Pressable>
   );
 }
 
@@ -257,18 +251,13 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
   },
-  withFooter: { flex: 1 },
-  // The footer's height and the gaps around it, so the last content scrolls clear of it.
-  underFooter: { paddingBottom: 64 + Spacing.three * 3 },
-  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: Spacing.three, paddingBottom: Spacing.three },
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   field: { gap: Spacing.one },
   label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
   input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16, fontFamily: FontFamily },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
-  hold: { minHeight: 64, overflow: 'hidden' },
-  capsule: { borderRadius: 32 },
-  holdTarget: { flex: 1, minHeight: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
+  // The accessory sets the height, and the radius is larger than half of any height it gives, so the ends stay round.
+  hold: { flex: 1, borderRadius: 999, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
   notice: { borderLeftWidth: 4, paddingLeft: Spacing.two, paddingVertical: Spacing.one },
   loading: { marginTop: Spacing.four },
   row: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap' },

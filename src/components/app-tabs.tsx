@@ -1,7 +1,10 @@
+import { useSegments } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { DynamicColorIOS, Platform } from 'react-native';
 
+import { HoldButton } from '@/components/form';
 import { Colors, FontFamily } from '@/constants/theme';
+import { type CheckInOffer, useCheckInOffer } from '@/lib/live-check-in';
 import { useTabBarHidden } from '@/lib/tab-bar';
 import { useTexts } from '@/lib/texts';
 
@@ -15,9 +18,17 @@ const labelStyle = { fontFamily: FontFamily, fontSize: 10 };
 
 export default function AppTabs() {
   const t = useTexts();
+  const offer = useCheckInOffer();
+  const onAdventureTab = (useSegments() as string[]).includes('(adventure)');
 
   return (
     <NativeTabs tintColor={tint} labelStyle={labelStyle} minimizeBehavior="onScrollDown" hidden={useTabBarHidden()}>
+      {/* Like the player in Music, but only on the Adventure tab, which is where the Live Adventure shows. */}
+      {offer && onAdventureTab && (
+        <NativeTabs.BottomAccessory>
+          <CheckInAccessory offer={offer} />
+        </NativeTabs.BottomAccessory>
+      )}
       <NativeTabs.Trigger name="(adventure)">
         <NativeTabs.Trigger.Label>{t.tabs.adventure}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.hiking" md="hiking" />
@@ -35,5 +46,19 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="person.crop.circle" md="person" />
       </NativeTabs.Trigger>
     </NativeTabs>
+  );
+}
+
+// iOS draws the accessory twice, full width above the tab bar and inline beside it once the bar shrinks on scroll.
+function CheckInAccessory({ offer }: { offer: CheckInOffer }) {
+  const t = useTexts();
+  const inline = NativeTabs.BottomAccessory.usePlacement() === 'inline';
+  return (
+    <HoldButton
+      title={inline ? t.adventure.holdShort : t.adventure.hold}
+      label={t.adventure.hold}
+      onComplete={offer.checkIn}
+      disabled={offer.busy}
+    />
   );
 }
