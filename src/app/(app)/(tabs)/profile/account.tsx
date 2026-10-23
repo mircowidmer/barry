@@ -13,12 +13,12 @@ const account = createAccount(supabase.auth);
 export default function AccountScreen() {
   const loaded = useLoad(() => account.email());
   const t = useTexts();
-  const failure = (e: Error) => t.common.couldNotReach(e.message);
+  const failure = () => t.common.couldNotReach;
   if (loaded.data === undefined) {
     return (
       <Screen>
         <Close />
-        <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && failure()} onRetry={loaded.reload} />
       </Screen>
     );
   }

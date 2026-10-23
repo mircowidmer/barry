@@ -169,7 +169,7 @@ export default function HistoryScreen() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={loaded.reload} />
       </Screen>
     );
   }
@@ -226,7 +226,7 @@ export default function HistoryScreen() {
           </Stack.Toolbar.Button>
         </Stack.Toolbar>
       )}
-      <LoadState loaded={loaded} failure={(e) => t.common.couldNotReach(e.message)} />
+      <LoadState loaded={loaded} failure={() => t.common.couldNotReach} />
       {!inProgress && ended.length === 0 && (
         <ThemedText themeColor="textSecondary">{t.history.empty}</ThemedText>
       )}

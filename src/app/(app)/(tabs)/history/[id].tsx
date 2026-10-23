@@ -13,7 +13,7 @@ export default function PastAdventureRoute() {
   if (loaded.data === undefined) {
     return (
       <Screen>
-        <FirstLoad failure={loaded.error && t.common.couldNotReach(loaded.error.message)} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={loaded.reload} />
       </Screen>
     );
   }
