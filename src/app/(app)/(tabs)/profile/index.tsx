@@ -33,13 +33,13 @@ const same = (a: Form, b: Form) => (Object.keys(a) as (keyof Form)[]).every((key
 export default function ProfileScreen() {
   const loaded = useLoad(() => barry.getProfile());
   const t = useTexts();
-  const failure = (e: Error) => t.common.couldNotReach(e.message);
+  const failure = () => t.common.couldNotReach;
   // One scroll view from the first load on, because iOS ties the large title to the first one it sees.
   // A failed first load must not show a blank Profile, or saving it would wipe the stored one.
   return (
     <Screen onRefresh={loaded.data === undefined ? undefined : loaded.reload}>
       {loaded.data === undefined ? (
-        <FirstLoad failure={loaded.error && failure(loaded.error)} onRetry={loaded.reload} />
+        <FirstLoad failure={loaded.error && failure()} onRetry={loaded.reload} />
       ) : (
         <ProfileForm stored={loaded.data} reloadFailure={<LoadState loaded={loaded} failure={failure} />} />
       )}
