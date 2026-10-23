@@ -1,0 +1,16 @@
+# The signed-out screen: types EMAIL and PW, taps BUTTON (Sign In or Create Account) and waits for EXPECT.
+appId: support.barry.dev
+---
+- tapOn:
+    point: "378,371"
+- eraseText: 60
+- inputText: "${EMAIL}"
+- tapOn:
+    point: "378,465"
+- eraseText: 60
+- inputText: "${PW}"
+- tapOn: "${BUTTON || 'Sign In'}"
+- extendedWaitUntil:
+    visible: "${EXPECT || 'Plan where you are going.*'}"
+    timeout: 20000
+- takeScreenshot: ${SHOT || 'signin'}

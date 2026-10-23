@@ -1,0 +1,31 @@
+# The plan sheet of the test account, opened with Plan an Adventure: the refusal without a
+# destination, Sara's warnings, then a Start with DEST.
+appId: support.barry.dev
+---
+- tapOn: "Luca"
+- tapOn: "Start"
+- extendedWaitUntil:
+    visible: "Add a destination\\."
+    timeout: 10000
+- takeScreenshot: plan-refusal
+- scrollUntilVisible:
+    element: "Sara"
+    visibilityPercentage: 100
+    centerElement: true
+- tapOn: "Sara"
+- assertVisible:
+    text: "Sara"
+    checked: true
+- takeScreenshot: plan-warnings
+- scrollUntilVisible:
+    element: "Destination"
+    direction: UP
+- tapOn:
+    point: "360,248"
+- inputText: "${DEST || 'Grosser Mythen'}"
+- assertVisible: "${DEST || 'Grosser Mythen'}"
+- tapOn: "Start"
+- extendedWaitUntil:
+    visible: "Barry is watching\\..*"
+    timeout: 20000
+- takeScreenshot: plan-started

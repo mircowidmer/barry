@@ -1,0 +1,7 @@
+# Replaces the text of the field at AT ("x,y", from `maestro.sh field <label>`) with VALUE.
+appId: support.barry.dev
+---
+- tapOn:
+    point: "${AT}"
+- eraseText: 60
+- inputText: "${VALUE}"

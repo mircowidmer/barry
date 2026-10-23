@@ -1,0 +1,11 @@
+# Pulls the screen or sheet down to reload it and waits for EXPECT.
+appId: support.barry.dev
+---
+- swipe:
+    start: "200,300"
+    end: "200,700"
+    duration: 800
+- extendedWaitUntil:
+    visible: "${EXPECT}"
+    timeout: 25000
+- takeScreenshot: ${SHOT}

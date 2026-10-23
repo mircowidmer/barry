@@ -1,0 +1,14 @@
+# Waits for the alert TITLE, taps its button at AT ("x,y") and waits for EXPECT.
+# Alert buttons are not reliably found by text, so they go by position.
+appId: support.barry.dev
+---
+- extendedWaitUntil:
+    visible: "${TITLE}"
+    timeout: 5000
+- takeScreenshot: ${SHOT}-alert
+- tapOn:
+    point: "${AT || '275,507'}"
+- extendedWaitUntil:
+    visible: "${EXPECT}"
+    timeout: 15000
+- takeScreenshot: ${SHOT}
