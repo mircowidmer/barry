@@ -8,6 +8,8 @@ Barry has three app variants. Each has its own bundle identifier, so all three c
 | `preview` | Barry Preview | `support.barry.preview` | `barry-preview` | The hosted project | Built into the app |
 | `production` | Barry | `support.barry` | `barry` | The hosted project | Built into the app |
 
+Every variant needs iOS 26 or later (`ios.deploymentTarget` in `app.json`), because Hold to Check In sits in the tab bar's bottom accessory, which iOS 26 introduced.
+
 Without `APP_VARIANT`, the config is `production`. The npm scripts `start`, `ios` and `android` set `development`. Only the development variant asks for Local Network access, because only it talks to Metro. The sign-up confirmation page opens `barry://sign-in`, so it opens the production app.
 
 ## Build in the cloud with EAS
