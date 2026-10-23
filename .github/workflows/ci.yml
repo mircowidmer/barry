@@ -1,0 +1,108 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, types, Jest and Deno
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # tsc needs expo-env.d.ts, which `npm start` writes on its first run and git ignores.
+      - name: Write expo-env.d.ts
+        run: printf '/// <reference types="expo/types" />\n' > expo-env.d.ts
+      - run: npx expo lint
+      - run: npx tsc --noEmit
+      - run: npm test
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno test supabase/functions/deliver
+
+  backend:
+    name: pgTAP and end-to-end against the local stack
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Applies every migration and supabase/seed.sql, which holds the Vault secrets deliver needs.
+      - name: Start Supabase
+        run: npx supabase start -x studio,imgproxy,vector,logflare
+      - name: Start the text message relay
+        run: |
+          nohup node scripts/sms-relay.mjs > relay.log 2>&1 &
+          for _ in $(seq 1 30); do curl -sf http://localhost:8788/messages > /dev/null && exit 0; sleep 1; done
+          cat relay.log; exit 1
+      # The doctor also waits for pg_cron's first tick, which can take up to a minute after the start.
+      - name: Wait for the doctor
+        run: |
+          for _ in $(seq 1 18); do .claude/skills/barry-backend-verify/scripts/doctor.sh && exit 0; sleep 10; done
+          exit 1
+      - run: npx supabase test db
+      - run: npm run e2e
+      - name: Collect the logs
+        if: failure()
+        run: |
+          mkdir -p logs
+          cp relay.log logs/ || true
+          npx supabase status > logs/supabase-status.txt 2>&1 || true
+          for c in supabase_edge_runtime_barry-local supabase_db_barry-local supabase_inbucket_barry-local; do
+            docker logs "$c" > "logs/$c.log" 2>&1 || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: backend-logs
+          path: logs
+
+  ios:
+    name: iOS Release build for the Simulator
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # The Release bundle embeds the EXPO_PUBLIC_ values, so it takes the hosted ones from the production profile.
+      - name: Take the production env from eas.json
+        run: node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log(k + '=' + v)" >> "$GITHUB_ENV"
+      - name: Generate the iOS project
+        run: npx expo prebuild --clean --platform ios
+        env:
+          APP_VARIANT: production
+          BARRY_WITHOUT_PUSH: '1'
+          LANG: en_US.UTF-8
+      - name: Build
+        run: >
+          xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO build
+        env:
+          LANG: en_US.UTF-8
