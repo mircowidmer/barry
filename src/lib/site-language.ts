@@ -44,10 +44,10 @@ export const siteText = {
     updatesEveryFiveMinutes: 'Barry updates this map every 5 minutes.',
     staleSince: (since: Date) => `Barry cannot be reached since ${formatWhen(since)}. This is the last update it sent.`,
     alerted: (name: string) => `${name} has not checked in. Barry has raised the alert.`,
-    checkedIn: (name: string, at: Date) => `${name} checked in at ${formatWhen(at)}.`,
+    checkedIn: (name: string, at: Date) => `${name} checked in on ${formatWhen(at)}.`,
     lastKnownPosition: (p: Position | null) =>
       p
-        ? `Last position at ${formatWhen(p.takenAt)}: ${position(p)}` + (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
+        ? `Last position on ${formatWhen(p.takenAt)}: ${position(p)}` + (p.accuracyM === null ? '' : ` (within ${Math.round(p.accuracyM)} m)`)
         : 'Last position: not recorded',
     plan: 'Plan',
     destination: 'Destination',

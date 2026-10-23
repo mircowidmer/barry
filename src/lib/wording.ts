@@ -1,19 +1,12 @@
 import type { Alarm, InProgressAdventure } from '@/lib/barry';
 import { type AppLanguage, appLanguage } from '@/lib/language';
 
-/** Like the English messages to the contacts: Sat 17 Oct, 18:00. Built from parts, because Safari joins date and time with "at" and Node with a comma. */
-export const formatWhen = (at: Date) => {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(at);
-  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? '';
-  return `${part('weekday')} ${part('day')} ${part('month')}, ${part('hour')}:${part('minute')}`;
-};
+const ENGLISH_WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const ENGLISH_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+/** Sat 17 Oct at 18:00, spelled out because the engines disagree: iOS and Safari join date and time with "at", Node with a comma. */
+export const formatWhen = (at: Date) =>
+  `${ENGLISH_WEEKDAYS[at.getDay()]} ${at.getDate()} ${ENGLISH_MONTHS[at.getMonth()]} at ${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
 
 const GERMAN_WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const GERMAN_WEEKDAYS_BY_ENGLISH: Record<string, string> = { Sun: 'So', Mon: 'Mo', Tue: 'Di', Wed: 'Mi', Thu: 'Do', Fri: 'Fr', Sat: 'Sa' };
