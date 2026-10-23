@@ -237,7 +237,7 @@ function LiveAdventure({
 
       {lastKnown && <TrailMapView trail={trail} last={lastKnown} />}
 
-      <View style={styles.planGroup}>
+      <View style={styles.titledCard}>
         <GroupHeader title={t.adventure.planSection} />
         <Pressable
           accessibilityRole="button"
@@ -257,13 +257,16 @@ function LiveAdventure({
       </View>
 
       {failures.length > 0 && (
-        <Section title={t.adventure.failuresTitle}>
-          {failures.map((f, i) => (
-            <ThemedText key={i} type="small">
-              {t.adventure.failure(f)}
-            </ThemedText>
-          ))}
-        </Section>
+        <View style={styles.titledCard}>
+          <GroupHeader title={t.adventure.failuresTitle} />
+          <Section>
+            {failures.map((f, i) => (
+              <ThemedText key={i} type="small">
+                {t.adventure.failure(f)}
+              </ThemedText>
+            ))}
+          </Section>
+        </View>
       )}
     </Screen>
   );
@@ -316,7 +319,7 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
-  planGroup: { gap: 6 },
+  titledCard: { gap: 6 },
   chevron: { position: 'absolute', right: Spacing.three, top: 0, bottom: 0, justifyContent: 'center' },
 });
 
