@@ -271,7 +271,8 @@ const styles = StyleSheet.create({
   },
   withFooter: { flex: 1 },
   // The footer's height and the gaps around it, so the last content scrolls clear of it.
-  underFooter: { paddingBottom: 64 + Spacing.three * 3 },
+  // The footer's 64 pt button and the padding under it, plus the same gap above it as between the cards.
+  underFooter: { paddingBottom: 64 + Spacing.three * 2 },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: Spacing.three, paddingBottom: Spacing.three },
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   field: { gap: Spacing.one },
