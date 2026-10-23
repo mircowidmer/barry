@@ -1,7 +1,10 @@
+import { useSegments } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { DynamicColorIOS, Platform } from 'react-native';
 
+import { CheckInAccessory } from '@/components/check-in-accessory';
 import { Colors } from '@/constants/theme';
+import { useCheckInOffer } from '@/lib/live-check-in';
 import { useTabBarHidden } from '@/lib/tab-bar';
 import { useTexts } from '@/lib/texts';
 
@@ -11,9 +14,17 @@ const tint = Platform.OS === 'ios' ? DynamicColorIOS({ light: Colors.light.accen
 
 export default function AppTabs() {
   const t = useTexts();
+  const offer = useCheckInOffer();
+  const onAdventureTab = (useSegments() as string[]).includes('(adventure)');
 
   return (
     <NativeTabs tintColor={tint} minimizeBehavior="onScrollDown" hidden={useTabBarHidden()}>
+      {/* Like the player in Music, but only on the Adventure tab, which is where the Live Adventure shows. */}
+      {offer && onAdventureTab && (
+        <NativeTabs.BottomAccessory>
+          <CheckInAccessory offer={offer} />
+        </NativeTabs.BottomAccessory>
+      )}
       <NativeTabs.Trigger name="(adventure)">
         <NativeTabs.Trigger.Label>{t.tabs.adventure}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.hiking" md="hiking" />
