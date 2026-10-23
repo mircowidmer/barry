@@ -66,10 +66,11 @@ function Overview({
     if (outcome.kind === 'deleted') void onReload();
     else if (outcome.kind === 'failed') Alert.alert(t.common.couldNotDelete, outcome.message);
   };
-  // A Live Adventure names the header after its destination; the overview takes the tab's name back.
+  // A Live Adventure names the header after its destination in an inline title; the overview takes the tab's name
+  // and its large title back.
   return (
     <Screen onRefresh={onReload}>
-      <Stack.Screen options={{ title: t.adventure.title }} />
+      <Stack.Screen options={{ title: t.adventure.title, headerLargeTitle: true }} />
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
       </Stack.Toolbar>
@@ -188,7 +189,8 @@ function LiveAdventure({
 
   return (
     <Screen onRefresh={onChanged} footer={<HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />}>
-      <Stack.Screen options={{ title: adventure.plan.destination }} />
+      {/* An inline title, because a Live Adventure has no header buttons to fill the bar above a large one. */}
+      <Stack.Screen options={{ title: adventure.plan.destination, headerLargeTitle: false }} />
       {adventure.stage === 'active' && (
         <Notice tone="success">
           {t.adventure.watching(t.when(adventure.deadline), t.duration(adventure.deadline.getTime() - now.getTime()))}
