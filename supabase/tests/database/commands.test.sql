@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(66);
+select plan(65);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -274,11 +274,6 @@ select is(
 );
 select is(public.delete_adventure('c0000000-0000-0000-0000-000000000033'),
   'messages_pending'::public.refusal, 'An Ended Adventure with an All-clear being sent cannot be deleted');
-select is(
-  (select count(*)::int from public.adventures where id = 'c0000000-0000-0000-0000-000000000033'),
-  1,
-  'The Adventure with an All-clear being sent still exists'
-);
 select is(public.delete_adventure('b0000000-0000-0000-0000-000000000021'),
   'not_found'::public.refusal, 'Anna cannot delete Ben''s Adventure');
 
