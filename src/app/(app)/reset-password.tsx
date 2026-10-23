@@ -2,7 +2,8 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { Button, Field, Notice, Screen } from '@/components/form';
+import { Button, Field, Screen } from '@/components/form';
+import { Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useStringParam } from '@/hooks/use-string-param';
@@ -48,7 +49,9 @@ export default function ResetPasswordScreen() {
       <ThemedText themeColor="textSecondary">{t.resetPassword.intro}</ThemedText>
       {sent ? (
         <>
-          <Notice>{t.resetPassword.codeSent(email.trim())}</Notice>
+          <Note tone="success" icon="envelope">
+            {t.resetPassword.codeSent(email.trim())}
+          </Note>
           <Field
             label={t.resetPassword.code}
             mono
@@ -66,7 +69,7 @@ export default function ResetPasswordScreen() {
             autoComplete="new-password"
             textContentType="newPassword"
           />
-          {error && <Notice tone="danger">{error}</Notice>}
+          {error && <Note tone="danger">{error}</Note>}
           <Button title={t.resetPassword.setPassword} onPress={() => void setNewPassword()} busy={busy === 'set'} disabled={!code || !password} />
           <Button title={t.resetPassword.sendAgain} kind="secondary" onPress={() => void sendCode()} busy={busy === 'send'} disabled={busy === 'set'} />
         </>
@@ -81,7 +84,7 @@ export default function ResetPasswordScreen() {
             keyboardType="email-address"
             textContentType="emailAddress"
           />
-          {error && <Notice tone="danger">{error}</Notice>}
+          {error && <Note tone="danger">{error}</Note>}
           <Button title={t.resetPassword.sendCode} onPress={() => void sendCode()} busy={busy === 'send'} disabled={!email.trim()} />
         </>
       )}

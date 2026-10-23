@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 
-import { FirstLoad, LoadState, Notice, Screen } from '@/components/form';
+import { FirstLoad, LoadState, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, ValueRow } from '@/components/grouped-list';
 import { useLoad } from '@/hooks/use-load';
 import { type AccountEmail, createAccount } from '@/lib/account';
@@ -73,7 +73,8 @@ function PasswordChange({ email }: { email: string }) {
 
   return (
     <>
-      <Group title={t.account.password} footer={t.account.passwordHint}>
+      {/* A result replaces the hint under the group it belongs to, so it reads where the Adventurer just typed. */}
+      <Group title={t.account.password} footer={shown?.text ?? t.account.passwordHint} footerTone={shown?.tone}>
         <InputRow
           label={t.account.currentPassword}
           value={current}
@@ -94,7 +95,6 @@ function PasswordChange({ email }: { email: string }) {
         />
         <ActionRow title={t.account.changePassword} onPress={() => void change()} busy={busy} disabled={current === '' || next === ''} />
       </Group>
-      {shown && <Notice tone={shown.tone}>{shown.text}</Notice>}
     </>
   );
 }
@@ -139,7 +139,11 @@ function EmailChange({
 
   return (
     <>
-      <Group title={t.account.email} footer={t.account.emailHint}>
+      <Group
+        title={t.account.email}
+        footer={notice?.text ?? (stored.pendingEmail ? t.account.pendingEmail(stored.pendingEmail) : t.account.emailHint)}
+        footerTone={notice?.tone ?? (stored.pendingEmail ? 'warning' : undefined)}
+        footerIcon={!notice && stored.pendingEmail ? 'envelope' : undefined}>
         <ValueRow label={t.account.currentEmail} value={stored.email} />
         <InputRow
           label={t.account.newEmail}
@@ -153,8 +157,6 @@ function EmailChange({
         />
         <ActionRow title={t.account.changeEmail} onPress={() => void change()} busy={busy} disabled={unchanged} />
       </Group>
-      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
-      {!notice && stored.pendingEmail && <Notice>{t.account.pendingEmail(stored.pendingEmail)}</Notice>}
     </>
   );
 }

@@ -3,7 +3,8 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet } from 'react-native';
 
-import { Button, Field, Notice, Screen } from '@/components/form';
+import { Button, Field, Screen } from '@/components/form';
+import { Note } from '@/components/grouped-list';
 import { LegalLinks } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -60,8 +61,7 @@ export default function SignInScreen() {
         autoComplete="password"
         textContentType="password"
       />
-      {error && <Notice tone="danger">{error}</Notice>}
-      {confirmEmail && <Notice>{t.signIn.confirmEmail}</Notice>}
+      {error && <Note tone="danger">{error}</Note>}
       <Button title={t.signIn.signIn} onPress={() => void submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
       <Button
         title={t.signIn.createAccount}
@@ -70,6 +70,7 @@ export default function SignInScreen() {
         busy={busy === 'sign_up'}
         disabled={!email || !password}
       />
+      {confirmEmail && <Note icon="envelope">{t.signIn.confirmEmail}</Note>}
       <ThemedText
         type="small"
         themeColor="accent"

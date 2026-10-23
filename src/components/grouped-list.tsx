@@ -1,4 +1,4 @@
-import { SymbolView } from 'expo-symbols';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { Children, isValidElement, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Switch, TextInput, type TextInputProps, View } from 'react-native';
 
@@ -10,18 +10,23 @@ import { useTheme } from '@/hooks/use-theme';
 /**
  * An inset group of rows like in Settings, with an optional header above and footer below. inset is
  * where the separators start, so rows that lead with a picture can start them at the text. `footerInfo` sets the
- * footer as an InfoNote, for a footer that explains rather than labels.
+ * footer as an InfoNote, for a footer that explains rather than labels; `footerTone` sets it as a Note in that tone,
+ * for a state or a result that belongs to this group.
  */
 export function Group({
   title,
   footer,
   footerInfo = false,
+  footerTone,
+  footerIcon,
   inset = Spacing.three,
   children,
 }: {
   title?: string;
   footer?: string;
   footerInfo?: boolean;
+  footerTone?: NoteTone | undefined;
+  footerIcon?: SymbolViewProps['name'] | undefined;
   inset?: number;
   children: ReactNode;
 }) {
@@ -39,7 +44,11 @@ export function Group({
         ))}
       </View>
       {footer &&
-        (footerInfo ? (
+        (footerTone ? (
+          <Note tone={footerTone} icon={footerIcon}>
+            {footer}
+          </Note>
+        ) : footerInfo ? (
           <InfoNote>{footer}</InfoNote>
         ) : (
           <ThemedText type="small" themeColor="textSecondary" style={styles.footer}>
@@ -61,16 +70,34 @@ export function GroupHeader({ title }: { title: string }) {
 
 /** A small note with an info symbol in front, under a group or on its own. */
 export function InfoNote({ children }: { children: string }) {
+  return <Note>{children}</Note>;
+}
+
+export type NoteTone = 'secondary' | 'success' | 'warning' | 'danger';
+
+const NOTE_ICON: Record<NoteTone, SymbolViewProps['name']> = {
+  secondary: 'info.circle',
+  success: 'checkmark.circle',
+  warning: 'exclamationmark.triangle',
+  danger: 'exclamationmark.circle',
+};
+
+/**
+ * A state or a result in a line of its own, with a symbol in front, so it reads by its shape as well as its colour:
+ * under a group as its footer, or under a screen's title for a state of the whole screen.
+ */
+export function Note({ tone = 'secondary', icon, children }: { tone?: NoteTone; icon?: SymbolViewProps['name'] | undefined; children: string }) {
   const theme = useTheme();
+  const color = tone === 'secondary' ? 'textSecondary' : tone;
   return (
-    <View style={styles.info}>
+    <View style={styles.info} accessible accessibilityRole={tone === 'danger' ? 'alert' : 'text'}>
       <SymbolView
-        name="info.circle"
+        name={icon ?? NOTE_ICON[tone]}
         size={17}
-        tintColor={theme.textSecondary}
-        fallback={<ThemedText themeColor="textSecondary">i</ThemedText>}
+        tintColor={theme[color]}
+        fallback={<ThemedText themeColor={color}>{tone === 'success' ? '✓' : tone === 'secondary' ? 'i' : '!'}</ThemedText>}
       />
-      <ThemedText themeColor="textSecondary" style={styles.infoText}>
+      <ThemedText themeColor={color} style={styles.infoText}>
         {children}
       </ThemedText>
     </View>

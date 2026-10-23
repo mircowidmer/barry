@@ -1,11 +1,13 @@
 import { router, Stack } from 'expo-router';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { DoneSeal } from '@/components/done-seal';
-import { Button, Notice, Screen, Section } from '@/components/form';
+import { Screen, Section, Unavailable } from '@/components/form';
+import { Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
 import { useLoad } from '@/hooks/use-load';
+import { useTheme } from '@/hooks/use-theme';
 import { barry, type EndedAdventure } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { useTexts } from '@/lib/texts';
@@ -14,6 +16,7 @@ import { useTexts } from '@/lib/texts';
 export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAdventure; onDone?: () => void }) {
   const readings = useLoad(() => barry.readings(adventure.id));
   const t = useTexts();
+  const theme = useTheme();
 
   // A failed delete is an alert here as in the lists, so the same action fails the same way everywhere.
   const remove = async () => {
@@ -30,16 +33,20 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
           <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={() => void remove()} />
         </Stack.Toolbar>
       )}
-      <Notice tone="success">
-        {t.ended.checkedIn(t.when(adventure.checkedInAt))}
-        {onDone && t.ended.welcome}
-      </Notice>
+      <Note tone="success" icon="checkmark">
+        {t.ended.checkedIn(t.when(adventure.checkedInAt)) + (onDone ? t.ended.welcome : '')}
+      </Note>
 
       {readings.status === 'error' && (
-        <>
-          <Notice tone="warning">{t.ended.mapFailed(readings.error.message)}</Notice>
-          <Button title={t.common.tryAgain} kind="secondary" onPress={() => void readings.reload()} />
-        </>
+        <View style={[styles.mapFailed, { backgroundColor: theme.backgroundElement }]}>
+          <Unavailable
+            compact
+            symbol="map"
+            title={t.ended.mapFailedTitle}
+            message={readings.error.message}
+            action={{ title: t.common.tryAgain, onPress: () => void readings.reload() }}
+          />
+        </View>
       )}
       {readings.status === 'ready' &&
         (readings.data.length > 0 ? (
@@ -59,3 +66,8 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  // The map's place, so a failure shows where the map would be.
+  mapFailed: { borderRadius: 26, paddingBottom: 24, overflow: 'hidden' },
+});
