@@ -49,3 +49,7 @@ npm run submit:production
 ## Build on your Mac
 
 [How to run Barry on your iPhone](iphone.md) builds the development and production variants locally with Xcode. `ios/` is generated for one variant at a time, so switching variants needs `npx expo prebuild --clean` with the new `APP_VARIANT`.
+
+## Build on GitHub
+
+The `ios` job of `.github/workflows/ci.yml` builds the production variant in Release for the iOS Simulator on a macOS runner, without signing. It proves that the native project and the JavaScript bundle still build. It makes no app for a phone: that still comes from the local Release build or from EAS.
