@@ -26,12 +26,10 @@ import type {
   ContactDraft,
   DeliveryFailure,
   EmergencyContact,
-  EndedAdventure,
   InProgressAdventure,
   MessageLanguage,
   Point,
   Position,
-  Refusal,
 } from './types';
 
 export type BarryDeps = {
@@ -384,7 +382,7 @@ export const createBarry = ({
         ...positionArgs(position),
       });
       if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('start', error);
-      if (data) return { kind: 'refused', refusal: data as Refusal };
+      if (data) return { kind: 'refused', refusal: data };
       // The command went through; a refetch that fails for lack of signal is only unconfirmed.
       const adventure = await getAdventure(id).catch(() => null);
       syncTrail();
@@ -399,7 +397,7 @@ export const createBarry = ({
         ...positionArgs(position),
       });
       if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('moveDeadline', error);
-      if (data) return { kind: 'refused', refusal: data as Refusal };
+      if (data) return { kind: 'refused', refusal: data };
       const adventure = await getAdventure(id).catch(() => null);
       syncTrail();
       return isInProgress(adventure) ? { kind: 'moved', adventure } : { kind: 'unconfirmed' };
@@ -412,7 +410,7 @@ export const createBarry = ({
       const adventure = (await flushCheckIns()).get(id) ?? null;
       syncTrail();
       return adventure?.stage === 'ended'
-        ? { kind: 'ended', adventure: adventure as EndedAdventure }
+        ? { kind: 'ended', adventure }
         : { kind: 'queued', checkedInAt };
     },
 
