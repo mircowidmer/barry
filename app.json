@@ -9,6 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "support.barry",
+      "deploymentTarget": "26.0",
       "appleTeamId": "4GNTKX8XTQ",
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true
