@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { GroupHeader } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { FontFamily, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
@@ -127,14 +128,12 @@ export function Screen({
 
 export function Section({ title, children }: { title?: string; children: ReactNode }) {
   const theme = useTheme();
+  const card = <View style={[styles.section, { backgroundColor: theme.backgroundElement }]}>{children}</View>;
+  if (!title) return card;
   return (
-    <View style={[styles.section, { backgroundColor: theme.backgroundElement }]}>
-      {title && (
-        <ThemedText type="smallBold" mono>
-          {title}
-        </ThemedText>
-      )}
-      {children}
+    <View style={styles.titled}>
+      <GroupHeader title={title} />
+      {card}
     </View>
   );
 }
@@ -275,6 +274,7 @@ const styles = StyleSheet.create({
   underFooter: { paddingBottom: 64 + Spacing.three * 2 },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: Spacing.three, paddingBottom: Spacing.three },
   section: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
+  titled: { gap: 6 },
   field: { gap: Spacing.one },
   label: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 31 },
   input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
