@@ -183,7 +183,6 @@ const en = {
   },
   contacts: {
     title: 'Emergency Contacts',
-    count: (n: number) => (n === 1 ? '1 contact' : `${n} contacts`),
     couldNotLoad: 'Could not load your contacts.',
     intro:
       'Barry can tell these contacts when you start an adventure, and again if you don’t check in on time. They don’t need to use Barry.',
@@ -460,7 +459,6 @@ const de: Texts = {
   },
   contacts: {
     title: 'Notfallkontakte',
-    count: (n) => (n === 1 ? '1 Kontakt' : `${n} Kontakte`),
     couldNotLoad: 'Deine Kontakte konnten nicht geladen werden.',
     intro:
       'Barry kann diese Kontakte informieren, wenn du ein Abenteuer startest, und nochmals, wenn du dich nicht rechtzeitig zurückmeldest. Sie brauchen Barry nicht.',
