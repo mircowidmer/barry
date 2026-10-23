@@ -9,16 +9,19 @@ import { useTheme } from '@/hooks/use-theme';
 
 /**
  * An inset group of rows like in Settings, with an optional header above and footer below. inset is
- * where the separators start, so rows that lead with a picture can start them at the text.
+ * where the separators start, so rows that lead with a picture can start them at the text. `footerInfo` sets the
+ * footer as an InfoNote, for a footer that explains rather than labels.
  */
 export function Group({
   title,
   footer,
+  footerInfo = false,
   inset = Spacing.three,
   children,
 }: {
   title?: string;
   footer?: string;
+  footerInfo?: boolean;
   inset?: number;
   children: ReactNode;
 }) {
@@ -39,11 +42,32 @@ export function Group({
           </View>
         ))}
       </View>
-      {footer && (
-        <ThemedText type="small" themeColor="textSecondary" style={styles.footer}>
-          {footer}
-        </ThemedText>
-      )}
+      {footer &&
+        (footerInfo ? (
+          <InfoNote>{footer}</InfoNote>
+        ) : (
+          <ThemedText type="small" themeColor="textSecondary" style={styles.footer}>
+            {footer}
+          </ThemedText>
+        ))}
+    </View>
+  );
+}
+
+/** A small note with an info symbol in front, under a group or on its own. */
+export function InfoNote({ children }: { children: string }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.info}>
+      <SymbolView
+        name="info.circle"
+        size={17}
+        tintColor={theme.textSecondary}
+        fallback={<ThemedText themeColor="textSecondary">i</ThemedText>}
+      />
+      <ThemedText themeColor="textSecondary" style={styles.infoText}>
+        {children}
+      </ThemedText>
     </View>
   );
 }
@@ -171,6 +195,8 @@ const styles = StyleSheet.create({
   group: { gap: 6 },
   header: { paddingHorizontal: Spacing.three, fontSize: 13 },
   footer: { paddingHorizontal: Spacing.three, fontSize: 13 },
+  info: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingHorizontal: Spacing.three },
+  infoText: { flex: 1, fontSize: 13, lineHeight: 18 },
   box: { borderRadius: 12, overflow: 'hidden' },
   separator: { height: StyleSheet.hairlineWidth },
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three },
