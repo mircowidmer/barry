@@ -30,10 +30,10 @@ test('two quick Deadline moves send one Deadline Update, from the first Deadline
   );
 
   const mail = await waitForMail(anna.luca.email, 'Anna needs more time for Grosser Mythen');
-  const [, from, to] = mail.Text.match(/moved the check-in time from (.+) to (.+)\. Barry/) ?? [];
-  assert.ok(from && to && from !== to, 'the Deadline Update names the earlier and the new check-in time');
+  const [, from, to] = mail.Text.match(/moved the deadline from (.+) to (.+)\. Barry/) ?? [];
+  assert.ok(from && to && from !== to, 'the Deadline Update names the earlier and the new Deadline');
   assert.match(mail.Text, new RegExp(`If Anna has not checked in by ${to.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}, Barry will message you again`));
-  const text = await waitForText(anna.sara.phone, 'Anna needs more time and moved the check-in time');
+  const text = await waitForText(anna.sara.phone, 'Anna needs more time and moved the deadline');
   const withoutTrail = (body) => body.split('\nFollow')[0];
   assert.equal(withoutTrail(text.body), withoutTrail(mail.Text), 'the text message carries the email body, with Sara’s own Trail Map link');
 
