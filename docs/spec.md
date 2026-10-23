@@ -170,7 +170,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
-- A channel can be switched off. While text messages are switched off, the contact list marks each contact Barry would text with "Text messages not set up yet". A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
+- A channel can be switched off. While text messages are switched off, the contact list shows the text message symbol of each contact Barry would text in the warning colour, and VoiceOver reads "Text messages not set up yet". A contact left with no channel Barry can use gets an exclamation mark. A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
 
 ### Delivery Failures
 
