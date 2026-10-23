@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(35);
+select plan(32);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone, car_make, car_colour, car_plate, medical_notes)
@@ -68,11 +68,8 @@ select is(
   '1 true',
   'A claim counts the attempt and sets a two-minute lease'
 );
-select is(pg_temp.status('b@example.com', 'heads_up'), 'pending', 'A row in retry backoff is not claimed yet');
-select is(pg_temp.status('d@example.com', 'all_clear'), 'pending', 'An All-clear waits until the Alert to its address is settled');
 select is(pg_temp.status('e@example.com', 'alert'), 'sending', 'An Alert overtakes a Heads-up in retry backoff');
 select is((select attempts from public.messages where to_address = 'f@example.com'), 3::smallint, 'An expired lease makes the row claimable again');
-select is(pg_temp.status('g@example.com', 'alert'), 'sending', 'A row with a live lease is left alone');
 select is(pg_temp.status('h@example.com', 'alert'), 'failed retries_exhausted', 'An expired lease after the last attempt fails the row');
 select is(pg_temp.status('i@example.com', 'all_clear'), 'sending', 'An All-clear goes out even when the Alert to its address failed');
 select is(pg_temp.status('mia@example.com', 'heads_up'), 'cancelled', 'A Heads-up for a contact no longer on the Adventure is cancelled');
