@@ -1,11 +1,12 @@
 import type { DeliveryFailure, Refusal } from '@/lib/barry';
 import { appLanguage, useAppLanguage } from '@/lib/language';
-import { formatDuration, formatDurationGerman, formatWhen, formatWhenGerman } from '@/lib/wording';
+import { formatDay, formatDayGerman, formatDuration, formatDurationGerman, formatWhen, formatWhenGerman } from '@/lib/wording';
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 const en = {
   when: formatWhen,
+  day: formatDay,
   duration: formatDuration,
   common: {
     cancel: 'Cancel',
@@ -121,10 +122,13 @@ const en = {
     title: 'History',
     empty: 'Your adventures show up here once you start one.',
     current: 'Current Adventure',
-    past: 'Past Adventures',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    search: 'Search',
+    noMatch: 'No adventure matches your search.',
     overdueSince: (when: string) => `Overdue since ${when}`,
     alerted: 'Emergency contacts alerted',
-    checkedIn: (when: string) => `Checked in ${when}`,
+    checkedIn: (time: string) => `Checked in ${time}`,
     alertsSent: (n: number) => ` · ${n} ${plural(n, 'alert', 'alerts')} sent`,
     select: 'Select',
     selectAll: 'Select All',
@@ -256,6 +260,7 @@ export type Texts = typeof en;
 
 const de: Texts = {
   when: formatWhenGerman,
+  day: formatDayGerman,
   duration: formatDurationGerman,
   common: {
     cancel: 'Abbrechen',
@@ -372,10 +377,13 @@ const de: Texts = {
     title: 'Verlauf',
     empty: 'Deine Abenteuer erscheinen hier, sobald du eines startest.',
     current: 'Aktuelles Abenteuer',
-    past: 'Vergangene Abenteuer',
+    today: 'Heute',
+    yesterday: 'Gestern',
+    search: 'Suchen',
+    noMatch: 'Kein Abenteuer passt zu deiner Suche.',
     overdueSince: (when) => `Überfällig seit ${when}`,
     alerted: 'Notfallkontakte alarmiert',
-    checkedIn: (when) => `Zurückgemeldet am ${when}`,
+    checkedIn: (time) => `Zurückgemeldet um ${time}`,
     alertsSent: (n) => ` · ${n} ${plural(n, 'Alarm', 'Alarme')} gesendet`,
     select: 'Auswählen',
     selectAll: 'Alle auswählen',

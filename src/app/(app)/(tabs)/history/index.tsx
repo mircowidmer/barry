@@ -1,19 +1,24 @@
 import { router, Stack } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { type RefObject, useEffect, useRef, useState } from 'react';
+import { Alert, type HostInstance, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
-import { FirstLoad, LoadState, pressedStyle, Screen, Section } from '@/components/form';
+import { FirstLoad, LoadState, Screen } from '@/components/form';
+import { Group } from '@/components/grouped-list';
 import { SelectionCircle } from '@/components/selection-circle';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColor } from '@/constants/theme';
 import { useLoad } from '@/hooks/use-load';
+import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { type Adventure, type AdventureId, barry, type EndedAdventure, type InProgressAdventure } from '@/lib/barry';
 import { askToDeleteAdventure, askToDeleteAdventures } from '@/lib/delete-adventure';
+import { byDay, type HistoryDay } from '@/lib/history-days';
 import { useHideTabBar } from '@/lib/tab-bar';
 import { type Texts, useTexts } from '@/lib/texts';
+import { formatClock } from '@/lib/wording';
 
 const isInProgress = (a: Adventure): a is InProgressAdventure =>
   a.stage === 'active' || a.stage === 'overdue' || a.stage === 'alerted';
@@ -23,6 +28,9 @@ const isEnded = (a: Adventure): a is EndedAdventure => a.stage === 'ended';
 // The server orders by when the Adventure was planned; History shows the newest Check-in first.
 const endedNewestFirst = (adventures: Adventure[]) =>
   adventures.filter(isEnded).sort((a, b) => b.checkedInAt.getTime() - a.checkedInAt.getTime());
+
+const matches = (a: EndedAdventure, query: string) =>
+  query === '' || a.plan.destination.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 
 const inProgressStatus = (a: InProgressAdventure, t: Texts) => {
   switch (a.stage) {
@@ -35,9 +43,16 @@ const inProgressStatus = (a: InProgressAdventure, t: Texts) => {
   }
 };
 
+const dayTitle = (day: HistoryDay<unknown>, t: Texts, now: Date) =>
+  day.relative === 'today' ? t.history.today : day.relative === 'yesterday' ? t.history.yesterday : t.day(day.date, now);
+
 const LONG_PRESS_MS = 300;
+const SYMBOL = 32;
+const SYMBOL_GAP = 12;
+// Where the row separators start: at the text, past the status symbol.
+const ROW_INSET = Spacing.three + SYMBOL + SYMBOL_GAP;
 // The selection circles and the gap after them, where a drag selects without holding first.
-const CIRCLES_WIDTH = 48;
+const CIRCLES_WIDTH = ROW_INSET;
 
 type Drag = { anchor: number; select: boolean; before: Set<AdventureId> };
 
@@ -52,6 +67,7 @@ function useDragSelect(
   setSelected: (next: Set<AdventureId>) => void,
   selecting: boolean,
   startSelecting: () => void,
+  list: RefObject<HostInstance | null>,
 ) {
   const rows = useRef<{ top: number; bottom: number }[]>([]);
   const latest = useRef({ ids, selected, selecting });
@@ -148,28 +164,98 @@ function useDragSelect(
   const gesture = useCompetingGestures(twoFingers, held);
   const circlesGesture = useCompetingGestures(alongCircles, tapCircle);
 
-  const measure = (row: number) => (e: { nativeEvent: { layout: { y: number; height: number } } }) => {
-    const { y, height } = e.nativeEvent.layout;
-    rows.current[row] = { top: y, bottom: y + height };
+  // The rows sit inside their day's group, so each is measured against the whole list, where the gestures report.
+  const measure = (row: number) => (event: LayoutChangeEvent) => {
+    const target = event.currentTarget;
+    const whole = list.current;
+    if (typeof target === 'number' || !whole) return;
+    target.measureLayout(whole, (_x, y, _width, height) => {
+      rows.current[row] = { top: y, bottom: y + height };
+    });
   };
 
   return { gesture, circlesGesture, measure };
+}
+
+/** A tinted circle with a symbol: what came of the Adventure, readable by its shape as well as its colour. */
+function StatusSymbol({ name, color, fallback }: { name: SymbolViewProps['name']; color: ThemeColor; fallback: string }) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.symbol, { backgroundColor: `${theme[color]}29` }]}>
+      <SymbolView
+        name={name}
+        size={15}
+        weight="bold"
+        tintColor={theme[color]}
+        fallback={<ThemedText style={{ color: theme[color], fontSize: 15 }}>{fallback}</ThemedText>}
+      />
+    </View>
+  );
+}
+
+function Chevron() {
+  const theme = useTheme();
+  return (
+    <SymbolView
+      name="chevron.right"
+      size={14}
+      weight="semibold"
+      tintColor={theme.textSecondary}
+      fallback={<ThemedText themeColor="textSecondary" style={styles.chevron}>›</ThemedText>}
+    />
+  );
+}
+
+/** One row of a day: the destination over what came of it, opaque so the swipe action shows only beside it. */
+function Row({ leading, title, line, warning, trailing }: { leading: React.ReactNode; title: string; line: string; warning: boolean; trailing: boolean }) {
+  return (
+    <View style={styles.rowContent}>
+      {leading}
+      <View style={styles.text}>
+        <ThemedText numberOfLines={1} style={styles.title}>
+          {title}
+        </ThemedText>
+        <ThemedText themeColor={warning ? 'warning' : 'textSecondary'} style={styles.line}>
+          {line}
+        </ThemedText>
+      </View>
+      {trailing && <Chevron />}
+    </View>
+  );
 }
 
 export default function HistoryScreen() {
   const loaded = useLoad(() => barry.listAdventures());
   const t = useTexts();
   const theme = useTheme();
+  const now = useNow();
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<AdventureId>>(new Set());
+  const [query, setQuery] = useState('');
   useHideTabBar(selecting);
   const ended = endedNewestFirst(loaded.data ?? []);
-  const endedIds = ended.map((a) => a.id);
-  const dragSelect = useDragSelect(endedIds, selected, setSelected, selecting, () => setSelecting(true));
+  const shown = ended.filter((a) => matches(a, query.trim()));
+  const shownIds = shown.map((a) => a.id);
+  const list = useRef<HostInstance>(null);
+  const dragSelect = useDragSelect(shownIds, selected, setSelected, selecting, () => setSelecting(true), list);
+
+  const search = (
+    <Stack.Screen
+      options={{
+        headerSearchBarOptions: {
+          placeholder: t.history.search,
+          hideWhenScrolling: false,
+          onChangeText: (event) => setQuery(event.nativeEvent.text),
+          onCancelButtonPress: () => setQuery(''),
+        },
+      }}
+    />
+  );
 
   if (loaded.data === undefined) {
     return (
       <Screen>
+        {search}
         <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={() => void loaded.reload()} />
       </Screen>
     );
@@ -192,7 +278,7 @@ export default function HistoryScreen() {
       if (!next.delete(id)) next.add(id);
       return next;
     });
-  const allSelected = ended.length > 0 && selected.size === ended.length;
+  const allSelected = shown.length > 0 && shown.every((a) => selected.has(a.id));
   const removeSelected = async () => {
     const outcome = await askToDeleteAdventures([...selected]);
     if (outcome.kind === 'cancelled') return;
@@ -203,8 +289,18 @@ export default function HistoryScreen() {
     }
   };
 
+  // Each row keeps its place in the whole list, which is what the drag selection counts in.
+  let position = 0;
+  const days = byDay(shown, (a) => a.checkedInAt, now).map((day) => ({
+    ...day,
+    rows: day.items.map((adventure) => ({ adventure, position: position++ })),
+  }));
+
+  const inProgressWarns = inProgress !== undefined && inProgress.stage !== 'active';
+
   return (
     <Screen onRefresh={loaded.reload}>
+      {search}
       {ended.length > 0 && (
         <Stack.Toolbar placement="right">
           {selecting ? (
@@ -218,7 +314,7 @@ export default function HistoryScreen() {
       )}
       {selecting && (
         <Stack.Toolbar placement="bottom">
-          <Stack.Toolbar.Button onPress={() => setSelected(allSelected ? new Set() : new Set(ended.map((a) => a.id)))}>
+          <Stack.Toolbar.Button onPress={() => setSelected(allSelected ? new Set() : new Set(shownIds))}>
             {allSelected ? t.history.deselectAll : t.history.selectAll}
           </Stack.Toolbar.Button>
           <Stack.Toolbar.Spacer />
@@ -232,65 +328,94 @@ export default function HistoryScreen() {
         <ThemedText themeColor="textSecondary">{t.history.empty}</ThemedText>
       )}
       {inProgress && (
-        <>
-          <ThemedText type="smallBold">{t.history.current}</ThemedText>
+        <Group title={t.history.current} inset={ROW_INSET}>
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={`${inProgress.plan.destination}, ${inProgressStatus(inProgress, t)}`}
             accessibilityHint={t.common.openLabel(inProgress.plan.destination)}
-            style={pressedStyle}
             // Leaving while selecting would keep the tab bar hidden with no Done to bring it back.
             onPress={() => {
               finishSelecting();
               router.navigate('/');
-            }}>
-            <Section>
-              <ThemedText type="smallBold">{inProgress.plan.destination}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {inProgressStatus(inProgress, t)}
-              </ThemedText>
-            </Section>
-          </Pressable>
-        </>
-      )}
-      {ended.length > 0 && <ThemedText type="smallBold">{t.history.past}</ThemedText>}
-      <GestureDetector gesture={dragSelect.gesture}>
-        <View style={styles.list}>
-          {ended.map((a, i) => {
-            const card = (
-              <Section>
-                <ThemedText type="smallBold">{a.plan.destination}</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {t.history.checkedIn(t.when(a.checkedInAt))}
-                  {a.alertsSent > 0 && t.history.alertsSent(a.alertsSent)}
-                </ThemedText>
-              </Section>
-            );
-            return (
-              <View key={a.id} onLayout={dragSelect.measure(i)}>
-                {selecting ? (
-                  <Pressable
-                    accessibilityRole="checkbox"
-                    accessibilityLabel={a.plan.destination}
-                    accessibilityState={{ checked: selected.has(a.id) }}
-                    onPress={() => toggle(a.id)}
-                    style={styles.selectable}>
-                    <SelectionCircle selected={selected.has(a.id)} />
-                    <View style={styles.selectableCard}>{card}</View>
-                  </Pressable>
+            }}
+            style={({ pressed }) => ({ backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement })}>
+            <Row
+              leading={
+                inProgressWarns ? (
+                  <StatusSymbol name="exclamationmark.triangle.fill" color="warning" fallback="!" />
                 ) : (
-                  <SwipeToDelete label={t.common.deleteLabel(a.plan.destination)} onDelete={() => void remove(a.id)}>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityHint={t.common.openLabel(a.plan.destination)}
-                      style={pressedStyle}
-                      onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}>
-                      {card}
-                    </Pressable>
-                  </SwipeToDelete>
-                )}
-              </View>
-            );
-          })}
+                  <StatusSymbol name="figure.hiking" color="accent" fallback="→" />
+                )
+              }
+              title={inProgress.plan.destination}
+              line={inProgressStatus(inProgress, t)}
+              warning={inProgressWarns}
+              trailing
+            />
+          </Pressable>
+        </Group>
+      )}
+      {query.trim() !== '' && shown.length === 0 && ended.length > 0 && (
+        <ThemedText themeColor="textSecondary">{t.history.noMatch}</ThemedText>
+      )}
+      <GestureDetector gesture={dragSelect.gesture}>
+        <View ref={list} style={styles.list}>
+          {days.map((day) => (
+            <Group key={day.key} title={dayTitle(day, t, now)} inset={ROW_INSET}>
+              {day.rows.map(({ adventure: a, position: i }) => {
+                const alerted = a.alertsSent > 0;
+                const line = t.history.checkedIn(formatClock(a.checkedInAt)) + (alerted ? t.history.alertsSent(a.alertsSent) : '');
+                const label = `${a.plan.destination}, ${line}`;
+                return (
+                  <View key={a.id} onLayout={dragSelect.measure(i)}>
+                    {selecting ? (
+                      <Pressable
+                        accessibilityRole="checkbox"
+                        accessibilityLabel={label}
+                        accessibilityState={{ checked: selected.has(a.id) }}
+                        onPress={() => toggle(a.id)}
+                        style={{ backgroundColor: theme.backgroundElement }}>
+                        <Row
+                          leading={
+                            <View style={styles.symbol}>
+                              <SelectionCircle selected={selected.has(a.id)} />
+                            </View>
+                          }
+                          title={a.plan.destination}
+                          line={line}
+                          warning={alerted}
+                          trailing={false}
+                        />
+                      </Pressable>
+                    ) : (
+                      <SwipeToDelete flush label={t.common.deleteLabel(a.plan.destination)} onDelete={() => void remove(a.id)}>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={label}
+                          accessibilityHint={t.common.openLabel(a.plan.destination)}
+                          onPress={() => router.push({ pathname: '/history/[id]', params: { id: a.id } })}
+                          style={({ pressed }) => ({ backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement })}>
+                          <Row
+                            leading={
+                              alerted ? (
+                                <StatusSymbol name="exclamationmark.triangle.fill" color="warning" fallback="!" />
+                              ) : (
+                                <StatusSymbol name="checkmark" color="success" fallback="✓" />
+                              )
+                            }
+                            title={a.plan.destination}
+                            line={line}
+                            warning={alerted}
+                            trailing
+                          />
+                        </Pressable>
+                      </SwipeToDelete>
+                    )}
+                  </View>
+                );
+              })}
+            </Group>
+          ))}
           {selecting && (
             <GestureDetector gesture={dragSelect.circlesGesture}>
               <View style={styles.circles} />
@@ -303,8 +428,12 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { gap: Spacing.three },
+  list: { gap: Spacing.four },
   circles: { position: 'absolute', left: 0, top: 0, bottom: 0, width: CIRCLES_WIDTH },
-  selectable: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  selectableCard: { flex: 1 },
+  rowContent: { flexDirection: 'row', alignItems: 'center', gap: SYMBOL_GAP, minHeight: 64, paddingHorizontal: Spacing.three },
+  symbol: { width: SYMBOL, height: SYMBOL, borderRadius: SYMBOL / 2, alignItems: 'center', justifyContent: 'center' },
+  text: { flex: 1, paddingVertical: 10 },
+  title: { fontSize: 17, lineHeight: 22, fontWeight: 600 },
+  line: { fontSize: 15, lineHeight: 20, fontWeight: 400 },
+  chevron: { fontSize: 22 },
 });

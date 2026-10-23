@@ -17,6 +17,19 @@ const twoDigits = (n: number) => String(n).padStart(2, '0');
 export const formatWhenGerman = (at: Date) =>
   `${GERMAN_WEEKDAYS[at.getDay()]}, ${at.getDate()}. ${GERMAN_MONTHS[at.getMonth()]} um ${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
 
+/** 18:00, the same in both languages. */
+export const formatClock = (at: Date) => `${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
+
+/** Sat 17 Oct, with the year when it is not the year of `now`. */
+export const formatDay = (at: Date, now: Date) =>
+  `${ENGLISH_WEEKDAYS[at.getDay()]} ${at.getDate()} ${ENGLISH_MONTHS[at.getMonth()]}` +
+  (at.getFullYear() === now.getFullYear() ? '' : ` ${at.getFullYear()}`);
+
+/** Sa, 17. Okt., with the year when it is not the year of `now`. */
+export const formatDayGerman = (at: Date, now: Date) =>
+  `${GERMAN_WEEKDAYS[at.getDay()]}, ${at.getDate()}. ${GERMAN_MONTHS[at.getMonth()]}` +
+  (at.getFullYear() === now.getFullYear() ? '' : ` ${at.getFullYear()}`);
+
 export const formatDuration = (ms: number) => {
   const minutes = Math.max(0, Math.round(ms / 60_000));
   if (minutes < 60) return `${minutes} min`;
