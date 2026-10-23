@@ -5,11 +5,16 @@
 # hook does nothing there.
 set -euo pipefail
 
+repo="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}"
+
+# The commit-msg and pre-push hooks in .githooks refuse any commit that names Claude as author,
+# committer or co-author, in every session, local and cloud.
+git -C "$repo" config core.hooksPath .githooks
+
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
-repo="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}"
 git -C "$repo" config user.name "Mirco Widmer"
 git -C "$repo" config user.email "mirco.widmer@gmail.com"
 

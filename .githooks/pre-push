@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Refuses a push that carries a commit Claude authored or committed, or whose message names Claude.
+# It catches what the commit-msg hook cannot see, such as a cherry-pick, a rebase or --no-verify.
+set -euo pipefail
+
+root=$(git rev-parse --show-toplevel)
+zero=0000000000000000000000000000000000000000
+status=0
+while read -r _ local_sha _ remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue
+  if [ "$remote_sha" != "$zero" ] && git cat-file -e "$remote_sha^{commit}" 2>/dev/null; then
+    range=("$remote_sha..$local_sha")
+  else
+    range=("$local_sha" --not --remotes)
+  fi
+  if ! offenders=$("$root/scripts/claude-commits.sh" "${range[@]}"); then
+    echo "Refused: these commits name Claude as author, committer or co-author:" >&2
+    echo "$offenders" >&2
+    status=1
+  fi
+done
+exit "$status"

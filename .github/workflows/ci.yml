@@ -13,6 +13,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  authors:
+    name: No commit by Claude
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: scripts/claude-commits.sh HEAD
+
   checks:
     name: Lint, types, Jest and Deno
     runs-on: ubuntu-latest

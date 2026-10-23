@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Refuses a commit that Claude would author or commit, or whose message names Claude as co-author or
+# session. git var reads the identity the commit will get, environment variables included.
+set -euo pipefail
+
+ident="$(git var GIT_AUTHOR_IDENT)
+$(git var GIT_COMMITTER_IDENT)"
+if grep -qiE '^claude <|@anthropic\.com>' <<<"$ident"; then
+  echo "Refused: this commit would be authored or committed by Claude. Set the owner's identity:" >&2
+  echo '  git config user.name "Mirco Widmer"; git config user.email "mirco.widmer@gmail.com"' >&2
+  exit 1
+fi
+if grep -qiE '^co-authored-by:.*(claude|anthropic)|^claude-session:|generated with \[?claude code' "$1"; then
+  echo "Refused: the commit message names Claude. Remove the Co-Authored-By, Claude-Session or 'Generated with' line." >&2
+  exit 1
+fi
