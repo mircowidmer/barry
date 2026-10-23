@@ -1,4 +1,4 @@
-# history-select in features/history.md: selects the first two cards under Past Adventures and deletes them.
+# history-select in features/history.md: selects the two newest rows, whatever day they fall on, and deletes them.
 appId: support.barry.dev
 ---
 - tapOn: "Select"
@@ -6,9 +6,11 @@ appId: support.barry.dev
     visible: "Select All"
     timeout: 5000
 - tapOn:
-    point: "220,464"
+    text: ".*, Checked in .*"
+    index: 0
 - tapOn:
-    point: "220,571"
+    text: ".*, Checked in .*"
+    index: 1
 - assertVisible: "Delete \\(2\\)"
 - takeScreenshot: history-select
 - tapOn: "Delete \\(2\\)"
