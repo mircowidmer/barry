@@ -14,8 +14,8 @@ export type TrailMapViewProps = { trail: TrailPoint[]; last: LastKnown | null };
 const at = (p: TrailPoint) => ({ latitude: p.latitude, longitude: p.longitude });
 
 const translucent = (hex: string, alpha: number) => {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  return `rgba(${r},${g},${b},${alpha})`;
+  const channel = (at: number) => parseInt(hex.slice(at, at + 2), 16);
+  return `rgba(${channel(1)},${channel(3)},${channel(5)},${alpha})`;
 };
 
 export function TrailMapView({ trail, last }: TrailMapViewProps) {
