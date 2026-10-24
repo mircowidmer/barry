@@ -18,11 +18,11 @@ test('a Plan Update text message that Twilio reports as undelivered shows as a D
   await waitForText(unreachable, 'Anna is going on an adventure alone');
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );
-  await waitForMail(anna.luca.email, 'Anna changed the plan for Grosser Mythen');
+  await waitForMail(anna.luca.email, 'Anna changed the plan for Kleiner Mythen');
   await waitForText(unreachable, 'Anna changed the plan');
 
   const planUpdateFailures = async () =>

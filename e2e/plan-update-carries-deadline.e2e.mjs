@@ -23,12 +23,12 @@ test('the Plan Update carries the Deadline, by email and by text message', async
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );
   const byDeadline = new RegExp(`If Anna has not checked in by ${literally(inZurich(new Date(deadline)))}, Barry will message you again`);
-  const update = await waitForMail(anna.luca.email, 'Anna changed the plan for Grosser Mythen');
+  const update = await waitForMail(anna.luca.email, 'Anna changed the plan for Kleiner Mythen');
   assert.match(update.Text, byDeadline, 'the email Plan Update names the Deadline');
   const text = await waitForText(anna.sara.phone, 'Anna changed the plan');
   assert.match(text.body, byDeadline, 'the text message Plan Update names the Deadline');

@@ -12,11 +12,11 @@ insert into public.emergency_contacts (id, adventurer_id, name, email) values
   ('aaaaaaaa-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com');
 
 -- X is Alerted and Y is Ended.
-insert into public.adventures (id, adventurer_id, stage, destination, route, deadline, deadline_set_at, time_zone,
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone,
                                started_at, alerts_sent, last_alert_at, checked_in_at, ended_at) values
-  ('a0000000-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-111111111111', 'alerted', 'Grosser Mythen', 'East ridge',
+  ('a0000000-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-111111111111', 'alerted', 'Grosser Mythen',
    now() - interval '3 hours', now() - interval '10 hours', 'Europe/Zurich', now() - interval '10 hours', 1, now() - interval '150 minutes', null, null),
-  ('a0000000-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-111111111111', 'ended', 'Pilatus', null,
+  ('a0000000-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-111111111111', 'ended', 'Pilatus',
    now() - interval '3 hours', now() - interval '10 hours', 'Europe/Zurich', now() - interval '10 hours', 1, now() - interval '150 minutes',
    now() - interval '1 hour', now() - interval '1 hour');
 
@@ -116,7 +116,7 @@ $$;
 select is(
   pg_temp.facts('a@example.com', 'heads_up') - 'deadline' - 'trail_token',
   jsonb_build_object('kind', 'heads_up', 'adventurer_name', 'Anna', 'contact_name', 'Luca', 'time_zone', 'Europe/Zurich', 'language', 'en',
-    'plan', jsonb_build_object('destination', 'Grosser Mythen', 'route', 'East ridge')),
+    'plan', jsonb_build_object('destination', 'Grosser Mythen')),
   'A Heads-up carries the name, the Plan and the Deadline, and nothing from the Profile'
 );
 select is(

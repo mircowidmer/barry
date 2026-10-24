@@ -255,7 +255,6 @@ function LiveAdventure({
           onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}>
           <Section>
             <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
-            {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
             <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
             {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
             <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>

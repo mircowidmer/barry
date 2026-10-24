@@ -21,7 +21,6 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   destination: null,
   destination_latitude: null,
   destination_longitude: null,
-  route: null,
   deadline: null,
   alert_at: null,
   deadline_set_at: null,
@@ -61,7 +60,7 @@ describe('parseAdventure', () => {
     expect(parseAdventure(row({}))).toEqual({
       id: 'a1',
       stage: 'planned',
-      plan: { destination: undefined, destinationPoint: null, route: null },
+      plan: { destination: undefined, destinationPoint: null },
       deadline: null,
       contacts: [{ id: 'c1', name: 'Luca', email: 'luca@example.com', emailEnabled: true, phone: null, phoneEnabled: true }],
     });

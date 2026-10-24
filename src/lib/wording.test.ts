@@ -23,7 +23,7 @@ const adventure = {
   id: 'a1' as AdventureId,
   stage: 'active',
   contacts: [],
-  plan: { destination: 'Pilatus', destinationPoint: null, route: null },
+  plan: { destination: 'Pilatus', destinationPoint: null },
   deadline: new Date('2026-10-17T16:00:00Z'),
   alertAt: new Date('2026-10-17T16:01:00Z'),
   timeZone: 'Europe/Zurich',

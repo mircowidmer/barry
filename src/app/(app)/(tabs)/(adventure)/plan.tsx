@@ -31,7 +31,6 @@ import { refusalText, type Texts, useTexts } from '@/lib/texts';
 type Form = {
   destination: string;
   destinationPoint: Point | null;
-  route: string;
   deadline: Date;
   contactIds: EmergencyContactId[];
 };
@@ -47,7 +46,6 @@ const inFourHours = () => {
 const toForm = (a: Adventure | null): Form => ({
   destination: a?.plan.destination ?? '',
   destinationPoint: a?.plan.destinationPoint ?? null,
-  route: a?.plan.route ?? '',
   deadline: a?.deadline && a.deadline.getTime() > Date.now() ? a.deadline : inFourHours(),
   contactIds: a?.contacts.map((c) => c.id) ?? [],
 });
@@ -65,7 +63,6 @@ const sorted = (ids: EmergencyContactId[]) => [...ids].sort().join(',');
 const same = (a: Form, b: Form) =>
   a.destination === b.destination &&
   samePoint(a.destinationPoint, b.destinationPoint) &&
-  a.route === b.route &&
   a.deadline.getTime() === b.deadline.getTime() &&
   sorted(a.contactIds) === sorted(b.contactIds);
 
@@ -147,8 +144,7 @@ function PlanForm({
   const noTrail = shown.some((w) => w.kind === 'no_trail');
   const noNotifications = shown.some((w) => w.kind === 'no_notifications');
   const contactWarnings = shown.filter((w) => w.kind === 'email_only' || w.kind === 'unreachable');
-  const set = (field: 'destination' | 'route') => (text: string) =>
-    setForm((f) => ({ ...f, [field]: text }));
+  const setDestination = (destination: string) => setForm((f) => ({ ...f, destination }));
   const pin = (point: Point | null) => setForm((f) => ({ ...f, destinationPoint: point }));
 
   // Apple Maps suggests where the destination is. Without a match, the map opens where the
@@ -182,7 +178,6 @@ function PlanForm({
       plan: {
         destination: orNull(form.destination) ?? undefined,
         destinationPoint: form.destinationPoint,
-        route: orNull(form.route),
       },
       deadline: form.deadline,
       contactIds: form.contactIds,
@@ -275,7 +270,7 @@ function PlanForm({
       </Stack.Toolbar>
 
       <Section title={t.plan.where}>
-        <Field label={t.plan.destination} value={form.destination} onChangeText={set('destination')} />
+        <Field label={t.plan.destination} value={form.destination} onChangeText={setDestination} />
         {Platform.OS === 'ios' &&
           (camera ? (
             <>
@@ -288,7 +283,6 @@ function PlanForm({
           ) : (
             <Button title={t.plan.showOnMap} kind="secondary" busy={busy === 'find'} disabled={busy !== null} onPress={() => void showOnMap()} />
           ))}
-        <Field label={t.plan.route} value={form.route} onChangeText={set('route')} />
         {noTrail && (
           <>
             <Note tone="warning" icon="location.slash">

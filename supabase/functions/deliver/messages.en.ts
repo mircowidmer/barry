@@ -18,11 +18,7 @@ export const formatTime = (at: Date, timeZone: string): string => {
   return `${part('weekday')} ${part('day')} ${part('month')}, ${part('hour')}:${part('minute')}`;
 };
 
-const planLines = (plan: Plan): string[] =>
-  [
-    `Destination: ${plan.destination}`,
-    plan.route && `Route: ${plan.route}`,
-  ].filter((line): line is string => Boolean(line));
+const planLines = (plan: Plan): string[] => [`Destination: ${plan.destination}`];
 
 const lines = (...parts: (string | false | null)[]): string => parts.filter((p) => p !== false && p !== null).join('\n');
 

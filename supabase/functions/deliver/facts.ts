@@ -4,7 +4,6 @@ export type Language = 'en' | 'de';
 
 export type Plan = {
   destination: string;
-  route: string | null;
 };
 
 export type Position = { takenAt: Date; latitude: number; longitude: number; accuracyM: number | null };
@@ -71,7 +70,6 @@ export const parseFacts = (raw: unknown): MessageFacts => {
     timeZone: text(f.time_zone, 'time_zone'),
     plan: {
       destination: text(plan.destination, 'plan.destination'),
-      route: optionalText(plan.route),
     },
     deadline: date(f.deadline, 'deadline'),
   };

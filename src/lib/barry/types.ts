@@ -40,7 +40,6 @@ export type Plan = {
   destination: string;
   /** Where the destination is on the map. The phone shows the Arrival Notice there. */
   destinationPoint: Point | null;
-  route: string | null;
 };
 
 /** The Plan of a Planned Adventure, where any part may still be missing. */

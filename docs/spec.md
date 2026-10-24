@@ -55,7 +55,6 @@ The name must be filled in before the Adventurer starts their first Adventure. O
 | --- | --- | --- |
 | Destination | Yes | Part of the Plan. |
 | Destination on the map | No | Part of the Plan. **Show on Map** suggests the place Apple Maps finds for the destination, and the Adventurer moves the pin with a tap. Without a match, the map opens where the Adventurer is. The contacts are not told the point. |
-| Route | No | Part of the Plan. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
 | Last Position | No | Recorded by Barry, not entered. |
@@ -113,7 +112,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 ### Edit an Active or Overdue Adventure
 
 - The Alert always carries the latest Plan.
-- A change to the destination or route sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
+- A change to the destination sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
 - Several changes before a Plan Update goes out send only one, with the latest Plan.
 - Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update.
 - A contact added to the Adventure gets a Heads-up.

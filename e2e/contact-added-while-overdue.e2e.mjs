@@ -19,11 +19,11 @@ test('a contact added to an Overdue Adventure gets a Heads-up', async () => {
   const mia = await anna.contact({ name: 'Mia', email: anna.luca.email.replace('luca-', 'mia-') });
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id, mia.id],
+      p_id: id, p_destination: 'Grosser Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id, mia.id],
     }),
     'add Mia',
   );
   assert.equal(saved.refusal, null, 'an Overdue Adventure takes a new contact');
   const headsUp = await waitForMail(mia.email, 'Anna is heading out to Grosser Mythen');
-  assert.match(headsUp.Text, /Route: East ridge/, 'Mia’s Heads-up carries the Plan');
+  assert.match(headsUp.Text, /Destination: Grosser Mythen/, 'Mia’s Heads-up carries the Plan');
 });

@@ -11,7 +11,7 @@ const base = {
   adventurer_name: 'Anna',
   contact_name: 'Luca',
   time_zone: 'Europe/Zurich',
-  plan: { destination: 'Grosser Mythen', route: 'East ridge' },
+  plan: { destination: 'Grosser Mythen' },
   deadline: '2026-10-17T16:00:00Z',
 };
 
@@ -37,7 +37,6 @@ Deno.test('a Heads-up carries the Plan and the Deadline and nothing from the Pro
       'Anna is going on an adventure alone and chose you as an emergency contact on Barry. Barry is the watchdog here: he only barks if Anna does not check in in time.',
       '',
       'Destination: Grosser Mythen',
-      'Route: East ridge',
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
@@ -55,7 +54,6 @@ Deno.test('a Plan update carries the new Plan, the Deadline and the Trail Map li
       'Anna changed the plan, and Barry has sniffed out the new one.',
       '',
       'Destination: Grosser Mythen',
-      'Route: East ridge',
       '',
       'If Anna has not checked in by Sat 17 Oct, 18:00, Barry will message you again.',
       '',
@@ -83,7 +81,6 @@ Deno.test('an Alert carries the Plan, the Last Position and the Profile', () => 
       'Anna has not checked in from an adventure. The deadline was Sat 17 Oct, 18:00.',
       '',
       'Destination: Grosser Mythen',
-      'Route: East ridge',
       '',
       'Last position at Sat 17 Oct, 14:12: 47.03000, 8.68000 (within 12 m)',
       "Follow Anna's trail: http://localhost:8081/adventure#Xk3vQ9pL2mN8rT5wY1zA0b",
@@ -142,7 +139,7 @@ Deno.test('an unset or invalid TRAIL_MAP_URL gives no links', () => {
   assertEquals(trailMapLinks('not a url'), null);
 });
 
-Deno.test('a Deadline Update gives the earlier and the new check-in time, the destination and the Trail Map link, without the route', () => {
+Deno.test('a Deadline Update gives the earlier and the new check-in time, the destination and the Trail Map link', () => {
   const { subject, text } = render(
     parseFacts({ ...base, kind: 'deadline_update', deadline: '2026-10-17T18:00:00Z', previous_deadline: '2026-10-17T16:00:00Z', trail_token: token }),
     links,

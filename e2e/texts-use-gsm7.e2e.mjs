@@ -16,7 +16,7 @@ test('every text message a contact receives, link included, uses only the GSM-7 
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );

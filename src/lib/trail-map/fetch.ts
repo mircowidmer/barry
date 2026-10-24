@@ -18,7 +18,7 @@ const date = (value: unknown): Date | null => {
 const plan = (value: unknown): Plan | null => {
   if (!isObject(value)) return null;
   const destination = text(value.destination);
-  return destination ? { destination, route: text(value.route) } : null;
+  return destination ? { destination } : null;
 };
 
 const point = (value: unknown): TrailPoint | null => {

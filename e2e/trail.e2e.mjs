@@ -23,7 +23,7 @@ test("the Trail reaches each contact's Trail Map, and a removed contact's link s
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'East ridge',
+      p_id: id, p_destination: 'Grosser Mythen', 
       p_deadline: null, p_contact_ids: [anna.sara.id],
     }),
     'save_adventure',

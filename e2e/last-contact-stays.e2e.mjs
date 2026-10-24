@@ -13,7 +13,7 @@ test('removing the last contact of a live Adventure is refused, and the Alert st
 
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_deadline: null, p_contact_ids: [],
+      p_id: id, p_destination: 'Grosser Mythen', p_deadline: null, p_contact_ids: [],
     }),
     'remove every contact',
   );

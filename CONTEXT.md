@@ -29,7 +29,7 @@ One solo outing an Adventurer plans in Barry, with a Plan and a Deadline. An Adv
 _Avoid_: Trip, outing, tour, activity
 
 **Plan**:
-What an Adventure records about the outing: destination, optionally its place on the map, and route.
+What an Adventure records about the outing: destination, and optionally its place on the map.
 _Avoid_: Itinerary, details
 
 **Deadline**:

@@ -18,7 +18,7 @@ test('a Deadline more than a year ahead starts the Adventure, and the Heads-up n
   const deadline = new Date(Date.now() + 400 * 24 * 3600_000);
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_deadline: deadline.toISOString(), p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: null, p_destination: 'Grosser Mythen', p_deadline: deadline.toISOString(), p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );

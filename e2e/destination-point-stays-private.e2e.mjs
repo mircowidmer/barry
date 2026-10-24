@@ -8,7 +8,7 @@ test('the Heads-up and the Alert carry the Last Position but never the destinati
   const anna = await adventurer();
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: null, p_destination: 'Grosser Mythen', p_contact_ids: [anna.luca.id, anna.sara.id],
       p_deadline: new Date(Date.now() + 2 * 3600_000).toISOString(), p_destination_point: { latitude: 47.1, longitude: 8.75 },
     }),
     'save_adventure',

@@ -10,7 +10,7 @@ test('Start refuses until the Profile holds the name, and an Alert without a pho
   must(await admin.from('adventurer_profiles').delete().eq('id', anna.userId), 'an account without a Profile, as before its first save');
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge',
+      p_id: null, p_destination: 'Grosser Mythen', 
       p_deadline: new Date(Date.now() + 2 * 3600_000).toISOString(), p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',

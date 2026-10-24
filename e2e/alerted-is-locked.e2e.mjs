@@ -13,18 +13,18 @@ test('an Alerted Adventure refuses an edit and a deletion, and only the Check-in
 
   await missDeadline(id);
   await waitForMail(anna.luca.email, 'Anna has not checked in');
-  const before = must(await admin.from('adventures').select('stage, deadline, route').eq('id', id).single(), 'adventure');
+  const before = must(await admin.from('adventures').select('stage, deadline, destination').eq('id', id).single(), 'adventure');
   assert.equal(before.stage, 'alerted');
 
   const [edit] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );
   assert.equal(edit.refusal, 'wrong_stage', 'the Adventure cannot be edited after the Alert');
   assert.equal(must(await anna.client.rpc('delete_adventure', { p_id: id }), 'delete_adventure'), 'wrong_stage', 'an Alerted Adventure cannot be cancelled');
-  assert.deepEqual(must(await admin.from('adventures').select('stage, deadline, route').eq('id', id).single(), 'adventure'), before, 'stage, Deadline and Plan are unchanged');
+  assert.deepEqual(must(await admin.from('adventures').select('stage, deadline, destination').eq('id', id).single(), 'adventure'), before, 'stage, Deadline and Plan are unchanged');
   assert.equal(await mailCount(anna.luca.email, 'Anna changed the plan'), 0, 'no Plan Update went out');
 
   assert.equal(must(await anna.client.rpc('check_in', { p_id: id, p_checked_in_at: new Date().toISOString() }), 'check_in'), null);

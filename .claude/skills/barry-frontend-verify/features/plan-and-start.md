@@ -1,6 +1,6 @@
 # Plan and start
 
-From the Adventure tab, an Adventurer plans an Adventure in a sheet with a destination, an optional route, a Deadline and Emergency Contacts. A close button (`Cancel`) and `Start` sit in the sheet's header; `Save for Later` and `Delete` at its bottom. The Start warnings say who will not be reached. Start records the position, sends each contact a Heads-up and closes the sheet.
+From the Adventure tab, an Adventurer plans an Adventure in a sheet with a destination, a Deadline and Emergency Contacts. A close button (`Cancel`) and `Start` sit in the sheet's header; `Save for Later` and `Delete` at its bottom. The Start warnings say who will not be reached. Start records the position, sends each contact a Heads-up and closes the sheet.
 
 ## Sub-features
 

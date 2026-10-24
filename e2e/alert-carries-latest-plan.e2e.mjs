@@ -29,11 +29,11 @@ test('the Alert carries the latest Plan, the Deadline in the Adventurer’s time
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );
-  await waitForMail(anna.luca.email, 'Anna changed the plan for Grosser Mythen');
+  await waitForMail(anna.luca.email, 'Anna changed the plan for Kleiner Mythen');
 
   await missDeadline(id);
   const [{ deadline }] = must(await admin.from('adventures').select('deadline').eq('id', id), 'adventure');
@@ -41,7 +41,7 @@ test('the Alert carries the latest Plan, the Deadline in the Adventurer’s time
   assert.match(alert.Text, /^Anna has not checked in from an adventure\. The deadline was (.+)\./m);
   assert.equal(alert.Text.match(/The deadline was (.+)\./)[1], inZurich(new Date(deadline)), 'the Deadline is in the Adventurer’s time zone at Start, without naming it');
   assert.doesNotMatch(alert.Text, /Europe|Zurich|CET|CEST|UTC|GMT/);
-  assert.match(alert.Text, /Destination: Grosser Mythen\r?\nRoute: West ridge/, 'the Alert carries the latest Plan');
+  assert.match(alert.Text, /Destination: Kleiner Mythen/, 'the Alert carries the latest Plan');
   assert.match(alert.Text, /Last position at .+: 47\.03000, 8\.68000/);
   assert.doesNotMatch(alert.Text, /openstreetmap/, 'the Alert carries no map link');
   assert.match(alert.Text, /Anna's phone: \+41790000001/);
@@ -49,6 +49,6 @@ test('the Alert carries the latest Plan, the Deadline in the Adventurer’s time
   assert.match(alert.Text, /Medical notes: Type 1 diabetic/, 'the Alert carries the medical notes');
 
   const alertText = await waitForText(anna.sara.phone, 'Anna has not checked in from an adventure');
-  assert.match(alertText.body, /Route: West ridge/, 'the text message carries the latest Plan too');
+  assert.match(alertText.body, /Destination: Kleiner Mythen/, 'the text message carries the latest Plan too');
   assert.match(alertText.body, /Medical notes: Type 1 diabetic/);
 });
