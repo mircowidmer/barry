@@ -13,7 +13,7 @@ const base = {
   adventurer_name: 'Anna',
   contact_name: 'Luca',
   time_zone: 'Europe/Zurich',
-  plan: { destination: 'Grosser Mythen', route: 'Ostgrat' },
+  plan: { destination: 'Grosser Mythen' },
   deadline: '2026-10-17T16:00:00Z',
 };
 
@@ -44,7 +44,6 @@ Deno.test('the German Heads-up carries the Plan, the Deadline and the Trail Map 
       'Anna ist allein auf einem Abenteuer und hat dich auf Barry als Notfallkontakt angegeben. Barry ist hier der Wachhund: Er bellt nur, wenn sich Anna nicht rechtzeitig zurückmeldet.',
       '',
       'Ziel: Grosser Mythen',
-      'Route: Ostgrat',
       '',
       'Wenn sich Anna bis Sa, 17. Okt. um 18:00 nicht zurückgemeldet hat, meldet sich Barry wieder bei dir.',
       '',
@@ -72,7 +71,6 @@ Deno.test('the German Alert carries the Last Position and the Profile', () => {
       'Anna hat sich nach einem Abenteuer immer noch nicht zurückgemeldet (Alarm 2 von 3). Die vereinbarte Rückkehrzeit war am Sa, 17. Okt. um 18:00.',
       '',
       'Ziel: Grosser Mythen',
-      'Route: Ostgrat',
       '',
       'Letzter Standort am Sa, 17. Okt. um 14:12: 47.03000, 8.68000 (auf 12 m genau)',
       '',
@@ -96,7 +94,7 @@ Deno.test('the German All-clear gives the Check-in time and the link to the Trai
   );
 });
 
-Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit, the destination and the link, without the route', () => {
+Deno.test('a German Deadline Update names the earlier and the new Rückkehrzeit, the destination and the link', () => {
   const { subject, text } = render(
     parseFacts({ ...base, kind: 'deadline_update', deadline: '2026-10-17T18:00:00Z', previous_deadline: '2026-10-17T16:00:00Z', trail_token: token }),
     links,

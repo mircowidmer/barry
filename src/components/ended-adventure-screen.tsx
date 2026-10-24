@@ -60,7 +60,6 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
 
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
-        {adventure.plan.route && <ThemedText type="small">{t.adventure.route(adventure.plan.route)}</ThemedText>}
         {adventure.alertsSent > 0 && <ThemedText type="small">{t.ended.alertsSent(adventure.alertsSent)}</ThemedText>}
       </Section>
     </Screen>

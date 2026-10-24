@@ -12,13 +12,13 @@ test("the Trail Map shows the Adventurer's name and the latest Plan", async () =
 
   const map = await trailMap(token);
   assert.equal(map.adventurer_name, 'Anna', "the page shows the Adventurer's name");
-  assert.deepEqual(map.plan, { destination: 'Grosser Mythen', route: 'East ridge' }, 'the page shows the Plan');
+  assert.deepEqual(map.plan, { destination: 'Grosser Mythen' }, 'the page shows the Plan');
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );
-  assert.deepEqual((await trailMap(token)).plan, { destination: 'Grosser Mythen', route: 'West ridge' }, 'the page shows the changed Plan');
+  assert.deepEqual((await trailMap(token)).plan, { destination: 'Kleiner Mythen' }, 'the page shows the changed Plan');
 });

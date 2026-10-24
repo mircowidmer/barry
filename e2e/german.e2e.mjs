@@ -10,7 +10,7 @@ test('an Adventurer who chose German sends the contacts German messages', async 
   const id = await anna.start();
   const headsUp = await waitForMail(anna.luca.email, 'Anna ist unterwegs: Grosser Mythen');
   assert.match(headsUp.Text, /^Anna ist allein auf einem Abenteuer/);
-  assert.match(headsUp.Text, /Route: East ridge/);
+  assert.match(headsUp.Text, /Ziel: Grosser Mythen/);
   const headsUpText = await waitForText(anna.sara.phone, 'Anna ist allein auf einem Abenteuer');
   assert.match(headsUpText.body, /Wenn sich Anna bis .+ um \d\d:\d\d nicht zurückgemeldet hat/);
 

@@ -28,7 +28,7 @@ const live = `(select id from public.adventures where adventurer_id = ${anna} an
 const commands = {
   state: () =>
     sql(`
-      select 'adventure', stage, destination, coalesce(route, '-'), to_char(deadline at time zone 'Europe/Zurich', 'HH24:MI'),
+      select 'adventure', stage, destination, to_char(deadline at time zone 'Europe/Zurich', 'HH24:MI'),
              to_char(alert_at at time zone 'Europe/Zurich', 'HH24:MI'), alerts_sent from public.adventures where id = ${live};
       select 'contact', c.name, coalesce(c.email, '-'), coalesce(c.phone, '-') from public.adventure_contacts ac
         join public.emergency_contacts c on c.id = ac.contact_id where ac.adventure_id = ${live} order by c.name;

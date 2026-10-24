@@ -50,12 +50,6 @@ function TrailMapPage({ map, staleSince }: { map: TrailMap; staleSince?: Date })
         <dl>
           <dt>{t.destination}</dt>
           <dd>{plan.destination}</dd>
-          {plan.route && (
-            <>
-              <dt>{t.route}</dt>
-              <dd>{plan.route}</dd>
-            </>
-          )}
         </dl>
       </div>
     </SitePage>

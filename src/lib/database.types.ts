@@ -65,14 +65,14 @@ isOneToOne: false
                   ]
                 },"adventures": {
                   Row: {
-                    "adventurer_id": string,"alert_at": string | null,"alerts_sent": number,"checked_in_at": string | null,"created_at": string,"deadline": string | null,"deadline_set_at": string | null,"destination": string | null,"destination_latitude": number | null,"destination_longitude": number | null,"earlier_alerts": number,"ended_at": string | null,"id": string,"last_alert_at": string | null,"plan_revision": number,"route": string | null,"stage": Database["public"]['Enums']["adventure_stage"],"started_at": string | null,"time_zone": string | null,"updated_at": string
+                    "adventurer_id": string,"alert_at": string | null,"alerts_sent": number,"checked_in_at": string | null,"created_at": string,"deadline": string | null,"deadline_set_at": string | null,"destination": string | null,"destination_latitude": number | null,"destination_longitude": number | null,"earlier_alerts": number,"ended_at": string | null,"id": string,"last_alert_at": string | null,"plan_revision": number,"stage": Database["public"]['Enums']["adventure_stage"],"started_at": string | null,"time_zone": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "adventurer_id": string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"route"?: string | null,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
+                    "adventurer_id": string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "adventurer_id"?: string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"route"?: string | null,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
+                    "adventurer_id"?: string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -236,6 +236,10 @@ isOneToOne: false
 { Args: { "p_id": number,"p_provider_ref": string,"p_reason"?: string,"p_status": string }; Returns: undefined
                            },
 "save_adventure":
+{ Args: { "p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_destination_point"?: Json,"p_id": string }; Returns: {
+              "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
+            }[]
+                           } |
 { Args: { "p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_destination_point"?: Json,"p_id": string,"p_route": string }; Returns: {
               "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
             }[]

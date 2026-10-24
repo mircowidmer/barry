@@ -21,7 +21,7 @@ test('a contact of the live Adventure cannot be deleted, one of a Planned Advent
   const mia = await anna.contact({ name: 'Mia', email: anna.luca.email.replace('luca-', 'mia-') });
   const [planned] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: null, p_destination: 'Pilatus', p_route: null, p_deadline: new Date(Date.now() + 3 * 3600_000).toISOString(), p_contact_ids: [mia.id],
+      p_id: null, p_destination: 'Pilatus', p_deadline: new Date(Date.now() + 3 * 3600_000).toISOString(), p_contact_ids: [mia.id],
     }),
     'save a Planned Adventure with Mia',
   );
@@ -35,7 +35,7 @@ test('a contact of the live Adventure cannot be deleted, one of a Planned Advent
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: planned.adventure_id, p_destination: 'Pilatus', p_route: null, p_deadline: new Date(Date.now() + 3 * 3600_000).toISOString(), p_contact_ids: [anna.sara.id],
+      p_id: planned.adventure_id, p_destination: 'Pilatus', p_deadline: new Date(Date.now() + 3 * 3600_000).toISOString(), p_contact_ids: [anna.sara.id],
     }),
     'add Sara',
   );

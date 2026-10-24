@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { fetchTrailMap, mergeTrailMap, newestReading, parseTrailMap, tokenFromHash } from './fetch';
 
-const plan = { destination: 'Rigi', route: 'North face' };
+const plan = { destination: 'Rigi' };
 const underway = {
   status: 'underway',
   adventurer_name: 'Anna',
@@ -35,7 +35,7 @@ describe('parseTrailMap', () => {
     expect(parseTrailMap(underway)).toEqual({
       status: 'underway',
       adventurerName: 'Anna',
-      plan: { destination: 'Rigi', route: 'North face' },
+      plan: { destination: 'Rigi' },
       lastKnownPosition: { latitude: 47.03, longitude: 8.68, accuracyM: 12, takenAt: new Date('2026-10-15T09:41:00Z') },
       trail: [
         { latitude: 47.0, longitude: 8.6, takenAt: new Date('2026-10-15T08:00:00Z') },
@@ -48,7 +48,7 @@ describe('parseTrailMap', () => {
     expect(parseTrailMap({ ...underway, status: 'checked_in', checked_in_at: '2026-10-15T16:05:00Z' })).toEqual({
       status: 'checked_in',
       adventurerName: 'Anna',
-      plan: { destination: 'Rigi', route: 'North face' },
+      plan: { destination: 'Rigi' },
       lastKnownPosition: { latitude: 47.03, longitude: 8.68, accuracyM: 12, takenAt: new Date('2026-10-15T09:41:00Z') },
       trail: [
         { latitude: 47.0, longitude: 8.6, takenAt: new Date('2026-10-15T08:00:00Z') },
@@ -118,7 +118,7 @@ describe('mergeTrailMap', () => {
   it('adds the new readings to the Trail it already shows, and takes the rest from the answer', () => {
     const shown = map({});
     const update = map({
-      plan: { ...plan, route: 'West ridge' },
+      plan: { destination: 'Rigi Kulm' },
       last_known_position: { taken_at: '2026-10-15T09:41:10Z', latitude: 47.04, longitude: 8.69, accuracy_m: 8 },
       trail: [[47.04, 8.69, '2026-10-15T09:41:10Z']],
     });
@@ -128,7 +128,7 @@ describe('mergeTrailMap', () => {
       '2026-10-15T09:41:00.000Z',
       '2026-10-15T09:41:10.000Z',
     ]);
-    expect(merged.plan.route).toBe('West ridge');
+    expect(merged.plan.destination).toBe('Rigi Kulm');
     expect(merged.lastKnownPosition?.latitude).toBe(47.04);
   });
 

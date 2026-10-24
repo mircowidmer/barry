@@ -326,7 +326,6 @@ export const createBarry = ({
         p_id: orNull(id),
         p_destination: orNull(plan.destination),
         ...(plan.destinationPoint && { p_destination_point: plan.destinationPoint }),
-        p_route: orNull(plan.route),
         p_deadline: orNull(deadline?.toISOString()),
         p_contact_ids: contactIds,
       });

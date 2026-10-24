@@ -13,7 +13,7 @@ test('a contact removed from the Adventure gets neither the Alert nor the All-cl
 
   must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'East ridge', p_deadline: null, p_contact_ids: [anna.luca.id],
+      p_id: id, p_destination: 'Grosser Mythen', p_deadline: null, p_contact_ids: [anna.luca.id],
     }),
     'remove Sara from the Adventure',
   );

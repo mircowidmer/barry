@@ -8,7 +8,7 @@ test('Start refuses a Deadline that has passed, and Barry queues nothing', async
   const anna = await adventurer();
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: null, p_destination: 'Grosser Mythen', p_route: 'East ridge',
+      p_id: null, p_destination: 'Grosser Mythen', 
       p_deadline: new Date(Date.now() - 60_000).toISOString(), p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',

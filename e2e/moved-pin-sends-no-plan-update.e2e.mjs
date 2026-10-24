@@ -6,7 +6,7 @@ import { admin, adventurer, mailCount, messageKinds, must, waitForMail } from '.
 // docs/spec.md:118 "Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update."
 test('moving the destination on the map sends no Plan Update', async () => {
   const anna = await adventurer();
-  const plan = { p_destination: 'Grosser Mythen', p_route: 'East ridge', p_contact_ids: [anna.luca.id, anna.sara.id] };
+  const plan = { p_destination: 'Grosser Mythen', p_contact_ids: [anna.luca.id, anna.sara.id] };
   const [saved] = must(
     await anna.client.rpc('save_adventure', {
       p_id: null, ...plan, p_deadline: new Date(Date.now() + 2 * 3600_000).toISOString(), p_destination_point: { latitude: 47.1, longitude: 8.75 },

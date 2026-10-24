@@ -17,7 +17,7 @@ test('an Ended Adventure cannot be started, moved or edited again, and a second 
   assert.equal(must(await anna.client.rpc('start_adventure', { p_id: id, p_time_zone: 'Europe/Zurich' }), 'start_adventure'), 'wrong_stage', 'it cannot be started again');
   const [edit] = must(
     await anna.client.rpc('save_adventure', {
-      p_id: id, p_destination: 'Grosser Mythen', p_route: 'West ridge', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
+      p_id: id, p_destination: 'Kleiner Mythen', p_deadline: null, p_contact_ids: [anna.luca.id, anna.sara.id],
     }),
     'save_adventure',
   );
