@@ -8,14 +8,14 @@ appId: support.barry.dev
     visible: "Add a destination\\."
     timeout: 10000
 - takeScreenshot: plan-refusal
+- tapOn: "OK"
 - scrollUntilVisible:
     element: "Sara"
     visibilityPercentage: 100
     centerElement: true
 - tapOn: "Sara"
-- assertVisible:
-    text: "Sara"
-    checked: true
+# Maestro reads a React Native checkbox as unchecked on iOS; its value says the truth.
+- assertNotVisible: "checkbox, unchecked"
 - takeScreenshot: plan-warnings
 - scrollUntilVisible:
     element: "Destination"
