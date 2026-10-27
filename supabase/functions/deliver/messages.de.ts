@@ -73,18 +73,6 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         ),
       };
 
-    case 'reminder':
-      return {
-        subject: 'Melde dich zurück oder verschiebe deine Rückkehrzeit',
-        text: `Deine Rückkehrzeit für ${facts.plan.destination} ist am ${time(facts.deadline)}.`,
-      };
-
-    case 'overdue_notice':
-      return {
-        subject: 'Du bist überfällig',
-        text: `Deine Rückkehrzeit für ${facts.plan.destination} war am ${time(facts.deadline)}. Barry alarmiert deine Notfallkontakte am ${time(facts.alertAt)}, ausser du meldest dich vorher zurück.`,
-      };
-
     case 'alert': {
       const p = facts.lastKnownPosition;
       const car = [

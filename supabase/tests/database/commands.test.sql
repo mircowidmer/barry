@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(66);
+select plan(64);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -309,8 +309,6 @@ select is(
 reset role;
 update public.adventures set stage = 'overdue', deadline = now() - interval '5 minutes'
   where id = 'a0000000-0000-0000-0000-000000000015';
-insert into public.messages (adventure_id, kind, channel, to_address, for_deadline) values
-  ('a0000000-0000-0000-0000-000000000015', 'overdue_notice', 'push', 'ExponentPushToken[anna]', now() - interval '5 minutes');
 set local role authenticated;
 
 select is(public.move_deadline('a0000000-0000-0000-0000-000000000015', now() + interval '1 hour'),
@@ -319,11 +317,6 @@ select is(
   (select stage from public.adventures where id = 'a0000000-0000-0000-0000-000000000015'),
   'active'::public.adventure_stage,
   'Moving the Deadline makes an Overdue Adventure Active again'
-);
-select is(
-  pg_temp.messages('a0000000-0000-0000-0000-000000000015', 'overdue_notice'),
-  array['ExponentPushToken[anna] cancelled'],
-  'The Overdue Notice for the old Deadline is cancelled'
 );
 
 set local request.jwt.claims = '{"sub": "22222222-2222-2222-2222-222222222222", "role": "authenticated"}';
@@ -345,11 +338,6 @@ set local request.jwt.claims = '{"sub": "11111111-1111-1111-1111-111111111111", 
 select is(public.check_in((select adventure_id from created), now()),
   'wrong_stage'::public.refusal, 'A Planned Adventure cannot be checked in from');
 
-reset role;
-insert into public.messages (adventure_id, kind, channel, to_address, for_deadline) values
-  ('a0000000-0000-0000-0000-000000000015', 'reminder', 'push', 'ExponentPushToken[anna]', now() + interval '1 hour');
-set local role authenticated;
-
 select is(public.check_in('a0000000-0000-0000-0000-000000000015', now() + interval '1 hour'),
   null::public.refusal, 'Check-in from an Active Adventure succeeds');
 select is(
@@ -361,11 +349,6 @@ select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000015', 'all_clear'),
   array['luca@example.com pending'],
   'A Check-in before any Alert still sends the All-clear to every contact'
-);
-select is(
-  pg_temp.messages('a0000000-0000-0000-0000-000000000015', 'reminder'),
-  array['ExponentPushToken[anna] cancelled'],
-  'The pending Reminder is cancelled'
 );
 select is(public.check_in('a0000000-0000-0000-0000-000000000015', now()),
   null::public.refusal, 'Checking in again is accepted, so the offline queue can resend');

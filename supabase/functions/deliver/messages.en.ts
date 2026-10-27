@@ -70,18 +70,6 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
         ),
       };
 
-    case 'reminder':
-      return {
-        subject: 'Check in or move your deadline',
-        text: `Your deadline for ${facts.plan.destination} is ${time(facts.deadline)}.`,
-      };
-
-    case 'overdue_notice':
-      return {
-        subject: 'You are overdue',
-        text: `Your deadline for ${facts.plan.destination} was ${time(facts.deadline)}. Barry alerts your emergency contacts at ${time(facts.alertAt)} unless you check in.`,
-      };
-
     case 'alert': {
       const p = facts.lastKnownPosition;
       const car = [

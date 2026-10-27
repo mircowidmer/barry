@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(31);
+select plan(27);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -13,7 +13,8 @@ insert into public.emergency_contacts (id, adventurer_id, name, email, phone) va
   ('aaaaaaaa-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com', null),
   ('bbbbbbbb-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Noah', 'noah@example.com', null);
 
--- The push path stays testable while its channel is off; the sms channel is on already.
+-- Push is on and both Adventurers have a device, so the tests show that Supabase still pushes them
+-- nothing: the phone shows the Reminder and the Overdue Notice itself. The sms channel is on already.
 update private.channel_config set enabled = true where channel in ('push', 'sms');
 
 insert into public.push_devices (expo_push_token, adventurer_id) values
@@ -39,6 +40,11 @@ language sql as $$
   select coalesce(array_agg(concat_ws(' ', channel, to_address, status, failure_reason, round, for_deadline)
                             order by channel, to_address, round, for_deadline), '{}')
   from public.messages where adventure_id = p_adventure and kind = p_kind
+$$;
+
+create function pg_temp.pushed(p_adventure uuid) returns int
+language sql as $$
+  select count(*)::int from public.messages where adventure_id = p_adventure and channel = 'push'
 $$;
 
 create function pg_temp.anna() returns public.adventures language sql as $$
@@ -95,40 +101,23 @@ select is(
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 17:40+02');
 
 select is(
-  pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'reminder'),
-  array['push ExponentPushToken[anna] pending 2026-10-17 16:00:00+00'],
-  'In the Reminder window Anna gets one Reminder for her Deadline'
-);
-
-select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 17:50+02');
-
-select is(
-  cardinality(pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'reminder')),
-  1,
-  'A later tick in the Reminder window queues no second Reminder'
+  pg_temp.pushed('a0000000-0000-0000-0000-000000000001'),
+  0,
+  'In the half hour before the Deadline Supabase pushes Anna no Reminder'
 );
 
 update public.adventures set deadline = '2026-10-17 20:00+02', deadline_set_at = '2026-10-17 17:50+02'
   where id = 'a0000000-0000-0000-0000-000000000001';
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 19:35+02');
 
-select is(
-  pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'reminder'),
-  array[
-    'push ExponentPushToken[anna] pending 2026-10-17 16:00:00+00',
-    'push ExponentPushToken[anna] pending 2026-10-17 18:00:00+00'
-  ],
-  'Moving the Deadline later re-arms the Reminder for the new Deadline'
-);
-
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:00:30+02');
 
 select is((pg_temp.anna()).stage, 'overdue'::public.adventure_stage, 'At the new Deadline the Adventure becomes Overdue');
 
 select is(
-  pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'overdue_notice'),
-  array['push ExponentPushToken[anna] pending 2026-10-17 18:00:00+00'],
-  'Overdue: Anna gets one Overdue Notice for the current Deadline'
+  pg_temp.pushed('a0000000-0000-0000-0000-000000000001'),
+  0,
+  'Overdue: Supabase pushes Anna no Overdue Notice'
 );
 
 select is(
@@ -217,7 +206,7 @@ select is(
   'Six Alerts in all, three for each Deadline'
 );
 
--- Ben's Adventure: the clock was down from before the Reminder until long after the Grace Period.
+-- Ben's Adventure: the clock was down from before the Deadline until long after the Grace Period.
 
 select private.reconcile('b0000000-0000-0000-0000-000000000001', '2026-10-17 23:00+02');
 
@@ -234,15 +223,9 @@ select is(
 );
 
 select is(
-  pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'overdue_notice'),
-  '{}'::text[],
-  'Catch-up: no Overdue Notice announcing an Alert time in the past'
-);
-
-select is(
-  pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'reminder'),
-  '{}'::text[],
-  'Catch-up: no Reminder after the Deadline'
+  pg_temp.pushed('b0000000-0000-0000-0000-000000000001'),
+  0,
+  'Catch-up: nothing is pushed to Ben'
 );
 
 select is(
@@ -261,20 +244,11 @@ select is(
   'A Planned Adventure queues nothing'
 );
 
--- Push turned off.
+-- Ben's Adventure again, Active with a new Deadline.
 
-update private.channel_config set enabled = false where channel = 'push';
 update public.adventures set stage = 'active', alerts_sent = 0, last_alert_at = null,
   deadline = '2026-10-18 18:00+02', deadline_set_at = '2026-10-18 08:00+02'
   where id = 'b0000000-0000-0000-0000-000000000001';
-select private.reconcile('b0000000-0000-0000-0000-000000000001', '2026-10-18 17:40+02');
-
-select is(
-  pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'reminder'),
-  '{}'::text[],
-  'With push disabled no Reminder row is queued'
-);
-
 -- Text messages turned off.
 
 update private.channel_config set enabled = false where channel = 'sms';

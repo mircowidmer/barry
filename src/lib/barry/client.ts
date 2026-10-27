@@ -429,7 +429,7 @@ export const createBarry = ({
       return (data ?? []).map(
         (row): DeliveryFailure => ({
           id: row.id,
-          message: row.kind as DeliveryFailure['message'],
+          message: row.kind,
           contactName: row.contact_name ?? '',
           channel: row.channel,
           address: row.to_address,
