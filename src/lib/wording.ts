@@ -48,7 +48,11 @@ export const formatDurationGerman = (ms: number) => {
 // Hermes types the hour and minute parts as literals, so the clock comes from format().
 const messageTimeParts = (at: Date, timeZone: string, month: 'short' | 'numeric') => {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone, weekday: 'short', day: 'numeric', month }).formatToParts(at);
-  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)!.value;
+  const part = (type: Intl.DateTimeFormatPartTypes) => {
+    const found = parts.find((p) => p.type === type);
+    if (!found) throw new Error(`formatMessageTime: Intl gave no ${type} part`);
+    return found.value;
+  };
   const clock = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(at);
   return { weekday: part('weekday'), day: part('day'), month: part('month'), clock };
 };
