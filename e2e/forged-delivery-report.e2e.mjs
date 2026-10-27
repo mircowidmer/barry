@@ -16,8 +16,8 @@ const report = (messageId, token, sid) =>
     body: new URLSearchParams({ MessageSid: sid, MessageStatus: 'undelivered', ErrorCode: '30003' }),
   });
 
-// docs/text-messages.md:54 "the token in the URL is an HMAC of the message ID made with DELIVER_SECRET"
-// docs/text-messages.md:55 "A report for a text message the database does not know, or with another Twilio sid, changes nothing."
+// docs/text-messages.md § Delivery reports "the token in the URL is an HMAC of the message ID made with DELIVER_SECRET"
+// docs/text-messages.md § Delivery reports "A report for a text message the database does not know, or with another Twilio sid, changes nothing."
 test('a delivery report with a wrong token, another Twilio sid or an unknown message changes nothing', async () => {
   const anna = await adventurer();
   const id = await anna.start();
