@@ -7,7 +7,7 @@ export const TRAIL_FENCE_TASK = 'barry.trail.fence';
 const FENCE_MOVE_M = 50;
 const TRAIL_RADIUS_M = 200;
 // How close to the destination's point the phone shows the Arrival Notice.
-const ARRIVAL_RADIUS_M = 150;
+export const ARRIVAL_RADIUS_M = 150;
 
 const TRAIL_REGION = 'trail';
 const ARRIVAL_REGION = 'arrival.';
