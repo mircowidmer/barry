@@ -34,7 +34,8 @@ export const supabase = createClient(
   {
     global: { fetch: signedOnly(fetchWithTimeout, publishableKey) },
     auth: {
-      storage,
+      // Undefined only in the web's static render, where the client keeps the session in memory.
+      ...(storage && { storage }),
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
