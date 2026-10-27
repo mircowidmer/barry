@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { AuthRetryableFetchError, type SupabaseClient } from '@supabase/supabase-js';
 
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/database';
 
 import { createAdventureCache } from './adventure-cache';
 import type { NotificationService } from './alarms';
