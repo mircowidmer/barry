@@ -69,7 +69,8 @@ function useDragSelect(
   startSelecting: () => void,
   list: RefObject<HostInstance | null>,
 ) {
-  const rows = useRef<{ top: number; bottom: number }[]>([]);
+  // Filled by index as rows lay out, so a row not laid out yet is a gap.
+  const rows = useRef<({ top: number; bottom: number } | undefined)[]>([]);
   const latest = useRef({ ids, selected, selecting });
   useEffect(() => {
     latest.current = { ids, selected, selecting };
@@ -80,8 +81,8 @@ function useDragSelect(
 
   const rowAt = (y: number) => {
     let row = 0;
-    rows.current.forEach(({ top }, i) => {
-      if (i < latest.current.ids.length && y >= top) row = i;
+    rows.current.forEach((r, i) => {
+      if (r && i < latest.current.ids.length && y >= r.top) row = i;
     });
     return row;
   };
