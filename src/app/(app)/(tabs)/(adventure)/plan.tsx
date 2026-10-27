@@ -1,15 +1,18 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Alert, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Keyboard, Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
-import { DestinationMap, type MapCamera } from '@/components/destination-map';
+import { DestinationPreview, type MapCamera } from '@/components/destination-map';
 import { Button, Field, FirstLoad, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { Note } from '@/components/grouped-list';
+import { PinPicker } from '@/components/pin-picker';
 import { SelectionCircle } from '@/components/selection-circle';
 import { ThemedText } from '@/components/themed-text';
 import { useDiscardGuard } from '@/hooks/use-discard-guard';
 import { useLoad } from '@/hooks/use-load';
+import { usePlaceSuggestions } from '@/hooks/use-place-suggestions';
 import { useStringParam } from '@/hooks/use-string-param';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -18,6 +21,7 @@ import {
   barry,
   type EmergencyContact,
   type EmergencyContactId,
+  type Place,
   type Point,
   reachableAddresses,
   type StartConditions,
@@ -126,9 +130,11 @@ function PlanForm({
   const [initial, setInitial] = useState<Form>(() => toForm(data.adventure));
   const [form, setForm] = useState<Form>(initial);
   const [busy, setBusy] = useState<'save' | 'start' | 'find' | null>(null);
-  const [camera, setCamera] = useState<MapCamera | null>(() =>
-    initial.destinationPoint && { center: initial.destinationPoint, zoom: PLACE_ZOOM },
-  );
+  // The map the pin picker opens on; null while it is closed.
+  const [picking, setPicking] = useState<MapCamera | null>(null);
+  // Suggestions follow what the Adventurer types and go away once they pick or keep it.
+  const [suggesting, setSuggesting] = useState(false);
+  const places = usePlaceSuggestions(suggesting ? form.destination : null);
   const theme = useTheme();
   const t = useTexts();
   const leave = useDiscardGuard(!same(form, initial));
@@ -144,25 +150,38 @@ function PlanForm({
   const noTrail = shown.some((w) => w.kind === 'no_trail');
   const noNotifications = shown.some((w) => w.kind === 'no_notifications');
   const contactWarnings = shown.filter((w) => w.kind === 'email_only' || w.kind === 'unreachable');
-  const setDestination = (destination: string) => setForm((f) => ({ ...f, destination }));
+  const typeDestination = (destination: string) => {
+    setForm((f) => ({ ...f, destination }));
+    setSuggesting(true);
+  };
   const pin = (point: Point | null) => setForm((f) => ({ ...f, destinationPoint: point }));
 
-  // Apple Maps suggests where the destination is. Without a match, the map opens where the
-  // Adventurer is, and they tap the place themselves.
-  const showOnMap = async () => {
-    setBusy('find');
-    const found = await barry.findPlace(form.destination);
-    const here = found ? null : await barry.currentPosition();
-    setBusy(null);
-    if (found) pin(found);
-    const center = found ?? here;
-    setCamera(center ? { center, zoom: PLACE_ZOOM } : SWITZERLAND);
+  const choose = (place: Place) => {
+    setForm((f) => ({ ...f, destination: place.name, destinationPoint: place.point }));
+    setSuggesting(false);
+    Keyboard.dismiss();
   };
 
-  const removeFromMap = () => {
-    pin(null);
-    setCamera(null);
+  const keepTyped = () => {
+    setSuggesting(false);
+    Keyboard.dismiss();
   };
+
+  // The picker opens on the pin, else on the place Apple Maps finds for the destination, else where
+  // the Adventurer is.
+  const openPicker = async () => {
+    if (form.destinationPoint) {
+      setPicking({ center: form.destinationPoint, zoom: PLACE_ZOOM });
+      return;
+    }
+    setBusy('find');
+    const [found] = await barry.findPlaces(form.destination);
+    const center = found?.point ?? (await barry.currentPosition());
+    setBusy(null);
+    setPicking(center ? { center, zoom: PLACE_ZOOM } : SWITZERLAND);
+  };
+
+  const arrive = (on: boolean) => (on ? void openPicker() : pin(null));
 
   const toggle = (contactId: EmergencyContactId) =>
     setForm((f) => ({
@@ -270,19 +289,55 @@ function PlanForm({
       </Stack.Toolbar>
 
       <Section title={t.plan.where}>
-        <Field label={t.plan.destination} value={form.destination} onChangeText={setDestination} />
-        {Platform.OS === 'ios' &&
-          (camera ? (
-            <>
-              <DestinationMap point={form.destinationPoint} camera={camera} onPick={pin} />
-              <ThemedText type="small" themeColor="textSecondary">
-                {form.destinationPoint ? t.plan.pinHint : t.plan.tapToPin}
-              </ThemedText>
-              <Button title={t.plan.removeFromMap} kind="secondary" disabled={busy !== null} onPress={removeFromMap} />
-            </>
-          ) : (
-            <Button title={t.plan.showOnMap} kind="secondary" busy={busy === 'find'} disabled={busy !== null} onPress={() => void showOnMap()} />
-          ))}
+        <Field label={t.plan.destination} value={form.destination} onChangeText={typeDestination} />
+        {places.length > 0 && (
+          <View>
+            {places.map((place, i) => (
+              <Pressable
+                key={`${place.point.latitude},${place.point.longitude}`}
+                accessibilityRole="button"
+                accessibilityLabel={place.subtitle ? `${place.name}, ${place.subtitle}` : place.name}
+                onPress={() => choose(place)}
+                style={(state) => [styles.place, pressedStyle(state)]}>
+                <SymbolView name="mappin.circle.fill" size={30} tintColor={theme.accent} fallback={null} />
+                <View style={[styles.placeText, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.backgroundSelected }]}>
+                  <ThemedText numberOfLines={1}>{place.name}</ThemedText>
+                  {place.subtitle !== '' && (
+                    <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+                      {place.subtitle}
+                    </ThemedText>
+                  )}
+                </View>
+              </Pressable>
+            ))}
+            <Pressable accessibilityRole="button" onPress={keepTyped} style={(state) => [styles.place, pressedStyle(state)]}>
+              <SymbolView name="minus.circle" size={30} tintColor={theme.textSecondary} fallback={null} />
+              <View style={[styles.placeText, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.backgroundSelected }]}>
+                <ThemedText numberOfLines={1}>{t.plan.keepWithoutPin(form.destination.trim())}</ThemedText>
+              </View>
+            </Pressable>
+          </View>
+        )}
+        {Platform.OS === 'ios' && (
+          <>
+            <View style={styles.arrive}>
+              <ThemedText style={styles.arriveLabel}>{t.plan.arrive}</ThemedText>
+              <Switch
+                accessibilityLabel={t.plan.arrive}
+                value={form.destinationPoint !== null || busy === 'find'}
+                onValueChange={arrive}
+                disabled={busy !== null}
+                trackColor={{ true: theme.success }}
+              />
+            </View>
+            {form.destinationPoint && (
+              <DestinationPreview point={form.destinationPoint} adjust={t.plan.adjust} onAdjust={() => void openPicker()} />
+            )}
+            <ThemedText type="small" themeColor="textSecondary">
+              {form.destinationPoint ? t.plan.arriveOn : t.plan.arriveOff}
+            </ThemedText>
+          </>
+        )}
         {noTrail && (
           <>
             <Note tone="warning" icon="location.slash">
@@ -369,12 +424,24 @@ function PlanForm({
           </Row>
         </>
       )}
+      <PinPicker
+        start={picking}
+        onCancel={() => setPicking(null)}
+        onPick={(point) => {
+          pin(point);
+          setPicking(null);
+        }}
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   picker: { alignItems: 'flex-start' },
+  place: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  placeText: { flex: 1, minHeight: 52, justifyContent: 'center', paddingVertical: 8, gap: 2 },
+  arrive: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44 },
+  arriveLabel: { flex: 1 },
   contact: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   contactText: { flex: 1, paddingVertical: 10, gap: 2 },
 });

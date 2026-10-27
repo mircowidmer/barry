@@ -28,7 +28,7 @@ import type {
   EmergencyContact,
   InProgressAdventure,
   MessageLanguage,
-  Point,
+  Place,
   Position,
 } from './types';
 
@@ -36,8 +36,8 @@ export type BarryDeps = {
   supabase: SupabaseClient<Database>;
   /** One reading, or null when permission is denied or there is no fix in time. */
   readPosition(): Promise<Position | null>;
-  /** The first place Apple Maps finds for a name, or null. */
-  geocode(name: string): Promise<Point | null>;
+  /** The places Apple Maps finds for a query, nearest the phone first, or none. */
+  findPlaces(query: string): Promise<Place[]>;
   timeZone(): string;
   /** The phone's language, which Barry also writes the messages to the contacts in. */
   language(): MessageLanguage;
@@ -80,7 +80,7 @@ const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
 export const createBarry = ({
   supabase,
   readPosition,
-  geocode,
+  findPlaces,
   timeZone,
   language,
   now,
@@ -338,7 +338,7 @@ export const createBarry = ({
       return { kind: 'saved', adventure };
     },
 
-    findPlace: async (name) => (name.trim() ? geocode(name.trim()) : null),
+    findPlaces: async (query) => (query.trim() ? findPlaces(query.trim()) : []),
 
     currentPosition: readPosition,
 
