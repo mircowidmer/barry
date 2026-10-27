@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, mailCount, messageKinds, must, runDeliver, tick, waitForMail } from './stack.mjs';
 
-// docs/hosted-supabase.md:147 "Once Barry runs again, a waiting Alert goes out by itself. A failed one does not: call or
+// docs/hosted-supabase.md § When Healthchecks.io alerts > Who was affected "Once Barry runs again, a waiting Alert goes out by itself. A failed one does not: call or
 // message those Emergency Contacts yourself."
 // docs/spec.md § Messages > Delivery Failures "If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app
 // shows the Delivery Failure to the Adventurer."

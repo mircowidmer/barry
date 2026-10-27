@@ -13,7 +13,7 @@ const inZurich = (at) => {
 const literally = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // docs/spec.md § Messages: the Plan Update carries "Adventurer's name, the new Plan, Deadline, the contact's Trail Map link"
-// CONTEXT.md:91 "carrying the new Plan, the Deadline and the contact's Trail Map link"
+// CONTEXT.md § Language > Messages "carrying the new Plan, the Deadline and the contact's Trail Map link"
 test('the Plan Update carries the Deadline, by email and by text message', async () => {
   const anna = await adventurer();
   const id = await anna.start();

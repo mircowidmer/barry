@@ -14,7 +14,7 @@ const inZurich = (at) => {
 
 // docs/spec.md § Adventures > Check-in "If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the
 // Alert goes out first, the All-clear follows it."
-// docs/adr/0001-server-owns-the-deadline.md:8 "The worst case is an Alert followed by an All-clear, which is safe."
+// docs/adr/0001-server-owns-the-deadline.md § Consequences "The worst case is an Alert followed by an All-clear, which is safe."
 test('a Check-in that waited for signal while the Alert went out ends the Adventure, and the All-clear follows the Alert', async () => {
   const anna = await adventurer();
   const id = await anna.start();
