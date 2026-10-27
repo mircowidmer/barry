@@ -422,12 +422,13 @@ export const createBarry = ({
     deliveryFailures: async (id) => {
       const { data, error } = await supabase
         .from('delivery_failures')
-        .select('kind, contact_name, channel, to_address, failure_reason')
+        .select('id, kind, contact_name, channel, to_address, failure_reason')
         .eq('adventure_id', id)
         .order('created_at');
       if (error) fail('deliveryFailures', error);
       return (data ?? []).map(
         (row): DeliveryFailure => ({
+          id: row.id,
           message: row.kind as DeliveryFailure['message'],
           contactName: row.contact_name ?? '',
           channel: row.channel,
