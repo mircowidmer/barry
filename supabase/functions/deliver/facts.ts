@@ -27,8 +27,6 @@ export type MessageFacts = {
   | { kind: 'heads_up'; trailToken: string | null }
   | { kind: 'plan_update'; trailToken: string | null }
   | { kind: 'deadline_update'; trailToken: string | null; previousDeadline: Date }
-  | { kind: 'reminder' }
-  | { kind: 'overdue_notice'; alertAt: Date }
   | {
       kind: 'alert';
       round: number;
@@ -85,10 +83,6 @@ export const parseFacts = (raw: unknown): MessageFacts => {
         trailToken: optionalText(f.trail_token),
         previousDeadline: date(f.previous_deadline, 'previous_deadline'),
       };
-    case 'reminder':
-      return { ...base, kind: f.kind };
-    case 'overdue_notice':
-      return { ...base, kind: f.kind, alertAt: date(f.alert_at, 'alert_at') };
     case 'alert': {
       const p = (f.profile ?? {}) as Json;
       return {

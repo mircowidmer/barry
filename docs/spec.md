@@ -151,7 +151,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - Each Adventure has one scheduled notification per kind. Scheduling again replaces it, so a moved Deadline moves both.
 - A Check-in cancels both, even while it waits for signal. So does any time the app sees that the Adventure is no longer Active, Overdue or Alerted.
 - A notification whose time has already passed is not scheduled. A Deadline set less than 30 minutes ahead therefore gets no Reminder.
-- Supabase does not push either notification. The push channel is turned off, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
+- Supabase does not push either notification and has no message for them, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
 - The phone's clock decides when they show. The Alert still follows the server's clock.
 
 ### Arrival Notice
