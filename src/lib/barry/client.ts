@@ -1,6 +1,6 @@
 import { isAuthRetryableFetchError, type PostgrestError, type SupabaseClient } from '@supabase/supabase-js';
 
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/database';
 
 import { createAdventureCache } from './adventure-cache';
 import { createAlarms, dueAlarms, type NotificationService } from './alarms';
