@@ -10,7 +10,7 @@ while IFS= read -r sha; do
   ident=$(git log -1 --format='%an <%ae>%n%cn <%ce>' "$sha")
   message=$(git log -1 --format='%B' "$sha")
   if grep -qiE '^claude <|@anthropic\.com>' <<<"$ident" \
-    || grep -qiE '^co-authored-by:.*(claude|anthropic)|^claude-session:|generated with \[?claude code' <<<"$message"; then
+    || grep -qiE '^co-authored-by:.*(claude|anthropic)|^claude-session:|claude\.ai/code/session|generated (with|by) \[?claude code' <<<"$message"; then
     echo "$(git log -1 --format='%h %an <%ae>: %s' "$sha")"
     found=1
   fi
