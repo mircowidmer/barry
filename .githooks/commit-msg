@@ -10,7 +10,7 @@ if grep -qiE '^claude <|@anthropic\.com>' <<<"$ident"; then
   echo '  git config user.name "Mirco Widmer"; git config user.email "mirco.widmer@gmail.com"' >&2
   exit 1
 fi
-if grep -qiE '^co-authored-by:.*(claude|anthropic)|^claude-session:|generated with \[?claude code' "$1"; then
-  echo "Refused: the commit message names Claude. Remove the Co-Authored-By, Claude-Session or 'Generated with' line." >&2
+if grep -qiE '^co-authored-by:.*(claude|anthropic)|^claude-session:|claude\.ai/code/session|generated (with|by) \[?claude code' "$1"; then
+  echo "Refused: the commit message names Claude. Remove the Co-Authored-By, Claude-Session or 'Generated with' line and any claude.ai session link." >&2
   exit 1
 fi
