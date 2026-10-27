@@ -31,6 +31,6 @@ Preconditions:
 ## Gotchas
 
 - The default Deadline is four hours ahead, rounded up to the quarter hour.
-- A Start or Save that cannot reach Barry shows `Could not start the adventure. Try again.` or `Could not save the adventure. Try again.` at the top of the sheet, under the header.
+- A Start or Save that cannot reach Barry shows the alert `Could Not Start` with `Could not start the adventure. Try again.` or the alert `Could Not Save` with `Could not save the adventure. Try again.`; tap `OK`.
 - The tap after a swipe often lands while the list is still scrolling. Take a screenshot and tap again.
 - Run `fixture.mjs end` afterwards, or Luca gets an Alert when the Deadline passes.

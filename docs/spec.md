@@ -84,7 +84,7 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
 
-If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, the Plan screen says why right above the buttons.
+If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, an alert says why.
 
 Before Start, the app shows these warnings when they apply. Start is still allowed.
 
