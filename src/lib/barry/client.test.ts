@@ -123,7 +123,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
   const barry = createBarry({
     supabase,
     readPosition: async () => null,
-    geocode: async () => null,
+    findPlaces: async () => [],
     timeZone: () => 'Europe/Zurich',
     language: () => 'de',
     now,

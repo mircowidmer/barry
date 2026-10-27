@@ -36,6 +36,9 @@ export type ContactDraft = Omit<EmergencyContact, 'id'> & { id?: EmergencyContac
 
 export type Point = { latitude: number; longitude: number };
 
+/** A place Apple Maps knows, such as a summit or a hut, with where it lies. */
+export type Place = { name: string; subtitle: string; point: Point };
+
 export type Plan = {
   destination: string;
   /** Where the destination is on the map. The phone shows the Arrival Notice there. */
@@ -161,8 +164,8 @@ export type Barry = {
   getAdventure(id: AdventureId): Promise<Adventure | null>;
   getInProgressAdventure(): Promise<InProgressView>;
   saveAdventure(draft: AdventureDraft): Promise<SaveAdventureResult>;
-  /** Where Apple Maps finds a place name, or null when it finds none or there is no signal. */
-  findPlace(name: string): Promise<Point | null>;
+  /** The places Apple Maps finds for what the Adventurer typed, nearest first; none without signal. */
+  findPlaces(query: string): Promise<Place[]>;
   /** One reading of where the phone is, or null without permission or a fix in time. */
   currentPosition(): Promise<Position | null>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;

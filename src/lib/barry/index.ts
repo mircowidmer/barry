@@ -13,11 +13,14 @@ import { createBarry } from './client';
 import type { PhoneContact } from './phone-contact';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
 import { SLOT_MS } from './trail-buffer';
-import type { Point, Position } from './types';
+import { searchPlaces } from '../../../modules/place-search';
+
+import type { Place, Position } from './types';
 
 export type * from './types';
 export type { Alarm } from './alarms';
 export { isEmailAddress, isPhoneNumber, reachableAddresses } from './reach';
+export { ARRIVAL_RADIUS_M } from './trail';
 export { startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;
@@ -47,12 +50,14 @@ const readPosition = async (): Promise<Position | null> => {
   }
 };
 
-const geocode = async (name: string): Promise<Point | null> => {
+const findPlaces = async (query: string): Promise<Place[]> => {
   try {
-    const [place] = await Location.geocodeAsync(name);
-    return place ? { latitude: place.latitude, longitude: place.longitude } : null;
+    // A known position ranks the places near the Adventurer first; without one, the search still works.
+    const near = await Location.getLastKnownPositionAsync().catch(() => null);
+    const found = await searchPlaces(query, near && { latitude: near.coords.latitude, longitude: near.coords.longitude });
+    return found.map(({ name, subtitle, latitude, longitude }) => ({ name, subtitle, point: { latitude, longitude } }));
   } catch {
-    return null;
+    return [];
   }
 };
 
@@ -155,7 +160,7 @@ const notifications: NotificationService = {
 export const barry = createBarry({
   supabase,
   readPosition,
-  geocode,
+  findPlaces,
   timeZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   language: appLanguage,
   now: () => new Date(),
