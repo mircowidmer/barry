@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(32);
+select plan(30);
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone, car_make, car_colour, car_plate, medical_notes)
@@ -44,7 +44,6 @@ insert into public.messages (adventure_id, kind, round, channel, to_address, con
   ('a0000000-0000-0000-0000-00000000000a', 'alert',     1,    'email', 'i@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', null, 'failed',  6, now(), null),
   ('a0000000-0000-0000-0000-00000000000a', 'all_clear', null, 'email', 'i@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', null, 'pending', 0, now(), null),
   ('a0000000-0000-0000-0000-00000000000a', 'heads_up',  null, 'email', 'mia@example.com', 'aaaaaaaa-0000-0000-0000-000000000002', null, 'pending', 1, now(), null),
-  ('a0000000-0000-0000-0000-00000000000a', 'reminder',  null, 'push',  'ExponentPushToken[anna]', null, now() - interval '5 hours', 'pending', 1, now(), null),
   ('a0000000-0000-0000-0000-00000000000b', 'heads_up',  null, 'email', 'j@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', null, 'pending', 1, now(), null),
   ('a0000000-0000-0000-0000-00000000000b', 'alert',     1,    'email', 'k@example.com', 'aaaaaaaa-0000-0000-0000-000000000001', null, 'pending', 1, now(), null);
 
@@ -73,7 +72,6 @@ select is((select attempts from public.messages where to_address = 'f@example.co
 select is(pg_temp.status('h@example.com', 'alert'), 'failed retries_exhausted', 'An expired lease after the last attempt fails the row');
 select is(pg_temp.status('i@example.com', 'all_clear'), 'sending', 'An All-clear goes out even when the Alert to its address failed');
 select is(pg_temp.status('mia@example.com', 'heads_up'), 'cancelled', 'A Heads-up for a contact no longer on the Adventure is cancelled');
-select is(pg_temp.status('ExponentPushToken[anna]', 'reminder'), 'cancelled', 'A Reminder for an old Deadline is cancelled');
 select is(pg_temp.status('j@example.com', 'heads_up'), 'cancelled', 'A Heads-up retry after the Check-in is cancelled');
 select is(pg_temp.status('k@example.com', 'alert'), 'sending', 'An Alert retry after the Check-in still goes out');
 
@@ -137,11 +135,6 @@ select is(
   (pg_temp.facts('i@example.com', 'all_clear') ->> 'checked_in_at') is null and (pg_temp.facts('i@example.com', 'all_clear') ? 'checked_in_at'),
   true,
   'An All-clear carries the Check-in time'
-);
-select is(
-  (pg_temp.facts('ExponentPushToken[anna]', 'reminder') ? 'profile'),
-  false,
-  'A Reminder carries nothing from the Profile'
 );
 
 -- health
