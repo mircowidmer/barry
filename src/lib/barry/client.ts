@@ -430,8 +430,8 @@ export const createBarry = ({
         (row): DeliveryFailure => ({
           message: row.kind as DeliveryFailure['message'],
           contactName: row.contact_name ?? '',
-          channel: row.channel!,
-          address: row.to_address!,
+          channel: row.channel,
+          address: row.to_address,
           reason: row.failure_reason ?? '',
         }),
       );
