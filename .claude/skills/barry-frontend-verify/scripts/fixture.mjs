@@ -38,9 +38,8 @@ const commands = {
     if (!/^\d+$/.test(minutes)) throw new Error('minutes must be a whole number');
     return sql(`
       with adv as (
-        insert into public.adventures (adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at)
-        select ${anna}, 'active', 'Pilatus', now() + interval '${minutes} minutes', now() - interval '2 hours',
-               'Europe/Zurich', now() - interval '2 hours'
+        insert into public.adventures (adventurer_id, stage, destination, deadline, time_zone, started_at)
+        select ${anna}, 'active', 'Pilatus', now() + interval '${minutes} minutes', 'Europe/Zurich', now() - interval '2 hours'
         returning id, adventurer_id)
       insert into public.adventure_contacts (adventure_id, contact_id)
       select adv.id, c.id from adv join public.emergency_contacts c
