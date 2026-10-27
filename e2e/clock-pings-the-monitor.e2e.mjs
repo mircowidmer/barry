@@ -10,8 +10,8 @@ import { heartbeatsSince, sleep } from './stack.mjs';
 // health.e2e.mjs calls deliver itself. This case calls nothing: pg_cron runs the tick, the tick kicks deliver, and
 // deliver pings the monitor. Files running beside this one also kick deliver, so the ping proves the chain only
 // when this file runs alone; beside them, it still proves the clock ticks and a heartbeat follows.
-const tickRuns = () =>
-  JSON.parse(
+const tickRuns = () => {
+  const out = JSON.parse(
     execFileSync(
       'npx',
       [
@@ -20,7 +20,10 @@ const tickRuns = () =>
       ],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
     ),
-  ).rows;
+  );
+  // The CLI prints a bare array, but wraps it as { rows } when it detects an AI agent such as Claude Code.
+  return Array.isArray(out) ? out : out.rows;
+};
 
 test('the clock’s tick reaches the monitor without anyone calling deliver', async () => {
   const start = new Date();
