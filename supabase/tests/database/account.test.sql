@@ -18,15 +18,15 @@ insert into public.emergency_contacts (id, adventurer_id, name, email) values
   ('bbbbbbbb-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Noah', 'noah@example.com'),
   ('cccccccc-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333', 'Olga', 'olga@example.com');
 
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at,
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at,
                                checked_in_at, ended_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'ended', 'Rigi',
-   now() - interval '1 day', now() - interval '2 days', 'Europe/Zurich', now() - interval '2 days',
+   now() - interval '1 day', 'Europe/Zurich', now() - interval '2 days',
    now() - interval '1 day', now() - interval '1 day'),
   ('b0000000-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'active', 'Titlis',
-   now() + interval '5 hours', now(), 'Europe/Zurich', now(), null, null),
+   now() + interval '5 hours', 'Europe/Zurich', now(), null, null),
   ('c0000000-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333', 'ended', 'Säntis',
-   now() - interval '1 hour', now() - interval '5 hours', 'Europe/Zurich', now() - interval '5 hours',
+   now() - interval '1 hour', 'Europe/Zurich', now() - interval '5 hours',
    now() - interval '5 minutes', now() - interval '5 minutes');
 insert into public.adventures (id, adventurer_id, destination) values
   ('a0000000-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Pilatus');

@@ -12,12 +12,12 @@ insert into public.emergency_contacts (id, adventurer_id, name, email) values
   ('aaaaaaaa-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com');
 
 -- X is Alerted and Y is Ended.
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone,
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone,
                                started_at, alerts_sent, last_alert_at, checked_in_at, ended_at) values
   ('a0000000-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-111111111111', 'alerted', 'Grosser Mythen',
-   now() - interval '3 hours', now() - interval '10 hours', 'Europe/Zurich', now() - interval '10 hours', 1, now() - interval '150 minutes', null, null),
+   now() - interval '3 hours', 'Europe/Zurich', now() - interval '10 hours', 1, now() - interval '150 minutes', null, null),
   ('a0000000-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-111111111111', 'ended', 'Pilatus',
-   now() - interval '3 hours', now() - interval '10 hours', 'Europe/Zurich', now() - interval '10 hours', 1, now() - interval '150 minutes',
+   now() - interval '3 hours', 'Europe/Zurich', now() - interval '10 hours', 1, now() - interval '150 minutes',
    now() - interval '1 hour', now() - interval '1 hour');
 
 insert into public.adventure_contacts (adventure_id, contact_id) values

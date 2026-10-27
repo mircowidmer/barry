@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(64);
+select plan(63);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -26,10 +26,10 @@ insert into public.adventures (id, adventurer_id, destination, deadline) values
   ('a0000000-0000-0000-0000-000000000015', '11111111-1111-1111-1111-111111111111', 'Grosser Mythen', now() + interval '8 hours'),
   ('a0000000-0000-0000-0000-000000000016', '11111111-1111-1111-1111-111111111111', 'Pilatus',        now() + interval '9 hours');
 
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone,
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone,
                                started_at, alerts_sent, last_alert_at) values
   ('b0000000-0000-0000-0000-000000000021', '22222222-2222-2222-2222-222222222222', 'alerted', 'Titlis',
-   now() - interval '3 hours', now() - interval '10 hours', 'Europe/Zurich',
+   now() - interval '3 hours', 'Europe/Zurich',
    now() - interval '10 hours', 1, now() - interval '150 minutes');
 
 insert into public.adventure_contacts (adventure_id, contact_id) values
@@ -47,16 +47,16 @@ insert into public.messages (adventure_id, kind, round, channel, to_address, con
   ('b0000000-0000-0000-0000-000000000021', 'alert', 1, 'email', 'olga@example.com', 'bbbbbbbb-0000-0000-0000-000000000002', 'pending', 0),
   ('b0000000-0000-0000-0000-000000000021', 'alert', 1, 'email', 'paul@example.com', 'bbbbbbbb-0000-0000-0000-000000000003', 'pending', 1);
 
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone,
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone,
                                started_at, checked_in_at, ended_at) values
   ('c0000000-0000-0000-0000-000000000031', '11111111-1111-1111-1111-111111111111', 'ended', 'Säntis',
-   now() - interval '20 days', now() - interval '21 days', 'Europe/Zurich',
+   now() - interval '20 days', 'Europe/Zurich',
    now() - interval '21 days', now() - interval '20 days', now() - interval '20 days'),
   ('c0000000-0000-0000-0000-000000000032', '11111111-1111-1111-1111-111111111111', 'ended', 'Eiger',
-   now() - interval '2 hours', now() - interval '10 hours', 'Europe/Zurich',
+   now() - interval '2 hours', 'Europe/Zurich',
    now() - interval '10 hours', now() - interval '5 minutes', now() - interval '5 minutes'),
   ('c0000000-0000-0000-0000-000000000033', '11111111-1111-1111-1111-111111111111', 'ended', 'Mönch',
-   now() - interval '2 hours', now() - interval '10 hours', 'Europe/Zurich',
+   now() - interval '2 hours', 'Europe/Zurich',
    now() - interval '10 hours', now() - interval '5 minutes', now() - interval '5 minutes');
 
 insert into public.adventure_contacts (adventure_id, contact_id) values
@@ -163,11 +163,6 @@ select is(
   (select stage::text || ' ' || time_zone from public.adventures where id = 'a0000000-0000-0000-0000-000000000015'),
   'active Europe/Zurich',
   'The Adventure is Active in Anna''s time zone'
-);
-select is(
-  (select deadline_set_at from public.adventures where id = 'a0000000-0000-0000-0000-000000000015'),
-  now(),
-  'Start records when the Deadline was set'
 );
 select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000015', 'heads_up'),

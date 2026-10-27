@@ -17,16 +17,16 @@ insert into public.emergency_contacts (id, adventurer_id, name, email) values
 
 -- Anna: Deadline just passed. Ben: Deadline hours away. Cleo: all three Alerts sent.
 -- Dan: Grace Period over, but queuing his messages fails.
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone,
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone,
                                started_at, alerts_sent, last_alert_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'active', 'Grosser Mythen',
-   '2026-10-17 17:59:30+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 0, null),
+   '2026-10-17 17:59:30+02', 'Europe/Zurich', '2026-10-17 08:00+02', 0, null),
   ('b0000000-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'active', 'Pilatus',
-   '2026-10-17 23:00+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 0, null),
+   '2026-10-17 23:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 0, null),
   ('c0000000-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333', 'alerted', 'Rigi',
-   '2026-10-17 12:00+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 3, '2026-10-17 14:30+02'),
+   '2026-10-17 12:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 3, '2026-10-17 14:30+02'),
   ('d0000000-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444', 'overdue', 'Titlis',
-   '2026-10-17 17:00+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 0, null);
+   '2026-10-17 17:00+02', 'Europe/Zurich', '2026-10-17 08:00+02', 0, null);
 
 insert into public.adventure_contacts (adventure_id, contact_id) values
   ('a0000000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001'),
