@@ -10,6 +10,8 @@ import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
 import type { TrailMapViewProps } from './trail-map-view';
 
+export type { TrailMapViewProps } from './trail-map-view';
+
 // The map is light in either scheme.
 const { accent: TRAIL, text: LAST } = Colors.light;
 

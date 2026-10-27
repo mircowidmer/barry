@@ -16,6 +16,8 @@ import { useTheme } from '@/hooks/use-theme';
 
 import type { ButtonProps } from './button';
 
+export type { ButtonProps } from './button';
+
 export function Button({ title, onPress, kind = 'primary', disabled, busy }: ButtonProps) {
   const theme = useTheme();
   return (
