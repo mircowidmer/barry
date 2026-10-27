@@ -18,8 +18,9 @@ type SaveAdventure = Omit<Functions['save_adventure'], 'Returns'> & {
 // The view selects these straight from messages, where they are not null.
 type DeliveryFailureRow = Public['Views']['delivery_failures']['Row'];
 type DeliveryFailures = Omit<Public['Views']['delivery_failures'], 'Row'> & {
-  Row: Omit<DeliveryFailureRow, 'channel' | 'kind' | 'to_address'> & {
+  Row: Omit<DeliveryFailureRow, 'channel' | 'id' | 'kind' | 'to_address'> & {
     channel: NonNullable<DeliveryFailureRow['channel']>;
+    id: NonNullable<DeliveryFailureRow['id']>;
     kind: NonNullable<DeliveryFailureRow['kind']>;
     to_address: NonNullable<DeliveryFailureRow['to_address']>;
   };
