@@ -20,11 +20,19 @@ const fetchWithTimeout: typeof fetch = (input, init) => {
   });
 };
 
+// Expo inlines EXPO_PUBLIC_ variables only where they are read by their full name.
+const required = (name: string, value: string | undefined) => {
+  if (!value) throw new Error(`${name} is not set; copy .env.example to .env.local`);
+  return value;
+};
+const url = required('EXPO_PUBLIC_SUPABASE_URL', process.env.EXPO_PUBLIC_SUPABASE_URL);
+const publishableKey = required('EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY', process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+
 export const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  url,
+  publishableKey,
   {
-    global: { fetch: signedOnly(fetchWithTimeout, process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY!) },
+    global: { fetch: signedOnly(fetchWithTimeout, publishableKey) },
     auth: {
       storage,
       autoRefreshToken: true,
