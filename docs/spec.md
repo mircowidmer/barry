@@ -192,7 +192,7 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
 
 - Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
-- The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Position with the time of the reading.
+- The page shows the Adventurer's name, the Plan, the Trail as a line on a map drawn from OpenStreetMap data, and the Last Position with the time of the reading.
 - The page adds new readings every 5 minutes while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. While the Adventure is Alerted, it shows that.
 - After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Position. Barry records no readings after the Check-in.

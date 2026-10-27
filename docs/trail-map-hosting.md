@@ -33,4 +33,4 @@ The files in `dist` expect to be served at the root of a domain, and the page ex
 ## Limits
 
 - Messages already sent keep the link they were sent with. Only messages sent after `TRAIL_MAP_URL` changes use the new link. Links to `https://barry.support/trail` from before the move to `/adventure` open the landing page. Links to `https://mircowidmer.github.io/barry/trail` from before the move to `barry.support` stop working.
-- The map tiles come from `tile.openstreetmap.org`, whose usage policy allows this low traffic with the attribution the page shows.
+- The map comes from OpenFreeMap (`tiles.openfreemap.org`, style `liberty`) as vector tiles of OpenStreetMap data, which MapLibre draws in the browser, so it stays sharp on a phone with labels at their normal size. Leaflet still draws the Trail on top, through `@maplibre/maplibre-gl-leaflet`. OpenFreeMap needs no key and has no request limit; the page shows its attribution. MapLibre stays on version 5, because version 6 loads its worker from separate files that the Metro bundle does not ship.
