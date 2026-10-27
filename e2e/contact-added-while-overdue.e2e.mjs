@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, tick, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:122 the Heads-up goes out when "Supabase confirms the Start, or a contact is added to an Active or Overdue Adventure"
-// docs/spec.md:73 "Active and Overdue. The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later."
+// docs/spec.md § Messages: the Heads-up goes out when "Supabase confirms the Start, or a contact is added to an Active or Overdue Adventure"
+// docs/spec.md § Adventures > Rules by stage "Active and Overdue. The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later."
 test('a contact added to an Overdue Adventure gets a Heads-up', async () => {
   const anna = await adventurer();
   const id = await anna.start();

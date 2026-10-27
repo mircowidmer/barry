@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, mailCount, messageKinds, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:118 "Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update."
 test('moving the destination on the map sends no Plan Update', async () => {
   const anna = await adventurer();
   const plan = { p_destination: 'Grosser Mythen', p_contact_ids: [anna.luca.id, anna.sara.id] };

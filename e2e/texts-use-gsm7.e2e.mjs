@@ -8,7 +8,7 @@ const GSM_7 =
   '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà' +
   '^{}\\[~]|€';
 
-// docs/spec.md:172 "Text messages use only the GSM-7 alphabet, so each segment holds 160 characters."
+// docs/spec.md § Messages > Channels "Text messages use only the GSM-7 alphabet, so each segment holds 160 characters."
 test('every text message a contact receives, link included, uses only the GSM-7 alphabet', async () => {
   const anna = await adventurer();
   const id = await anna.start();

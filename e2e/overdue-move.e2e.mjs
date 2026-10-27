@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, assertClockRan, mailCount, messageKinds, missDeadline, must, sleep, tick, waitForMail } from './stack.mjs';
 
-// docs/spec.md:61 "Active | Supabase confirms the Start, or the Adventurer moves the Deadline of an Overdue Adventure."
-// docs/spec.md:98 "Moving the Deadline of an Overdue or Alerted Adventure makes it Active again."
+// docs/spec.md § Adventures > Stages "Active | Supabase confirms the Start, or the Adventurer moves the Deadline of an Overdue Adventure."
+// docs/spec.md § Adventures > Move the Deadline "Moving the Deadline of an Overdue or Alerted Adventure makes it Active again."
 test('moving the Deadline of an Adventure the clock marked Overdue makes it Active again, and no Alert goes out', async () => {
   const anna = await adventurer();
   const id = await anna.start();

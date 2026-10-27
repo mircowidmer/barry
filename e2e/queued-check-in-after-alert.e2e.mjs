@@ -12,7 +12,7 @@ const inZurich = (at) => {
   return `${part('weekday')} ${part('day')} ${part('month')}, ${part('hour')}:${part('minute')}`;
 };
 
-// docs/spec.md:103 "If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the
+// docs/spec.md § Adventures > Check-in "If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the
 // Alert goes out first, the All-clear follows it."
 // docs/adr/0001-server-owns-the-deadline.md:8 "The worst case is an Alert followed by an All-clear, which is safe."
 test('a Check-in that waited for signal while the Alert went out ends the Adventure, and the All-clear follows the Alert', async () => {

@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:112 "The Adventure always keeps at least one contact. Removing the last one is refused."
-// docs/spec.md:71 "At least one contact always remains."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "The Adventure always keeps at least one contact. Removing the last one is refused."
+// docs/spec.md § Adventures > Rules by stage "At least one contact always remains."
 test('removing the last contact of a live Adventure is refused, and the Alert still reaches every contact', async () => {
   const anna = await adventurer();
   const id = await anna.start();

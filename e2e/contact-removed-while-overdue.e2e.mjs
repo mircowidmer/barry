@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, messageKinds, missDeadline, must, textsTo, tick, trailMap, trailToken, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:78 "Active and Overdue. The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later."
-// docs/spec.md:120 "A contact removed from the Adventure gets no further messages, and their Trail Map link stops working."
+// docs/spec.md § Adventures > Rules by stage "Active and Overdue. The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "A contact removed from the Adventure gets no further messages, and their Trail Map link stops working."
 test('a contact removed from an Overdue Adventure gets no Alert, and their Trail Map link stops working', async () => {
   const anna = await adventurer();
   const id = await anna.start();

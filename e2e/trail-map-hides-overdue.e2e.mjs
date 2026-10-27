@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, tick, trailMap, trailToken, waitForMail } from './stack.mjs';
 
-// docs/spec.md:181 "The page does not show the Deadline, and it does not show that the Adventure is Overdue."
+// docs/spec.md § Trail Map "The page does not show the Deadline, and it does not show that the Adventure is Overdue."
 test('the Trail Map shows an Overdue Adventure as underway, without the Deadline', async () => {
   const anna = await adventurer();
   const id = await anna.start();

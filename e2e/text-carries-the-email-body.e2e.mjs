@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, textsTo, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:166 "A text message carries the same text as the email body, without the subject."
+// docs/spec.md § Messages > Channels "A text message carries the same text as the email body, without the subject."
 test('the text message of every kind carries the same text as the email body', async () => {
   const anna = await adventurer();
   const phone = `+4179${String(randomInt(1e7)).padStart(7, '0')}`;

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { adventurer, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:37 "Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so
+// docs/spec.md § Emergency Contacts "Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so
 // switching it back on restores it."
 test('a switched-off email address is kept, and once it is switched back on Barry reaches the contact there again', async () => {
   const anna = await adventurer();

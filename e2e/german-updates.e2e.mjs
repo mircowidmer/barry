@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:29 "Message language | Decides the language of every message to the contacts"
+// docs/spec.md § Adventurer Profile "Message language | Decides the language of every message to the contacts"
 test('the Plan Update and the Deadline Update are German for an Adventurer who chose German', async () => {
   const anna = await adventurer();
   must(await anna.client.from('adventurer_profiles').update({ message_language: 'de' }).eq('id', anna.userId), 'choose German');

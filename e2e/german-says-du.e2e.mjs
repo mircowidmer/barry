@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:169 "The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du"."
+// docs/spec.md § Messages > Channels "The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du"."
 test('the German Heads-up, Alert and All-clear use ss, never ß, and address the contact as du', async () => {
   const anna = await adventurer();
   must(await anna.client.from('adventurer_profiles').update({ message_language: 'de' }).eq('id', anna.userId), 'choose German');
