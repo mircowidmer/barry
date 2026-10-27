@@ -44,6 +44,7 @@ Preconditions:
 
 - The overview reloads when its tab comes into focus, when the app returns to the foreground, and when you pull the list down. After `fixture.mjs live`, pull down, or switch tabs, waiting 3 seconds after each tab tap.
 - `fixture.mjs live` sends Luca a real Heads-up at the next tick. It lands in Mailpit.
+- After closing a sheet such as `Who Is Watching`, take a screenshot and hold `Hold to Check In` only once the sheet is gone. The debug build starts the dismissal a second or two late, so a hold right after the close tap lands on the sheet and checks nothing in.
 - A short tap passes trivially if it misses the button. Confirm the same coordinates end the Adventure with a 2.2-second hold in the same run.
 - Without signal each request waits up to 10 seconds before the app falls back to the saved Adventure.
 - `fixture.mjs offline` stops the whole API gateway, so Realtime and every screen lose the server too. Always run `fixture.mjs online` before the next journey.
