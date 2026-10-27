@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, mailCount, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:168 "The app stores that language in the Profile each time it opens and each time the Profile is saved, so a
+// docs/spec.md § Messages > Channels "The app stores that language in the Profile each time it opens and each time the Profile is saved, so a
 // language changed in Settings reaches the next message."
 test('a language the Adventurer changes during the Adventure decides the language of the next message, the Alert', async () => {
   const anna = await adventurer();

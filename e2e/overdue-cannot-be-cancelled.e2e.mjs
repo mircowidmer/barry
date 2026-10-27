@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, tick, waitForMail } from './stack.mjs';
 
-// docs/spec.md:78 "Active and Overdue. ... The Adventure cannot be cancelled. A Check-in is the only way to end it."
+// docs/spec.md § Adventures > Rules by stage "Active and Overdue. ... The Adventure cannot be cancelled. A Check-in is the only way to end it."
 test('an Overdue Adventure refuses a deletion, and only the Check-in ends it', async () => {
   const anna = await adventurer();
   const id = await anna.start();

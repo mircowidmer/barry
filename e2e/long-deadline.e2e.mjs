@@ -12,7 +12,7 @@ const inZurich = (at) => {
 };
 const literally = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// docs/spec.md:59 "Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length."
+// docs/spec.md § Adventures > Fields "Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length."
 test('a Deadline more than a year ahead starts the Adventure, and the Heads-up names it', async () => {
   const anna = await adventurer();
   const deadline = new Date(Date.now() + 400 * 24 * 3600_000);

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, must, trailMap, trailToken, waitForMail } from './stack.mjs';
 
-// docs/spec.md:195 "The page shows the Adventurer's name, the Plan, the Trail as a line on a map drawn from OpenStreetMap
+// docs/spec.md § Trail Map "The page shows the Adventurer's name, the Plan, the Trail as a line on a map drawn from OpenStreetMap
 // data, and the Last Position with the time of the reading."
 test("the Trail Map shows the Adventurer's name and the latest Plan", async () => {
   const anna = await adventurer();

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:57 "Destination on the map ... The contacts are not told the point."
+// docs/spec.md § Adventures > Fields "Destination on the map ... The contacts are not told the point."
 test('the Heads-up and the Alert carry the Last Position but never the destination point on the map', async () => {
   const anna = await adventurer();
   const [saved] = must(

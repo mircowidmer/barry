@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, must } from './stack.mjs';
 
-// docs/spec.md:36 "A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved."
+// docs/spec.md § Emergency Contacts "A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved."
 test('a contact without an address that is filled in cannot be saved', async () => {
   const anna = await adventurer();
   const list = async () => must(await anna.client.from('emergency_contacts').select('id'), 'contacts').length;

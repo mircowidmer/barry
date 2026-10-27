@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, must, runDeliver, trailMap, trailToken, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:66 "Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop
+// docs/spec.md § Adventures > Stages "Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop
 // working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert."
 test('deleting an Ended Adventure is refused while its All-clear is still being sent, and afterwards removes its Plan, readings, messages and links', async () => {
   const anna = await adventurer();

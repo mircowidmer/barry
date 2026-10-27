@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { admin, adventurer, mailCount, messageKinds, missDeadline, must, tick, waitForMail, waitForText } from './stack.mjs';
 
 // CONTEXT.md:68 "Overdue: An Adventure whose Deadline has passed and whose Grace Period is still running. Nobody has been told yet."
-// docs/spec.md:69 "| Alerted | The Grace Period ends without a Check-in. | Active, Ended |"
+// docs/spec.md § Adventures > Stages "| Alerted | The Grace Period ends without a Check-in. | Active, Ended |"
 test('nobody is told while the Grace Period runs, and the Alert follows once it has ended', async () => {
   const anna = await adventurer();
   const id = await anna.start();

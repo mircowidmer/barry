@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, mailCount, messageKinds, must, textsTo, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:95 "A Deadline Update still waiting at the Check-in ... is not sent."
+// docs/spec.md § Adventures > Move the Deadline "A Deadline Update still waiting at the Check-in ... is not sent."
 test('a Deadline Update still waiting at the Check-in is not sent', async () => {
   const anna = await adventurer();
   const id = await anna.start();

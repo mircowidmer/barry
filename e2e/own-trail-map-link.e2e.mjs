@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, must, trailMap, trailToken, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:178 "Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every
+// docs/spec.md § Trail Map "Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every
 // Plan Update, every Deadline Update, every Alert and the All-clear carry it."
 test("each contact's own Trail Map link travels in their Heads-up, Plan Update and Deadline Update", async () => {
   const anna = await adventurer();

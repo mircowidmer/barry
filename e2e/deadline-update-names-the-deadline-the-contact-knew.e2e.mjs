@@ -12,8 +12,8 @@ const inZurich = (at) => {
   return `${part('weekday')} ${part('day')} ${part('month')}, ${part('hour')}:${part('minute')}`;
 };
 
-// docs/spec.md:102 "quick moves in a row send one Deadline Update, from the time the contact knew to the latest one."
-// docs/spec.md:130 the Deadline Update carries "the Deadline the contact knew, the new Deadline"
+// docs/spec.md § Adventures > Move the Deadline "quick moves in a row send one Deadline Update, from the time the contact knew to the latest one."
+// docs/spec.md § Messages: the Deadline Update carries "the Deadline the contact knew, the new Deadline"
 test('the Deadline Update after two quick moves names the Deadline from the Heads-up and the latest one, by email and by text message', async () => {
   const anna = await adventurer();
   const id = await anna.start();

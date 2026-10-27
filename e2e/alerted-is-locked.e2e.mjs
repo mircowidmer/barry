@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, mailCount, missDeadline, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:71 "The Adventure cannot be cancelled. A Check-in is the only way to end it."
-// docs/spec.md:79 "Alerted. The Adventurer can move the Deadline later, but cannot edit the Adventure. A Check-in is the only way to end it."
+// docs/spec.md § Adventures > Rules by stage "The Adventure cannot be cancelled. A Check-in is the only way to end it."
+// docs/spec.md § Adventures > Rules by stage "Alerted. The Adventurer can move the Deadline later, but cannot edit the Adventure. A Check-in is the only way to end it."
 test('an Alerted Adventure refuses an edit and a deletion, and only the Check-in ends it', async () => {
   const anna = await adventurer();
   const id = await anna.start();

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, mailCount, messageKinds, must, textsTo, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:154 "Contacts that share an email address or a phone number get one message per address."
+// docs/spec.md § Messages > Channels "Contacts that share an email address or a phone number get one message per address."
 test('two contacts who share an email address and a phone number get one message per address', async () => {
   const anna = await adventurer();
   await anna.contact({ name: 'Mia', email: anna.luca.email, phone: anna.sara.phone });
