@@ -125,7 +125,7 @@ const en = {
     edit: 'Edit Plan or Contacts',
     failuresTitle: 'Messages That Did Not Arrive',
     failure: (f: DeliveryFailure) =>
-      `${f.contactName}: ${{ heads_up: 'heads-up', plan_update: 'plan update', deadline_update: 'deadline update', alert: 'alert', all_clear: 'all-clear' }[f.message]} by ${{ email: 'email', sms: 'text message', push: 'push' }[f.channel]}` +
+      `${f.contactName}: ${{ heads_up: 'Heads-up', plan_update: 'Plan Update', deadline_update: 'Deadline Update', alert: 'Alert', all_clear: 'All-clear' }[f.message]} by ${{ email: 'email', sms: 'text message', push: 'push' }[f.channel]}` +
       ` (${({ channel_not_enabled: 'text messages are not set up yet', retries_exhausted: 'gave up after several attempts' } as Record<string, string>)[f.reason] ?? f.reason})`,
   },
   ended: {
