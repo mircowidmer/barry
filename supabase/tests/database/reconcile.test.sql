@@ -21,13 +21,13 @@ insert into public.push_devices (expo_push_token, adventurer_id) values
   ('ExponentPushToken[anna]', '11111111-1111-1111-1111-111111111111'),
   ('ExponentPushToken[ben]', '22222222-2222-2222-2222-222222222222');
 
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at) values
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'active',
-   'Grosser Mythen', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02'),
+   'Grosser Mythen', '2026-10-17 18:00+02', 'Europe/Zurich', '2026-10-17 08:00+02'),
   ('b0000000-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'active',
-   'Pilatus', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02'),
+   'Pilatus', '2026-10-17 18:00+02', 'Europe/Zurich', '2026-10-17 08:00+02'),
   ('b0000000-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'planned',
-   'Rigi', null, null, null, null);
+   'Rigi', null, null, null);
 
 insert into public.adventure_contacts (adventure_id, contact_id) values
   ('a0000000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001'),
@@ -106,7 +106,7 @@ select is(
   'In the half hour before the Deadline Supabase pushes Anna no Reminder'
 );
 
-update public.adventures set deadline = '2026-10-17 20:00+02', deadline_set_at = '2026-10-17 17:50+02'
+update public.adventures set deadline = '2026-10-17 20:00+02'
   where id = 'a0000000-0000-0000-0000-000000000001';
 select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 19:35+02');
 
@@ -247,7 +247,7 @@ select is(
 -- Ben's Adventure again, Active with a new Deadline.
 
 update public.adventures set stage = 'active', alerts_sent = 0, last_alert_at = null,
-  deadline = '2026-10-18 18:00+02', deadline_set_at = '2026-10-18 08:00+02'
+  deadline = '2026-10-18 18:00+02'
   where id = 'b0000000-0000-0000-0000-000000000001';
 -- Text messages turned off.
 

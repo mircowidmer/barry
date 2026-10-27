@@ -6,9 +6,9 @@ insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000000');
 insert into public.emergency_contacts (id, adventurer_id, name, email, phone) values
   ('aaaaaaaa-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Luca', 'luca@example.com', '+41791111111');
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at, alerts_sent, last_alert_at) values
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at, alerts_sent, last_alert_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'alerted', 'Pilatus',
-   now() - interval '1 hour', now() - interval '3 hours', 'Europe/Zurich', now() - interval '3 hours', 1, now());
+   now() - interval '1 hour', 'Europe/Zurich', now() - interval '3 hours', 1, now());
 
 insert into public.messages (id, adventure_id, kind, round, channel, to_address, contact_id, status, attempts, provider_ref) overriding system value values
   (901, 'a0000000-0000-0000-0000-000000000001', 'heads_up', null, 'sms', '+41791111111', 'aaaaaaaa-0000-0000-0000-000000000001', 'sent', 1, 'SM-heads-up'),
