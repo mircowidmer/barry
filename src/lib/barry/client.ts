@@ -140,7 +140,7 @@ export const createBarry = ({
       .limit(1, { referencedTable: 'last_position' })
       .maybeSingle();
     if (error) fail('getAdventure', error);
-    const row = data as unknown as AdventureWithRelations | null;
+    const row: AdventureWithRelations | null = data;
     const adventure = row ? parseAdventure(row) : null;
     if (isInProgress(adventure)) remember(row);
     else if (cache.load()?.row.id === id) remember(null);
@@ -297,7 +297,7 @@ export const createBarry = ({
         .limit(1, { referencedTable: 'last_position' })
         .order('created_at', { ascending: false });
       if (error) fail('listAdventures', error);
-      return ((data ?? []) as unknown as AdventureWithRelations[]).map(parseAdventure);
+      return (data ?? []).map(parseAdventure);
     },
 
     getAdventure,
@@ -315,7 +315,7 @@ export const createBarry = ({
         void syncAlarms();
         return { adventure: cachedInProgress(), offlineSince: cache.load()?.savedAt ?? now() };
       }
-      const row = data as unknown as AdventureWithRelations | null;
+      const row: AdventureWithRelations | null = data;
       remember(row);
       const adventure = row ? parseAdventure(row) : null;
       return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: null };
