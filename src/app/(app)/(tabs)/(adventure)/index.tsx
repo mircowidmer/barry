@@ -268,8 +268,8 @@ function LiveAdventure({
         <View style={styles.titledCard}>
           <GroupHeader title={t.adventure.failuresTitle} />
           <Section>
-            {failures.map((f, i) => (
-              <ThemedText key={i} type="small">
+            {failures.map((f) => (
+              <ThemedText key={f.id} type="small">
                 {t.adventure.failure(f)}
               </ThemedText>
             ))}
