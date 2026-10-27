@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { adventurer, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:134 "Every channel the contact has": a contact with an email address and a phone number gets the All-clear
+// docs/spec.md § Messages "Every channel the contact has": a contact with an email address and a phone number gets the All-clear
 // by email and by text message.
 test('the All-clear reaches a contact on both of their addresses', async () => {
   const anna = await adventurer();

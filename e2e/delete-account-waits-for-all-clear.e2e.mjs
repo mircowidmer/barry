@@ -3,9 +3,9 @@ import { test } from 'node:test';
 
 import { admin, adventurer, must, runDeliver, trailMap, trailToken, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:17 "An account cannot be deleted ... while a message such as an All-clear is still being sent."
-// docs/spec.md:16 "Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link."
-// docs/spec.md:172 "The Trail is deleted with the Adventurer's account."
+// docs/spec.md § Accounts "An account cannot be deleted ... while a message such as an All-clear is still being sent."
+// docs/spec.md § Accounts "Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link."
+// docs/spec.md § Location "The Trail is deleted with the Adventurer's account."
 test('deleting the account waits for an All-clear still on its way, then removes the Profile, the contacts, the Adventure and its Trail', async () => {
   const anna = await adventurer();
   const id = await anna.start();

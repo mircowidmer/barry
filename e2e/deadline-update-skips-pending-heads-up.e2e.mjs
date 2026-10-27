@@ -12,7 +12,7 @@ const inZurich = (at) => {
 };
 const literally = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// docs/spec.md:102 "A move sends a Deadline Update to each contact whose Heads-up already went out. A contact whose Heads-up is
+// docs/spec.md § Adventures > Move the Deadline "A move sends a Deadline Update to each contact whose Heads-up already went out. A contact whose Heads-up is
 // still on its way gets none, because the Heads-up carries the new Deadline."
 test('a contact whose Heads-up is still on its way gets no Deadline Update, and the Heads-up carries the new Deadline', async () => {
   const anna = await adventurer();

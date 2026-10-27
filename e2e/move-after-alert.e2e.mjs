@@ -11,8 +11,8 @@ const waitForMailCount = async (to, subject, count) => {
   throw new Error(`no ${count} emails "${subject}" to ${to} within 150 seconds`);
 };
 
-// docs/spec.md:98 "The Adventurer can move the Deadline later at any time until the Check-in, also after the Alert, as long as the new Deadline is in the future."
-// docs/spec.md:100 "When a moved Deadline passes too, the contacts get up to three Alerts for it, the same way as for the first one."
+// docs/spec.md § Adventures > Move the Deadline "The Adventurer can move the Deadline later at any time until the Check-in, also after the Alert, as long as the new Deadline is in the future."
+// docs/spec.md § Adventures > Move the Deadline "When a moved Deadline passes too, the contacts get up to three Alerts for it, the same way as for the first one."
 test('after the third Alert the Adventurer moves the Deadline, and missing it sends three more Alerts', async () => {
   const anna = await adventurer();
   const id = await anna.start();

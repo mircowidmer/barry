@@ -3,10 +3,10 @@ import { test } from 'node:test';
 
 import { adventurer, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:41 "A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list."
-// docs/spec.md:42 "A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned
+// docs/spec.md § Emergency Contacts "A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list."
+// docs/spec.md § Emergency Contacts "A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned
 // Adventures. If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one."
-// docs/spec.md:66 "An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time."
+// docs/spec.md § Adventures > Stages "An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time."
 test('a contact of the live Adventure cannot be deleted, one of a Planned Adventure can and leaves it, and only one Adventure runs at a time', async () => {
   const anna = await adventurer();
   const id = await anna.start();

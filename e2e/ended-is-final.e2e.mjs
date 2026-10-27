@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, mailCount, messageKinds, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:71 "| Ended | The Adventurer checks in. | Deleted |", and docs/spec.md:65-70 list no way back to another stage.
+// docs/spec.md § Adventures > Stages "| Ended | The Adventurer checks in. | Deleted |", and the table lists no way back to another stage.
 test('an Ended Adventure cannot be started, moved or edited again, and a second Check-in changes nothing', async () => {
   const anna = await adventurer();
   const id = await anna.start();

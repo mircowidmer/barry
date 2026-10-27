@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:17 "An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure"
+// docs/spec.md § Accounts "An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure"
 test('the account cannot be deleted while its Adventure is Alerted, and keeps everything', async () => {
   const anna = await adventurer();
   const id = await anna.start();

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, must } from './stack.mjs';
 
-// docs/spec.md:16 "Each account has one Adventurer Profile."
+// docs/spec.md § Accounts "Each account has one Adventurer Profile."
 test('an account cannot get a second Profile, nor a Profile for another account', async () => {
   const anna = await adventurer();
 

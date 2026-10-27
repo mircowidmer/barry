@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { adventurer, mailCount, missDeadline, must, textsTo, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:41 "Barry reaches a contact only on the addresses that are switched on."
+// docs/spec.md § Emergency Contacts "Barry reaches a contact only on the addresses that are switched on."
 test('an address the Adventurer switches off during the Adventure gets no Alert, and the contact is reached on the other', async () => {
   const anna = await adventurer();
   const phone = `+4179${String(randomInt(1e7)).padStart(7, '0')}`;

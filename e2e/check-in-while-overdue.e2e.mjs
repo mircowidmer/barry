@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, assertClockRan, mailCount, messageKinds, missDeadline, must, sleep, tick, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:100 "A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the
+// docs/spec.md § Adventures > Check-in "A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the
 // Deadline, while Overdue, or after the Alert."
 test('a Check-in while Overdue sends the All-clear, and no Alert follows', async () => {
   const anna = await adventurer();

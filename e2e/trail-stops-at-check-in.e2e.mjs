@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, must, trailMap, trailToken, waitForMail } from './stack.mjs';
 
-// docs/spec.md:182 "After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Known
+// docs/spec.md § Trail Map "After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Known
 // Position. Barry records no readings after the Check-in."
 test('the Trail stops at the Check-in, and the Trail Map shows the Check-in time', async () => {
   const anna = await adventurer();

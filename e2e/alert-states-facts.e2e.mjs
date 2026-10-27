@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { adventurer, missDeadline, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:134 "An Alert states facts only. It gives no guidance on what to do."
+// docs/spec.md § Messages > Message rules "An Alert states facts only. It gives no guidance on what to do."
 test('the Alert states facts only and gives no guidance on what to do', async () => {
   const anna = await adventurer();
   const id = await anna.start();

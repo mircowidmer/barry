@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, tick, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:43 "A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list."
+// docs/spec.md § Emergency Contacts "A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list."
 test('a contact of an Overdue or Alerted Adventure cannot be deleted from the list, and still gets the All-clear', async () => {
   const anna = await adventurer();
   const id = await anna.start();

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, messageKinds, missDeadline, must, waitForMail } from './stack.mjs';
 
-// docs/spec.md:31 "The name must be filled in before the Adventurer starts their first Adventure. Only the
+// docs/spec.md § Adventurer Profile "The name must be filled in before the Adventurer starts their first Adventure. Only the
 // Alert carries the full Profile, and it leaves the phone line out when there is no phone number."
 test('Start refuses until the Profile holds the name, and an Alert without a phone number leaves the phone line out', async () => {
   const anna = await adventurer();
