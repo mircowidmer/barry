@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, tick, trailMap, trailToken, waitForMail } from './stack.mjs';
 
-// docs/spec.md § Location "The Trail keeps about one reading every 5 minutes, as accurate as the phone allows, from Start until the
-// Check-in. It runs while the Adventure is Active, Overdue, and Alerted."
+// docs/spec.md § Location "It keeps every reading taken since the Start that it gets for an Active, Overdue or Alerted
+// Adventure"
 test('the Trail records while the Adventure is Overdue, and the Trail Map shows the new Last Position', async () => {
   const anna = await adventurer();
   const id = await anna.start();

@@ -179,8 +179,9 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 
 - Barry reads the location at Start and at each Deadline move. This needs only the "while using the app" location permission.
 - If the Adventurer allows the "Always" location permission, Barry also records the Trail. There is no switch for each Adventure.
-- The Trail keeps about one reading every 5 minutes, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
-- iOS sends background readings when the phone moves, not on a timer. Barry keeps the first one of every 5 minutes.
+- The phone records about one reading of the Trail every 5 minutes, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
+- iOS sends background readings when the phone moves, not on a timer. The phone keeps the first one of every 5 minutes and uploads only those.
+- Supabase does not thin the Trail out. It keeps every reading taken since the Start that it gets for an Active, Overdue or Alerted Adventure, and drops only a second reading in the same `slot` window, which is seconds long, not minutes. The 5 minutes are the phone's pace, not a limit of the server.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Position is the newest reading, from Start, a Deadline move, or the Trail.
