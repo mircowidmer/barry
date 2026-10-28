@@ -12,17 +12,23 @@ export type Captcha = {
   widget: ReactNode;
   /** A token is in hand, or the build has no key and needs none. */
   ready: boolean;
+  /** The build has a key, so every request needs a token from the widget. */
+  required: boolean;
   token: string | undefined;
   renew: () => void;
 };
 
 /**
  * Cloudflare Turnstile for the requests Supabase Auth guards with a captcha: sign-in, sign-up and the recovery
- * email. A token works once, so renew() after every request brings a fresh widget.
+ * email. A token works once, so renew() after every request brings a fresh widget. onToken hears each new token, with renew() for when it takes the token.
  */
-export function useCaptcha(): Captcha {
+export function useCaptcha(onToken?: (token: string, renew: () => void) => void): Captcha {
   const [token, setToken] = useState<string | null>(null);
   const [round, setRound] = useState(0);
+  const renew = () => {
+    setToken(null);
+    setRound((n) => n + 1);
+  };
   return {
     widget: SITE_KEY && (
       <WebView
@@ -30,17 +36,19 @@ export function useCaptcha(): Captcha {
         source={{ html: turnstilePage(SITE_KEY), baseUrl: SITE }}
         // Turnstile renders its challenge in about:srcdoc frames, which the default list blocks.
         originWhitelist={['https://*', 'about:srcdoc']}
-        onMessage={(event) => setToken(turnstileToken(event.nativeEvent.data))}
+        onMessage={(event) => {
+          const received = turnstileToken(event.nativeEvent.data);
+          setToken(received);
+          if (received !== null) onToken?.(received, renew);
+        }}
         style={styles.widget}
         scrollEnabled={false}
       />
     ),
     ready: SITE_KEY === null || token !== null,
+    required: SITE_KEY !== null,
     token: token ?? undefined,
-    renew: () => {
-      setToken(null);
-      setRound((n) => n + 1);
-    },
+    renew,
   };
 }
 
