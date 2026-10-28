@@ -11,7 +11,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 ## Accounts
 
 - An Adventurer signs in with an email address and a password through Supabase Auth.
-- A new account confirms its email address with a link that Barry sends from help@barry.support. The link opens a page on `https://barry.support/confirmed` that asks the Adventurer to sign in.
+- A new account confirms its email address with a link that Barry sends from help@barry.support. The link opens a page on `https://barry.support/confirmed` that asks the Adventurer to sign in. The page ends the browser session the link opens and removes its tokens from the address, so the browser's history cannot sign anyone in.
 - An Adventurer who forgot the password asks for a new one with **Forgot Password?** on the sign-in screen. Barry emails a six-digit code from help@barry.support, valid for an hour. Entering the code with a new password signs the Adventurer in with the new password.
 - Each account has one Adventurer Profile.
 - The Adventurer changes the password and the email address on the Account screen, which slides up as a sheet from **Email and Password** in the Account group of the Profile tab. A password change needs the current password. A changed email address takes effect once the Adventurer has confirmed it from both the old and the new address, with the link Barry sends to each.
