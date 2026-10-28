@@ -77,6 +77,10 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     insert: (values: Partial<ContactRow>) => ({
       select: () => ({
         single: async () => {
+          // The server's own limit on saved contacts, which the fake makes small.
+          if (world.contacts.filter((c) => c.removed_at === null).length >= 2) {
+            return { data: null, error: { message: 'barry:too_many_contacts' } };
+          }
           const inserted = contactRow({ ...values, id: `c${world.contacts.length + 1}` });
           world.contacts.push(inserted);
           return { data: inserted, error: null };
@@ -259,6 +263,13 @@ describe('addContactFromPhone', () => {
 
     const byPhone = setup({ picked: luca, contacts: [contactRow({ name: 'L. Meier', email: null, phone: '+41791111111', phone_enabled: true })] });
     expect(await byPhone.barry.addContactFromPhone()).toEqual({ kind: 'duplicate', name: 'L. Meier' });
+  });
+
+  it('reports a full list when the server refuses another contact', async () => {
+    const full = [contactRow({ id: 'c1', name: 'Mia', email: 'mia@example.com' }), contactRow({ id: 'c2', name: 'Noah', email: 'noah@example.com' })];
+    const { barry, world } = setup({ picked: luca, contacts: full });
+    expect(await barry.addContactFromPhone()).toEqual({ kind: 'full' });
+    expect(world.contacts).toHaveLength(2);
   });
 
   it('refuses a pick with nothing Barry can reach, naming the contact', async () => {

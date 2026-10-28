@@ -13,6 +13,7 @@ export default function MedicalNotesScreen() {
             label={t.profile.medical}
             value={form.medicalNotes}
             onChangeText={set('medicalNotes')}
+            maxLength={500}
             placeholder={t.profile.medicalPlaceholder}
           />
         </Group>
