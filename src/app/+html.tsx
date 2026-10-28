@@ -2,9 +2,10 @@ import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html
 import { type PropsWithChildren } from 'react';
 
 import { contentSecurityPolicy, dropHtmlExtension } from '@/lib/content-security';
+import { supabaseUrl } from '@/lib/site-env';
 
 // Only the export: the development server's live reload needs what the policy forbids.
-const policy = process.env.NODE_ENV === 'production' ? contentSecurityPolicy(process.env.EXPO_PUBLIC_SUPABASE_URL ?? '') : null;
+const policy = process.env.NODE_ENV === 'production' ? contentSecurityPolicy(supabaseUrl) : null;
 
 export default function Root({ children }: PropsWithChildren) {
   const { headNodes, bodyNodes, htmlAttributes, bodyAttributes } = useServerDocumentContext();
