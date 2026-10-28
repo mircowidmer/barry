@@ -19,6 +19,9 @@ const { accent: TRAIL, text: LAST } = Colors.light;
 // labels at their normal size; OpenStreetMap's own 256-pixel pictures blur on a phone.
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
+// MapLibre's worker, which public/ serves next to the page (scripts/maplibre-worker.mjs).
+const WORKER = '/maplibre/maplibre-gl-worker.mjs';
+
 const ATTRIBUTION =
   '<a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
@@ -36,8 +39,9 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     const t = siteText[language];
     const when = language === 'de' ? formatWhenGerman : formatWhen;
     // Leaflet and MapLibre touch window at import, and the static export renders this page in Node.
-    Promise.all([import('leaflet'), import('@maplibre/maplibre-gl-leaflet')]).then(([L, { maplibreGL }]) => {
+    Promise.all([import('leaflet'), import('maplibre-gl'), import('@maplibre/maplibre-gl-leaflet')]).then(([L, maplibre, { maplibreGL }]) => {
       if (cancelled || !element.current) return;
+      maplibre.setWorkerUrl(WORKER);
       if (!map.current) {
         base.current = maplibreGL({ style: STYLE, attributionControl: { customAttribution: ATTRIBUTION } });
         map.current = L.map(element.current).addLayer(base.current);
