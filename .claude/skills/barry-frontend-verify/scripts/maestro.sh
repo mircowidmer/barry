@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Drives the booted simulator with Maestro, which types text and finds controls by accessibility label. Usage:
-#   maestro.sh run <run-id> <flow> [KEY=VALUE ...]   run flows/<flow>.yaml (or a path); screenshots land in .verify-artifacts/<run-id>/
+#   maestro.sh run <run-id> <flow> [KEY=VALUE ...]   run flows/<flow>.yaml (or a path); screenshots land in .verify-artifacts/<run-id>/,
+#                                                    and a failed flow's debug output stays outside the repo, in $TMPDIR/maestro-debug/<run-id>/
 #   maestro.sh field <label>                         print "x,y" of the right end of the field VoiceOver names <label>
 #   maestro.sh labels                                list the accessibility labels on screen with their bounds
 set -euo pipefail
@@ -47,7 +48,11 @@ case "${1:-}" in
       | grep -vE 'WARNING|^[[:space:]]*$|[Mm]aestro [Cc]loud|test recordings|^[│╭╰]' || status=$?
     mkdir -p "$out"
     find "$raw" -path '*/takeScreenshot/*.png' -exec cp {} "$out/" \;
-    if [ "$status" -ne 0 ]; then mkdir -p "$out/maestro" && cp -R "$raw/." "$out/maestro/"; echo "debug output in $out/maestro" >&2; fi
+    # Outside the repo: a new folder under .verify-artifacts makes Metro reload the app in the middle of the next flow.
+    if [ "$status" -ne 0 ]; then
+      debug=${TMPDIR:-/tmp}/maestro-debug/$2/$(date +%Y%m%d-%H%M%S); mkdir -p "$debug" && cp -R "$raw/." "$debug/"
+      echo "debug output in $debug" >&2
+    fi
     rm -rf "$raw"
     exit "$status"
     ;;
