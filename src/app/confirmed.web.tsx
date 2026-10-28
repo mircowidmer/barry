@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 
 import { SitePage } from '@/components/site-page';
 import { type Confirmed, confirmationError, type LinkFailure, confirmedWhat, linkSession, revokeLinkSession, withoutFragment } from '@/lib/confirmation';
+import { publishableKey, supabaseUrl } from '@/lib/site-env';
 import { siteText, useSiteLanguage } from '@/lib/site-language';
 
 export const generateMetadata = () => ({ title: 'Barry', robots: { index: false, follow: false } });
@@ -11,14 +12,8 @@ type Landing = { error: LinkFailure } | { confirmed: Confirmed };
 // The address the link opened, read once: the page then clears its fragment, which must not change what it says.
 const landedAt = typeof location === 'undefined' ? null : location.href;
 
-const revoke = revokeLinkSession(
-  (input, init) => fetch(input, init),
-  process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '',
-);
+const revoke = revokeLinkSession((input, init) => fetch(input, init), supabaseUrl, publishableKey);
 
-// The snapshot is the address itself: a string compares equal between renders, while a fresh object
-// each time makes React render without end.
 const landingAt = (href: string | null): Landing => {
   if (href === null) return { confirmed: 'account' };
   const error = confirmationError(href);
@@ -26,6 +21,7 @@ const landingAt = (href: string | null): Landing => {
 };
 
 export default function ConfirmedRoute() {
+  // The snapshot is the address, a string: a fresh Landing object each time would make React render without end.
   const href = useSyncExternalStore(
     () => () => undefined,
     () => landedAt,
