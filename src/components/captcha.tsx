@@ -28,6 +28,8 @@ export function useCaptcha(): Captcha {
       <WebView
         key={round}
         source={{ html: turnstilePage(SITE_KEY), baseUrl: SITE }}
+        // Turnstile renders its challenge in about:srcdoc frames, which the default list blocks.
+        originWhitelist={['https://*', 'about:srcdoc']}
         onMessage={(event) => setToken(turnstileToken(event.nativeEvent.data))}
         style={styles.widget}
         scrollEnabled={false}
