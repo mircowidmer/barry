@@ -50,7 +50,7 @@ npm run submit:production
 
 ## Build on your Mac
 
-[How to run Barry on your iPhone](iphone.md) builds the development and production variants locally with Xcode. `ios/` is generated for one variant at a time, so switching variants needs `npx expo prebuild --clean` with the new `APP_VARIANT`.
+[How to run Barry on your iPhone](iphone.md) builds the development and production variants locally with Xcode; `npm run iphone:production` does it for the production variant in one command. `ios/` is generated for one variant at a time, so switching variants needs `npx expo prebuild --clean` with the new `APP_VARIANT`.
 
 ## Build on GitHub
 
