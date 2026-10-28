@@ -6,6 +6,6 @@ set -euo pipefail
 npx expo export --platform web
 rm -rf site
 mkdir site
-cp -R dist/adventure.html dist/confirmed.html dist/_expo dist/assets dist/fonts dist/favicon.ico site/
+cp -R dist/adventure.html dist/confirmed.html dist/_expo dist/assets dist/fonts dist/maplibre dist/favicon.ico site/
 cp web/index.html web/404.html web/privacy.html web/terms.html web/site.css site/
 cp assets/images/logo.png site/logo.png

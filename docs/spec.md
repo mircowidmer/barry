@@ -202,6 +202,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The page adds new readings every 5 minutes while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. While the Adventure is Alerted, it shows that.
 - After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Position. Barry records no readings after the Check-in.
+- The page runs only its own scripts and reaches only Supabase and the map, and it sends no address to the sites it loads from.
 - The link never expires. After the Check-in it keeps showing the Check-in time and the Trail until the Adventurer deletes the Adventure or the account.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.

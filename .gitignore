@@ -40,6 +40,9 @@ yarn-error.*
 
 example
 
+# MapLibre's worker, copied from node_modules on install (scripts/maplibre-worker.mjs)
+/public/maplibre/
+
 # generated native folders
 /ios
 /android

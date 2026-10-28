@@ -1,8 +1,10 @@
 import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
-// GitHub Pages also serves /adventure as /adventure.html; Expo Router matches no route for that path, so hydration would fail.
-const dropHtmlExtension = `if (location.pathname.endsWith('.html')) history.replaceState(history.state, '', location.pathname.replace(/(index)?\\.html$/, '') + location.search + location.hash);`;
+import { contentSecurityPolicy, dropHtmlExtension } from '@/lib/content-security';
+
+// Only the export: the development server's live reload needs what the policy forbids.
+const policy = process.env.NODE_ENV === 'production' ? contentSecurityPolicy(process.env.EXPO_PUBLIC_SUPABASE_URL ?? '') : null;
 
 export default function Root({ children }: PropsWithChildren) {
   const { headNodes, bodyNodes, htmlAttributes, bodyAttributes } = useServerDocumentContext();
@@ -10,6 +12,8 @@ export default function Root({ children }: PropsWithChildren) {
     <html lang="en" {...htmlAttributes}>
       <head>
         <meta charSet="utf-8" />
+        {policy && <meta httpEquiv="Content-Security-Policy" content={policy} />}
+        <meta name="referrer" content="no-referrer" />
         <script dangerouslySetInnerHTML={{ __html: dropHtmlExtension }} />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
