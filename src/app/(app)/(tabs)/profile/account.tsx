@@ -1,6 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 
+import { useCaptcha } from '@/components/captcha';
 import { FirstLoad, LoadState, Screen } from '@/components/form';
 import { ActionRow, Group, InputRow, ValueRow } from '@/components/grouped-list';
 import { useLoad } from '@/hooks/use-load';
@@ -56,12 +57,14 @@ function PasswordChange({ email }: { email: string }) {
   const [next, setNext] = useState('');
   const [busy, setBusy] = useState(false);
   const [shown, setShown] = useState<Shown>(null);
+  const captcha = useCaptcha();
 
   const change = async () => {
     setBusy(true);
     setShown(null);
-    const outcome = await account.changePassword(email, current, next);
+    const outcome = await account.changePassword(email, current, next, captcha.token);
     setBusy(false);
+    captcha.renew();
     if (outcome.kind === 'changed') {
       setCurrent('');
       setNext('');
@@ -93,8 +96,14 @@ function PasswordChange({ email }: { email: string }) {
           autoComplete="new-password"
           textContentType="newPassword"
         />
-        <ActionRow title={t.account.changePassword} onPress={() => void change()} busy={busy} disabled={current === '' || next === ''} />
+        <ActionRow
+          title={t.account.changePassword}
+          onPress={() => void change()}
+          busy={busy}
+          disabled={current === '' || next === '' || !captcha.ready}
+        />
       </Group>
+      {captcha.widget}
     </>
   );
 }
