@@ -28,6 +28,7 @@ import {
   type StartWarning,
   startWarnings,
 } from '@/lib/barry';
+import { LIMITS } from '@/lib/barry/limits';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { formatPhoneNumber } from '@/lib/phone';
 import { refusalText, type Texts, useTexts } from '@/lib/texts';
@@ -289,7 +290,7 @@ function PlanForm({
       </Stack.Toolbar>
 
       <Section title={t.plan.where}>
-        <Field label={t.plan.destination} value={form.destination} onChangeText={typeDestination} maxLength={200} />
+        <Field label={t.plan.destination} value={form.destination} onChangeText={typeDestination} maxLength={LIMITS.destinationLength} />
         {places.length > 0 && (
           <View>
             {places.map((place, i) => (
