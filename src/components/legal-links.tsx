@@ -2,9 +2,8 @@ import { Linking, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { SITE } from '@/lib/site';
 import { useTexts } from '@/lib/texts';
-
-const SITE = 'https://barry.support';
 
 export const openPrivacy = () => Linking.openURL(`${SITE}/privacy`).catch(() => undefined);
 
