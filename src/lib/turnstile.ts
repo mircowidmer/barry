@@ -25,6 +25,9 @@ export const turnstilePage = (siteKey: string): string => `<!doctype html>
 </body>
 </html>`;
 
+/** The captcha part of a Supabase Auth call's options, for a build with a token and one without alike. */
+export const captchaOptions = (token: string | undefined): { captchaToken?: string } => (token === undefined ? {} : { captchaToken: token });
+
 /** The token in a message from the page, or null for a lost token or a message that is not one. */
 export const turnstileToken = (data: string): string | null => {
   try {

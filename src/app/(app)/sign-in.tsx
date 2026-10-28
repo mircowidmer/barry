@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { useTexts } from '@/lib/texts';
+import { captchaOptions } from '@/lib/turnstile';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -30,7 +31,7 @@ export default function SignInScreen() {
   const submit = async (mode: 'sign_in' | 'sign_up') => {
     setBusy(mode);
     setError(null);
-    const credentials = { email: email.trim(), password, ...(captcha.token && { options: { captchaToken: captcha.token } }) };
+    const credentials = { email: email.trim(), password, options: captchaOptions(captcha.token) };
     const { data, error } =
       mode === 'sign_in'
         ? await supabase.auth.signInWithPassword(credentials)

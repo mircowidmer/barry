@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { turnstilePage, turnstileToken } from './turnstile';
+import { captchaOptions, turnstilePage, turnstileToken } from './turnstile';
 
 describe('turnstilePage', () => {
   it('renders the widget with the site key as a script string', () => {
@@ -16,5 +16,13 @@ describe('turnstileToken', () => {
     expect(turnstileToken('{"token":null}')).toBeNull();
     expect(turnstileToken('{"token":""}')).toBeNull();
     expect(turnstileToken('not json')).toBeNull();
+  });
+});
+
+describe('captchaOptions', () => {
+  it('names the token only when there is one, as Supabase’s option types require', () => {
+    expect(captchaOptions('turnstile-token')).toEqual({ captchaToken: 'turnstile-token' });
+    expect(captchaOptions(undefined)).toEqual({});
+    expect('captchaToken' in captchaOptions(undefined)).toBe(false);
   });
 });

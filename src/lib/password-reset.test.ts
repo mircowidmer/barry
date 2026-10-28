@@ -6,7 +6,7 @@ const setup = ({ codeAccepted = true, passwordAccepted = true, mailSent = true }
   const calls: { method: string; args: unknown }[] = [];
   const auth = {
     resetPasswordForEmail: async (email: string, options?: unknown) => {
-      calls.push({ method: 'resetPasswordForEmail', args: options ? [email, options] : email });
+      calls.push({ method: 'resetPasswordForEmail', args: [email, options] });
       return mailSent ? { data: {}, error: null } : { data: null, error: { message: 'Email rate limit exceeded' } };
     },
     verifyOtp: async (params: unknown) => {
@@ -33,7 +33,7 @@ describe('requestCode', () => {
   it('asks Supabase for a recovery email to the trimmed address', async () => {
     const { reset, calls } = setup();
     expect(await reset.requestCode('  anna@example.com ')).toEqual({ kind: 'sent' });
-    expect(calls).toEqual([{ method: 'resetPasswordForEmail', args: 'anna@example.com' }]);
+    expect(calls).toEqual([{ method: 'resetPasswordForEmail', args: ['anna@example.com', {}] }]);
   });
 
   it('passes the captcha token along when the build has one', async () => {
