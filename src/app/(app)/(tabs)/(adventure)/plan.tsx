@@ -158,7 +158,8 @@ function PlanForm({
   const pin = (point: Point | null) => setForm((f) => ({ ...f, destinationPoint: point }));
 
   const choose = (place: Place) => {
-    setForm((f) => ({ ...f, destination: place.name, destinationPoint: place.point }));
+    // The typed field stops at the limit; a place's name must too, or the save is refused.
+    setForm((f) => ({ ...f, destination: place.name.slice(0, LIMITS.destinationLength), destinationPoint: place.point }));
     setSuggesting(false);
     Keyboard.dismiss();
   };
