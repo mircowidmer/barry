@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 
+import { authStorage } from '@/lib/auth-storage';
 import { signedOnly } from '@/lib/signed-fetch';
-import { storage } from '@/lib/storage';
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -35,7 +35,7 @@ export const supabase = createClient(
     global: { fetch: signedOnly(fetchWithTimeout, publishableKey) },
     auth: {
       // Undefined only in the web's static render, where the client keeps the session in memory.
-      ...(storage && { storage }),
+      ...(authStorage && { storage: authStorage }),
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
