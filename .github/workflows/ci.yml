@@ -90,6 +90,10 @@ jobs:
         run: |
           for _ in $(seq 1 18); do .claude/skills/barry-backend-verify/scripts/doctor.sh && exit 0; sleep 10; done
           exit 1
+      - name: Check the generated database types
+        run: |
+          npx supabase gen types typescript --local > src/lib/database.types.ts
+          git diff --exit-code src/lib/database.types.ts || { echo "::error::src/lib/database.types.ts is stale. Regenerate it as AGENTS.md says."; exit 1; }
       - run: npx supabase test db
       - run: npm run e2e
       - name: Collect the logs
