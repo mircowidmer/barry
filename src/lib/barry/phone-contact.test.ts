@@ -74,4 +74,8 @@ describe('copyPhoneContact', () => {
     expect(copyPhoneContact(picked({ fullName: '', phones: [{ number: '079 123 45 67' }] }), 'CH').name).toBe('+41 79 123 45 67');
     expect(copyPhoneContact(picked({ fullName: '' }), 'CH').name).toBe('');
   });
+
+  it('cuts a name to the 100 characters the server takes', () => {
+    expect(copyPhoneContact(picked({ fullName: 'N'.repeat(150) }), 'CH').name).toHaveLength(100);
+  });
 });

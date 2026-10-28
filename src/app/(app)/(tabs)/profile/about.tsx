@@ -14,6 +14,7 @@ export default function AboutYouSheet() {
             label={t.profile.name}
             value={form.name}
             onChangeText={set('name')}
+            maxLength={100}
             placeholder={t.profile.required}
             autoComplete="name"
             textContentType="name"

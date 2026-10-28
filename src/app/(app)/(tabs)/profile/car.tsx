@@ -10,9 +10,9 @@ export default function CarScreen() {
       {({ form, set, save, saving }) => (
         <>
           <Group footer={t.profile.carFooter}>
-            <InputRow label={t.profile.make} value={form.carMake} onChangeText={set('carMake')} />
-            <InputRow label={t.profile.colour} value={form.carColour} onChangeText={set('carColour')} />
-            <InputRow label={t.profile.plate} value={form.carPlate} onChangeText={set('carPlate')} autoCapitalize="characters" />
+            <InputRow label={t.profile.make} value={form.carMake} onChangeText={set('carMake')} maxLength={50} />
+            <InputRow label={t.profile.colour} value={form.carColour} onChangeText={set('carColour')} maxLength={50} />
+            <InputRow label={t.profile.plate} value={form.carPlate} onChangeText={set('carPlate')} maxLength={20} autoCapitalize="characters" />
           </Group>
           {(form.carMake !== '' || form.carColour !== '' || form.carPlate !== '') && (
             <Group>
