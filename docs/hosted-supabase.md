@@ -86,7 +86,7 @@ The confirmation email that Supabase Auth sends after **Create account** lives o
 
 ## Edit the password reset email
 
-The email Auth sends after **Forgot Password?** is `supabase/templates/recovery.html`, with the subject `Reset your password for Barry`, for the local stack and the hosted project alike: `node scripts/hosted-auth.mjs` sends it. Supabase's default carries a link, which Barry does not use: the app asks for the eight-digit code instead, valid for 15 minutes,, so the template must contain `{{ .Token }}`. As with the sign-up email, each sentence is in its own `<p>`.
+The email Auth sends after **Forgot Password?** is `supabase/templates/recovery.html`, with the subject `Reset your password for Barry`, for the local stack and the hosted project alike: `node scripts/hosted-auth.mjs` sends it. Supabase's default carries a link, which Barry does not use: the app asks for the eight-digit code instead, valid for 15 minutes, so the template must contain `{{ .Token }}`. As with the sign-up email, each sentence is in its own `<p>`.
 
 
 ## Check that it runs
