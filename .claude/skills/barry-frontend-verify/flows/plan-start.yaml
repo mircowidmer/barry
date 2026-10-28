@@ -20,8 +20,10 @@ appId: support.barry.dev
 - scrollUntilVisible:
     element: "Destination"
     direction: UP
+# The field's name and its input box both carry the label; the box is the one below the name.
 - tapOn:
-    point: "360,248"
+    text: "Destination"
+    below: "Destination"
 - inputText: "${DEST || 'Grosser Mythen'}"
 - assertVisible: "${DEST || 'Grosser Mythen'}"
 - tapOn: "Start"
