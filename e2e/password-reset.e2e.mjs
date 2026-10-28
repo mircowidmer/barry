@@ -11,7 +11,7 @@ test('an Adventurer who forgot the password sets a new one with the code from th
 
   must(await client.auth.resetPasswordForEmail(email), 'ask for the code');
   const mail = await waitForMail(email, 'Reset your password for Barry');
-  const code = mail.Text.match(/\b\d{6}\b/)?.[0];
+  const code = mail.Text.match(/\b\d{8}\b/)?.[0];
   assert.ok(code, 'the recovery email carries a six-digit code');
   assert.doesNotMatch(mail.Text, /https?:\/\//, 'the recovery email carries no link');
 

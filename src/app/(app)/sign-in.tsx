@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet } from 'react-native';
 
+import { useCaptcha } from '@/components/captcha';
 import { Button, Field, Screen } from '@/components/form';
 import { Note } from '@/components/grouped-list';
 import { LegalLinks } from '@/components/legal-links';
@@ -17,6 +18,7 @@ export default function SignInScreen() {
   const [busy, setBusy] = useState<'sign_in' | 'sign_up' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmEmail, setConfirmEmail] = useState(false);
+  const captcha = useCaptcha();
   const t = useTexts();
 
   // The confirmation page's button opens barry://sign-in, so the hint to confirm is done by then.
@@ -28,12 +30,13 @@ export default function SignInScreen() {
   const submit = async (mode: 'sign_in' | 'sign_up') => {
     setBusy(mode);
     setError(null);
-    const credentials = { email: email.trim(), password };
+    const credentials = { email: email.trim(), password, ...(captcha.token && { options: { captchaToken: captcha.token } }) };
     const { data, error } =
       mode === 'sign_in'
         ? await supabase.auth.signInWithPassword(credentials)
         : await supabase.auth.signUp(credentials);
     setBusy(null);
+    captcha.renew();
     if (error) setError(error.message);
     else if (!data.session) setConfirmEmail(true);
   };
@@ -61,14 +64,20 @@ export default function SignInScreen() {
         autoComplete="password"
         textContentType="password"
       />
+      {captcha.widget}
       {error && <Note tone="danger">{error}</Note>}
-      <Button title={t.signIn.signIn} onPress={() => void submit('sign_in')} busy={busy === 'sign_in'} disabled={!email || !password} />
+      <Button
+        title={t.signIn.signIn}
+        onPress={() => void submit('sign_in')}
+        busy={busy === 'sign_in'}
+        disabled={!email || !password || !captcha.ready}
+      />
       <Button
         title={t.signIn.createAccount}
         kind="secondary"
         onPress={() => void submit('sign_up')}
         busy={busy === 'sign_up'}
-        disabled={!email || !password}
+        disabled={!email || !password || !captcha.ready}
       />
       {confirmEmail && <Note icon="envelope">{t.signIn.confirmEmail}</Note>}
       <ThemedText

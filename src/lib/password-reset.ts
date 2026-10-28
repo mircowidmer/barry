@@ -7,8 +7,8 @@ export type PasswordResetAuth = Pick<SupabaseClient['auth'], 'resetPasswordForEm
 
 /** The recovery flow: a code by email, then the code and the new password together. The code signs the Adventurer in. */
 export const createPasswordReset = (auth: PasswordResetAuth) => ({
-  requestCode: async (email: string): Promise<RequestCodeOutcome> => {
-    const { error } = await auth.resetPasswordForEmail(email.trim());
+  requestCode: async (email: string, captchaToken?: string): Promise<RequestCodeOutcome> => {
+    const { error } = await auth.resetPasswordForEmail(email.trim(), captchaToken ? { captchaToken } : undefined);
     return error ? { kind: 'failed', message: error.message } : { kind: 'sent' };
   },
 
