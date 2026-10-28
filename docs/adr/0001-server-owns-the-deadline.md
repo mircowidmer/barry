@@ -1,6 +1,6 @@
 # Supabase owns the Deadline and sends every message
 
-When a Deadline is missed, the Adventurer's phone may be dead, broken or out of signal, so the phone cannot be what raises the Alert. Supabase stores every Adventure, checks Deadlines on a schedule, and sends every Heads-up, Alert and All-clear. The app only reports Start, Check-in, Deadline moves and Plan edits.
+When a Deadline is missed, the Adventurer's phone may be dead, broken or out of signal, so the phone cannot be what raises the Alert. Supabase stores every Adventure, checks Deadlines on a schedule, and sends every message to an Emergency Contact: the Heads-up, the Plan Update, the Deadline Update, the Alert and the All-clear. The app only reports Start, Check-in, Deadline moves and Plan edits.
 
 ## Consequences
 

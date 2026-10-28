@@ -65,14 +65,14 @@ isOneToOne: false
                   ]
                 },"adventures": {
                   Row: {
-                    "adventurer_id": string,"alert_at": string | null,"alerts_sent": number,"checked_in_at": string | null,"created_at": string,"deadline": string | null,"deadline_set_at": string | null,"destination": string | null,"destination_latitude": number | null,"destination_longitude": number | null,"earlier_alerts": number,"ended_at": string | null,"id": string,"last_alert_at": string | null,"plan_revision": number,"stage": Database["public"]['Enums']["adventure_stage"],"started_at": string | null,"time_zone": string | null,"updated_at": string
+                    "adventurer_id": string,"alert_at": string | null,"alerts_sent": number,"checked_in_at": string | null,"created_at": string,"deadline": string | null,"destination": string | null,"destination_latitude": number | null,"destination_longitude": number | null,"earlier_alerts": number,"ended_at": string | null,"id": string,"last_alert_at": string | null,"plan_revision": number,"stage": Database["public"]['Enums']["adventure_stage"],"started_at": string | null,"time_zone": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "adventurer_id": string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
+                    "adventurer_id": string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "adventurer_id"?: string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"deadline_set_at"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
+                    "adventurer_id"?: string,"alert_at"?: never,"alerts_sent"?: number,"checked_in_at"?: string | null,"created_at"?: string,"deadline"?: string | null,"destination"?: string | null,"destination_latitude"?: number | null,"destination_longitude"?: number | null,"earlier_alerts"?: number,"ended_at"?: string | null,"id"?: string,"last_alert_at"?: string | null,"plan_revision"?: number,"stage"?: Database["public"]['Enums']["adventure_stage"],"started_at"?: string | null,"time_zone"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -259,7 +259,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "adventure_stage": "planned"|"active"|"overdue"|"alerted"|"ended","channel": "email"|"sms"|"push","message_kind": "heads_up"|"reminder"|"overdue_notice"|"alert"|"all_clear"|"plan_update"|"deadline_update","message_status": "pending"|"sending"|"sent"|"failed"|"cancelled","refusal": "not_found"|"profile_incomplete"|"destination_missing"|"deadline_missing"|"deadline_not_in_future"|"deadline_not_later"|"no_contacts"|"unknown_contact"|"another_adventure_in_progress"|"wrong_stage"|"invalid_time_zone"|"messages_pending"|"adventure_in_progress"
+            "adventure_stage": "planned"|"active"|"overdue"|"alerted"|"ended","channel": "email"|"sms"|"push","message_kind": "heads_up"|"alert"|"all_clear"|"plan_update"|"deadline_update","message_status": "pending"|"sending"|"sent"|"failed"|"cancelled","refusal": "not_found"|"profile_incomplete"|"destination_missing"|"deadline_missing"|"deadline_not_in_future"|"deadline_not_later"|"no_contacts"|"unknown_contact"|"another_adventure_in_progress"|"wrong_stage"|"invalid_time_zone"|"messages_pending"|"adventure_in_progress"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -379,7 +379,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "adventure_stage": ["planned", "active", "overdue", "alerted", "ended"],"channel": ["email", "sms", "push"],"message_kind": ["heads_up", "reminder", "overdue_notice", "alert", "all_clear", "plan_update", "deadline_update"],"message_status": ["pending", "sending", "sent", "failed", "cancelled"],"refusal": ["not_found", "profile_incomplete", "destination_missing", "deadline_missing", "deadline_not_in_future", "deadline_not_later", "no_contacts", "unknown_contact", "another_adventure_in_progress", "wrong_stage", "invalid_time_zone", "messages_pending", "adventure_in_progress"]
+            "adventure_stage": ["planned", "active", "overdue", "alerted", "ended"],"channel": ["email", "sms", "push"],"message_kind": ["heads_up", "alert", "all_clear", "plan_update", "deadline_update"],"message_status": ["pending", "sending", "sent", "failed", "cancelled"],"refusal": ["not_found", "profile_incomplete", "destination_missing", "deadline_missing", "deadline_not_in_future", "deadline_not_later", "no_contacts", "unknown_contact", "another_adventure_in_progress", "wrong_stage", "invalid_time_zone", "messages_pending", "adventure_in_progress"]
           }
         }
 } as const

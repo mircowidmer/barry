@@ -54,7 +54,7 @@ The name must be filled in before the Adventurer starts their first Adventure. O
 | Field | Required to start | Notes |
 | --- | --- | --- |
 | Destination | Yes | Part of the Plan. |
-| Destination on the map | No | Part of the Plan. **Show on Map** suggests the place Apple Maps finds for the destination, and the Adventurer moves the pin with a tap. Without a match, the map opens where the Adventurer is. The contacts are not told the point. |
+| Destination on the map | No | Part of the Plan. While the Adventurer types the destination, Apple Maps suggests places, nearest first; picking one sets the name and the point. **Tell Me When I Arrive** is on exactly while there is a point: switching it on opens a full-screen map on the found place, else where the Adventurer is, and they move the map under a fixed pin; **Adjust** opens the same map. Switching it off removes the point. The contacts are not told the point. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
 | Last Position | No | Recorded by Barry, not entered. |
@@ -84,7 +84,7 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
 
-If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, the Plan screen says why right above the buttons.
+If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, an alert says why.
 
 Before Start, the app shows these warnings when they apply. Start is still allowed.
 
@@ -104,7 +104,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 
 ### Check-in
 
-- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**, which floats above the tab bar on the live Adventure screen. One tap is not enough.
+- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else. One tap is not enough.
 - A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
 - With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
@@ -151,7 +151,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - Each Adventure has one scheduled notification per kind. Scheduling again replaces it, so a moved Deadline moves both.
 - A Check-in cancels both, even while it waits for signal. So does any time the app sees that the Adventure is no longer Active, Overdue or Alerted.
 - A notification whose time has already passed is not scheduled. A Deadline set less than 30 minutes ahead therefore gets no Reminder.
-- Supabase does not push either notification. The push channel is turned off, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
+- Supabase does not push either notification and has no message for them, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
 - The phone's clock decides when they show. The Alert still follows the server's clock.
 
 ### Arrival Notice
@@ -179,8 +179,9 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 
 - Barry reads the location at Start and at each Deadline move. This needs only the "while using the app" location permission.
 - If the Adventurer allows the "Always" location permission, Barry also records the Trail. There is no switch for each Adventure.
-- The Trail keeps about one reading every 5 minutes, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
-- iOS sends background readings when the phone moves, not on a timer. Barry keeps the first one of every 5 minutes.
+- The phone records about one reading of the Trail every 5 minutes, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
+- iOS sends background readings when the phone moves, not on a timer. The phone keeps the first one of every 5 minutes and uploads only those.
+- Supabase does not thin the Trail out. It keeps every reading taken since the Start that it gets for an Active, Overdue or Alerted Adventure, and drops only a second reading in the same `slot` window, which is seconds long, not minutes. The 5 minutes are the phone's pace, not a limit of the server.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Position is the newest reading, from Start, a Deadline move, or the Trail.
@@ -192,7 +193,7 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
 
 - Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
-- The page shows the Adventurer's name, the Plan, the Trail as a line on an OpenStreetMap map, and the Last Position with the time of the reading.
+- The page shows the Adventurer's name, the Plan, the Trail as a line on a map drawn from OpenStreetMap data, and the Last Position with the time of the reading.
 - The page adds new readings every 5 minutes while it is open, the same pace as the Adventurer's live screen.
 - The page does not show the Deadline, and it does not show that the Adventure is Overdue. While the Adventure is Alerted, it shows that.
 - After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Position. Barry records no readings after the Check-in.

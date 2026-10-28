@@ -11,9 +11,9 @@ insert into public.emergency_contacts (id, adventurer_id, name, email) values
   ('aaaaaaaa-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com'),
   ('aaaaaaaa-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Noah', 'noah@example.com');
 
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at) values
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'active', 'Pilatus',
-   now() + interval '5 hours', now(), 'Europe/Zurich', now());
+   now() + interval '5 hours', 'Europe/Zurich', now());
 insert into public.adventures (id, adventurer_id, destination, deadline) values
   ('a0000000-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Rigi', now() + interval '5 hours');
 

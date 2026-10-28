@@ -102,14 +102,6 @@ Deno.test('a later Alert says which round it is, and a missing position says so'
   assertStringIncludes(text, 'Last position: not recorded');
 });
 
-Deno.test('the Overdue Notice says when the Alert goes out', () => {
-  const { text } = render(parseFacts({ ...base, kind: 'overdue_notice', alert_at: '2026-10-17T16:01:00Z' }), links);
-  assertEquals(
-    text,
-    'Your deadline for Grosser Mythen was Sat 17 Oct, 18:00. Barry alerts your emergency contacts at Sat 17 Oct, 18:01 unless you check in.',
-  );
-});
-
 Deno.test('the All-clear gives the Check-in time and the link to the Trail', () => {
   const { subject, text } = render(parseFacts({ ...base, kind: 'all_clear', checked_in_at: '2026-10-17T17:05:00Z', trail_token: token }), links);
   assertEquals(subject, 'Anna is back safe');

@@ -1,7 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import { DoneSeal } from '@/components/done-seal';
 import { Screen, Section, Unavailable } from '@/components/form';
 import { Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
@@ -28,11 +27,13 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
   return (
     <Screen>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
-      {!onDone && (
-        <Stack.Toolbar placement="right">
+      <Stack.Toolbar placement="right">
+        {onDone ? (
+          <Stack.Toolbar.Button variant="done" icon="checkmark" accessibilityLabel={t.common.done} onPress={onDone} />
+        ) : (
           <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={() => void remove()} />
-        </Stack.Toolbar>
-      )}
+        )}
+      </Stack.Toolbar>
       <Note tone="success" icon="checkmark">
         {t.ended.checkedIn(t.when(adventure.checkedInAt)) + (onDone ? t.ended.welcome : '')}
       </Note>
@@ -56,7 +57,6 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
             {t.ended.noPositions}
           </ThemedText>
         ))}
-      {onDone && <DoneSeal title={t.common.done} onPress={onDone} />}
 
       <Section title={t.adventure.planSection}>
         <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>

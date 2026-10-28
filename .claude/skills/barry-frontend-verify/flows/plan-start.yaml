@@ -8,20 +8,22 @@ appId: support.barry.dev
     visible: "Add a destination\\."
     timeout: 10000
 - takeScreenshot: plan-refusal
+- tapOn: "OK"
 - scrollUntilVisible:
     element: "Sara"
     visibilityPercentage: 100
     centerElement: true
 - tapOn: "Sara"
-- assertVisible:
-    text: "Sara"
-    checked: true
+# Maestro reads a React Native checkbox as unchecked on iOS; its value says the truth.
+- assertNotVisible: "checkbox, unchecked"
 - takeScreenshot: plan-warnings
 - scrollUntilVisible:
     element: "Destination"
     direction: UP
+# The field's name and its input box both carry the label; the box is the one below the name.
 - tapOn:
-    point: "360,248"
+    text: "Destination"
+    below: "Destination"
 - inputText: "${DEST || 'Grosser Mythen'}"
 - assertVisible: "${DEST || 'Grosser Mythen'}"
 - tapOn: "Start"

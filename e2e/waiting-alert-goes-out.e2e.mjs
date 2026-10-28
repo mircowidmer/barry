@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { admin, adventurer, messageKinds, missDeadline, must, runDeliver, waitForMail } from './stack.mjs';
 
-// docs/hosted-supabase.md:147 "Once Barry runs again, a waiting Alert goes out by itself."
-// docs/adr/0001-server-owns-the-deadline.md:10 "The Deadline check itself is a single point of failure."
+// docs/hosted-supabase.md § When Healthchecks.io alerts > Who was affected "Once Barry runs again, a waiting Alert goes out by itself."
+// docs/adr/0001-server-owns-the-deadline.md § Consequences "The Deadline check itself is a single point of failure."
 test('an Alert left waiting while deliver was down goes out by itself on the next run', async () => {
   const anna = await adventurer();
   const id = await anna.start();

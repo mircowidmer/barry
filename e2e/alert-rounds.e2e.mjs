@@ -3,9 +3,9 @@ import { test } from 'node:test';
 
 import { admin, adventurer, hourAfterAlert, messageKinds, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:125 "The Grace Period ends, then every hour, up to three Alerts in total"
-// docs/spec.md:146 "After the third Alert for a Deadline, Barry sends nothing more for it. The Adventure stays Alerted until the Adventurer checks in or moves the Deadline."
-// docs/spec.md:145 "Supabase does not push either notification."
+// docs/spec.md § Messages "The Grace Period ends, then every hour, up to three Alerts in total"
+// docs/spec.md § Messages > Message rules "After the third Alert for a Deadline, Barry sends nothing more for it. The Adventure stays Alerted until the Adventurer checks in or moves the Deadline."
+// docs/spec.md § Messages > Reminder and Overdue Notice "Supabase does not push either notification."
 test('the second and third Alert follow an hour apart, nothing follows the third, and the Check-in still ends it', async () => {
   const anna = await adventurer();
   const id = await anna.start();

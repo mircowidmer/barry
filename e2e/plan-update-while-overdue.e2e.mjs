@@ -3,9 +3,9 @@ import { test } from 'node:test';
 
 import { admin, adventurer, missDeadline, must, tick, waitForMail } from './stack.mjs';
 
-// docs/spec.md:78 "Active and Overdue. The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later."
-// docs/spec.md:116 "A change to the destination sends a Plan Update to each contact whose Heads-up already went out."
-// docs/spec.md:115 "The Alert always carries the latest Plan."
+// docs/spec.md § Adventures > Rules by stage "Active and Overdue. The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "A change to the destination sends a Plan Update to each contact whose Heads-up already went out."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "The Alert always carries the latest Plan."
 test('a Plan change while Overdue sends a Plan Update, and the Alert that follows carries the new Plan', async () => {
   const anna = await adventurer();
   const id = await anna.start();

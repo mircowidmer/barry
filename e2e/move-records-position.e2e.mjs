@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { adventurer, missDeadline, must, trailMap, trailToken, waitForMail } from './stack.mjs';
 
-// docs/spec.md:91 "Each move records a new Last Position."
-// docs/spec.md:170 "The Last Position is the newest reading, from Start, a Deadline move, or the Trail."
+// docs/spec.md § Adventures > Move the Deadline "Each move records a new Last Position."
+// docs/spec.md § Location "The Last Position is the newest reading, from Start, a Deadline move, or the Trail."
 test('a Deadline move records a new Last Position, which the Trail Map and the Alert show', async () => {
   const anna = await adventurer();
   const id = await anna.start();

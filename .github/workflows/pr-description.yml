@@ -1,0 +1,26 @@
+name: Pull request description
+
+# A description can be edited without a new commit, so this runs on edits too, apart from the slow checks in ci.yml.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  session-link:
+    name: No Claude session link
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # A shared session opens to anyone with a claude.ai account through its link, so the link stays out of the
+      # public repository. The text arrives through env, never inline, so a description cannot inject commands.
+      - name: Reject a claude.ai session link in the title or description
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if printf '%s\n%s\n' "$TITLE" "$BODY" | grep -qiE 'claude\.ai/code/session'; then
+            echo "::error::The pull request links a Claude session. Remove the claude.ai/code/session link from its title or description."
+            exit 1
+          fi

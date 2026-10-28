@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { admin, adventurer, messageKinds, must } from './stack.mjs';
 
-// docs/spec.md:52 "Deadline | Yes | An absolute moment in time. Must be in the future at Start."
+// docs/spec.md § Adventures > Fields "Deadline | Yes | An absolute moment in time. Must be in the future at Start."
 test('Start refuses a Deadline that has passed, and Barry queues nothing', async () => {
   const anna = await adventurer();
   const [saved] = must(

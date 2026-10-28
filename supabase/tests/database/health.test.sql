@@ -5,9 +5,9 @@ select plan(7);
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.emergency_contacts (id, adventurer_id, name, email, phone) values
   ('aaaaaaaa-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Luca', 'luca@example.com', '+41791111111');
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at) values
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'active', 'Grosser Mythen',
-   now() + interval '2 hours', now(), 'Europe/Zurich', now());
+   now() + interval '2 hours', 'Europe/Zurich', now());
 delete from public.messages;
 
 create function pg_temp.failed(p_kind public.message_kind, p_channel public.channel, p_address text, p_reason text) returns void

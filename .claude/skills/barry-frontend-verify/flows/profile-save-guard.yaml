@@ -1,12 +1,23 @@
-# profile-save-guard and profile-required in features/profile.md, on the Profile tab of the test account.
+# profile-save-guard and profile-required in features/profile.md, from the Profile tab of the test account, through Edit.
 appId: support.barry.dev
 ---
+- tapOn: "Edit"
+- extendedWaitUntil:
+    visible: "About You"
+    timeout: 10000
 - assertVisible:
     text: "Save"
-    enabled: false
+    enabled: true
+# A row's name and its input box both carry the label; the box is the one right of the name. Its text is
+# right-aligned, so a tap puts the cursor before it: the second tap opens the edit menu, and Select All clears it.
 - tapOn:
-    point: "368,308"
-- eraseText: 20
+    text: "Name"
+    rightOf: "Name"
+- tapOn:
+    text: "Name"
+    rightOf: "Name"
+- tapOn: "Select All"
+- eraseText: 1
 - assertVisible: "Required"
 - assertVisible:
     text: "Save"
@@ -14,8 +25,13 @@ appId: support.barry.dev
 - takeScreenshot: profile-save-guard-name-empty
 - inputText: "${NAME || 'Anna'}"
 - tapOn:
-    point: "368,353"
-- eraseText: 30
+    text: "Phone Number"
+    rightOf: "Phone Number"
+- tapOn:
+    text: "Phone Number"
+    rightOf: "Phone Number"
+- tapOn: "Select All"
+- eraseText: 1
 - inputText: "+4179"
 - assertVisible:
     text: "Save"
@@ -29,15 +45,13 @@ appId: support.barry.dev
 - takeScreenshot: profile-save-guard-valid-number
 - tapOn: "Save"
 - extendedWaitUntil:
-    visible:
-      text: "Save"
-      enabled: false
+    visible: "Edit"
     timeout: 15000
 - swipe:
     start: "200,250"
     end: "200,600"
     duration: 600
 - extendedWaitUntil:
-    visible: "\\+41 79 123 45 67"
+    visible: ".*\\+41 79 123 45 67"
     timeout: 15000
 - takeScreenshot: profile-required

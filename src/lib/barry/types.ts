@@ -1,4 +1,4 @@
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/database';
 import type { AppLanguage } from '@/lib/language';
 
 import type { PendingCheckIn } from './check-in-queue';
@@ -35,6 +35,9 @@ export type EmergencyContact = {
 export type ContactDraft = Omit<EmergencyContact, 'id'> & { id?: EmergencyContactId };
 
 export type Point = { latitude: number; longitude: number };
+
+/** A place Apple Maps knows, such as a summit or a hut, with where it lies. */
+export type Place = { name: string; subtitle: string; point: Point };
 
 export type Plan = {
   destination: string;
@@ -75,6 +78,7 @@ export type InProgressAdventure = ActiveAdventure | OverdueAdventure | AlertedAd
 export type Adventure = PlannedAdventure | InProgressAdventure | EndedAdventure;
 
 export type DeliveryFailure = {
+  id: number;
   message: 'heads_up' | 'plan_update' | 'deadline_update' | 'alert' | 'all_clear';
   contactName: string;
   channel: Channel;
@@ -160,8 +164,8 @@ export type Barry = {
   getAdventure(id: AdventureId): Promise<Adventure | null>;
   getInProgressAdventure(): Promise<InProgressView>;
   saveAdventure(draft: AdventureDraft): Promise<SaveAdventureResult>;
-  /** Where Apple Maps finds a place name, or null when it finds none or there is no signal. */
-  findPlace(name: string): Promise<Point | null>;
+  /** The places Apple Maps finds for what the Adventurer typed, nearest first; none without signal. */
+  findPlaces(query: string): Promise<Place[]>;
   /** One reading of where the phone is, or null without permission or a fix in time. */
   currentPosition(): Promise<Position | null>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;

@@ -1,23 +1,59 @@
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { AppleMaps } from 'expo-maps';
 import { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
-import type { Point } from '@/lib/barry';
-import { useTexts } from '@/lib/texts';
+import { ARRIVAL_RADIUS_M, type Point } from '@/lib/barry';
 
 export type MapCamera = { center: Point; zoom: number };
 
-export type DestinationMapProps = { point: Point | null; camera: MapCamera; onPick: (point: Point) => void };
+export type DestinationPreviewProps = { point: Point; adjust: string; onAdjust: () => void };
 
-/** Where the destination is: a tap on the map puts the pin there. */
-export function DestinationMap({ point, camera, onPick }: DestinationMapProps) {
+export type DestinationMapProps = { camera: MapCamera; onCenter: (point: Point) => void };
+
+// Close enough that the circle the Arrival Notice fires in is easy to see.
+const PREVIEW_ZOOM = 14.5;
+
+// expo-maps keeps map places selectable even with selectionEnabled off, so the maps show none.
+const quiet = { selectionEnabled: false, pointsOfInterest: { including: [] } };
+
+/** The pinned destination with the circle Barry shows the Arrival Notice in. It only shows; Adjust moves it. */
+export function DestinationPreview({ point, adjust, onAdjust }: DestinationPreviewProps) {
   const theme = useTheme();
-  const t = useTexts();
+  if (Platform.OS !== 'ios') return null;
+  return (
+    <View style={styles.preview}>
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+        <AppleMaps.View
+          // A new key recentres the map on a moved pin; the camera prop only sets the first view.
+          key={`${point.latitude},${point.longitude}`}
+          style={StyleSheet.absoluteFill}
+          cameraPosition={{ coordinates: point, zoom: PREVIEW_ZOOM }}
+          uiSettings={{ compassEnabled: false, myLocationButtonEnabled: false, scaleBarEnabled: false, togglePitchEnabled: false }}
+          properties={quiet}
+          markers={[{ id: 'destination', coordinates: point, tintColor: theme.accent }]}
+          circles={[
+            { id: 'arrival', center: point, radius: ARRIVAL_RADIUS_M, color: `${theme.accent}29`, lineColor: theme.accent, lineWidth: 1.5 },
+          ]}
+        />
+      </View>
+      <GlassView isInteractive style={[styles.adjust, !isLiquidGlassAvailable() && { backgroundColor: theme.background }]}>
+        <Pressable accessibilityRole="button" onPress={onAdjust} style={styles.adjustTarget}>
+          <ThemedText type="small">{adjust}</ThemedText>
+        </Pressable>
+      </GlassView>
+    </View>
+  );
+}
+
+/** A map the Adventurer moves under a pin that stays in the middle; it reports the point under the pin. */
+export function DestinationMap({ camera, onCenter }: DestinationMapProps) {
   const map = useRef<AppleMaps.MapView>(null);
   const [cameraPosition] = useState({ coordinates: camera.center, zoom: camera.zoom });
-  // A place found again moves the camera; the Adventurer's own panning stays otherwise. The first
-  // camera is the view's own, because a move on mount reaches the native view before it exists.
+  // A new camera, such as the phone's own position, moves the map. The first camera is the view's own,
+  // because a move on mount reaches the native view before it exists.
   const mounted = useRef(false);
   useEffect(() => {
     if (!mounted.current) {
@@ -32,19 +68,19 @@ export function DestinationMap({ point, camera, onPick }: DestinationMapProps) {
   return (
     <AppleMaps.View
       ref={map}
-      style={styles.map}
+      style={StyleSheet.absoluteFill}
       cameraPosition={cameraPosition}
       uiSettings={{ myLocationButtonEnabled: false, scaleBarEnabled: true, togglePitchEnabled: false }}
-      // expo-maps keeps map places selectable even with selectionEnabled off, so the map shows none.
-      properties={{ selectionEnabled: false, pointsOfInterest: { including: [] } }}
-      onMapClick={({ coordinates: { latitude, longitude } }) => {
-        if (latitude !== undefined && longitude !== undefined) onPick({ latitude, longitude });
+      properties={quiet}
+      onCameraMove={({ coordinates: { latitude, longitude } }) => {
+        if (latitude !== undefined && longitude !== undefined) onCenter({ latitude, longitude });
       }}
-      markers={point ? [{ id: 'destination', coordinates: point, tintColor: theme.accent, title: t.plan.destination }] : []}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  map: { height: 240, width: '100%', borderRadius: 12, overflow: 'hidden' },
+  preview: { height: 160, borderRadius: 18, overflow: 'hidden' },
+  adjust: { position: 'absolute', top: 10, right: 10, borderRadius: 17, overflow: 'hidden' },
+  adjustTarget: { height: 34, paddingHorizontal: 14, justifyContent: 'center' },
 });

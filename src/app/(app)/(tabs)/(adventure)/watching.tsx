@@ -70,8 +70,8 @@ export default function WatchingSheet() {
 
       {failures.length > 0 && (
         <Group title={t.adventure.failuresTitle}>
-          {failures.map((f, i) => (
-            <View key={i} style={styles.failure}>
+          {failures.map((f) => (
+            <View key={f.id} style={styles.failure}>
               <ThemedText themeColor="warning" style={styles.line}>
                 {t.adventure.failure(f)}
               </ThemedText>

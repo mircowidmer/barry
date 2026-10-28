@@ -1,6 +1,7 @@
 import 'leaflet/dist/leaflet.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
-import type { Map as LeafletMap } from 'leaflet';
+import type { Layer, Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
 
 import { Colors } from '@/constants/theme';
@@ -9,14 +10,22 @@ import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
 import type { TrailMapViewProps } from './trail-map-view';
 
-// The OpenStreetMap tiles are light in either scheme.
+export type { TrailMapViewProps } from './trail-map-view';
+
+// The map is light in either scheme.
 const { accent: TRAIL, text: LAST } = Colors.light;
 
-const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+// OpenFreeMap serves OpenStreetMap as vector tiles that the browser draws, so the map is sharp on any screen with
+// labels at their normal size; OpenStreetMap's own 256-pixel pictures blur on a phone.
+const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+
+const ATTRIBUTION =
+  '<a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 export function TrailMapView({ trail, last }: TrailMapViewProps) {
   const element = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
+  const base = useRef<Layer | null>(null);
   const fitted = useRef(false);
   const language = useSiteLanguage();
   const empty = trail.length === 0 && !last;
@@ -26,15 +35,16 @@ export function TrailMapView({ trail, last }: TrailMapViewProps) {
     let cancelled = false;
     const t = siteText[language];
     const when = language === 'de' ? formatWhenGerman : formatWhen;
-    // Leaflet touches window at import, and the static export renders this page in Node.
-    import('leaflet').then((L) => {
+    // Leaflet and MapLibre touch window at import, and the static export renders this page in Node.
+    Promise.all([import('leaflet'), import('@maplibre/maplibre-gl-leaflet')]).then(([L, { maplibreGL }]) => {
       if (cancelled || !element.current) return;
-      map.current ??= L.map(element.current).addLayer(
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ATTRIBUTION }),
-      );
+      if (!map.current) {
+        base.current = maplibreGL({ style: STYLE, attributionControl: { customAttribution: ATTRIBUTION } });
+        map.current = L.map(element.current).addLayer(base.current);
+      }
       const m = map.current;
       m.eachLayer((layer) => {
-        if (!(layer instanceof L.TileLayer)) m.removeLayer(layer);
+        if (layer !== base.current) m.removeLayer(layer);
       });
       const line = trail.map((p) => L.latLng(p.latitude, p.longitude));
       if (line.length > 1) L.polyline(line, { color: TRAIL, weight: 4 }).addTo(m);

@@ -4,7 +4,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
-import { FirstLoad, HoldButton, LoadState, pressedStyle, Screen, Section } from '@/components/form';
+import { FirstLoad, LoadState, pressedStyle, Screen, Section } from '@/components/form';
 import { GroupHeader, Note } from '@/components/grouped-list';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
@@ -16,6 +16,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position, type TrailStatus } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
+import { useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
@@ -163,6 +164,28 @@ function LiveAdventure({
     barry.deliveryFailures(initial.id).then(setFailures, () => undefined);
   }, [initial.id, adventure]);
 
+  const checkIn = async () => {
+    setBusy(true);
+    try {
+      const result = await barry.checkIn(adventure.id);
+      if (result.kind === 'ended') setAdventure(result.adventure);
+      else void onChanged();
+    } catch {
+      // The Check-in is saved before it is sent, so the reload shows it as waiting.
+      void onChanged();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Hold to Check In sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
+  useOfferCheckIn(
+    adventure.stage !== 'planned' && adventure.stage !== 'ended',
+    busy,
+    () => void checkIn(),
+    queuedAt && { at: queuedAt, keepsTrying: trailStatus === 'delivering' },
+  );
+
   if (adventure.stage === 'planned') return null;
   if (adventure.stage === 'ended') return <EndedAdventureScreen adventure={adventure} onDone={() => void onChanged()} />;
 
@@ -182,30 +205,8 @@ function LiveAdventure({
     }
   };
 
-  const checkIn = async () => {
-    setBusy(true);
-    try {
-      const result = await barry.checkIn(adventure.id);
-      if (result.kind === 'ended') setAdventure(result.adventure);
-      else void onChanged();
-    } catch {
-      // The Check-in is saved before it is sent, so the reload shows it as waiting.
-      void onChanged();
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
-    <Screen
-      onRefresh={onChanged}
-      footer={
-        queuedAt ? (
-          <WaitingCheckIn at={queuedAt} keepsTrying={trailStatus === 'delivering'} />
-        ) : (
-          <HoldButton title={t.adventure.hold} onComplete={() => void checkIn()} disabled={busy} />
-        )
-      }>
+    <Screen onRefresh={onChanged}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="clock" accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
@@ -267,8 +268,8 @@ function LiveAdventure({
         <View style={styles.titledCard}>
           <GroupHeader title={t.adventure.failuresTitle} />
           <Section>
-            {failures.map((f, i) => (
-              <ThemedText key={i} type="small">
+            {failures.map((f) => (
+              <ThemedText key={f.id} type="small">
                 {t.adventure.failure(f)}
               </ThemedText>
             ))}
@@ -363,23 +364,6 @@ function TrailBadge({ status }: { status: TrailStatus }) {
   );
 }
 
-/** In place of the Hold button while a Check-in waits for signal: it is done, so nothing is left to hold. */
-function WaitingCheckIn({ at, keepsTrying }: { at: Date; keepsTrying: boolean }) {
-  const theme = useTheme();
-  const t = useTexts();
-  const line = t.adventure.waitingForSignal + (keepsTrying ? t.adventure.keepsTrying : '');
-  return (
-    <View
-      accessible
-      accessibilityLabel={`${t.adventure.queued(t.when(at))}${keepsTrying ? t.adventure.keepsTrying : ''}`}
-      style={[styles.waiting, { backgroundColor: theme.backgroundSelected }]}>
-      <ThemedText style={styles.waitingTitle}>{t.adventure.waitingCheckIn(formatClock(at))}</ThemedText>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.waitingLine}>
-        {line}
-      </ThemedText>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   card: { borderRadius: 26, paddingHorizontal: 20, paddingVertical: 18, gap: 2 },
@@ -391,9 +375,6 @@ const styles = StyleSheet.create({
   moved: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
-  waiting: { minHeight: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },
-  waitingTitle: { fontSize: 17, lineHeight: 22, fontWeight: 600 },
-  waitingLine: { textAlign: 'center' },
   titledCard: { gap: 6 },
   chevron: { position: 'absolute', right: Spacing.three, top: 0, bottom: 0, justifyContent: 'center' },
 });

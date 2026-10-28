@@ -7,9 +7,9 @@ insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000001');
 insert into public.emergency_contacts (id, adventurer_id, name, email) values
   ('aaaaaaaa-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Luca', 'luca@example.com');
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at) values
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'active', 'Rigi',
-   now() + interval '5 hours', now() - interval '1 hour', 'Europe/Zurich', now() - interval '1 hour');
+   now() + interval '5 hours', 'Europe/Zurich', now() - interval '1 hour');
 insert into public.adventure_contacts (adventure_id, contact_id) values
   ('a0000000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001');
 insert into public.position_readings (adventure_id, taken_at, latitude, longitude, accuracy_m, reason) values

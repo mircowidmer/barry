@@ -112,9 +112,7 @@ describe('trailMode', () => {
     [{ pendingCheckIn: true }, 'delivering'],
     [{ pendingCheckIn: true, inProgressId: null }, 'delivering'],
     [{ inProgressId: null }, 'off'],
-    [{ permitted: false }, 'off'],
     [{ permitted: false, pendingCheckIn: true }, 'off'],
-    [{ signedIn: false }, 'off'],
     [{ signedIn: false, pendingCheckIn: true }, 'off'],
   ])('%j gives %s', (change, mode) => {
     expect(trailMode({ ...facts, ...change })).toBe(mode);

@@ -23,7 +23,6 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   destination_longitude: null,
   deadline: null,
   alert_at: null,
-  deadline_set_at: null,
   time_zone: null,
   started_at: null,
   alerts_sent: 0,
@@ -43,7 +42,6 @@ const started = {
   destination: 'Grosser Mythen',
   deadline: '2026-10-17T16:00:00Z',
   alert_at: '2026-10-17T16:30:00Z',
-  deadline_set_at: '2026-10-17T06:00:00Z',
   time_zone: 'Europe/Zurich',
   started_at: '2026-10-17T06:00:00Z',
 };

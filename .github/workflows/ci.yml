@@ -40,10 +40,31 @@ jobs:
       - run: npx expo lint
       - run: npx tsc --noEmit
       - run: npm test
+      # Fails when a package drifts from the version the Expo SDK expects.
+      - run: npx expo-doctor
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      # Supabase's Edge Functions pin their packages inline, as in 'npm:@supabase/supabase-js@2.117.3'.
+      - run: deno lint --rules-exclude=no-import-prefix supabase/functions/deliver
+      - run: deno check supabase/functions/deliver/index.ts
       - run: deno test supabase/functions/deliver
+
+  web:
+    name: Trail Map web build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: scripts/trail-map-site.sh
 
   backend:
     name: pgTAP and end-to-end against the local stack
@@ -69,6 +90,10 @@ jobs:
         run: |
           for _ in $(seq 1 18); do .claude/skills/barry-backend-verify/scripts/doctor.sh && exit 0; sleep 10; done
           exit 1
+      - name: Check the generated database types
+        run: |
+          npx supabase gen types typescript --local > src/lib/database.types.ts
+          git diff --exit-code src/lib/database.types.ts || { echo "::error::src/lib/database.types.ts is stale. Regenerate it as AGENTS.md says."; exit 1; }
       - run: npx supabase test db
       - run: npm run e2e
       - name: Collect the logs

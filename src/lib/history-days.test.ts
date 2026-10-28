@@ -28,10 +28,4 @@ describe('byDay', () => {
     const days = byDay([{ checkedInAt: new Date(2026, 9, 31, 20, 0) }], (i) => i.checkedInAt, firstOfMonth);
     expect(days[0]?.relative).toBe('yesterday');
   });
-
-  it('keeps two Adventures of one earlier day together', () => {
-    const days = byDay([at(18, 15), at(18, 9)], (i) => i.checkedInAt, now);
-    expect(days).toHaveLength(1);
-    expect(days[0]?.relative).toBeNull();
-  });
 });

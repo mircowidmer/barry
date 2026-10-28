@@ -3,8 +3,8 @@ import { test } from 'node:test';
 
 import { adventurer, messageKinds, missDeadline, must, textsTo, trailMap, trailToken, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:111 "A contact removed from the Adventure gets no further messages, and their Trail Map link stops working."
-// docs/spec.md:109 "Changing only the contacts, or moving the Deadline, sends no Plan Update."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "A contact removed from the Adventure gets no further messages, and their Trail Map link stops working."
+// docs/spec.md § Adventures > Edit an Active or Overdue Adventure "Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update."
 test('a contact removed from the Adventure gets neither the Alert nor the All-clear, and the change alone sends no Plan Update', async () => {
   const anna = await adventurer();
   const id = await anna.start();

@@ -11,13 +11,13 @@ insert into public.emergency_contacts (id, adventurer_id, name, email) values
   ('aaaaaaaa-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Mia', 'mia@example.com'),
   ('bbbbbbbb-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Noah', 'noah@example.com');
 
-insert into public.adventures (id, adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at) values
+insert into public.adventures (id, adventurer_id, stage, destination, deadline, time_zone, started_at) values
   ('a0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'active',
-   'Grosser Mythen', '2026-10-17 18:00+02', '2026-10-17 08:00+02', 'Europe/Zurich', '2026-10-17 08:00+02'),
+   'Grosser Mythen', '2026-10-17 18:00+02', 'Europe/Zurich', '2026-10-17 08:00+02'),
   ('a0000000-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'planned',
-   null, null, null, null, null),
+   null, null, null, null),
   ('b0000000-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'planned',
-   'Pilatus', null, null, null, null);
+   'Pilatus', null, null, null);
 
 insert into public.adventure_contacts (adventure_id, contact_id) values
   ('a0000000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001'),
@@ -30,8 +30,8 @@ insert into public.messages (adventure_id, kind, channel, to_address, contact_id
 -- Rules the tables enforce for everyone, including the clock.
 
 select throws_ok(
-  $$insert into public.adventures (adventurer_id, stage, destination, deadline, deadline_set_at, time_zone, started_at)
-    values ('11111111-1111-1111-1111-111111111111', 'active', 'Rigi', '2026-10-18 18:00+02', '2026-10-18 08:00+02', 'Europe/Zurich', '2026-10-18 08:00+02')$$,
+  $$insert into public.adventures (adventurer_id, stage, destination, deadline, time_zone, started_at)
+    values ('11111111-1111-1111-1111-111111111111', 'active', 'Rigi', '2026-10-18 18:00+02', 'Europe/Zurich', '2026-10-18 08:00+02')$$,
   '23505', null,
   'An Adventurer cannot have two in-progress Adventures'
 );

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { adventurer, must, sleep, waitForMail, waitForText } from './stack.mjs';
 
-// docs/spec.md:175 "If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app
+// docs/spec.md § Messages > Delivery Failures "If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app
 // shows the Delivery Failure to the Adventurer. That includes a text message that Twilio accepted but later reports as not
 // delivered."
 // The local relay reports a text message to a number ending in 30003 as undelivered, like Twilio.

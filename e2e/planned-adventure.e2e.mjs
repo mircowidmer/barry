@@ -3,10 +3,10 @@ import { test } from 'node:test';
 
 import { admin, adventurer, assertClockRan, mailCount, messageKinds, must, sleep, textsTo } from './stack.mjs';
 
-// docs/spec.md:60 "Planned | The Adventurer saves a new Adventure."
-// docs/spec.md:70 "Planned. The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing."
-// docs/spec.md:66 "They can have any number of Planned Adventures."
-// docs/spec.md:38 "Barry sends nothing to a person when the Adventurer adds them to the list."
+// docs/spec.md § Adventures > Stages "Planned | The Adventurer saves a new Adventure."
+// docs/spec.md § Adventures > Rules by stage "Planned. The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing."
+// docs/spec.md § Adventures > Stages "They can have any number of Planned Adventures."
+// docs/spec.md § Emergency Contacts "Barry sends nothing to a person when the Adventurer adds them to the list."
 test('a Planned Adventure can be edited and deleted, and Barry sends nothing and watches nothing until the Start', async () => {
   const anna = await adventurer();
   const save = async (id, destination, deadline) =>

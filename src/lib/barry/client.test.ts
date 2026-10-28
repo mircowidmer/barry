@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { AuthRetryableFetchError, type SupabaseClient } from '@supabase/supabase-js';
 
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/database';
 
 import { createAdventureCache } from './adventure-cache';
 import type { NotificationService } from './alarms';
@@ -30,7 +30,6 @@ const row = (overrides: Partial<AdventureWithRelations>): AdventureWithRelations
   destination_longitude: null,
   deadline: '2026-10-17T16:00:00Z',
   alert_at: '2026-10-17T16:30:00Z',
-  deadline_set_at: '2026-10-17T06:00:00Z',
   time_zone: 'Europe/Zurich',
   started_at: '2026-10-17T06:00:00Z',
   alerts_sent: 0,
@@ -124,7 +123,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
   const barry = createBarry({
     supabase,
     readPosition: async () => null,
-    geocode: async () => null,
+    findPlaces: async () => [],
     timeZone: () => 'Europe/Zurich',
     language: () => 'de',
     now,

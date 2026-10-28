@@ -42,6 +42,7 @@ export const copyPhoneContact = (contact: PhoneContact, region: string | null): 
   const ordered = [...numbers.filter((p) => isMobile(p.label)), ...numbers.filter((p) => !isMobile(p.label))];
   const phone = ordered.map((p) => fullPhoneNumber(p.number, p.region ?? region)).find((n) => n !== null) ?? null;
   const email = contact.emails.map((e) => e.address?.trim() ?? '').find(isEmailAddress) ?? null;
+  // || rather than ??: an empty name or company falls through to the next one.
   const name = contact.fullName.trim() || contact.company?.trim() || email || (phone ? formatPhoneNumber(phone) : '');
   return { name, email, phone };
 };

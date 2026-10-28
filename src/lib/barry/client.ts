@@ -1,6 +1,6 @@
 import { isAuthRetryableFetchError, type PostgrestError, type SupabaseClient } from '@supabase/supabase-js';
 
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/database';
 
 import { createAdventureCache } from './adventure-cache';
 import { createAlarms, dueAlarms, type NotificationService } from './alarms';
@@ -28,7 +28,7 @@ import type {
   EmergencyContact,
   InProgressAdventure,
   MessageLanguage,
-  Point,
+  Place,
   Position,
 } from './types';
 
@@ -36,8 +36,8 @@ export type BarryDeps = {
   supabase: SupabaseClient<Database>;
   /** One reading, or null when permission is denied or there is no fix in time. */
   readPosition(): Promise<Position | null>;
-  /** The first place Apple Maps finds for a name, or null. */
-  geocode(name: string): Promise<Point | null>;
+  /** The places Apple Maps finds for a query, nearest the phone first, or none. */
+  findPlaces(query: string): Promise<Place[]>;
   timeZone(): string;
   /** The phone's language, which Barry also writes the messages to the contacts in. */
   language(): MessageLanguage;
@@ -80,7 +80,7 @@ const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
 export const createBarry = ({
   supabase,
   readPosition,
-  geocode,
+  findPlaces,
   timeZone,
   language,
   now,
@@ -140,7 +140,7 @@ export const createBarry = ({
       .limit(1, { referencedTable: 'last_position' })
       .maybeSingle();
     if (error) fail('getAdventure', error);
-    const row = data as unknown as AdventureWithRelations | null;
+    const row: AdventureWithRelations | null = data;
     const adventure = row ? parseAdventure(row) : null;
     if (isInProgress(adventure)) remember(row);
     else if (cache.load()?.row.id === id) remember(null);
@@ -297,7 +297,7 @@ export const createBarry = ({
         .limit(1, { referencedTable: 'last_position' })
         .order('created_at', { ascending: false });
       if (error) fail('listAdventures', error);
-      return ((data ?? []) as unknown as AdventureWithRelations[]).map(parseAdventure);
+      return (data ?? []).map(parseAdventure);
     },
 
     getAdventure,
@@ -315,7 +315,7 @@ export const createBarry = ({
         void syncAlarms();
         return { adventure: cachedInProgress(), offlineSince: cache.load()?.savedAt ?? now() };
       }
-      const row = data as unknown as AdventureWithRelations | null;
+      const row: AdventureWithRelations | null = data;
       remember(row);
       const adventure = row ? parseAdventure(row) : null;
       return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: null };
@@ -338,7 +338,7 @@ export const createBarry = ({
       return { kind: 'saved', adventure };
     },
 
-    findPlace: async (name) => (name.trim() ? geocode(name.trim()) : null),
+    findPlaces: async (query) => (query.trim() ? findPlaces(query.trim()) : []),
 
     currentPosition: readPosition,
 
@@ -422,16 +422,17 @@ export const createBarry = ({
     deliveryFailures: async (id) => {
       const { data, error } = await supabase
         .from('delivery_failures')
-        .select('kind, contact_name, channel, to_address, failure_reason')
+        .select('id, kind, contact_name, channel, to_address, failure_reason')
         .eq('adventure_id', id)
         .order('created_at');
       if (error) fail('deliveryFailures', error);
       return (data ?? []).map(
         (row): DeliveryFailure => ({
-          message: row.kind as DeliveryFailure['message'],
+          id: row.id,
+          message: row.kind,
           contactName: row.contact_name ?? '',
-          channel: row.channel!,
-          address: row.to_address!,
+          channel: row.channel,
+          address: row.to_address,
           reason: row.failure_reason ?? '',
         }),
       );
