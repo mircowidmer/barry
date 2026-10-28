@@ -1,12 +1,12 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
 import { SitePage } from '@/components/site-page';
-import { type Confirmed, confirmationError, confirmedWhat, linkSession, revokeLinkSession, withoutFragment } from '@/lib/confirmation';
+import { type Confirmed, confirmationError, type LinkFailure, confirmedWhat, linkSession, revokeLinkSession, withoutFragment } from '@/lib/confirmation';
 import { siteText, useSiteLanguage } from '@/lib/site-language';
 
 export const generateMetadata = () => ({ title: 'Barry', robots: { index: false, follow: false } });
 
-type Landing = { error: string } | { confirmed: Confirmed };
+type Landing = { error: LinkFailure } | { confirmed: Confirmed };
 
 // The address the link opened, read once: the page then clears its fragment, which must not change what it says.
 const landedAt = typeof location === 'undefined' ? null : location.href;
@@ -46,7 +46,7 @@ export default function ConfirmedRoute() {
   if ('error' in landing) {
     return (
       <SitePage title={t.linkFailed}>
-        <p className="note">{landing.error}.</p>
+        <p className="note">{landing.error === 'expired' ? t.linkExpired : t.linkInvalid}</p>
         <div className="card">
           <p>{t.newLink}</p>
         </div>

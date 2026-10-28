@@ -7,16 +7,18 @@ describe('confirmationError', () => {
     expect(confirmationError('https://barry.support/confirmed#access_token=abc&type=signup')).toBeNull();
   });
 
-  it('reads the reason from the fragment of an expired link', () => {
+  it('reads an expired link from the fragment', () => {
     expect(
       confirmationError(
         'https://barry.support/confirmed#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired',
       ),
-    ).toBe('Email link is invalid or has expired');
+    ).toBe('expired');
   });
 
-  it('reads the reason from the query too', () => {
-    expect(confirmationError('https://barry.support/confirmed?error=access_denied')).toBe('access_denied');
+  it('reads any other failure, from the query too, without taking its text', () => {
+    expect(confirmationError('https://barry.support/confirmed?error=access_denied')).toBe('failed');
+    expect(confirmationError('https://barry.support/confirmed#error_description=Your+account+is+locked.+Call+us')).toBeNull();
+    expect(confirmationError('https://barry.support/confirmed#error=x&error_description=Your+account+is+locked')).toBe('failed');
   });
 });
 
