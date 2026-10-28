@@ -8,7 +8,7 @@ appId: support.barry.dev
     timeout: 10000
 - tapOn: "Send Code"
 - extendedWaitUntil:
-    visible: "Barry sent a code to .*Check your inbox\\."
+    visible: ".*Barry sent a code to .*Check your inbox\\."
     timeout: 15000
 - assertVisible: "Set New Password"
 - takeScreenshot: signin-reset-code-sent
