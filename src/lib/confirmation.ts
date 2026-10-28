@@ -5,10 +5,17 @@ const params = (href: string) => {
   return found;
 };
 
-/** The reason Supabase gives when it redirects from a confirmation link that did not work, or null. */
-export const confirmationError = (href: string): string | null => {
+/** Why a confirmation link did not work. */
+export type LinkFailure = 'expired' | 'failed';
+
+/**
+ * Why Supabase redirected from a confirmation link that did not work, or null when it worked. Only its
+ * error_code is read: the page shows Barry's own words, never text from the address, which anyone can write.
+ */
+export const confirmationError = (href: string): LinkFailure | null => {
   const found = params(href);
-  return found.get('error_description') ?? found.get('error');
+  if (!found.has('error') && !found.has('error_code')) return null;
+  return found.get('error_code') === 'otp_expired' ? 'expired' : 'failed';
 };
 
 /**
