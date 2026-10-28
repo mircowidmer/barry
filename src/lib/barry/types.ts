@@ -132,7 +132,8 @@ export type AddContactResult =
   | { kind: 'added'; contact: EmergencyContact }
   | { kind: 'cancelled' }
   | { kind: 'duplicate'; name: string }
-  | { kind: 'unreachable'; name: string };
+  | { kind: 'unreachable'; name: string }
+  | { kind: 'full' };
 
 export type AdventureDraft = {
   id?: AdventureId | undefined;

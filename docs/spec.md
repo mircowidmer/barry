@@ -28,7 +28,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 | Medical notes | No | Alert |
 | Message language | Yes, set by the app to the phone's language, German or English | Decides the language of every message to the contacts |
 
-The name must be filled in before the Adventurer starts their first Adventure. Only the Alert carries the full Profile, and it leaves the phone line out when there is no phone number.
+The name must be filled in before the Adventurer starts their first Adventure. The name takes up to 100 characters, the car make and colour 50 each, the number plate 20 and the medical notes 500. Only the Alert carries the full Profile, and it leaves the phone line out when there is no phone number.
 
 ## Emergency Contacts
 
@@ -40,9 +40,10 @@ The name must be filled in before the Adventurer starts their first Adventure. O
 - A pick whose email address or phone number a saved contact already has is refused, naming that contact. A pick with no email address and no usable phone number is refused.
 - The Adventurer can switch the email address and the phone number on and off. Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so switching it back on restores it.
 - A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved.
+- The list holds at most 10 contacts. A pick beyond that is refused until the Adventurer deletes one. A name longer than 100 characters is cut to 100.
 - Emergency Contacts have no account and do not install Barry.
 - Barry sends nothing to a person when the Adventurer adds them to the list.
-- Each Adventure uses one or more contacts from the list.
+- Each Adventure uses one to five contacts from the list. Saving a sixth is refused.
 - The Adventurer deletes a contact from the list with **Delete**, after confirming.
 - A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list.
 - A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned Adventures. If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one.
@@ -53,7 +54,7 @@ The name must be filled in before the Adventurer starts their first Adventure. O
 
 | Field | Required to start | Notes |
 | --- | --- | --- |
-| Destination | Yes | Part of the Plan. |
+| Destination | Yes | Part of the Plan. Up to 200 characters. |
 | Destination on the map | No | Part of the Plan. While the Adventurer types the destination, Apple Maps suggests places, nearest first; picking one sets the name and the point. **Tell Me When I Arrive** is on exactly while there is a point: switching it on opens a full-screen map on the found place, else where the Adventurer is, and they move the map under a fixed pin; **Adjust** opens the same map. Switching it off removes the point. The contacts are not told the point. |
 | Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
@@ -83,6 +84,8 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 2. The app records the Last Position.
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
+
+An Adventurer can start at most 5 Adventures in 24 hours. A sixth Start is refused, and deleting an Adventure does not give a Start back.
 
 If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, an alert says why.
 
@@ -142,6 +145,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".
 - An Alert states facts only. It gives no guidance on what to do.
 - Messages are in English or German. The text of the messages Supabase sends is kept in one place per language, and the text of the Reminder and the Overdue Notice in the app's texts, so that other languages can be added.
+- An Alert goes out before every other message that is waiting to be sent, so a queue of other messages cannot hold it back.
 - After the third Alert for a Deadline, Barry sends nothing more for it. The Adventure stays Alerted until the Adventurer checks in or moves the Deadline.
 - Barry never contacts a rescue service. The Emergency Contacts decide what to do.
 
@@ -216,6 +220,7 @@ A few limits are implementation choices, not promises to the Adventurer. Their v
 
 - `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many readings of Trail the phone keeps while it has no signal, and `SLOT_MS` there is how often the Trail keeps one. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values. The `slot` column of `position_readings` in the same migration is the window the server keeps one reading per Adventure in, and `trail.test.sql` pins it.
 - `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading. `ARRIVAL_RADIUS_M` there is how close to the destination on the map the Arrival Notice shows. `trail.test.ts` pins it.
+- `max_contacts`, `max_adventure_contacts` and `max_starts_per_day` (`supabase/migrations/20261028120100_message_limits.sql`) hold the limits above, together with the length limits on the text fields, which the app's inputs repeat. `limits.test.sql` pins them.
 - `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261022120000_move_after_alert.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
 - `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
 - `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one. `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.

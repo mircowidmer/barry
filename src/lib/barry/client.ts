@@ -265,14 +265,19 @@ export const createBarry = ({
           (copy.email !== null && c.email?.toLowerCase() === copy.email.toLowerCase()) || (copy.phone !== null && c.phone === copy.phone),
       );
       if (sameAddress) return { kind: 'duplicate', name: sameAddress.name };
-      const contact = await saveContact({
-        name: copy.name,
-        email: copy.email,
-        emailEnabled: copy.email !== null,
-        phone: copy.phone,
-        phoneEnabled: copy.phone !== null,
-      });
-      return { kind: 'added', contact };
+      try {
+        const contact = await saveContact({
+          name: copy.name,
+          email: copy.email,
+          emailEnabled: copy.email !== null,
+          phone: copy.phone,
+          phoneEnabled: copy.phone !== null,
+        });
+        return { kind: 'added', contact };
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('barry:too_many_contacts')) return { kind: 'full' };
+        throw error;
+      }
     },
 
     saveContact,

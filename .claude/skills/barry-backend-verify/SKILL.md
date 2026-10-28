@@ -50,6 +50,7 @@ Work from the fastest proof to the slowest, and stop at the first failure.
 | `deliver`: `messages.en.ts`, `messages.de.ts`, `facts.ts`, `links.ts`, `senders.ts`, `claim_messages` | `deliver` | `german`, `alert-states-facts`, `alert-carries-latest-plan`, `own-trail-map-link`, `undelivered-alert`, `waiting-alert-goes-out`, `failed-alert-stays-failed`, `deliver-refuses-without-secret`, `german-says-du`, `texts-use-gsm7`, `language-change-reaches-next-message`, `text-carries-the-email-body`, `german-updates` |
 | Twilio's delivery reports | `delivery_report` | `delivery-report`, `forged-delivery-report`, `undelivered-alert`, `undelivered-all-clear`, `undelivered-plan-update`, `undelivered-deadline-update` |
 | `health()` and the heartbeat | `health` | `health`, `clock-pings-the-monitor` |
+| The limits on contacts, Starts and text lengths, and Alerts claimed first | `limits` | none; the pgTAP file is the proof |
 | Grants and privileges | `access` | `one-profile-per-account`; otherwise the pgTAP file is the proof |
 
 ### Probes

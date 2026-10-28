@@ -289,7 +289,7 @@ function PlanForm({
       </Stack.Toolbar>
 
       <Section title={t.plan.where}>
-        <Field label={t.plan.destination} value={form.destination} onChangeText={typeDestination} />
+        <Field label={t.plan.destination} value={form.destination} onChangeText={typeDestination} maxLength={200} />
         {places.length > 0 && (
           <View>
             {places.map((place, i) => (

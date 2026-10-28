@@ -37,6 +37,9 @@ export const fullPhoneNumber = (number: string, region: string | null | undefine
  */
 const hasNumber = (p: PhoneContact['phones'][number]): p is typeof p & { number: string } => (p.number?.trim() ?? '') !== '';
 
+// As long a name as the server takes for an Emergency Contact.
+const NAME_MAX = 100;
+
 export const copyPhoneContact = (contact: PhoneContact, region: string | null): ContactCopy => {
   const numbers = contact.phones.filter(hasNumber);
   const ordered = [...numbers.filter((p) => isMobile(p.label)), ...numbers.filter((p) => !isMobile(p.label))];
@@ -44,5 +47,5 @@ export const copyPhoneContact = (contact: PhoneContact, region: string | null): 
   const email = contact.emails.map((e) => e.address?.trim() ?? '').find(isEmailAddress) ?? null;
   // || rather than ??: an empty name or company falls through to the next one.
   const name = contact.fullName.trim() || contact.company?.trim() || email || (phone ? formatPhoneNumber(phone) : '');
-  return { name, email, phone };
+  return { name: name.slice(0, NAME_MAX), email, phone };
 };
