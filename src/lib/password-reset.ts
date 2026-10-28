@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { captchaOptions } from '@/lib/turnstile';
+
 export type RequestCodeOutcome = { kind: 'sent' } | { kind: 'failed'; message: string };
 export type SetPasswordOutcome = { kind: 'reset' } | { kind: 'failed'; message: string };
 
@@ -8,7 +10,7 @@ export type PasswordResetAuth = Pick<SupabaseClient['auth'], 'resetPasswordForEm
 /** The recovery flow: a code by email, then the code and the new password together. The code signs the Adventurer in. */
 export const createPasswordReset = (auth: PasswordResetAuth) => ({
   requestCode: async (email: string, captchaToken?: string): Promise<RequestCodeOutcome> => {
-    const { error } = await auth.resetPasswordForEmail(email.trim(), captchaToken ? { captchaToken } : undefined);
+    const { error } = await auth.resetPasswordForEmail(email.trim(), captchaOptions(captchaToken));
     return error ? { kind: 'failed', message: error.message } : { kind: 'sent' };
   },
 

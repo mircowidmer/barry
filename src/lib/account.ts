@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { captchaOptions } from '@/lib/turnstile';
+
 type AuthClient = Pick<SupabaseClient['auth'], 'signInWithPassword' | 'updateUser' | 'refreshSession'>;
 
 /** The signed-in Adventurer's addresses: the one that works, and the one waiting for its confirmations. */
@@ -28,7 +30,7 @@ export const createAccount = (auth: AuthClient) => {
     newPassword: string,
     captchaToken?: string,
   ): Promise<ChangePasswordOutcome> => {
-    const check = await auth.signInWithPassword({ email, password: currentPassword, ...(captchaToken && { options: { captchaToken } }) });
+    const check = await auth.signInWithPassword({ email, password: currentPassword, options: captchaOptions(captchaToken) });
     if (check.error) {
       return check.error.code === 'invalid_credentials' ? { kind: 'wrong_password' } : { kind: 'failed', message: check.error.message };
     }
