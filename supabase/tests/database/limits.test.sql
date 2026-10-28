@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(12);
+select plan(13);
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');
@@ -78,6 +78,14 @@ insert into public.messages (adventure_id, kind, round, channel, to_address, con
   ('b0000000-0000-0000-0000-000000000001', 'alert', 1, 'email', 'second@example.com', 'aaaaaaaa-0000-0000-0000-000000000002');
 select is((select kind from public.claim_messages(1)), 'alert'::public.message_kind,
   'an Alert is claimed before an older message of another kind');
+
+-- A destination saved before the limits, written past the triggers as an old row would be.
+set local session_replication_role = replica;
+update public.adventures set destination = repeat('L', 300) where id = 'b0000000-0000-0000-0000-000000000001';
+set local session_replication_role = origin;
+select lives_ok(
+  $$update public.adventures set updated_at = now() where id = 'b0000000-0000-0000-0000-000000000001'$$,
+  'an Adventure saved before the limits with a longer destination still updates');
 
 select * from finish();
 rollback;
