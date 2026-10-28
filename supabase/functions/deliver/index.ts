@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 
 import { readDeliveryReport } from './delivery-report.ts';
 import { type Channel, parseFacts } from './facts.ts';
+import { authorizedKick } from './kick.ts';
 import { trailMapLinks } from './links.ts';
 import { render } from './messages.ts';
 import { type SendResult, senders } from './senders.ts';
@@ -95,7 +96,7 @@ Deno.serve(async (request) => {
   if (request.method === 'POST' && new URL(request.url).pathname.endsWith('/deliver/status')) {
     return await receiveDeliveryReport(request);
   }
-  if (request.headers.get('Authorization') !== `Bearer ${Deno.env.get('DELIVER_SECRET')}`) {
+  if (!authorizedKick(request.headers.get('Authorization'), Deno.env.get('DELIVER_SECRET'))) {
     return new Response('unauthorized', { status: 401 });
   }
   const delivered = await drain();
