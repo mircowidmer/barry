@@ -1,6 +1,6 @@
 ---
 name: barry-maintenance
-description: Run Barry's maintenance skills one after another in the order where each one's changes feed the next: barry-assure-code-quality, barry-audit-consistency, barry-prune-tests, barry-e2e-gaps twice, barry-update-readme, then barry-verify last to prove the backend against the local stack and drive the app in the iOS Simulator. Read-only unless invoked with --fix, which passes --fix to every step so each commits its own changes. Use when asked for a maintenance pass, a full clean-up of the repository, or to run all the maintenance skills.
+description: Run Barry's maintenance skills one after another in the order where each one's changes feed the next: barry-assure-code-quality, barry-audit-consistency, barry-prune-tests, barry-e2e-gaps twice, barry-security, barry-update-readme, then barry-verify last to prove the backend against the local stack and drive the app in the iOS Simulator. Read-only unless invoked with --fix, which passes --fix to every step so each commits its own changes. Use when asked for a maintenance pass, a full clean-up of the repository, or to run all the maintenance skills.
 ---
 
 # Maintenance pass
@@ -21,12 +21,13 @@ Any other argument is an error. Say so and stop.
 3. **`/barry-prune-tests`.** It runs after the refactors, so the tests it cuts still guarded them, and before step 4, so the new e2e cases are written against the pruned suite and are not cut straight away.
 4. **`/barry-e2e-gaps`.** It writes the cases the corrected documents promise.
 5. **`/barry-e2e-gaps`** a second time. It picks up the gaps the first run left open, such as cases that failed against the stack or that did not fit in one run. If the first run closed every gap, it reports none and you go on.
-6. **`/barry-update-readme`.** It comes after every step that changes the repository, because each of them can change the commands, test suites, files, guides and skills the README describes.
-7. **`/barry-verify`.** It comes last. It proves the backend against the local stack with the full pgTAP, Deno and e2e runs, then drives the baseline of the app's feature files in the iOS Simulator against the same stack, so the pass ends with proof that both still do what the documents promise. With `--fix`, it fixes each failure on the side that is wrong and commits it; tell it which files the earlier steps' commits touched, so it looks at those first. In a cloud session there is no simulator: it reports every app step as unverified, and the pass goes on to the report.
+6. **`/barry-security`.** It analyses the code the steps before left behind, so a refactor, a corrected document or a new e2e case cannot reopen a hole after it was checked. With `--fix`, the regression tests it adds for its fixes come after step 3, so they are not pruned, and its new migrations and fixes come before step 8, which proves them against the stack. Its report names open vulnerabilities: keep it in this conversation and never paste it into an issue, a pull request or an outside service.
+7. **`/barry-update-readme`.** It comes after every step that changes the repository, because each of them can change the commands, test suites, files, guides and skills the README describes.
+8. **`/barry-verify`.** It comes last. It proves the backend against the local stack with the full pgTAP, Deno and e2e runs, then drives the baseline of the app's feature files in the iOS Simulator against the same stack, so the pass ends with proof that both still do what the documents promise. With `--fix`, it fixes each failure on the side that is wrong and commits it; tell it which files the earlier steps' commits touched, so it looks at those first. In a cloud session there is no simulator: it reports every app step as unverified, and the pass goes on to the report.
 
-The proof of step 7 goes to `.verify-artifacts/`, which git ignores, so the pass stays read-only without `--fix`.
+The proof of step 8 goes to `.verify-artifacts/`, which git ignores, so the pass stays read-only without `--fix`.
 
-Steps 4, 5 and 7 need the local stack and the SMS relay that the README's **Check it** names. Start them before step 4 if they are not running. Step 7 also needs the development build in the booted simulator, as barry-frontend-verify's **Launch** section describes.
+Steps 4, 5 and 8 need the local stack and the SMS relay that the README's **Check it** names, and step 6 needs the stack to prove its database findings. Start them before step 4 if they are not running. Step 8 also needs the development build in the booted simulator, as barry-frontend-verify's **Launch** section describes.
 
 ## How to work
 
@@ -36,4 +37,4 @@ Steps 4, 5 and 7 need the local stack and the SMS relay that the README's **Chec
 
 ## Report
 
-After the last step, write one table with a row per step: the skill, the number of findings, and with `--fix` the number of commits and skipped fixes. For step 7, the findings are its failures and the checks and steps it could not verify. Below it, list the findings any step left for the author, each with the step that raised it, and for step 7 the unmet precondition of each unverified check or step.
+After the last step, write one table with a row per step: the skill, the number of findings, and with `--fix` the number of commits and skipped fixes. For step 8, the findings are its failures and the checks and steps it could not verify. Below it, list the findings any step left for the author, each with the step that raised it, and for step 8 the unmet precondition of each unverified check or step.
