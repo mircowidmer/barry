@@ -5,6 +5,7 @@ import type { Layer, Map as LeafletMap } from 'leaflet';
 import { useEffect, useRef } from 'react';
 
 import { Colors } from '@/constants/theme';
+import { MAP_ORIGIN } from '@/lib/content-security';
 import { siteText, useSiteLanguage } from '@/lib/site-language';
 import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
@@ -17,7 +18,7 @@ const { accent: TRAIL, text: LAST } = Colors.light;
 
 // OpenFreeMap serves OpenStreetMap as vector tiles that the browser draws, so the map is sharp on any screen with
 // labels at their normal size; OpenStreetMap's own 256-pixel pictures blur on a phone.
-const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+const STYLE = `${MAP_ORIGIN}/styles/liberty`;
 
 // MapLibre's worker, which public/ serves next to the page (scripts/maplibre-worker.mjs).
 const WORKER = '/maplibre/maplibre-gl-worker.mjs';
