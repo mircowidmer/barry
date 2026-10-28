@@ -32,14 +32,12 @@ export const fullPhoneNumber = (number: string, region: string | null | undefine
   return parsed.number;
 };
 
+const hasNumber = (p: PhoneContact['phones'][number]): p is typeof p & { number: string } => (p.number?.trim() ?? '') !== '';
+
 /**
  * The name, the first mobile number Barry can use, else the first other one, and the first email address of a
  * Phone Contact. A number is read in the region the phone gave it, else in the phone's own region.
  */
-const hasNumber = (p: PhoneContact['phones'][number]): p is typeof p & { number: string } => (p.number?.trim() ?? '') !== '';
-
-
-
 export const copyPhoneContact = (contact: PhoneContact, region: string | null): ContactCopy => {
   const numbers = contact.phones.filter(hasNumber);
   const ordered = [...numbers.filter((p) => isMobile(p.label)), ...numbers.filter((p) => !isMobile(p.label))];
