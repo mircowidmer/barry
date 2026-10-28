@@ -55,6 +55,7 @@
     "start": "APP_VARIANT=development expo start --dev-client",
     "android": "APP_VARIANT=development expo run:android",
     "ios": "APP_VARIANT=development expo run:ios",
+    "iphone:production": "scripts/iphone-production.sh",
     "web": "expo start --web",
     "lint": "expo lint",
     "postinstall": "node scripts/maplibre-worker.mjs",

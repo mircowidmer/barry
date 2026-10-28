@@ -48,6 +48,20 @@ npm start
 
 The production app, Barry with the bundle identifier `support.barry`, carries its JavaScript and talks to the hosted Supabase project. It installs next to Barry Dev. With a paid Apple team, `npm run build:production` builds it in the cloud instead, as [Builds](builds.md) describes.
 
+With the iPhone connected and unlocked, one command builds and installs it:
+
+```bash
+npm run iphone:production
+```
+
+It runs the three steps below through `scripts/iphone-production.sh`. The iPhone is the one named Mirone; for another one, set its name in `BARRY_IPHONE`:
+
+```bash
+BARRY_IPHONE="Anna's iPhone" npm run iphone:production
+```
+
+The steps one by one:
+
 1. Generate the iOS project for the production variant:
 
    ```bash
@@ -69,12 +83,6 @@ The production app, Barry with the bundle identifier `support.barry`, carries it
    ```bash
    xcrun devicectl device install app --device Mirone ios/build/Build/Products/Release-iphoneos/Barry.app
    ```
-
-The three steps in one command, with the iPhone connected and unlocked:
-
-```bash
-APP_VARIANT=production BARRY_WITHOUT_PUSH=1 LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios && eval "$(node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log('export ' + k + '=' + JSON.stringify(v))")" && LANG=en_US.UTF-8 xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release -destination 'platform=iOS,name=Mirone' -derivedDataPath ios/build -allowProvisioningUpdates build && xcrun devicectl device install app --device Mirone ios/build/Build/Products/Release-iphoneos/Barry.app
-```
 
 A code change reaches it only through a new build. `ios/` now belongs to the production variant, so repeat step 2 of [Build and install](#build-and-install) before the next development build.
 
