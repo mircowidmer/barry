@@ -1,4 +1,5 @@
 import type { DeliveryFailure, Refusal } from '@/lib/barry';
+import { LIMITS } from '@/lib/barry/limits';
 import { appLanguage, useAppLanguage } from '@/lib/language';
 import { formatDay, formatDayGerman, formatDuration, formatDurationGerman, formatWhen, formatWhenGerman } from '@/lib/wording';
 
@@ -42,8 +43,8 @@ const en = {
     invalid_time_zone: 'Your phone reported a time zone Barry does not know.',
     messages_pending: 'Barry is still sending messages for this adventure. Try again in a few minutes.',
     adventure_in_progress: 'Check in from your adventure first.',
-    too_many_contacts: 'An adventure can have at most 5 emergency contacts.',
-    too_many_starts: 'You have started 5 adventures in the past 24 hours. Try again later.',
+    too_many_contacts: `An adventure can have at most ${LIMITS.adventureContacts} emergency contacts.`,
+    too_many_starts: `You have started ${LIMITS.startsPerDay} adventures in the past 24 hours. Try again later.`,
   } satisfies Record<Refusal, string>,
   signIn: {
     intro: 'Barry tells the people you choose when you don’t check in from an adventure.',
@@ -210,7 +211,7 @@ const en = {
     alreadyAdded: (name: string) => `${name} is already a contact.`,
     nothingToReach: (name: string) => `${name || 'This contact'} has no email address and no phone number Barry can use.`,
     couldNotAdd: 'Could not add the contact. Try again.',
-    full: 'You already have 10 emergency contacts. Delete one before you add another.',
+    full: `You already have ${LIMITS.contacts} emergency contacts. Delete one before you add another.`,
     couldNotSave: 'Could not save. A contact needs an email address or a phone number that is switched on.',
     inUse: (name: string) => `${name} is a contact of your current adventure, so they stay until you check in.`,
     couldNotDelete: (name: string) => `Could not delete ${name}. Try again.`,
@@ -334,8 +335,8 @@ const de: Texts = {
     invalid_time_zone: 'Dein Telefon hat eine Zeitzone gemeldet, die Barry nicht kennt.',
     messages_pending: 'Barry sendet noch Nachrichten zu diesem Abenteuer. Versuch es in ein paar Minuten nochmals.',
     adventure_in_progress: 'Melde dich zuerst von deinem Abenteuer zurück.',
-    too_many_contacts: 'Ein Abenteuer kann höchstens 5 Notfallkontakte haben.',
-    too_many_starts: 'Du hast in den letzten 24 Stunden 5 Abenteuer gestartet. Versuch es später nochmals.',
+    too_many_contacts: `Ein Abenteuer kann höchstens ${LIMITS.adventureContacts} Notfallkontakte haben.`,
+    too_many_starts: `Du hast in den letzten 24 Stunden ${LIMITS.startsPerDay} Abenteuer gestartet. Versuch es später nochmals.`,
   },
   signIn: {
     intro: 'Barry sagt den Menschen Bescheid, die du auswählst, wenn du dich von einem Abenteuer nicht zurückmeldest.',
@@ -504,7 +505,7 @@ const de: Texts = {
     alreadyAdded: (name) => `${name} ist bereits ein Kontakt.`,
     nothingToReach: (name) => `${name || 'Dieser Kontakt'} hat keine E-Mail-Adresse und keine Telefonnummer, die Barry nutzen kann.`,
     couldNotAdd: 'Der Kontakt konnte nicht hinzugefügt werden. Versuch es nochmals.',
-    full: 'Du hast bereits 10 Notfallkontakte. Lösche einen, bevor du einen weiteren hinzufügst.',
+    full: `Du hast bereits ${LIMITS.contacts} Notfallkontakte. Lösche einen, bevor du einen weiteren hinzufügst.`,
     couldNotSave: 'Speichern nicht möglich. Ein Kontakt braucht eine eingeschaltete E-Mail-Adresse oder Telefonnummer.',
     inUse: (name) => `${name} ist Kontakt deines laufenden Abenteuers und bleibt, bis du dich zurückmeldest.`,
     couldNotDelete: (name) => `${name} konnte nicht gelöscht werden. Versuch es nochmals.`,
