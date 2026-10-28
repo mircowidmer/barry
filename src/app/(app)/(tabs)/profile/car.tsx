@@ -1,5 +1,6 @@
 import { ActionRow, Group, InputRow } from '@/components/grouped-list';
 import { ProfileEdit } from '@/components/profile-edit';
+import { LIMITS } from '@/lib/barry/limits';
 import { useTexts } from '@/lib/texts';
 
 /** The car an Alert describes, so rescuers can find where the Adventurer parked. */
@@ -10,9 +11,9 @@ export default function CarScreen() {
       {({ form, set, save, saving }) => (
         <>
           <Group footer={t.profile.carFooter}>
-            <InputRow label={t.profile.make} value={form.carMake} onChangeText={set('carMake')} maxLength={50} />
-            <InputRow label={t.profile.colour} value={form.carColour} onChangeText={set('carColour')} maxLength={50} />
-            <InputRow label={t.profile.plate} value={form.carPlate} onChangeText={set('carPlate')} maxLength={20} autoCapitalize="characters" />
+            <InputRow label={t.profile.make} value={form.carMake} onChangeText={set('carMake')} maxLength={LIMITS.carMakeLength} />
+            <InputRow label={t.profile.colour} value={form.carColour} onChangeText={set('carColour')} maxLength={LIMITS.carColourLength} />
+            <InputRow label={t.profile.plate} value={form.carPlate} onChangeText={set('carPlate')} maxLength={LIMITS.carPlateLength} autoCapitalize="characters" />
           </Group>
           {(form.carMake !== '' || form.carColour !== '' || form.carPlate !== '') && (
             <Group>

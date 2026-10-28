@@ -1,5 +1,6 @@
 import { Group, InputRow } from '@/components/grouped-list';
 import { ProfileEdit } from '@/components/profile-edit';
+import { LIMITS } from '@/lib/barry/limits';
 import { phoneInput } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
 
@@ -14,7 +15,7 @@ export default function AboutYouSheet() {
             label={t.profile.name}
             value={form.name}
             onChangeText={set('name')}
-            maxLength={100}
+            maxLength={LIMITS.nameLength}
             placeholder={t.profile.required}
             autoComplete="name"
             textContentType="name"

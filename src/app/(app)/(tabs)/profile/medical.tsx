@@ -1,5 +1,6 @@
 import { Group, TextAreaRow } from '@/components/grouped-list';
 import { ProfileEdit } from '@/components/profile-edit';
+import { LIMITS } from '@/lib/barry/limits';
 import { useTexts } from '@/lib/texts';
 
 /** The medical notes an Alert carries, such as allergies or medication. */
@@ -13,7 +14,7 @@ export default function MedicalNotesScreen() {
             label={t.profile.medical}
             value={form.medicalNotes}
             onChangeText={set('medicalNotes')}
-            maxLength={500}
+            maxLength={LIMITS.medicalNotesLength}
             placeholder={t.profile.medicalPlaceholder}
           />
         </Group>
