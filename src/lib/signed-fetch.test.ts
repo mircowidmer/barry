@@ -4,7 +4,7 @@ import { signedOnly } from './signed-fetch';
 
 const KEY = 'sb_publishable_test';
 const ok = () => {
-  const fetchFn = jest.fn<typeof fetch>(async () => new Response('[]'));
+  const fetchFn = jest.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(async () => new Response('[]'));
   return { fetchFn, guarded: signedOnly(fetchFn, KEY) };
 };
 
