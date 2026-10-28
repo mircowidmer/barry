@@ -230,10 +230,10 @@ enable_confirmations = false
 secure_password_change = true
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1s"
-# Number of characters used in the email OTP.
-otp_length = 6
+# Number of characters used in the email OTP. Eight digits valid for 15 minutes leave nothing to guess in the time.
+otp_length = 8
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+otp_expiry = 900
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -451,6 +451,15 @@ max_namespaces = 10
 
 [remotes.hosted.storage.image_transformation]
 enabled = true
+
+# Cloudflare Turnstile guards sign-up, sign-in and the recovery email. The secret lives in supabase/.env.hosted,
+# never here: scripts/hosted-auth.mjs passes it in. The app shows the widget only in a build with
+# EXPO_PUBLIC_TURNSTILE_SITE_KEY, so switch this on once that build is out (docs/hosted-supabase.md). The local
+# stack asks for none.
+[remotes.hosted.auth.captcha]
+enabled = false
+provider = "turnstile"
+secret = "env(AUTH_CAPTCHA_SECRET)"
 
 [remotes.hosted.auth.mfa.totp]
 enroll_enabled = true

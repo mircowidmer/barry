@@ -9,8 +9,8 @@ const setup = () => {
   const offline = () => ({ data: { user: null, session: null }, error: new AuthApiError('Network request failed', 0, undefined) });
   const user = () => ({ id: 'u1', email: world.email, new_email: world.newEmail ?? undefined });
   const auth = {
-    signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
-      calls.push(`sign in ${email}`);
+    signInWithPassword: async ({ email, password, options }: { email: string; password: string; options?: { captchaToken?: string } }) => {
+      calls.push(`sign in ${email}${options?.captchaToken ? ` with ${options.captchaToken}` : ''}`);
       if (!world.signal) return offline();
       if (email !== world.email || password !== world.password) {
         return { data: { user: null, session: null }, error: new AuthApiError('Invalid login credentials', 400, 'invalid_credentials') };
@@ -42,6 +42,12 @@ describe('changePassword', () => {
     expect(await account.changePassword('anna@example.com', 'old-password', 'new-password')).toEqual({ kind: 'changed' });
     expect(world.password).toBe('new-password');
     expect(calls).toEqual(['sign in anna@example.com', 'update password']);
+  });
+
+  it('checks the current password with the captcha token when the build has one', async () => {
+    const { account, calls } = setup();
+    await account.changePassword('anna@example.com', 'old-password', 'new-password', 'turnstile-token');
+    expect(calls).toEqual(['sign in anna@example.com with turnstile-token', 'update password']);
   });
 
   it('refuses a wrong current password and changes nothing', async () => {

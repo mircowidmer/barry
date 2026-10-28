@@ -8,7 +8,7 @@ Barry's hosted backend is the Supabase project `kizggaicooqhdzpqzawu`, at `https
 - The `deliver` Edge Function, with `verify_jwt = false` from `supabase/config.toml`, because the clock calls it with `DELIVER_SECRET` instead of a user token.
 - The function secrets `DELIVER_SECRET`, `TRAIL_MAP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_FROM` and `HEALTHCHECK_URL`. Email goes through Resend from `barry@barry.support`, and text messages go through Twilio. [Text messages](text-messages.md) sets up Twilio. `TRAIL_MAP_URL` is `https://barry.support/adventure`.
 - The Vault secrets `deliver_url`, which is `https://kizggaicooqhdzpqzawu.supabase.co/functions/v1/deliver`, and `deliver_secret`, which equals `DELIVER_SECRET`.
-- The Auth settings in `[remotes.hosted]` of `supabase/config.toml`: the site URL `https://barry.support/confirmed`, email confirmations, the six-digit code and its email, and the SMTP server. Auth sends its emails through Resend's SMTP server, `smtp.resend.com`, from `help@barry.support`, with the Resend key `AUTH_SMTP_PASS` from `supabase/.env.hosted`. The sign-up email's template is the one exception and lives only in the dashboard.
+- The Auth settings in `[remotes.hosted]` of `supabase/config.toml`: the site URL `https://barry.support/confirmed`, email confirmations, the eight-digit code and its email, and the SMTP server. Auth sends its emails through Resend's SMTP server, `smtp.resend.com`, from `help@barry.support`, with the Resend key `AUTH_SMTP_PASS` from `supabase/.env.hosted`. The sign-up email's template is the one exception and lives only in the dashboard.
 
 ## Ship a change
 
@@ -69,13 +69,24 @@ The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO
 
 To rotate the key, put the new one in `AUTH_SMTP_PASS`, run the script, then delete the old key in Resend.
 
+## Switch on the captcha
+
+Cloudflare Turnstile guards sign-up, sign-in, the password check before a password change, and the recovery email. The app shows the widget only in a build that has the site key, so the order matters: a captcha switched on before that build is out refuses every sign-in from the app.
+
+1. In the Cloudflare dashboard, open **Turnstile**, click **Add widget**, name it Barry, add the hostname `barry.support`, keep the mode **Managed** and click **Create**. The app shows the widget on a page that says it comes from `barry.support`, so that hostname covers the app.
+2. Put the **Site Key** in `eas.json` as `EXPO_PUBLIC_TURNSTILE_SITE_KEY` in the `env` of the `preview` and `production` profiles. It is public, like the publishable key. Build and ship the app.
+3. Put the **Secret Key** in `supabase/.env.hosted` as `AUTH_CAPTCHA_SECRET`. It never goes into the repository.
+4. Set `enabled = true` under `[remotes.hosted.auth.captcha]` in `supabase/config.toml` and run `node scripts/hosted-auth.mjs`. The script refuses while the secret is missing.
+
+Builds without the site key, such as the development build against the local stack, show no widget, and the local stack asks for no captcha.
+
 ## Edit the sign-up email
 
 The confirmation email that Supabase Auth sends after **Create account** lives only in the dashboard, under **Authentication > Emails > Templates > Confirm signup**, and needs custom SMTP to be editable. Its subject is "Confirm your email for Barry". Supabase treats the template as HTML and builds the plain-text part from it, so write each sentence in its own `<p>`. Keep `{{ .ConfirmationURL }}` as the link target.
 
 ## Edit the password reset email
 
-The email Auth sends after **Forgot Password?** is `supabase/templates/recovery.html`, with the subject `Reset your password for Barry`, for the local stack and the hosted project alike: `node scripts/hosted-auth.mjs` sends it. Supabase's default carries a link, which Barry does not use: the app asks for the six-digit code instead, so the template must contain `{{ .Token }}`. As with the sign-up email, each sentence is in its own `<p>`.
+The email Auth sends after **Forgot Password?** is `supabase/templates/recovery.html`, with the subject `Reset your password for Barry`, for the local stack and the hosted project alike: `node scripts/hosted-auth.mjs` sends it. Supabase's default carries a link, which Barry does not use: the app asks for the eight-digit code instead, valid for 15 minutes,, so the template must contain `{{ .Token }}`. As with the sign-up email, each sentence is in its own `<p>`.
 
 
 ## Check that it runs

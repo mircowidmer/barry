@@ -22,8 +22,13 @@ export const createAccount = (auth: AuthClient) => {
     return { email: data.user.email, pendingEmail: data.user.new_email ?? null };
   };
 
-  const changePassword = async (email: string, currentPassword: string, newPassword: string): Promise<ChangePasswordOutcome> => {
-    const check = await auth.signInWithPassword({ email, password: currentPassword });
+  const changePassword = async (
+    email: string,
+    currentPassword: string,
+    newPassword: string,
+    captchaToken?: string,
+  ): Promise<ChangePasswordOutcome> => {
+    const check = await auth.signInWithPassword({ email, password: currentPassword, ...(captchaToken && { options: { captchaToken } }) });
     if (check.error) {
       return check.error.code === 'invalid_credentials' ? { kind: 'wrong_password' } : { kind: 'failed', message: check.error.message };
     }

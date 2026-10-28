@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
+import { useCaptcha } from '@/components/captcha';
 import { Button, Field, Screen } from '@/components/form';
 import { Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
@@ -20,13 +21,15 @@ export default function ResetPasswordScreen() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState<'send' | 'set' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const captcha = useCaptcha();
   const t = useTexts();
 
   const sendCode = async () => {
     setBusy('send');
     setError(null);
-    const outcome = await passwordReset.requestCode(email);
+    const outcome = await passwordReset.requestCode(email, captcha.token);
     setBusy(null);
+    captcha.renew();
     if (outcome.kind === 'failed') setError(outcome.message);
     else setSent(true);
   };
@@ -71,7 +74,14 @@ export default function ResetPasswordScreen() {
           />
           {error && <Note tone="danger">{error}</Note>}
           <Button title={t.resetPassword.setPassword} onPress={() => void setNewPassword()} busy={busy === 'set'} disabled={!code || !password} />
-          <Button title={t.resetPassword.sendAgain} kind="secondary" onPress={() => void sendCode()} busy={busy === 'send'} disabled={busy === 'set'} />
+          {captcha.widget}
+          <Button
+            title={t.resetPassword.sendAgain}
+            kind="secondary"
+            onPress={() => void sendCode()}
+            busy={busy === 'send'}
+            disabled={busy === 'set' || !captcha.ready}
+          />
         </>
       ) : (
         <>
@@ -84,8 +94,14 @@ export default function ResetPasswordScreen() {
             keyboardType="email-address"
             textContentType="emailAddress"
           />
+          {captcha.widget}
           {error && <Note tone="danger">{error}</Note>}
-          <Button title={t.resetPassword.sendCode} onPress={() => void sendCode()} busy={busy === 'send'} disabled={!email.trim()} />
+          <Button
+            title={t.resetPassword.sendCode}
+            onPress={() => void sendCode()}
+            busy={busy === 'send'}
+            disabled={!email.trim() || !captcha.ready}
+          />
         </>
       )}
       <ThemedText type="small" themeColor="accent" accessibilityRole="link" style={styles.link} onPress={() => router.back()}>
