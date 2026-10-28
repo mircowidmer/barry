@@ -12,6 +12,7 @@ import { useLoad } from '@/hooks/use-load';
 import { useTheme } from '@/hooks/use-theme';
 import { type AdventurerProfile, barry } from '@/lib/barry';
 import { askToDeleteAccount } from '@/lib/delete-account';
+import { initials } from '@/lib/initials';
 import { askToLogOut } from '@/lib/log-out';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
@@ -19,15 +20,6 @@ import { useTexts } from '@/lib/texts';
 const AVATAR = 60;
 const TILE = 30;
 const TILE_GAP = 14;
-
-const initials = (name: string) =>
-  name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
 
 const carSummary = (p: AdventurerProfile | null) =>
   [p?.carMake, p?.carColour, p?.carPlate].filter((part): part is string => Boolean(part)).join(' · ');

@@ -10,20 +10,12 @@ import { useNow } from '@/hooks/use-now';
 import { useStringParam } from '@/hooks/use-string-param';
 import { useTheme } from '@/hooks/use-theme';
 import { type AdventureId, barry, type EmergencyContact, reachableAddresses } from '@/lib/barry';
+import { initials } from '@/lib/initials';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
 const AVATAR = 40;
-
-const initials = (name: string) =>
-  name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
 
 /**
  * The sheet behind the contacts button of a Live Adventure: who Barry tells, on which addresses, which messages
