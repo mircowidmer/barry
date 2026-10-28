@@ -160,7 +160,7 @@ Write the report in Markdown, in the language the user writes in (German in Swis
 
 Quote code verbatim with `path:line`. One finding per root cause, with every location. Do not pad, and do not report a finding you could not trace to an attacker.
 
-Write the report to `docs/reviews/<YYYY-MM-DD>-security.md` only with `--fix` or when the user asks for a file; otherwise give it in the reply. A security report names open vulnerabilities: never publish it, paste it into an issue, a pull request or an outside service unless the user asks.
+With `--fix`, write the report to `docs/reviews/<YYYY-MM-DD>-security.md`, like the other maintenance skills' reports, and commit it after the fixes, with a message such as `docs/reviews: the security analysis of 28 October 2026, with one High finding left open and one Low fixed`. Without `--fix`, give it in the reply unless the user asks for a file. The report is as public as the repository, so it quotes no secret value beyond its first six characters, not even a local one.
 
 With `--fix`, append the commits made, in order, one line each, and the skipped findings with their rules.
 
