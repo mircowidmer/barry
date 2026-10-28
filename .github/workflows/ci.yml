@@ -45,6 +45,22 @@ jobs:
           deno-version: v2.x
       - run: deno test supabase/functions/deliver
 
+  web:
+    name: Trail Map web build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: scripts/trail-map-site.sh
+
   backend:
     name: pgTAP and end-to-end against the local stack
     runs-on: ubuntu-latest
