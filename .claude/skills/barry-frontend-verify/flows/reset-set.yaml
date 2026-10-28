@@ -1,11 +1,16 @@
 # signin-reset, step two: types CODE and the new password PW and signs in.
 appId: support.barry.dev
 ---
+# A field's name and its input box both carry the label; the box is the one below the name.
 - tapOn:
-    point: "201,355"
+    text: "Code"
+    below: "Code"
+- eraseText: 20
 - inputText: "${CODE}"
 - tapOn:
-    point: "201,449"
+    text: "New Password"
+    below: "New Password"
+- eraseText: 60
 - inputText: "${PW}"
 - takeScreenshot: signin-reset-filled
 - tapOn: "Set New Password"
