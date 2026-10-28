@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
 
+import { publishableKey, supabaseUrl } from '@/lib/site-env';
+
 import { fetchTrailMap, mergeTrailMap, newestReading, tokenFromHash } from './fetch';
 import type { TrailMap, TrailMapState } from './types';
 
 const POLL_MS = 5 * 60_000;
 
-const load = fetchTrailMap(
-  (input, init) => fetch(input, init),
-  process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '',
-);
+const load = fetchTrailMap((input, init) => fetch(input, init), supabaseUrl, publishableKey);
 
 export function useTrailMap(): TrailMapState {
   const [view, setView] = useState<TrailMapState>({ kind: 'loading' });
