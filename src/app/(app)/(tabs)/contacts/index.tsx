@@ -13,6 +13,7 @@ import { Spacing, type ThemeColor } from '@/constants/theme';
 import { useLoad } from '@/hooks/use-load';
 import { useTheme } from '@/hooks/use-theme';
 import { barry, type EmergencyContact } from '@/lib/barry';
+import { initials } from '@/lib/initials';
 import { askToRemoveContact } from '@/lib/remove-contact';
 import { type Texts, useTexts } from '@/lib/texts';
 
@@ -21,15 +22,6 @@ const AVATAR = 40;
 // The heights of iOS's collapsed navigation bar and of the tab bar, above the safe area insets.
 const NAVIGATION_BAR_HEIGHT = 44;
 const TAB_BAR_HEIGHT = 49;
-
-const initials = (name: string) =>
-  name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
 
 type Reach = { text: string; email: boolean; phone: boolean; smsOff: boolean; unreachable: boolean };
 
