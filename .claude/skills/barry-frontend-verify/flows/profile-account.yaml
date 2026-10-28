@@ -3,10 +3,10 @@
 appId: support.barry.dev
 ---
 - scrollUntilVisible:
-    element: "Email and Password"
+    element: "Email and Password.*"
     visibilityPercentage: 50
     centerElement: true
-- tapOn: "Email and Password"
+- tapOn: "Email and Password.*"
 - extendedWaitUntil:
     visible: "Barry checks your current password before it changes anything\\."
     timeout: 10000
@@ -20,7 +20,7 @@ appId: support.barry.dev
 - inputText: "${PW2}"
 - tapOn: "Change Password"
 - extendedWaitUntil:
-    visible: "That is not your current password\\. Nothing was changed\\."
+    visible: ".*That is not your current password\\. Nothing was changed\\."
     timeout: 15000
 - takeScreenshot: profile-account-wrong-password
 - tapOn: "Current Password"
@@ -28,13 +28,13 @@ appId: support.barry.dev
 - inputText: "${PW}"
 - tapOn: "Change Password"
 - extendedWaitUntil:
-    visible: "Your password is changed\\."
+    visible: ".*Your password is changed\\."
     timeout: 15000
 - takeScreenshot: profile-account-password-changed
 - tapOn: "New Address"
 - inputText: "${NEW}"
 - tapOn: "Change Email Address"
 - extendedWaitUntil:
-    visible: "Barry sent a link to .*"
+    visible: ".*Barry sent a link to .*"
     timeout: 15000
 - takeScreenshot: profile-account-email-requested
