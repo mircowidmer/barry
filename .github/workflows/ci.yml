@@ -156,27 +156,35 @@ jobs:
     name: iOS Release build for the Simulator
     needs: changes
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.native == 'true') }}
-    runs-on: macos-26
+    # barry-mac, the self-hosted runner with the label ios, builds pushes to main and this repository's pull requests.
+    # A pull request from a fork runs whatever code it brings, so it stays on a hosted runner.
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'macos-26' || 'ios' }}
     timeout-minutes: 60
     env:
       # The Podfile wraps clang in React Native's ccache script when USE_CCACHE is set at pod install.
       USE_CCACHE: '1'
-      CCACHE_DIR: /Users/runner/Library/Caches/ccache
       CCACHE_MAXSIZE: 2G
     steps:
       - uses: actions/checkout@v4
+      # The hosted image has several Xcodes and needs one selected; the self-hosted Mac has its own.
       - uses: maxim-lobanov/setup-xcode@v1
+        if: runner.environment == 'github-hosted'
         with:
           xcode-version: latest-stable
       - run: brew install ccache
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
       # The wrapper that pod install puts in CC runs `$CCACHE_BINARY clang`, and only the environment reaches the compiler.
-      - run: echo "CCACHE_BINARY=$(brew --prefix)/bin/ccache" >> "$GITHUB_ENV"
-      # Every build saves a new entry; the newest one any earlier run saved is restored.
+      - run: |
+          echo "CCACHE_BINARY=$(brew --prefix)/bin/ccache" >> "$GITHUB_ENV"
+          echo "CCACHE_DIR=$HOME/Library/Caches/ccache" >> "$GITHUB_ENV"
+      # Every hosted build saves a new entry; the newest one any earlier run saved is restored. The self-hosted Mac keeps both directories on its disk.
       - uses: actions/cache@v4
+        if: runner.environment == 'github-hosted'
         with:
           path: |
-            /Users/runner/Library/Caches/ccache
-            /Users/runner/Library/Caches/CocoaPods
+            ~/Library/Caches/ccache
+            ~/Library/Caches/CocoaPods
           key: ios-build-${{ github.sha }}
           restore-keys: ios-build-
       # The counters travel with the cache and add up across runs; zeroed here, the stats after the build are this run's.
