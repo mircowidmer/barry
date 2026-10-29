@@ -8,8 +8,8 @@ Measured: the last 20 successful runs of `ci.yml` (10 pushes to branches, 8 pull
 
 | | Before today's commits (median) | Current workflow (run 40880005289) |
 | --- | --- | --- |
-| Pull request wall-clock | 22m22s | 20m22s with native changes, 5m37s without |
-| Critical path, pull request | `ios` 21m58s | `ios` 20m01s with native changes, `backend` 5m37s without |
+| Pull request wall-clock | 22m22s | 20m22s with native changes, 5m37s without; after the fixes below 6m22s and 1m34s |
+| Critical path, pull request | `ios` 21m58s | `ios` 20m01s with native changes, `backend` 5m37s without; after the fixes `ios` 5m41s and `web` 1m31s |
 | Push to `main` wall-clock | 20m13s | not run yet on the current workflow |
 | Critical path, `main` | `ios` 19m58s | `ios`, to be measured |
 
@@ -58,7 +58,7 @@ Time to red, over the 4 most recent failed runs: the first red step came at 86s 
 - **Expected saving:** the whole Build step is the candidate (965s on the `main` and native-change critical path). The first run after the change fills the cache, the second one measures the hits; `ccache --show-stats` will then print them. Nothing is claimed until then.
 - **Still proves:** the same Release build of the same project; ccache only reuses object files whose inputs are unchanged.
 - **Source:** reactnative.dev, Speeding up your Build phase (Xcode setup); the wrapper script quoted above.
-- **Outcome:** **applied**, saving to be confirmed by the next run.
+- **Outcome:** **applied** and **confirmed.** The run after the fix saved a filled cache, and the one after that (run 40896709238 on c2b3205) restored it in 8s and built in 211s instead of 965s; the CocoaPods cache took "Generate the iOS project" from 135s to 57s. The iOS job took 5m41s and the run 6m22s, against 20m22s before.
 
 ### CI-2: the backend job runs on pull requests that touch none of its inputs
 
@@ -70,7 +70,7 @@ Time to red, over the 4 most recent failed runs: the first red step came at 86s 
 - **Expected saving:** 4m05s on the critical path of such a pull request (5m37s to the web job's 1m32s). On every other pull request the backend job starts about 7s later, after the `changes` job.
 - **Still proves:** the ruleset "main requires CI" lists the job; a skipped job satisfies it ("Successful check statuses are success, skipped, and neutral", docs.github.com, Troubleshooting required status checks), as the gated iOS build already relies on.
 - **Source:** the page above; commit bbb62b9, which gated the iOS build the same way.
-- **Outcome:** **applied**, saving to be confirmed by the next pull request without backend changes.
+- **Outcome:** **applied** and **confirmed** by a scratch pull request against this branch (pull request 22, closed unmerged). Its documents-only commit skipped `backend` and `ios` and the run took 94s, the web job's 91s being the longest (run 40896727809). The gate itself moved into `scripts/changed-inputs.sh` with a Jest test, after the review found that a failed diff or a failed gate job skipped the checks; a second scratch commit with a gate job that fails on purpose still ran and passed `backend` and `ios` (run 40897248499).
 
 ## Notes
 
@@ -97,8 +97,7 @@ Time to red, over the 4 most recent failed runs: the first red step came at 86s 
 
 ## Could not measure
 
-- The ccache hit rate and the Build time with hits: no run has had ccache yet. The second run after CI-1 shows them in "Show the compiler cache hits".
-- The wall-clock of a push to `main` on the current workflow: none has run yet.
+- The wall-clock of a push to `main` on the current workflow: none has run yet. The first push after the merge builds the iOS app cold once more, because a pull request's cache is scoped to its merge ref and `main` cannot restore it.
 - The cost of a Docker image cache for `supabase start`: not tried.
 
 ## Commits
@@ -106,4 +105,4 @@ Time to red, over the 4 most recent failed runs: the first red step came at 86s 
 1. 0aadb68 CI's iOS Release build compiles through ccache, which the wrapper in CC only runs when CCACHE_BINARY is in the compiler's environment (CI-1).
 2. a25c3a6 CI runs pgTAP and the end-to-end suite only on main and when a pull request changes what the stack, the e2e cases or the relay read, the way it already gates the iOS build (CI-2).
 
-Skipped: none. Both savings are to be confirmed by the next runs; nothing was pushed.
+Skipped: none. Both savings were confirmed by the runs named in the findings on the same afternoon.
