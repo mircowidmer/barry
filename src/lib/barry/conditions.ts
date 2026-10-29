@@ -23,7 +23,8 @@ const SUBDIVISIONS = ['minus', 'neutral', 'plus'] as const;
 export type ForecastHour = {
   at: Date;
   temperatureC: number;
-  precipitationMm: number;
+  /** Null when the forecast has no value for the hour. */
+  precipitationMm: number | null;
   gustsKmh: number;
   /** The WMO weather code, which picks the symbol. */
   weatherCode: number;
@@ -71,7 +72,7 @@ type OpenMeteo = {
   hourly: {
     time: number[];
     temperature_2m: number[];
-    precipitation: number[];
+    precipitation: (number | null)[];
     wind_gusts_10m: number[];
     weather_code: number[];
     freezing_level_height?: (number | null)[];
@@ -83,7 +84,7 @@ const parseForecast = (json: unknown): ForecastHour[] => {
   return hourly.time.map((time, i) => ({
     at: new Date(time * 1000),
     temperatureC: hourly.temperature_2m[i] ?? 0,
-    precipitationMm: hourly.precipitation[i] ?? 0,
+    precipitationMm: hourly.precipitation[i] ?? null,
     gustsKmh: hourly.wind_gusts_10m[i] ?? 0,
     weatherCode: hourly.weather_code[i] ?? 0,
     freezingLevelM: hourly.freezing_level_height?.[i] ?? null,
@@ -156,6 +157,8 @@ export const daylightView = (point: Point, deadline: Date | null, now: Date): Da
 export type ForecastView = {
   hours: (ForecastHour & { thunderstorm: boolean; dark: boolean })[];
   freezingLevelM: { low: number; high: number } | null;
+  /** Every shown hour forecasts no rain or snow, so the table leaves the row out and says so in words. */
+  dry: boolean;
   /** From when the forecast reaches a Deadline beyond it. */
   reachesFrom: Date | null;
 };
@@ -173,6 +176,7 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
   return {
     hours,
     freezingLevelM: freezing.length > 0 ? { low: Math.min(...freezing), high: Math.max(...freezing) } : null,
+    dry: hours.length > 0 && hours.every((h) => h.precipitationMm === 0),
     reachesFrom: deadline && last && deadline > last.at ? new Date(deadline.getTime() - (last.at.getTime() - from)) : null,
   };
 };

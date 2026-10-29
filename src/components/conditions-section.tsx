@@ -95,14 +95,26 @@ function Forecast({ forecast }: { forecast: ForecastView }) {
   return (
     <Section>
       <ThemedText type="smallBold">{t.conditions.forecast}</ThemedText>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hours}>
-        {forecast.hours.map((h) => (
-          <Hour key={h.at.getTime()} hour={h} />
-        ))}
-      </ScrollView>
-      <ThemedText type="small" themeColor="textSecondary">
-        {t.conditions.legend}
-      </ThemedText>
+      <View style={styles.table}>
+        {/* VoiceOver reads each hour as a sentence with its units, so the label column is decoration to it. */}
+        <View style={[styles.hour, styles.labels]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <ThemedText type="small"> </ThemedText>
+          <View style={styles.symbolSpace} />
+          <RowLabel icon="thermometer.medium" />
+          {!forecast.dry && <RowLabel icon="drop" unit={t.conditions.units.precipitation} />}
+          <RowLabel icon="wind" unit={t.conditions.units.gusts} />
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll} contentContainerStyle={styles.hours}>
+          {forecast.hours.map((h) => (
+            <Hour key={h.at.getTime()} hour={h} dry={forecast.dry} />
+          ))}
+        </ScrollView>
+      </View>
+      {forecast.dry && (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t.conditions.dry}
+        </ThemedText>
+      )}
       {forecast.freezingLevelM && (
         <ThemedText type="small" themeColor="textSecondary">
           {t.conditions.freezingLevel(metres(forecast.freezingLevelM.low), metres(forecast.freezingLevelM.high))}
@@ -135,12 +147,26 @@ function Clock({ icon, label, at }: { icon: SymbolViewProps['name']; label: stri
   );
 }
 
-function Hour({ hour }: { hour: ForecastView['hours'][number] }) {
+function RowLabel({ icon, unit }: { icon: SymbolViewProps['name']; unit?: string }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.rowLabel}>
+      <SymbolView name={icon} size={14} tintColor={theme.textSecondary} fallback={null} />
+      {unit && (
+        <ThemedText type="small" themeColor="textSecondary">
+          {unit}
+        </ThemedText>
+      )}
+    </View>
+  );
+}
+
+function Hour({ hour, dry }: { hour: ForecastView['hours'][number]; dry: boolean }) {
   const theme = useTheme();
   const t = useTexts();
   const time = formatClock(hour.at);
   const temperature = `${Math.round(hour.temperatureC)}°`;
-  const precipitation = `${hour.precipitationMm.toFixed(1)} mm`;
+  const precipitation = hour.precipitationMm === null ? null : `${hour.precipitationMm.toFixed(1)} mm`;
   const gusts = `${Math.round(hour.gustsKmh)} km/h`;
   return (
     <View
@@ -158,9 +184,11 @@ function Hour({ hour }: { hour: ForecastView['hours'][number] }) {
         fallback={null}
       />
       <ThemedText type="smallBold">{temperature}</ThemedText>
-      <ThemedText type="small" themeColor={hour.precipitationMm > 0 ? 'accent' : 'textSecondary'}>
-        {hour.precipitationMm > 0 ? hour.precipitationMm.toFixed(1) : '–'}
-      </ThemedText>
+      {!dry && (
+        <ThemedText type="small" themeColor={hour.precipitationMm ? 'accent' : 'textSecondary'}>
+          {hour.precipitationMm === null ? '–' : hour.precipitationMm > 0 ? hour.precipitationMm.toFixed(1) : '0'}
+        </ThemedText>
+      )}
       <ThemedText type="small" themeColor="textSecondary">
         {Math.round(hour.gustsKmh)}
       </ThemedText>
@@ -206,8 +234,14 @@ const styles = StyleSheet.create({
   daylight: { flexDirection: 'row', gap: 24 },
   clock: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   clockTime: { fontSize: 22, lineHeight: 28, fontWeight: 600 },
+  table: { flexDirection: 'row', gap: 4 },
+  scroll: { flex: 1 },
   hours: { gap: 4 },
   hour: { alignItems: 'center', gap: 4, minWidth: 44, paddingVertical: 6, paddingHorizontal: 4, borderRadius: 10 },
+  labels: { alignItems: 'flex-start', minWidth: 0 },
+  // The spacer and the row labels take the heights of the symbol and of the small text, so the rows line up with the hours.
+  symbolSpace: { height: 22 },
+  rowLabel: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 20 },
   level: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   levelSquare: { minWidth: 40, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
   levelNumber: { fontSize: 18, lineHeight: 22, fontWeight: 700, color: '#000000' },
