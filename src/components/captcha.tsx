@@ -8,8 +8,9 @@ import { turnstilePage, turnstileToken } from '@/lib/turnstile';
 // Set for the cloud builds only. The local stack asks for no captcha, so a build without a key shows none.
 const SITE_KEY = process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY || null;
 
-// The page itself, which says it comes from barry.support, and Turnstile, which loads from challenges.cloudflare.com
-// and renders its challenge in about:srcdoc frames. The view loads nothing else.
+// The page itself, which says it comes from barry.support, and Turnstile: challenges.cloudflare.com, the one frame
+// source Cloudflare's Content Security Policy guide names, and the about:srcdoc frames it renders its challenge in.
+// The view loads nothing else.
 const ORIGINS = [SITE, 'https://challenges.cloudflare.com', 'about:srcdoc'];
 
 export type Captcha = {
