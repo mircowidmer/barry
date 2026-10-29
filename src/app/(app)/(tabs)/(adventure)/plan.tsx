@@ -4,6 +4,7 @@ import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Alert, Keyboard, Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
+import { ConditionsSection } from '@/components/conditions-section';
 import { DestinationPreview, type MapCamera } from '@/components/destination-map';
 import { Button, Field, FirstLoad, pressedStyle, Row, Screen, Section } from '@/components/form';
 import { Note } from '@/components/grouped-list';
@@ -386,6 +387,8 @@ function PlanForm({
           )}
         </Section>
       )}
+
+      {adventure?.stage === 'planned' && <ConditionsSection adventure={adventure} darkWarning={false} />}
 
       <Section title={t.plan.contacts}>
         {data.contacts.length === 0 && (
