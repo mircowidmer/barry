@@ -2,7 +2,7 @@ import type { Database } from '@/lib/database';
 import type { AppLanguage } from '@/lib/language';
 
 import type { PendingCheckIn } from './check-in-queue';
-import type { ConditionsView } from './conditions';
+import type { ConditionsResult } from './conditions';
 
 type Brand<T, B extends string> = T & { readonly __brand: B };
 export type AdventureId = Brand<string, 'AdventureId'>;
@@ -171,8 +171,8 @@ export type Barry = {
   findPlaces(query: string): Promise<Place[]>;
   /** One reading of where the phone is, or null without permission or a fix in time. */
   currentPosition(): Promise<Position | null>;
-  /** The weather, avalanche bulletin and daylight at the destination on the map. */
-  conditions(adventure: Adventure): Promise<ConditionsView>;
+  /** The forecast and the avalanche bulletin at a destination on the map. */
+  conditions(point: Point): Promise<ConditionsResult>;
   deleteAdventure(id: AdventureId): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;
   /** Deletes the signed-in account with everything it owns, then signs out on this phone. */
   deleteAccount(): Promise<{ kind: 'deleted' } | { kind: 'refused'; refusal: Refusal }>;

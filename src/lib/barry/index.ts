@@ -4,7 +4,7 @@ import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 
 import { storage } from '@/lib/storage';
-import { supabase } from '@/lib/supabase';
+import { fetchWithTimeout, supabase } from '@/lib/supabase';
 import { appLanguage } from '@/lib/language';
 import { arrivalText, notificationText } from '@/lib/wording';
 
@@ -19,26 +19,18 @@ import type { Place, Position } from './types';
 
 export type * from './types';
 export type { Alarm } from './alarms';
-export type { AvalancheBulletin, ConditionsView, DaylightView, FetchedConditions, ForecastHour } from './conditions';
-export { forecastWindow } from './conditions';
-export { isDark } from './daylight';
+export type { AvalancheBulletin, ConditionsResult, DaylightView, ForecastView } from './conditions';
+export { daylightView, forecastView } from './conditions';
 export { isEmailAddress, isPhoneNumber, reachableAddresses } from './reach';
 export { ARRIVAL_RADIUS_M } from './trail';
 export { darkBefore, startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;
-const FETCH_TIMEOUT_MS = 10_000;
 
 const fetchJson = async (url: string): Promise<unknown> => {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) throw new Error(`${url}: ${response.status}`);
-    return await response.json();
-  } finally {
-    clearTimeout(timer);
-  }
+  const response = await fetchWithTimeout(url);
+  if (!response.ok) throw new Error(`${url}: ${response.status}`);
+  return response.json();
 };
 
 const toPosition = (reading: Location.LocationObject): Position => ({

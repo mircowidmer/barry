@@ -351,7 +351,7 @@ export const createBarry = ({
     findPlaces: async (query) => (query.trim() ? findPlaces(query.trim()) : []),
 
     currentPosition: readPosition,
-    conditions: conditions.forAdventure,
+    conditions: conditions.at,
 
     deleteAdventure: async (id) => {
       const { data, error } = await supabase.rpc('delete_adventure', { p_id: id });
