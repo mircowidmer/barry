@@ -7,7 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { type Adventure, type AvalancheBulletin, barry, type DaylightView, forecastWindow, type ForecastHour } from '@/lib/barry';
+import { type Adventure, type AvalancheBulletin, barry, type DaylightView, forecastWindow, type ForecastHour, isDark, type Point } from '@/lib/barry';
 import { type Texts, useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
@@ -15,9 +15,9 @@ import { formatClock } from '@/lib/wording';
 const DANGER_COLOURS = ['#CCFF66', '#FFFF00', '#FF9900', '#FF0000', '#9B0000'];
 const SUBDIVISION = { minus: '−', neutral: '=', plus: '+' } as const;
 
-const symbol = (code: number): SymbolViewProps['name'] => {
-  if (code === 0) return 'sun.max';
-  if (code <= 2) return 'cloud.sun';
+const symbol = (code: number, dark: boolean): SymbolViewProps['name'] => {
+  if (code === 0) return dark ? 'moon.stars' : 'sun.max';
+  if (code <= 2) return dark ? 'cloud.moon' : 'cloud.sun';
   if (code === 3) return 'cloud';
   if (code <= 48) return 'cloud.fog';
   if (code <= 57) return 'cloud.drizzle';
@@ -48,6 +48,8 @@ export function ConditionsSection({ adventure, darkWarning = true }: { adventure
     );
   }
 
+  const point = adventure.plan.destinationPoint;
+  if (!point) return null;
   const window = view.kind === 'unavailable' ? null : forecastWindow(view.conditions.forecast, now, adventure.deadline);
   const freezing = window?.hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null) ?? [];
   return (
@@ -71,9 +73,12 @@ export function ConditionsSection({ adventure, darkWarning = true }: { adventure
               <ThemedText type="smallBold">{t.conditions.forecast}</ThemedText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hours}>
                 {window.hours.map((h) => (
-                  <Hour key={h.at.getTime()} hour={h} t={t} />
+                  <Hour key={h.at.getTime()} hour={h} point={point} t={t} />
                 ))}
               </ScrollView>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t.conditions.legend}
+              </ThemedText>
               {freezing.length > 0 && (
                 <ThemedText type="small" themeColor="textSecondary">
                   {t.conditions.freezingLevel(metres(Math.min(...freezing)), metres(Math.max(...freezing)))}
@@ -133,7 +138,7 @@ function Clock({ icon, label, at }: { icon: SymbolViewProps['name']; label: stri
   );
 }
 
-function Hour({ hour, t }: { hour: ForecastHour; t: Texts }) {
+function Hour({ hour, point, t }: { hour: ForecastHour; point: Point; t: Texts }) {
   const theme = useTheme();
   const time = formatClock(hour.at);
   const temperature = `${Math.round(hour.temperatureC)}°`;
@@ -148,7 +153,7 @@ function Hour({ hour, t }: { hour: ForecastHour; t: Texts }) {
         {time.slice(0, 2)}
       </ThemedText>
       <SymbolView
-        name={symbol(hour.weatherCode)}
+        name={symbol(hour.weatherCode, isDark(point, hour.at))}
         size={22}
         type="multicolor"
         tintColor={hour.thunderstorm ? theme.warning : theme.text}
