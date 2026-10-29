@@ -73,7 +73,7 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null
       </Section>
       {result?.kind === 'unavailable' && <Note icon="wifi.slash">{t.conditions.needSignal}</Note>}
       {result?.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(result.conditions.fetchedAt))}</Note>}
-      {shown && shown.hours.length > 0 && <Forecast forecast={shown} now={now} />}
+      {shown && (shown.hours.length > 0 || shown.reachesFrom) && <Forecast forecast={shown} now={now} />}
       {conditions?.bulletin && <Bulletin bulletin={conditions.bulletin} />}
       <ThemedText type="small" themeColor="textSecondary">
         {t.conditions.credits}
@@ -104,21 +104,23 @@ function Forecast({ forecast, now }: { forecast: ForecastView; now: Date }) {
   return (
     <Section>
       <ThemedText type="smallBold">{t.conditions.forecast(day)}</ThemedText>
-      <View style={styles.table}>
-        {/* VoiceOver reads each hour as a sentence with its units, so the label column is decoration to it. */}
-        <View style={[styles.hour, styles.labels]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <ThemedText type="small"> </ThemedText>
-          <View style={styles.symbolSpace} />
-          <RowLabel icon="thermometer.medium" />
-          {!forecast.dry && <RowLabel icon="drop" unit={t.conditions.units.precipitation} />}
-          <RowLabel icon="wind" unit={t.conditions.units.gusts} />
+      {forecast.hours.length > 0 && (
+        <View style={styles.table}>
+          {/* VoiceOver reads each hour as a sentence with its units, so the label column is decoration to it. */}
+          <View style={[styles.hour, styles.labels]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            <ThemedText type="small"> </ThemedText>
+            <View style={styles.symbolSpace} />
+            <RowLabel icon="thermometer.medium" />
+            {!forecast.dry && <RowLabel icon="drop" unit={t.conditions.units.precipitation} />}
+            <RowLabel icon="wind" unit={t.conditions.units.gusts} />
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll} contentContainerStyle={styles.hours}>
+            {forecast.hours.map((h) => (
+              <Hour key={h.at.getTime()} hour={h} dry={forecast.dry} />
+            ))}
+          </ScrollView>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll} contentContainerStyle={styles.hours}>
-          {forecast.hours.map((h) => (
-            <Hour key={h.at.getTime()} hour={h} dry={forecast.dry} />
-          ))}
-        </ScrollView>
-      </View>
+      )}
       {forecast.dry && (
         <ThemedText type="small" themeColor="textSecondary">
           {t.conditions.dry(day)}
