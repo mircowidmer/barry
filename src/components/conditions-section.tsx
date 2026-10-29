@@ -42,7 +42,7 @@ const symbol = (code: number, dark: boolean): SymbolViewProps['name'] => {
 const metres = (m: number) => String(Math.round(m / 100) * 100);
 
 /** The weather, the avalanche bulletin and the daylight at the destination on the map for the Adventure Day. Advice only, so it warns about nothing. */
-export function ConditionsSection({ point, deadline }: { point: Point | null; deadline: Date | null }) {
+export function ConditionsSection({ point, deadline }: { point: Point | null; deadline: Date }) {
   const t = useTexts();
   if (!point) {
     return (
@@ -56,7 +56,7 @@ export function ConditionsSection({ point, deadline }: { point: Point | null; de
   return <ConditionsAt key={cell} point={point} deadline={deadline} />;
 }
 
-function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null }) {
+function ConditionsAt({ point, deadline }: { point: Point; deadline: Date }) {
   const t = useTexts();
   const now = useNow();
   const loaded = useLoad(() => barry.conditions(point));

@@ -170,9 +170,9 @@ export type DaylightView = {
 };
 
 /** Sunset and Dark at the point on the Adventure Day, or today's with the daylight left. */
-export const daylightView = (point: Point, deadline: Date | null, now: Date): DaylightView => {
-  const day = deadline && adventureDay(point, deadline);
-  const otherDay = day && day > now ? day : null;
+export const daylightView = (point: Point, deadline: Date, now: Date): DaylightView => {
+  const day = adventureDay(point, deadline);
+  const otherDay = day > now ? day : null;
   const { sunset, dark } = daylightOnDay(point, otherDay ?? midnightOf(now));
   const left = !otherDay && dark && dark > now && !isDark(point, now) ? dark.getTime() - now.getTime() : null;
   return { otherDay, sunset, dark, left };
@@ -190,12 +190,12 @@ export type ForecastView = {
 };
 
 /** The hours of the Adventure Day that are still to come, through to a Deadline the next morning, at least MIN_FORECAST_HOURS. */
-export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date | null, now: Date): ForecastView => {
+export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date, now: Date): ForecastView => {
   const from = Math.floor(now.getTime() / HOUR_MS) * HOUR_MS;
-  const day = deadline ? adventureDay(point, deadline) : midnightOf(now);
+  const day = adventureDay(point, deadline);
   const lastHour = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23).getTime();
   const start = Math.max(from, day.getTime());
-  const until = Math.max(lastHour, deadline?.getTime() ?? 0, start + (MIN_FORECAST_HOURS - 1) * HOUR_MS);
+  const until = Math.max(lastHour, deadline.getTime(), start + (MIN_FORECAST_HOURS - 1) * HOUR_MS);
   const upcoming = forecast.filter((h) => h.at.getTime() >= from);
   const last = upcoming.at(-1);
   const hours = upcoming
