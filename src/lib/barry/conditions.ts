@@ -62,6 +62,12 @@ const round = (point: Point): Point => ({
 
 const samePlace = (a: Point, b: Point) => a.latitude === b.latitude && a.longitude === b.longitude;
 
+/** The cell of the forecast's grid the point falls in: one place to the Conditions. */
+export const placeKey = (point: Point) => {
+  const { latitude, longitude } = round(point);
+  return `${latitude},${longitude}`;
+};
+
 const openMeteoUrl = ({ latitude, longitude }: Point) =>
   `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
   '&hourly=temperature_2m,precipitation,wind_gusts_10m,weather_code,freezing_level_height&timeformat=unixtime&forecast_days=7';
