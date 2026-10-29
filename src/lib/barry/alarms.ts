@@ -27,7 +27,7 @@ const alarm = (kind: AlarmKind, at: Date, adventure: InProgressAdventure): Alarm
 
 /**
  * The Reminder and the Overdue Notice still ahead of `now`. A Deadline set less than 30 minutes
- * ahead puts the Reminder in the past, which is the server's rule for skipping it.
+ * ahead puts the Reminder in the past, so it is left out here, which is how Barry skips it.
  */
 export const dueAlarms = (adventure: InProgressAdventure | null, checkedIn: boolean, now: Date): Alarm[] => {
   if (!adventure || checkedIn) return [];
