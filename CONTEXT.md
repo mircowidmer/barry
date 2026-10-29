@@ -56,6 +56,14 @@ _Avoid_: Track, breadcrumbs, route, live location
 The web page where an Emergency Contact follows an Adventure's Trail through their own link, without an account.
 _Avoid_: Live map, tracking page, share link
 
+**Conditions**:
+The weather forecast, the avalanche bulletin and the daylight at the destination on the map, which Barry shows the Adventurer for a Planned or Active Adventure.
+_Avoid_: Weather, hazards, forecast (as the name of the whole)
+
+**Dark**:
+The moment the sky gets dark at the destination on the map, at the end of civil twilight. Barry warns the Adventurer when their Deadline falls after Dark or before the sky gets light again.
+_Avoid_: Nightfall, sunset, dusk
+
 ### Adventure Stages
 
 **Planned**:
