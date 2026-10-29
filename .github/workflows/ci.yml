@@ -133,17 +133,7 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
-        run: |
-          # A diff that cannot be taken counts as changed, so a broken gate runs the checks instead of skipping them.
-          changed() {
-            [ "$EVENT" != pull_request ] && return 0
-            files=$(git diff --name-only "$BASE...HEAD") || return 0
-            printf '%s\n' "$files" | grep -qE "$1"
-          }
-          native='^(package(-lock)?\.json|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml)'
-          backend='^(package(-lock)?\.json|patches/|supabase/|e2e/|scripts/sms-relay\.mjs|src/lib/database\.types\.ts|\.claude/skills/barry-backend-verify/scripts/doctor\.sh|\.github/workflows/ci\.yml)'
-          echo "native=$(changed "$native" && echo true || echo false)" >> "$GITHUB_OUTPUT"
-          echo "backend=$(changed "$backend" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        run: scripts/changed-inputs.sh >> "$GITHUB_OUTPUT"
 
   ios-bundle:
     name: iOS JavaScript bundle
