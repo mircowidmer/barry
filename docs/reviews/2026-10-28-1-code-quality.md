@@ -9,7 +9,7 @@ Branch `maintenance-2026-10-28` (created from `main`), the first step of the mai
 - **Stricter compiler probe** (`noImplicitReturns`, `noFallthroughCasesInSwitch`, `noImplicitOverride`, `noUnusedLocals`, `noUnusedParameters`; `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are on already): 0 errors in the app code.
 - **Type-aware lint probe** (`react-hooks` `recommended-latest` 7.1.1, the typescript-eslint rules marked *Tool*): 8 messages, all cleared by reading or already listed (end of section 2).
 - **Findings:** 33, 2 certain and 31 likely. Runtime 19, accessibility 3, performance 3, maintainability 8. 7 are new since 23 October.
-- **Fixes:** none. The two certain findings change which answer a screen shows in a race (rule 2), as on 21 and 23 October.
+- **Fixes:** none during the pass: the two certain findings change which answer a screen shows in a race (rule 2), as on 21 and 23 October. After the pass, at the author's request, findings 1, 2 and 22 were fixed.
 - **Since 23 October:** the `wording.ts` and `supabase.ts` assertions, the `channel!` and `address!` assertions and the `as unknown as` casts in `client.ts`, the `row.kind` cast, and the index key on the delivery failures are gone.
 - **The three findings that matter most:**
   1. The delivery failures and the Trail status are still loaded with no ignore flag (`(adventure)/index.tsx:164`, `use-trail-status.ts:11`).
@@ -22,8 +22,8 @@ Ranked: runtime, then accessibility, performance and maintainability. **New** ma
 
 | # | Where | Rule (source) | Code | Better | Certainty | Outcome |
 |---|---|---|---|---|---|---|
-| 1 | src/app/(app)/(tabs)/(adventure)/index.tsx:164 | Async work in an effect ignores a late result (react.dev, You Might Not Need an Effect) | `barry.deliveryFailures(initial.id).then(setFailures, () => undefined);` | an `ignore` flag set in the cleanup | certain | skipped: rule 2 |
-| 2 | src/hooks/use-trail-status.ts:11 | same | `barry.trail.status().then(setStatus, () => undefined);` | a request counter as in `useLoad` | certain | skipped: rule 2 |
+| 1 | src/app/(app)/(tabs)/(adventure)/index.tsx:164 | Async work in an effect ignores a late result (react.dev, You Might Not Need an Effect) | `barry.deliveryFailures(initial.id).then(setFailures, () => undefined);` | an `ignore` flag set in the cleanup | certain | **fixed** acd37e1, at the author's request |
+| 2 | src/hooks/use-trail-status.ts:11 | same | `barry.trail.status().then(setStatus, () => undefined);` | a request counter as in `useLoad` | certain | **fixed** e0e43e5, at the author's request |
 | 3 | src/app/(app)/sign-in.tsx:142 | **New.** Every subscription an effect starts is removed, and effects sync with something outside React (react.dev, Separating Events from Effects) | `useEffect(() => { const subscription = AppState.addEventListener(...` with no dependency array | read `busy` and `captcha` through `useEffectEvent`, and subscribe once with `[]` | likely | skipped: rule 1 |
 | 4 | src/components/destination-map.tsx:57 | **New.** Components are pure; no `ref.current` reads in render, effects not used to track mount (react.dev, Rules of React) | `const mounted = useRef(false); useEffect(() => { if (!mounted.current) { ...` | the comment names a real native constraint; in Strict Mode the double effect run moves the map on mount anyway, so the guard does not hold in development | likely | skipped: rule 1 |
 | 5 | src/app/(app)/(tabs)/(adventure)/plan.tsx:298 | **New.** Stable, unique key from the data (react.dev, Rendering Lists) | `` key={`${place.point.latitude},${place.point.longitude}`} `` | two places Apple Maps returns at one coordinate (a building and a business in it) share a key; add the name | likely | skipped: rule 1 |
@@ -43,7 +43,7 @@ Ranked: runtime, then accessibility, performance and maintainability. **New** ma
 | 19 | src/components/pin-picker.tsx:37 | **New.** An effect or handler's async work keeps its state honest (react.dev) | `setLocating(true); const here = await barry.currentPosition(); setLocating(false);` | `readPosition` never rejects today, so this holds; a `try/finally` would keep it so if it ever did | likely | skipped: rule 1 |
 | 20 | src/components/captcha.tsx:9 | **New.** Defaults use `??` (probe) | `process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY \|\| null` | the `\|\|` is right (an empty key means none) but, unlike `phone-contact.ts:48`, says nothing about it | likely | skipped: rule 1 |
 | 21 | src/app/(app)/_layout.web.tsx:7 | Texts live in the texts modules (AGENTS.md) | `<ThemedText>Barry runs on iPhone.</ThemedText>` | `siteText` | likely | skipped: rule 2 |
-| 22 | src/components/destination-map.tsx:85 | **New.** Touch targets are at least 44 points (reactnative.dev, Accessibility) | `adjustTarget: { height: 34, ... }` | `hitSlop` of 5 points | likely | skipped: rule 2, it changes where a tap lands |
+| 22 | src/components/destination-map.tsx:85 | **New.** Touch targets are at least 44 points (reactnative.dev, Accessibility) | `adjustTarget: { height: 34, ... }` | a 44-point pressable around the 34-point glass (a `hitSlop` would not reach past the glass) | likely | **fixed** 6ce0772, at the author's request |
 | 23 | src/components/button.tsx:20 | State is announced | `<Pressable accessibilityRole="button" ...>` without `busy` | `accessibilityState={{ busy, disabled }}` | likely | skipped: rule 2 |
 | 24 | src/components/form.tsx:255 | same | `accessibilityState={{ disabled, busy: disabled }}` | `busy` only while a Check-in runs | likely | skipped: rule 1 |
 | 26 | src/app/(app)/(tabs)/history/index.tsx:383 | Long or growing lists are virtualized | `days.map(...)` inside `Screen`'s `ScrollView` | a `SectionList`; the drag selection measures rows, so it needs a redesign | likely | skipped: rule 1 |
@@ -83,6 +83,12 @@ No `any`; no non-null assertions; unions handled exhaustively; type-only imports
 
 ## Commits
 
-None. **Skipped:** 1, 2, 14, 21, 22, 23, 27 (rule 2); 6, 7, 34 (rule 3); every other likely finding (rule 1).
+After the pass, at the author's request:
 
-**Commits the project wants proven in the app:** none.
+1. acd37e1 The Delivery Failures on the live Adventure screen show the newest answer, never a slower one from before the Adventure changed
+2. e0e43e5 The Trail status shows the newest reading of it, never a slower older one
+3. 6ce0772 Adjust on the destination preview takes a tap 44 points high, though its glass stays 34
+
+**Skipped:** 14, 21, 23, 27 (rule 2); 6, 7, 34 (rule 3); every other likely finding (rule 1).
+
+**Commits the project wants proven in the app:** acd37e1, e0e43e5 and 6ce0772 need `/barry-frontend-verify`; none is verified, because this session has no iOS Simulator.
