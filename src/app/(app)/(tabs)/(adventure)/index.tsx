@@ -66,6 +66,7 @@ function Overview({
   onReload: () => Promise<void>;
 }) {
   const t = useTexts();
+  const theme = useTheme();
   const planned = adventures.filter((a) => a.stage === 'planned');
   const remove = async (id: AdventureId) => {
     const outcome = await askToDeleteAdventure(id, 'planned');
@@ -77,7 +78,7 @@ function Overview({
     <Screen onRefresh={onReload}>
       <Stack.Screen options={{ title: t.adventure.title }} />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="plus" accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
+        <Stack.Toolbar.Button icon="plus" tintColor={theme.accent} accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
       </Stack.Toolbar>
       {reloadFailure}
       {offlineSince && (
