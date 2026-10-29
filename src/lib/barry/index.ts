@@ -19,11 +19,26 @@ import type { Place, Position } from './types';
 
 export type * from './types';
 export type { Alarm } from './alarms';
+export type { AvalancheBulletin, ConditionsView, DaylightView, FetchedConditions, ForecastHour } from './conditions';
+export { forecastWindow } from './conditions';
 export { isEmailAddress, isPhoneNumber, reachableAddresses } from './reach';
 export { ARRIVAL_RADIUS_M } from './trail';
 export { darkBefore, startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;
+const FETCH_TIMEOUT_MS = 10_000;
+
+const fetchJson = async (url: string): Promise<unknown> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`${url}: ${response.status}`);
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
+  }
+};
 
 const toPosition = (reading: Location.LocationObject): Position => ({
   takenAt: new Date(reading.timestamp),
@@ -170,4 +185,5 @@ export const barry = createBarry({
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
   notifications,
   location,
+  fetchJson,
 });
