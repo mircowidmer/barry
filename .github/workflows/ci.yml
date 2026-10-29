@@ -159,11 +159,25 @@ jobs:
     if: needs.native.outputs.changed == 'true'
     runs-on: macos-26
     timeout-minutes: 60
+    env:
+      # The Podfile wraps clang in React Native's ccache script when USE_CCACHE is set at pod install.
+      USE_CCACHE: '1'
+      CCACHE_DIR: /Users/runner/Library/Caches/ccache
+      CCACHE_MAXSIZE: 2G
     steps:
       - uses: actions/checkout@v4
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+      - run: brew install ccache
+      # Every build saves a new entry; the newest one any earlier run saved is restored.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            /Users/runner/Library/Caches/ccache
+            /Users/runner/Library/Caches/CocoaPods
+          key: ios-build-${{ github.sha }}
+          restore-keys: ios-build-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -186,3 +200,5 @@ jobs:
           -derivedDataPath ios/build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO build
         env:
           LANG: en_US.UTF-8
+      - name: Show the compiler cache hits
+        run: ccache --show-stats
