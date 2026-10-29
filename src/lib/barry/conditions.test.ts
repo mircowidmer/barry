@@ -201,6 +201,16 @@ describe('forecastView', () => {
     expect(view.reachesFrom).toBeNull();
   });
 
+  it('is dry only when every shown hour forecasts no rain or snow, not when one has some or has no value', () => {
+    const deadline = new Date('2026-02-01T19:00:00Z');
+    expect(forecastView(hours, zermatt, deadline, start).dry).toBe(true);
+    const wet = hours.map((h, i) => (i === 4 ? { ...h, precipitationMm: 0.4 } : h));
+    expect(forecastView(wet, zermatt, deadline, start).dry).toBe(false);
+    const gap = hours.map((h, i) => (i === 4 ? { ...h, precipitationMm: null } : h));
+    expect(forecastView(gap, zermatt, deadline, start).dry).toBe(false);
+    expect(forecastView([], zermatt, deadline, start).dry).toBe(false);
+  });
+
   it('shows at least a few hours when the Deadline is sooner', () => {
     expect(MIN_FORECAST_HOURS).toBe(6);
     expect(forecastView(hours, zermatt, new Date('2026-02-01T10:00:00Z'), start).hours).toHaveLength(MIN_FORECAST_HOURS);
