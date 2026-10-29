@@ -4,7 +4,7 @@ Branch `maintenance-2026-10-28`, the second step of the maintenance pass of 28 O
 
 ## 1. Summary
 
-- **Findings:** 0 Blocking, 1 High, 2 Medium, 0 Low. 2 fixed, 1 skipped.
+- **Findings:** 0 Blocking, 1 High, 2 Medium, 0 Low. All 3 fixed, C-1 at the author's request after the pass.
 - **The findings that matter:**
   1. **C-1 (High):** the privacy page names no Cloudflare and says Apple only distributes the app, but the preview and production builds load Cloudflare Turnstile, and the Plan sheet sends what the Adventurer types to Apple Maps.
   2. **C-2 (Medium):** the spec names an older migration as the last definition of `claim_messages`.
@@ -23,7 +23,7 @@ Branch `maintenance-2026-10-28`, the second step of the maintenance pass of 28 O
 - **True:** the code is right; the page is behind it. Cloudflare sees the phone's address and browser signals during each check; Apple sees the destination text and an approximate position for each search.
 - **Fix:** name Cloudflare Turnstile and Apple Maps' place search in both languages of `web/privacy.html`.
 - **Confidence:** high that the page is incomplete.
-- **Outcome:** skipped. The fix is a new statement in a legal text about what two processors receive; its wording and whether the service list needs a legal review are the author's call, not a mechanical correction.
+- **Outcome:** **fixed** ab59841, at the author's request after the pass.
 
 ### Medium
 
@@ -64,4 +64,6 @@ Branch `maintenance-2026-10-28`, the second step of the maintenance pass of 28 O
 1. 700913e The spec names the latest migration that defines claim_messages and its lease, message_limits
 2. a70fda0 barry-security: the storage check names the Keychain where the app keeps the session, and the plain file it moves an older session out of
 
-**Skipped:** C-1, a new statement in the privacy policy, left to the author.
+3. ab59841 The privacy page names Cloudflare, which checks sign-up, sign-in and the password for bots, and Apple Maps, which gets the typed destination for its suggestions
+
+**Skipped:** none.
