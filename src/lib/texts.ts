@@ -221,6 +221,7 @@ const en = {
     noDark: 'It does not get dark there that night.',
     afterDark: (dark: string) => `Your deadline is after dark, which falls at ${dark}.`,
     forecast: 'Forecast',
+    legend: 'Per hour: temperature, rain or snow in mm, gusts in km/h.',
     forecastFrom: (when: string) => `The forecast reaches your deadline from ${when}.`,
     freezingLevel: (low: string, high: string) => (low === high ? `Freezing level ${low} m` : `Freezing level ${low}–${high} m`),
     hour: (time: string, temperature: string, precipitation: string, gusts: string, thunderstorm: boolean) =>
@@ -560,6 +561,7 @@ const de: Texts = {
     noDark: 'Es wird dort in dieser Nacht nicht dunkel.',
     afterDark: (dark) => `Deine Rückkehrzeit liegt nach Einbruch der Dunkelheit um ${dark}.`,
     forecast: 'Prognose',
+    legend: 'Pro Stunde: Temperatur, Niederschlag in mm, Böen in km/h.',
     forecastFrom: (when) => `Die Prognose reicht ab ${when} bis zu deiner Rückkehrzeit.`,
     freezingLevel: (low, high) => (low === high ? `Nullgradgrenze ${low} m` : `Nullgradgrenze ${low}–${high} m`),
     hour: (time, temperature, precipitation, gusts, thunderstorm) =>
