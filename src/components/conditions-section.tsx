@@ -19,7 +19,7 @@ import {
   type Point,
 } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
-import { formatClock } from '@/lib/wording';
+import { formatClock, formatHour } from '@/lib/wording';
 
 // The European avalanche danger scale's own colours, which the bulletin uses too.
 const DANGER_COLOURS = ['#CCFF66', '#FFFF00', '#FF9900', '#FF0000', '#9B0000'];
@@ -100,10 +100,10 @@ function Daylight({ daylight, now }: { daylight: DaylightView; now: Date }) {
 
 function Forecast({ forecast, now }: { forecast: ForecastView; now: Date }) {
   const t = useTexts();
-  const day = forecast.day.toDateString() === now.toDateString() ? null : t.day(forecast.day, now);
+  const day = forecast.otherDay && t.day(forecast.otherDay, now);
   return (
     <Section>
-      <ThemedText type="smallBold">{day ? t.conditions.forecastOn(day) : t.conditions.forecast}</ThemedText>
+      <ThemedText type="smallBold">{t.conditions.forecast(day)}</ThemedText>
       <View style={styles.table}>
         {/* VoiceOver reads each hour as a sentence with its units, so the label column is decoration to it. */}
         <View style={[styles.hour, styles.labels]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -174,7 +174,8 @@ function Hour({ hour, dry }: { hour: ForecastView['hours'][number]; dry: boolean
   const theme = useTheme();
   const t = useTexts();
   // The first hour of a new day carries its weekday, so Saturday 23:00 and Sunday 00:00 tell apart while scrolling.
-  const time = hour.newDay ? `${t.weekday(hour.at)} ${formatClock(hour.at)}` : formatClock(hour.at);
+  const weekday = hour.newDay ? `${t.weekday(hour.at)} ` : '';
+  const time = `${weekday}${formatClock(hour.at)}`;
   const temperature = `${Math.round(hour.temperatureC)}°`;
   const precipitation = hour.precipitationMm === null ? null : `${hour.precipitationMm.toFixed(1)} mm`;
   const gusts = `${Math.round(hour.gustsKmh)} km/h`;
@@ -184,7 +185,7 @@ function Hour({ hour, dry }: { hour: ForecastView['hours'][number]; dry: boolean
       accessible
       accessibilityLabel={t.conditions.hour(time, temperature, precipitation, gusts, hour.thunderstorm)}>
       <ThemedText type="small" mono themeColor="textSecondary">
-        {time.slice(0, -3)}
+        {`${weekday}${formatHour(hour.at)}`}
       </ThemedText>
       <SymbolView
         name={symbol(hour.weatherCode, hour.dark)}
