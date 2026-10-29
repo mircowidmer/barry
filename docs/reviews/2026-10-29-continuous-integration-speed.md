@@ -107,3 +107,5 @@ Time to red, over the 4 most recent failed runs: the first red step came at 86s 
 2. a25c3a6 CI runs pgTAP and the end-to-end suite only on main and when a pull request changes what the stack, the e2e cases or the relay read, the way it already gates the iOS build (CI-2).
 
 Skipped: none. Both savings are to be confirmed by the next runs; nothing was pushed.
+
+Proof run of 29 October 2026: a pull request that changes only this document must skip the backend job and the iOS build.
