@@ -27,7 +27,7 @@ const sun = (at: Date) => {
 };
 
 /** The sun's height above the horizon at the point, in degrees. */
-export const sunAltitude = (point: Point, at: Date) => {
+const sunAltitude = (point: Point, at: Date) => {
   const { eqTimeMin, declination } = sun(at);
   const utcMin = (at.getTime() % DAY_MS) / 60_000;
   const hourAngle = rad((utcMin + eqTimeMin + 4 * point.longitude) / 4 - 180);
@@ -37,7 +37,7 @@ export const sunAltitude = (point: Point, at: Date) => {
 
 export const isDark = (point: Point, at: Date) => sunAltitude(point, at) < DARK_ALTITUDE;
 
-export type Daylight = { sunset: Date | null; dark: Date | null };
+type Daylight = { sunset: Date | null; dark: Date | null };
 
 /** Sunset and Dark of the day `on` falls in at the point; null where the sun stays above that height all night or never gets there. */
 export const daylightOn = (point: Point, on: Date): Daylight => {

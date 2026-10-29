@@ -8,7 +8,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 
 // A weak signal can leave a request hanging far longer than this. Failing it lets the app fall
 // back to the saved Adventure and keep the Check-in reachable.
-const fetchWithTimeout: typeof fetch = (input, init) => {
+export const fetchWithTimeout: typeof fetch = (input, init) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   const abort = () => controller.abort();

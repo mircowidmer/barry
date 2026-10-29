@@ -276,12 +276,7 @@ function LiveAdventure({
         </Pressable>
       </View>
 
-      {adventure.stage === 'active' && (
-        <ConditionsSection
-          key={[adventure.plan.destinationPoint?.latitude, adventure.plan.destinationPoint?.longitude, adventure.deadline.getTime()].join(' ')}
-          adventure={adventure}
-        />
-      )}
+      {adventure.stage === 'active' && <ConditionsSection adventure={adventure} />}
 
       {failures.length > 0 && (
         <View style={styles.titledCard}>

@@ -1,19 +1,21 @@
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
-import { pressedStyle, Section } from '@/components/form';
+import { Section } from '@/components/form';
 import { GroupHeader, Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { type Adventure, type AvalancheBulletin, barry, type DaylightView, forecastWindow, type ForecastHour, isDark, type Point } from '@/lib/barry';
-import { type Texts, useTexts } from '@/lib/texts';
+import { type Adventure, type AvalancheBulletin, barry, type DaylightView, daylightView, type ForecastView, forecastView, type Point } from '@/lib/barry';
+import { useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
 // The European avalanche danger scale's own colours, which the bulletin uses too.
 const DANGER_COLOURS = ['#CCFF66', '#FFFF00', '#FF9900', '#FF0000', '#9B0000'];
 const SUBDIVISION = { minus: '−', neutral: '=', plus: '+' } as const;
+const HOUR_MS = 3_600_000;
 
 const symbol = (code: number, dark: boolean): SymbolViewProps['name'] => {
   if (code === 0) return dark ? 'moon.stars' : 'sun.max';
@@ -30,70 +32,41 @@ const symbol = (code: number, dark: boolean): SymbolViewProps['name'] => {
 
 const metres = (m: number) => String(Math.round(m / 100) * 100);
 
-/**
- * The weather, the avalanche bulletin and the daylight at the destination on the map. Advice only: the one warning is
- * the Dark one, which the Plan sheet already shows under the Deadline, so it can leave it out here.
- */
-export function ConditionsSection({ adventure, darkWarning = true }: { adventure: Adventure; darkWarning?: boolean }) {
+/** The weather, the avalanche bulletin and the daylight at the destination on the map. Advice only, so it warns about nothing. */
+export function ConditionsSection({ adventure }: { adventure: Adventure }) {
   const t = useTexts();
-  const now = useNow();
-  const loaded = useLoad(() => barry.conditions(adventure));
-  const view = loaded.data;
-  if (!view) return null;
-  if (view.kind === 'no_point') {
+  const point = adventure.plan.destinationPoint;
+  if (!point) {
     return (
       <Section title={t.conditions.title}>
         <Note icon="mappin.slash">{t.conditions.noPoint}</Note>
       </Section>
     );
   }
+  // A moved pin is another place, so it loads afresh; a moved Deadline only changes what is shown.
+  return <ConditionsAt key={`${point.latitude},${point.longitude}`} point={point} deadline={adventure.deadline} />;
+}
 
-  const point = adventure.plan.destinationPoint;
-  if (!point) return null;
-  const window = view.kind === 'unavailable' ? null : forecastWindow(view.conditions.forecast, now, adventure.deadline);
-  const freezing = window?.hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null) ?? [];
+function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null }) {
+  const t = useTexts();
+  const now = useNow();
+  const loaded = useLoad(() => barry.conditions(point));
+  const result = loaded.data;
+  const forecast = result && result.kind !== 'unavailable' ? result.conditions.forecast : null;
+  const hour = Math.floor(now.getTime() / HOUR_MS);
+  // The hours change only with the hour, not with every tick of the clock.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const shown = useMemo(() => forecast && forecastView(forecast, point, deadline, now), [forecast, point, deadline, hour]);
   return (
     <View style={styles.titled}>
       <GroupHeader title={t.conditions.title} />
       <Section>
-        <Daylight daylight={view.daylight} deadline={adventure.deadline} now={now} />
-        {darkWarning && view.daylight.afterDark && (
-          <Note tone="warning" icon="moon.stars">
-            {t.conditions.afterDark(t.when(view.daylight.afterDark))}
-          </Note>
-        )}
+        <Daylight daylight={daylightView(point, deadline, now)} now={now} />
       </Section>
-      {view.kind === 'unavailable' ? (
-        <Note icon="wifi.slash">{t.conditions.needSignal}</Note>
-      ) : (
-        <>
-          {view.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(view.conditions.fetchedAt))}</Note>}
-          {window && window.hours.length > 0 && (
-            <Section>
-              <ThemedText type="smallBold">{t.conditions.forecast}</ThemedText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hours}>
-                {window.hours.map((h) => (
-                  <Hour key={h.at.getTime()} hour={h} point={point} t={t} />
-                ))}
-              </ScrollView>
-              <ThemedText type="small" themeColor="textSecondary">
-                {t.conditions.legend}
-              </ThemedText>
-              {freezing.length > 0 && (
-                <ThemedText type="small" themeColor="textSecondary">
-                  {t.conditions.freezingLevel(metres(Math.min(...freezing)), metres(Math.max(...freezing)))}
-                </ThemedText>
-              )}
-              {window.reachesFrom && (
-                <ThemedText type="small" themeColor="textSecondary">
-                  {t.conditions.forecastFrom(t.when(window.reachesFrom))}
-                </ThemedText>
-              )}
-            </Section>
-          )}
-          {view.conditions.bulletin && <Bulletin bulletin={view.conditions.bulletin} />}
-        </>
-      )}
+      {result?.kind === 'unavailable' && <Note icon="wifi.slash">{t.conditions.needSignal}</Note>}
+      {result?.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(result.conditions.fetchedAt))}</Note>}
+      {shown && shown.hours.length > 0 && <Forecast forecast={shown} />}
+      {result && result.kind !== 'unavailable' && result.conditions.bulletin && <Bulletin bulletin={result.conditions.bulletin} />}
       <ThemedText type="small" themeColor="textSecondary">
         {t.conditions.credits}
       </ThemedText>
@@ -101,22 +74,46 @@ export function ConditionsSection({ adventure, darkWarning = true }: { adventure
   );
 }
 
-function Daylight({ daylight, deadline, now }: { daylight: DaylightView; deadline: Date | null; now: Date }) {
+function Daylight({ daylight, now }: { daylight: DaylightView; now: Date }) {
   const t = useTexts();
-  const otherDay = deadline && deadline > now && deadline.toDateString() !== now.toDateString();
   return (
     <>
-      {otherDay && <ThemedText type="smallBold">{t.conditions.on(t.day(deadline, now))}</ThemedText>}
+      {daylight.otherDay && <ThemedText type="smallBold">{t.conditions.on(t.day(daylight.otherDay, now))}</ThemedText>}
       <View style={styles.daylight}>
         <Clock icon="sunset" label={t.conditions.sunset} at={daylight.sunset} />
         <Clock icon="moon.stars" label={t.conditions.dark} at={daylight.dark} />
       </View>
       {!daylight.sunset && <ThemedText type="small">{t.conditions.noSunset}</ThemedText>}
       {daylight.sunset && !daylight.dark && <ThemedText type="small">{t.conditions.noDark}</ThemedText>}
-      {daylight.left !== null && daylight.dark && daylight.dark > now && (
-        <ThemedText type="small">{t.conditions.left(t.duration(daylight.dark.getTime() - now.getTime()))}</ThemedText>
-      )}
+      {daylight.left !== null && <ThemedText type="small">{t.conditions.left(t.duration(daylight.left))}</ThemedText>}
     </>
+  );
+}
+
+function Forecast({ forecast }: { forecast: ForecastView }) {
+  const t = useTexts();
+  return (
+    <Section>
+      <ThemedText type="smallBold">{t.conditions.forecast}</ThemedText>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hours}>
+        {forecast.hours.map((h) => (
+          <Hour key={h.at.getTime()} hour={h} />
+        ))}
+      </ScrollView>
+      <ThemedText type="small" themeColor="textSecondary">
+        {t.conditions.legend}
+      </ThemedText>
+      {forecast.freezingLevelM && (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t.conditions.freezingLevel(metres(forecast.freezingLevelM.low), metres(forecast.freezingLevelM.high))}
+        </ThemedText>
+      )}
+      {forecast.reachesFrom && (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t.conditions.forecastFrom(t.when(forecast.reachesFrom))}
+        </ThemedText>
+      )}
+    </Section>
   );
 }
 
@@ -138,8 +135,9 @@ function Clock({ icon, label, at }: { icon: SymbolViewProps['name']; label: stri
   );
 }
 
-function Hour({ hour, point, t }: { hour: ForecastHour; point: Point; t: Texts }) {
+function Hour({ hour }: { hour: ForecastView['hours'][number] }) {
   const theme = useTheme();
+  const t = useTexts();
   const time = formatClock(hour.at);
   const temperature = `${Math.round(hour.temperatureC)}°`;
   const precipitation = `${hour.precipitationMm.toFixed(1)} mm`;
@@ -153,7 +151,7 @@ function Hour({ hour, point, t }: { hour: ForecastHour; point: Point; t: Texts }
         {time.slice(0, 2)}
       </ThemedText>
       <SymbolView
-        name={symbol(hour.weatherCode, isDark(point, hour.at))}
+        name={symbol(hour.weatherCode, hour.dark)}
         size={22}
         type="multicolor"
         tintColor={hour.thunderstorm ? theme.warning : theme.text}
@@ -191,11 +189,14 @@ function Bulletin({ bulletin }: { bulletin: AvalancheBulletin }) {
       <ThemedText type="small" themeColor="textSecondary">
         {t.conditions.validUntil(t.when(bulletin.validUntil))}
       </ThemedText>
-      <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(t.conditions.bulletinUrl)} style={pressedStyle}>
-        <ThemedText type="small" themeColor="accent">
-          {t.conditions.fullBulletin}
-        </ThemedText>
-      </Pressable>
+      <ThemedText
+        type="small"
+        themeColor="accent"
+        accessibilityRole="link"
+        style={styles.link}
+        onPress={() => void Linking.openURL(t.conditions.bulletinUrl).catch(() => undefined)}>
+        {t.conditions.fullBulletin}
+      </ThemedText>
     </Section>
   );
 }
@@ -210,4 +211,6 @@ const styles = StyleSheet.create({
   level: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   levelSquare: { minWidth: 40, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
   levelNumber: { fontSize: 18, lineHeight: 22, fontWeight: 700, color: '#000000' },
+  // Padding brings the small text up to the 44-point hit target iOS asks for.
+  link: { paddingVertical: 12 },
 });
