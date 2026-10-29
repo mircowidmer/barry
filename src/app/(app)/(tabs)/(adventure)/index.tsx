@@ -276,7 +276,7 @@ function LiveAdventure({
         </Pressable>
       </View>
 
-      {adventure.stage === 'active' && <ConditionsSection adventure={adventure} />}
+      {adventure.stage === 'active' && <ConditionsSection point={adventure.plan.destinationPoint} deadline={adventure.deadline} />}
 
       {failures.length > 0 && (
         <View style={styles.titledCard}>

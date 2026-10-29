@@ -1,13 +1,23 @@
 import type { DeliveryFailure, Refusal } from '@/lib/barry';
 import { LIMITS } from '@/lib/barry/limits';
 import { appLanguage, useAppLanguage } from '@/lib/language';
-import { formatDay, formatDayGerman, formatDuration, formatDurationGerman, formatWhen, formatWhenGerman } from '@/lib/wording';
+import {
+  formatDay,
+  formatDayGerman,
+  formatDuration,
+  formatDurationGerman,
+  formatWeekday,
+  formatWeekdayGerman,
+  formatWhen,
+  formatWhenGerman,
+} from '@/lib/wording';
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 const en = {
   when: formatWhen,
   day: formatDay,
+  weekday: formatWeekday,
   duration: formatDuration,
   common: {
     cancel: 'Cancel',
@@ -220,9 +230,10 @@ const en = {
     noSunset: 'The sun does not set there that day.',
     noDark: 'It does not get dark there that night.',
     forecast: 'Forecast',
+    forecastOn: (day: string) => `Forecast for ${day}`,
     units: { precipitation: 'mm', gusts: 'km/h' },
-    dry: 'No rain or snow expected until your deadline.',
-    forecastFrom: (when: string) => `The forecast reaches your deadline from ${when}.`,
+    dry: (day: string | null) => (day ? `No rain or snow expected on ${day}.` : 'No rain or snow expected today.'),
+    forecastFrom: (when: string, day: string | null) => `The forecast reaches ${day ?? 'today'} from ${when}.`,
     freezingLevel: (low: string, high: string) => (low === high ? `Freezing level ${low} m` : `Freezing level ${low}–${high} m`),
     hour: (time: string, temperature: string, precipitation: string | null, gusts: string, thunderstorm: boolean) =>
       `${time}: ${temperature}, ${precipitation === null ? 'rain or snow unknown' : `${precipitation} of rain or snow`}, gusts ${gusts}${thunderstorm ? ', thunderstorms' : ''}`,
@@ -346,6 +357,7 @@ export type Texts = typeof en;
 const de: Texts = {
   when: formatWhenGerman,
   day: formatDayGerman,
+  weekday: formatWeekdayGerman,
   duration: formatDurationGerman,
   common: {
     cancel: 'Abbrechen',
@@ -560,9 +572,10 @@ const de: Texts = {
     noSunset: 'Die Sonne geht dort an diesem Tag nicht unter.',
     noDark: 'Es wird dort in dieser Nacht nicht dunkel.',
     forecast: 'Prognose',
+    forecastOn: (day) => `Prognose für ${day}`,
     units: { precipitation: 'mm', gusts: 'km/h' },
-    dry: 'Bis zu deiner Rückkehrzeit ist kein Niederschlag zu erwarten.',
-    forecastFrom: (when) => `Die Prognose reicht ab ${when} bis zu deiner Rückkehrzeit.`,
+    dry: (day) => (day ? `Am ${day} ist kein Niederschlag zu erwarten.` : 'Heute ist kein Niederschlag zu erwarten.'),
+    forecastFrom: (when, day) => `Die Prognose reicht ${day ? `bis ${day}` : 'bis heute'} ab ${when}.`,
     freezingLevel: (low, high) => (low === high ? `Nullgradgrenze ${low} m` : `Nullgradgrenze ${low}–${high} m`),
     hour: (time, temperature, precipitation, gusts, thunderstorm) =>
       `${time}: ${temperature}, ${precipitation === null ? 'Niederschlag unbekannt' : `${precipitation} Niederschlag`}, Böen ${gusts}${thunderstorm ? ', Gewitter' : ''}`,

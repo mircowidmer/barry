@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  adventureDay,
   CONDITIONS_REFRESH_MS,
   createConditions,
   daylightView,
@@ -220,61 +221,101 @@ describe('Conditions', () => {
   });
 });
 
+// The view tests read the clock in the phone's zone, as the screen does: February 2026 at Zermatt, where dawn is after 07:00 and Dark before 18:30.
+const at = (day: number, hour: number, minute = 0) => new Date(2026, 1, day, hour, minute);
+const now = new Date(2026, 1, 1, 10, 20);
+
+describe('adventureDay', () => {
+  it('is the Deadline’s day, or the day before when the Deadline falls in the dark before dawn', () => {
+    expect(adventureDay(zermatt, at(2, 15))).toEqual(at(2, 0));
+    expect(adventureDay(zermatt, at(2, 22))).toEqual(at(2, 0));
+    expect(adventureDay(zermatt, at(2, 1))).toEqual(at(1, 0));
+    expect(adventureDay(zermatt, at(2, 6))).toEqual(at(1, 0));
+  });
+});
+
 describe('daylightView', () => {
   it('counts the daylight left until Dark today', () => {
-    const view = daylightView(zermatt, new Date(start.getTime() + 8 * HOUR), start);
+    const view = daylightView(zermatt, at(1, 18), now);
     expect(view.otherDay).toBeNull();
-    expect(view.left).toBe(view.dark!.getTime() - start.getTime());
+    expect(view.left).toBe(view.dark!.getTime() - now.getTime());
   });
 
-  it('shows the Deadline’s day when it is not today, without the daylight left', () => {
-    const deadline = new Date('2026-02-03T15:00:00Z');
-    const view = daylightView(zermatt, deadline, start);
-    expect(view.otherDay).toEqual(deadline);
-    expect(view.dark!.toDateString()).toBe(deadline.toDateString());
+  it('shows the Adventure Day when it is not today, without the daylight left', () => {
+    const view = daylightView(zermatt, at(3, 15), now);
+    expect(view.otherDay).toEqual(at(3, 0));
+    expect(view.dark!.toDateString()).toBe(at(3, 0).toDateString());
     expect(view.left).toBeNull();
+  });
+
+  it('stays on today for a Deadline before tomorrow’s dawn', () => {
+    const view = daylightView(zermatt, at(2, 1), now);
+    expect(view.otherDay).toBeNull();
+    expect(view.dark!.toDateString()).toBe(now.toDateString());
   });
 });
 
 describe('forecastView', () => {
-  const hours: ForecastHour[] = Array.from({ length: 48 }, (_, i) => ({
-    at: new Date(Date.parse('2026-02-01T09:00:00Z') + i * HOUR),
+  const hours: ForecastHour[] = Array.from({ length: 7 * 24 }, (_, i) => ({
+    at: new Date(at(1, 0).getTime() + i * HOUR),
     temperatureC: 0,
     precipitationMm: 0,
     gustsKmh: 0,
-    weatherCode: i === 2 ? 95 : 0,
+    weatherCode: i === 12 ? 95 : 0,
     freezingLevelM: 2000 + i * 10,
   }));
 
-  it('covers the hours from now until the Deadline, with the thunderstorm and the dark hours marked', () => {
-    const view = forecastView(hours, zermatt, new Date('2026-02-01T19:00:00Z'), start);
-    expect(view.hours[0]!.at).toEqual(new Date('2026-02-01T09:00:00Z'));
-    expect(view.hours.at(-1)!.at).toEqual(new Date('2026-02-01T19:00:00Z'));
+  it('covers the hours of today still to come, with the thunderstorm and the dark hours marked', () => {
+    const view = forecastView(hours, zermatt, at(1, 19), now);
+    expect(view.day).toEqual(at(1, 0));
+    expect(view.hours[0]!.at).toEqual(at(1, 10));
+    expect(view.hours.at(-1)!.at).toEqual(at(1, 23));
     expect(view.hours.map((h) => h.thunderstorm).indexOf(true)).toBe(2);
     expect(view.hours[0]!.dark).toBe(false);
     expect(view.hours.at(-1)!.dark).toBe(true);
-    expect(view.freezingLevelM).toEqual({ low: 2000, high: 2100 });
+    expect(view.hours.some((h) => h.newDay)).toBe(false);
+    expect(view.freezingLevelM).toEqual({ low: 2100, high: 2230 });
     expect(view.reachesFrom).toBeNull();
   });
 
+  it('covers the whole Adventure Day when it is another day', () => {
+    const view = forecastView(hours, zermatt, at(3, 15), now);
+    expect(view.day).toEqual(at(3, 0));
+    expect(view.hours).toHaveLength(24);
+    expect(view.hours[0]!.at).toEqual(at(3, 0));
+    expect(view.hours.at(-1)!.at).toEqual(at(3, 23));
+    expect(view.hours.some((h) => h.newDay)).toBe(false);
+  });
+
+  it('runs through to a Deadline before the next dawn and marks the first hour of the new day', () => {
+    const view = forecastView(hours, zermatt, at(2, 1), now);
+    expect(view.day).toEqual(at(1, 0));
+    expect(view.hours[0]!.at).toEqual(at(1, 10));
+    expect(view.hours.at(-1)!.at).toEqual(at(2, 1));
+    expect(view.hours.filter((h) => h.newDay).map((h) => h.at)).toEqual([at(2, 0)]);
+  });
+
   it('is dry only when every shown hour forecasts no rain or snow, not when one has some or has no value', () => {
-    const deadline = new Date('2026-02-01T19:00:00Z');
-    expect(forecastView(hours, zermatt, deadline, start).dry).toBe(true);
-    const wet = hours.map((h, i) => (i === 4 ? { ...h, precipitationMm: 0.4 } : h));
-    expect(forecastView(wet, zermatt, deadline, start).dry).toBe(false);
-    const gap = hours.map((h, i) => (i === 4 ? { ...h, precipitationMm: null } : h));
-    expect(forecastView(gap, zermatt, deadline, start).dry).toBe(false);
-    expect(forecastView([], zermatt, deadline, start).dry).toBe(false);
+    const deadline = at(1, 19);
+    expect(forecastView(hours, zermatt, deadline, now).dry).toBe(true);
+    const wet = hours.map((h, i) => (i === 14 ? { ...h, precipitationMm: 0.4 } : h));
+    expect(forecastView(wet, zermatt, deadline, now).dry).toBe(false);
+    const gap = hours.map((h, i) => (i === 14 ? { ...h, precipitationMm: null } : h));
+    expect(forecastView(gap, zermatt, deadline, now).dry).toBe(false);
+    expect(forecastView([], zermatt, deadline, now).dry).toBe(false);
   });
 
-  it('shows at least a few hours when the Deadline is sooner', () => {
+  it('shows at least a few hours late in the day, past midnight', () => {
     expect(MIN_FORECAST_HOURS).toBe(6);
-    expect(forecastView(hours, zermatt, new Date('2026-02-01T10:00:00Z'), start).hours).toHaveLength(MIN_FORECAST_HOURS);
+    const view = forecastView(hours, zermatt, at(1, 22), at(1, 21, 20));
+    expect(view.hours).toHaveLength(MIN_FORECAST_HOURS);
+    expect(view.hours.at(-1)!.at).toEqual(at(2, 2));
+    expect(view.hours.filter((h) => h.newDay).map((h) => h.at)).toEqual([at(2, 0)]);
   });
 
-  it('says from when the forecast reaches a Deadline beyond it', () => {
-    const view = forecastView(hours, zermatt, new Date('2026-02-05T12:00:00Z'), start);
-    expect(view.hours).toHaveLength(48);
-    expect(view.reachesFrom).toEqual(new Date('2026-02-03T13:00:00Z'));
+  it('says from when the forecast reaches an Adventure Day beyond it', () => {
+    const view = forecastView(hours, zermatt, at(9, 15), now);
+    expect(view.hours).toHaveLength(0);
+    expect(view.reachesFrom).toEqual(at(3, 10));
   });
 });

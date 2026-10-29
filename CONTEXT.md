@@ -64,6 +64,10 @@ _Avoid_: Weather, hazards, forecast (as the name of the whole)
 The moment the sky gets dark at the destination on the map, at the end of civil twilight. Barry warns the Adventurer when their Deadline falls after Dark or before the sky gets light again.
 _Avoid_: Nightfall, sunset, dusk
 
+**Adventure Day**:
+The calendar day an Adventure happens on: the Deadline's day, or the day before it when the Deadline falls in the dark before dawn. The Conditions are shown for it.
+_Avoid_: Outing day, trip day, the day of the tour
+
 ### Adventure Stages
 
 **Planned**:
