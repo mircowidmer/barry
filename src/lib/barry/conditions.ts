@@ -212,7 +212,7 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
     hours,
     freezingLevelM: freezing.length > 0 ? { low: Math.min(...freezing), high: Math.max(...freezing) } : null,
     dry: hours.length > 0 && hours.every((h) => h.precipitationMm === 0),
-    reachesFrom: last && until > last.at.getTime() ? new Date(until - (last.at.getTime() - from)) : null,
+    reachesFrom: last && lastHour > last.at.getTime() ? new Date(lastHour - (last.at.getTime() - from)) : null,
   };
 };
 

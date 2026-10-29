@@ -320,9 +320,12 @@ describe('forecastView', () => {
     expect(view.hours.filter((h) => h.newDay).map((h) => h.at)).toEqual([at(2, 0)]);
   });
 
-  it('says from when the forecast reaches an Adventure Day beyond it', () => {
+  it('says from when the forecast reaches an Adventure Day beyond it, not a Deadline past its last hour', () => {
     const view = forecastView(hours, zermatt, at(9, 15), now);
     expect(view.hours).toHaveLength(0);
     expect(view.reachesFrom).toEqual(at(3, 10));
+    const edge = forecastView(hours, zermatt, at(8, 1), now);
+    expect(edge.hours.at(-1)!.at).toEqual(at(7, 23));
+    expect(edge.reachesFrom).toBeNull();
   });
 });
