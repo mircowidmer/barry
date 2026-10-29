@@ -39,11 +39,12 @@ export function DestinationPreview({ point, adjust, onAdjust }: DestinationPrevi
           ]}
         />
       </View>
-      <GlassView isInteractive style={[styles.adjust, !isLiquidGlassAvailable() && { backgroundColor: theme.background }]}>
-        <Pressable accessibilityRole="button" onPress={onAdjust} style={styles.adjustTarget}>
+      {/* The pressable reaches 5 points past the glass on every side, so the button takes a 44-point tap. */}
+      <Pressable accessibilityRole="button" onPress={onAdjust} style={styles.adjustTarget}>
+        <GlassView isInteractive style={[styles.adjust, !isLiquidGlassAvailable() && { backgroundColor: theme.background }]}>
           <ThemedText type="small">{adjust}</ThemedText>
-        </Pressable>
-      </GlassView>
+        </GlassView>
+      </Pressable>
     </View>
   );
 }
@@ -81,6 +82,6 @@ export function DestinationMap({ camera, onCenter }: DestinationMapProps) {
 
 const styles = StyleSheet.create({
   preview: { height: 160, borderRadius: 18, overflow: 'hidden' },
-  adjust: { position: 'absolute', top: 10, right: 10, borderRadius: 17, overflow: 'hidden' },
-  adjustTarget: { height: 34, paddingHorizontal: 14, justifyContent: 'center' },
+  adjustTarget: { position: 'absolute', top: 5, right: 5, padding: 5 },
+  adjust: { height: 34, paddingHorizontal: 14, justifyContent: 'center', borderRadius: 17, overflow: 'hidden' },
 });
