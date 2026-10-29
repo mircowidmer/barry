@@ -14,7 +14,7 @@ import { Spacing } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
-import { type Adventure, type AdventureId, barry, type DeliveryFailure, type InProgressAdventure, type Position, type TrailStatus } from '@/lib/barry';
+import { type Adventure, type AdventureId, barry, darkBefore, type DeliveryFailure, type InProgressAdventure, type Position, type TrailStatus } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
@@ -218,14 +218,17 @@ function LiveAdventure({
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="clock" accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
-          {t.adventure.moves.map((m) => (
-            <Stack.Toolbar.MenuAction
-              key={m.minutes}
-              subtitle={t.when(movedDeadline(adventure.deadline, m.minutes))}
-              onPress={() => void move(m.minutes)}>
-              {m.label}
-            </Stack.Toolbar.MenuAction>
-          ))}
+          {t.adventure.moves.map((m) => {
+            const to = movedDeadline(adventure.deadline, m.minutes);
+            return (
+              <Stack.Toolbar.MenuAction
+                key={m.minutes}
+                subtitle={darkBefore(to, adventure.plan.destinationPoint) ? t.adventure.moveAfterDark(t.when(to)) : t.when(to)}
+                onPress={() => void move(m.minutes)}>
+                {m.label}
+              </Stack.Toolbar.MenuAction>
+            );
+          })}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
           icon="person.2"

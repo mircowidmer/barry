@@ -90,7 +90,8 @@ export type StartWarning =
   | { kind: 'no_notifications' }
   | { kind: 'email_only'; contacts: EmergencyContact[] }
   | { kind: 'unreachable'; contacts: EmergencyContact[] }
-  | { kind: 'no_trail' };
+  | { kind: 'no_trail' }
+  | { kind: 'after_dark'; dark: Date };
 
 export type StartChecks = { smsEnabled: boolean; notificationsPermitted: boolean; trailPermitted: boolean };
 

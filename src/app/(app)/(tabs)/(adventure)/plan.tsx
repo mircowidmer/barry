@@ -79,6 +79,8 @@ const warningText = (w: StartWarning, t: Texts) => {
       return t.plan.noTrail;
     case 'no_notifications':
       return t.plan.noNotifications;
+    case 'after_dark':
+      return t.plan.afterDark(t.when(w.dark));
     case 'email_only':
       return t.plan.emailOnly(names(w.contacts));
     case 'unreachable':
@@ -144,12 +146,14 @@ function PlanForm({
   const warnings = startWarnings(
     data.contacts.filter((c) => form.contactIds.includes(c.id)),
     data.checks,
+    { deadline: form.deadline, point: form.destinationPoint },
   );
   const live = adventure !== null && adventure.stage !== 'planned';
   // Each Start warning sits in the group it is about; a live Adventure has started, so it shows none.
   const shown = live ? [] : warnings;
   const noTrail = shown.some((w) => w.kind === 'no_trail');
   const noNotifications = shown.some((w) => w.kind === 'no_notifications');
+  const afterDark = shown.find((w) => w.kind === 'after_dark');
   const contactWarnings = shown.filter((w) => w.kind === 'email_only' || w.kind === 'unreachable');
   const typeDestination = (destination: string) => {
     setForm((f) => ({ ...f, destination }));
@@ -369,6 +373,11 @@ function PlanForm({
             </View>
           ) : (
             <Button title={t.when(form.deadline)} kind="secondary" onPress={pickAndroid} />
+          )}
+          {afterDark && (
+            <Note tone="warning" icon="moon.stars">
+              {warningText(afterDark, t)}
+            </Note>
           )}
           {noNotifications && (
             <Note tone="warning" icon="bell.slash">
