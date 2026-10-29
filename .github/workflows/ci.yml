@@ -1,7 +1,9 @@
 name: Build and test
 
 on:
+  # Other branches run through their pull request; a push there too would run every job twice.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
