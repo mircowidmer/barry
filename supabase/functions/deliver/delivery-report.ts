@@ -1,3 +1,5 @@
+import { sameSecret } from './constant-time.ts';
+
 // Twilio signs its status callbacks with the account's Auth Token, which Barry does not hold since it
 // sends with a restricted API key. So each callback URL carries a token that only DELIVER_SECRET makes.
 
@@ -30,7 +32,7 @@ export type DeliveryReport =
 export const readDeliveryReport = async (url: URL, form: URLSearchParams, secret: string): Promise<DeliveryReport | null> => {
   const messageId = Number(url.searchParams.get('message'));
   const token = url.searchParams.get('token') ?? '';
-  if (!Number.isSafeInteger(messageId) || token !== (await reportToken(secret, messageId))) return null;
+  if (!Number.isSafeInteger(messageId) || !sameSecret(token, await reportToken(secret, messageId))) return null;
 
   const status = form.get('MessageStatus');
   if (status !== 'delivered' && status !== 'undelivered' && status !== 'failed') return { kind: 'ignored' };
