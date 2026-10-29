@@ -76,7 +76,7 @@ Cloudflare Turnstile guards sign-up, sign-in, the password check before a passwo
 1. In the Cloudflare dashboard, open **Turnstile**, click **Add widget**, name it Barry, add the hostname `barry.support`, keep the mode **Managed** and click **Create**. The app shows the widget on a page that says it comes from `barry.support`, so that hostname covers the app.
 2. Put the **Site Key** in `eas.json` as `EXPO_PUBLIC_TURNSTILE_SITE_KEY` in the `env` of the `preview` and `production` profiles. It is public, like the publishable key. Build and ship the app.
 3. Put the **Secret Key** in `supabase/.env.hosted` as `AUTH_CAPTCHA_SECRET`. It never goes into the repository.
-4. Set `enabled = true` under `[remotes.hosted.auth.captcha]` in `supabase/config.toml` and run `node scripts/hosted-auth.mjs`. The script refuses while the secret is missing.
+4. Once the build with the site key is the one Adventurers have, run `node scripts/hosted-auth.mjs`. `[remotes.hosted.auth.captcha]` in `supabase/config.toml` already has `enabled = true`, and the script refuses while the secret is missing.
 
 Builds without the site key, such as the development build against the local stack, show no widget, and the local stack asks for no captcha.
 
