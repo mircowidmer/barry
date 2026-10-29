@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(13);
+select plan(14);
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');
@@ -31,6 +31,9 @@ select throws_ok(
 select throws_ok(
   $$update public.emergency_contacts set name = repeat('N', 101) where id = 'aaaaaaaa-0000-0000-0000-000000000001'$$,
   '23514', null, 'a contact name longer than 100 characters is refused');
+select throws_ok(
+  $$update public.emergency_contacts set email = repeat('e', 243) || '@example.com' where id = 'aaaaaaaa-0000-0000-0000-000000000001'$$,
+  '23514', null, 'a contact email longer than 254 characters is refused');
 select throws_ok(
   $$update public.adventurer_profiles set medical_notes = repeat('m', 501)$$,
   '23514', null, 'medical notes longer than 500 characters are refused');

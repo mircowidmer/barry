@@ -43,7 +43,7 @@ The name must be filled in before the Adventurer starts their first Adventure. T
 - A pick whose email address or phone number a saved contact already has is refused, naming that contact. A pick with no email address and no usable phone number is refused.
 - The Adventurer can switch the email address and the phone number on and off. Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so switching it back on restores it.
 - A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved.
-- The list holds at most 10 contacts. A pick beyond that is refused until the Adventurer deletes one. A name longer than 100 characters is cut to 100.
+- The list holds at most 10 contacts. A pick beyond that is refused until the Adventurer deletes one. A name longer than 100 characters is cut to 100. An email address longer than 254 characters is left out, and the next one the Phone Contact has is used.
 - Emergency Contacts have no account and do not install Barry.
 - Barry sends nothing to a person when the Adventurer adds them to the list.
 - Each Adventure uses one to five contacts from the list. Saving a sixth is refused.
