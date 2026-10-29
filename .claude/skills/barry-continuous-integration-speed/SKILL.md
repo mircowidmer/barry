@@ -1,5 +1,5 @@
 ---
-name: barry-ci-speed
+name: barry-continuous-integration-speed
 description: Find where the time goes in Barry's continuous integration workflow (.github/workflows/ci.yml, the jobs that lint, type-check, test, build the Trail Map and the iOS app) from the measured durations of recent runs, and report each speed improvement with its measured cost, its expected saving and what the workflow still proves afterwards. Read-only unless invoked with --fix, which then applies the certain changes that keep every check and commits each one. Use when asked why CI is slow, to speed up or shorten the pipeline, to cut Actions minutes, or after a job's duration grew.
 ---
 
@@ -21,7 +21,7 @@ Any other argument is an error. Say so and stop.
 
 A finding without a measured cost is a guess, so the numbers come before the reading.
 
-1. Run `node .claude/skills/barry-ci-speed/scripts/timings.mjs --runs 20` from the repository root. It reads the recent successful runs of `ci.yml` through `gh` and prints, for pull requests and for `main` separately: the median wall-clock of a run, the median and the longest duration of every job, the median of every step within a job, and the critical path. Pass `--json` for the raw table when you want to compute more.
+1. Run `node .claude/skills/barry-continuous-integration-speed/scripts/timings.mjs --runs 20` from the repository root. It reads the recent successful runs of `ci.yml` through `gh` and prints, for pull requests and for `main` separately: the median wall-clock of a run, the median and the longest duration of every job, the median of every step within a job, and the critical path. Pass `--json` for the raw table when you want to compute more.
 2. Run `gh cache list --limit 50` and `gh api repos/{owner}/{repo}/actions/cache/usage`, and read the `ccache --show-stats` output of the latest `ios` job (`gh run view <id> --log --job <job-id>`) for the hit rate. A cache that is restored but rarely hit costs its restore time for nothing.
 3. Read the workflow itself, `.github/workflows/ci.yml`, with `git log --oneline -- .github/workflows/ci.yml`: the history names what was sped up already, and a finding that reverses one of those commits needs a reason the commit did not have.
 
@@ -65,7 +65,7 @@ Write the report in Markdown, in the language the user writes in (German in Swis
 
 Quote the workflow verbatim with `path:line`. One finding per root cause, with every job it touches. A finding states its saving as a number from the measurement, never as "faster".
 
-With `--fix`, write the report to `docs/reviews/<YYYY-MM-DD>-ci-speed.md`, like the other maintenance skills' reports, and commit it after the changes, with a message such as `docs/reviews: the CI speed analysis of 29 October 2026, with two changes applied and one left to the author`. Without `--fix`, give it in the reply unless the user asks for a file.
+With `--fix`, write the report to `docs/reviews/<YYYY-MM-DD>-continuous-integration-speed.md`, like the other maintenance skills' reports, and commit it after the changes, with a message such as `docs/reviews: the CI speed analysis of 29 October 2026, with two changes applied and one left to the author`. Without `--fix`, give it in the reply unless the user asks for a file.
 
 With `--fix`, append the commits made, in order, one line each, and the skipped findings with their rules.
 

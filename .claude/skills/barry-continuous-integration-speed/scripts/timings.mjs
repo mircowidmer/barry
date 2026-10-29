@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Prints where the time goes in the recent successful runs of ci.yml, read through gh.
-// Usage: node .claude/skills/barry-ci-speed/scripts/timings.mjs [--runs N] [--workflow ci.yml] [--status success] [--json]
+// Usage: node .claude/skills/barry-continuous-integration-speed/scripts/timings.mjs [--runs N] [--workflow ci.yml] [--status success] [--json]
 import { execFileSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
