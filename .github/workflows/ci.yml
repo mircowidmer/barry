@@ -133,7 +133,7 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
-        run: scripts/changed-inputs.sh >> "$GITHUB_OUTPUT"
+        run: scripts/changed-inputs.sh >> "$GITHUB_OUTPUT" && exit 1
 
   ios-bundle:
     name: iOS JavaScript bundle
