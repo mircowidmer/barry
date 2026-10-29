@@ -178,10 +178,11 @@ jobs:
           APP_VARIANT: production
           BARRY_WITHOUT_PUSH: '1'
           LANG: en_US.UTF-8
+      # One architecture proves the build; Release would otherwise compile everything for x86_64 as well.
       - name: Build
         run: >
           xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release
           -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
-          -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO build
+          -derivedDataPath ios/build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO build
         env:
           LANG: en_US.UTF-8
