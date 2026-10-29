@@ -1,5 +1,5 @@
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Section } from '@/components/form';
@@ -74,7 +74,7 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date }) {
       </Section>
       {result?.kind === 'unavailable' && <Note icon="wifi.slash">{t.conditions.needSignal}</Note>}
       {result?.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(result.conditions.fetchedAt))}</Note>}
-      {shown && <Forecast forecast={shown} now={now} />}
+      {shown && <Forecast forecast={shown} day={shown.otherDay && t.day(shown.otherDay, now)} />}
       {conditions?.bulletin && <Bulletin bulletin={conditions.bulletin} />}
       <ThemedText type="small" themeColor="textSecondary">
         {t.conditions.credits}
@@ -99,9 +99,9 @@ function Daylight({ daylight, now }: { daylight: DaylightView; now: Date }) {
   );
 }
 
-function Forecast({ forecast, now }: { forecast: ForecastView; now: Date }) {
+// Memoised because the Plan sheet re-renders on every keystroke while the hours only change with the hour.
+const Forecast = memo(function Forecast({ forecast, day }: { forecast: ForecastView; day: string | null }) {
   const t = useTexts();
-  const day = forecast.otherDay && t.day(forecast.otherDay, now);
   return (
     <Section>
       <ThemedText type="smallBold">{t.conditions.forecast(day)}</ThemedText>
@@ -139,7 +139,7 @@ function Forecast({ forecast, now }: { forecast: ForecastView; now: Date }) {
       )}
     </Section>
   );
-}
+});
 
 function Clock({ icon, label, at }: { icon: SymbolViewProps['name']; label: string; at: Date | null }) {
   const theme = useTheme();
