@@ -196,6 +196,7 @@ jobs:
           BARRY_WITHOUT_PUSH: '1'
           LANG: en_US.UTF-8
       # One architecture proves the build; Release would otherwise compile everything for x86_64 as well.
+      # The JavaScript bundle is the ios-bundle job's; here the serial bundle phase would only repeat it after the last compile.
       - name: Build
         run: >
           xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release
@@ -203,5 +204,6 @@ jobs:
           -derivedDataPath ios/build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO build
         env:
           LANG: en_US.UTF-8
+          SKIP_BUNDLING: '1'
       - name: Show the compiler cache hits
         run: ccache --show-stats
