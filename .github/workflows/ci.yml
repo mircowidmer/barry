@@ -179,6 +179,8 @@ jobs:
             /Users/runner/Library/Caches/CocoaPods
           key: ios-build-${{ github.sha }}
           restore-keys: ios-build-
+      # The counters travel with the cache and add up across runs; zeroed here, the stats after the build are this run's.
+      - run: ccache --zero-stats
       - uses: actions/setup-node@v4
         with:
           node-version: 24
