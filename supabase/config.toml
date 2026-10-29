@@ -452,12 +452,12 @@ max_namespaces = 10
 [remotes.hosted.storage.image_transformation]
 enabled = true
 
-# Cloudflare Turnstile guards sign-up, sign-in and the recovery email. The secret lives in supabase/.env.hosted,
-# never here: scripts/hosted-auth.mjs passes it in. The app shows the widget only in a build with
-# EXPO_PUBLIC_TURNSTILE_SITE_KEY, so switch this on once that build is out (docs/hosted-supabase.md). The local
-# stack asks for none.
+# Cloudflare Turnstile guards sign-up, sign-in and the recovery email, so nobody can spend the project's Auth emails
+# on made-up sign-ups. The secret lives in supabase/.env.hosted, never here: scripts/hosted-auth.mjs passes it in.
+# The app shows the widget only in a build with EXPO_PUBLIC_TURNSTILE_SITE_KEY, so run the script only once that
+# build is the one Adventurers have (docs/hosted-supabase.md). The local stack asks for none.
 [remotes.hosted.auth.captcha]
-enabled = false
+enabled = true
 provider = "turnstile"
 secret = "env(AUTH_CAPTCHA_SECRET)"
 
