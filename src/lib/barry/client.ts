@@ -6,6 +6,7 @@ import { createAdventureCache } from './adventure-cache';
 import { createAlarms, dueAlarms, type NotificationService } from './alarms';
 import { createArrival } from './arrival';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
+import { createConditions } from './conditions';
 import { copyPhoneContact, type PhoneContact } from './phone-contact';
 import { createTrail, type LocationService } from './trail';
 import { createTrailBuffer } from './trail-buffer';
@@ -51,6 +52,8 @@ export type BarryDeps = {
   notificationsPermitted(): Promise<boolean>;
   notifications: NotificationService;
   location: LocationService;
+  /** The parsed JSON at a URL outside Supabase, such as the forecast; throws without signal or on an error status. */
+  fetchJson(url: string): Promise<unknown>;
 };
 
 // A Postgres or PostgREST error always has a code. A failed request has none, and then the
@@ -90,6 +93,7 @@ export const createBarry = ({
   notificationsPermitted,
   notifications,
   location,
+  fetchJson,
 }: BarryDeps): Barry => {
   const userId = async () => {
     const { data } = await supabase.auth.getSession();
@@ -99,6 +103,7 @@ export const createBarry = ({
   };
 
   const cache = createAdventureCache(storage, now);
+  const conditions = createConditions({ fetchJson, storage, now, language });
 
   const cachedInProgress = () => {
     const cached = cache.load();
@@ -346,6 +351,7 @@ export const createBarry = ({
     findPlaces: async (query) => (query.trim() ? findPlaces(query.trim()) : []),
 
     currentPosition: readPosition,
+    conditions: conditions.forAdventure,
 
     deleteAdventure: async (id) => {
       const { data, error } = await supabase.rpc('delete_adventure', { p_id: id });

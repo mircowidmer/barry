@@ -137,6 +137,9 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     notificationsPermitted: async () => true,
     notifications,
     location,
+    fetchJson: async () => {
+      throw new Error('no signal');
+    },
   });
   return { barry, world, updates, fences, arrivals, signOuts, scheduled: () => Object.fromEntries(scheduled) };
 };
