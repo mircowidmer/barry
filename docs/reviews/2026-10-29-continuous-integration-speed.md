@@ -58,7 +58,7 @@ Time to red, over the 4 most recent failed runs: the first red step came at 86s 
 - **Expected saving:** the whole Build step is the candidate (965s on the `main` and native-change critical path). The first run after the change fills the cache, the second one measures the hits; `ccache --show-stats` will then print them. Nothing is claimed until then.
 - **Still proves:** the same Release build of the same project; ccache only reuses object files whose inputs are unchanged.
 - **Source:** reactnative.dev, Speeding up your Build phase (Xcode setup); the wrapper script quoted above.
-- **Outcome:** **applied** and **confirmed.** The run after the fix saved a filled cache, and the one after that (run 40896709238 on c2b3205) restored it in 8s and built in 211s instead of 965s; the CocoaPods cache took "Generate the iOS project" from 135s to 57s. The iOS job took 5m41s and the run 6m22s, against 20m22s before.
+- **Outcome:** **applied** and **confirmed.** The run after the fix saved a filled cache, and the one after that (run 40896709238 on c2b3205) restored it in 8s and built in 211s instead of 965s, with 1004 of 1506 cacheable compiler calls hitting (66.7%) and the cache at 0.4 GB of its 2 GB cap, so the store pressure in the Notes is smaller than feared; the CocoaPods cache took "Generate the iOS project" from 135s to 57s. The iOS job took 5m41s and the run 6m22s, against 20m22s before.
 
 ### CI-2: the backend job runs on pull requests that touch none of its inputs
 
