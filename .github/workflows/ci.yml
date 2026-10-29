@@ -170,6 +170,8 @@ jobs:
         with:
           xcode-version: latest-stable
       - run: brew install ccache
+      # The wrapper that pod install puts in CC runs `$CCACHE_BINARY clang`, and only the environment reaches the compiler.
+      - run: echo "CCACHE_BINARY=$(brew --prefix)/bin/ccache" >> "$GITHUB_ENV"
       # Every build saves a new entry; the newest one any earlier run saved is restored.
       - uses: actions/cache@v4
         with:
