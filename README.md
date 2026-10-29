@@ -27,7 +27,7 @@ npm run e2e
 
 `npx tsc --noEmit` needs `expo-env.d.ts`, which `npm start` writes on its first run. `deno test` needs Deno. `npx supabase test db` and `npm run e2e` need the local Supabase stack running, and `npm run e2e` also needs `node scripts/sms-relay.mjs` running.
 
-On GitHub, `.github/workflows/ci.yml` runs all six against its own local stack and builds the iOS app for the Simulator, on every push and every pull request. **Run workflow** in the Actions tab starts it by hand.
+On GitHub, `.github/workflows/ci.yml` runs all six against its own local stack and builds the iOS app for the Simulator, on every push to `main` and every pull request. **Run workflow** in the Actions tab starts it by hand.
 
 ## Guides
 
