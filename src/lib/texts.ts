@@ -254,7 +254,6 @@ const en = {
     validUntil: (when: string) => `Valid until ${when}`,
     fullBulletin: 'Full Bulletin on White Risk',
     bulletinUrl: 'https://whiterisk.ch/en/conditions',
-    credits: 'Weather by Open-Meteo.com with MeteoSwiss data. Avalanche bulletin by the SLF. Barry warns only about the dark.',
   },
   contacts: {
     title: 'Emergency Contacts',
@@ -595,7 +594,6 @@ const de: Texts = {
     validUntil: (when) => `Gültig bis ${when}`,
     fullBulletin: 'Ganzes Bulletin auf White Risk',
     bulletinUrl: 'https://whiterisk.ch/de/conditions',
-    credits: 'Wetter von Open-Meteo.com mit Daten von MeteoSwiss. Lawinenbulletin vom SLF. Barry warnt nur vor der Dunkelheit.',
   },
   contacts: {
     title: 'Notfallkontakte',

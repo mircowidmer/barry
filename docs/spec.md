@@ -229,7 +229,6 @@ Conditions show the Adventurer the weather, the avalanche danger and the dayligh
 - Barry shows no warning for weather or avalanche danger. Which weather is too much depends on the outing.
 - The phone sends only the destination's point, rounded to about a kilometre, to Open-Meteo, and asks the SLF for the whole bulletin, so the SLF learns nothing about the Adventure.
 - The phone asks again when the screen opens and when Barry returns to the foreground, but not more often than every half hour. It keeps the last Conditions of each place, and loads the bulletin once for every place it covers. Without signal it shows them with the time they were fetched, and with none kept it says Conditions need signal.
-- The section credits Open-Meteo, MeteoSwiss and the SLF.
 
 ## Monitoring
 

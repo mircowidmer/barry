@@ -76,9 +76,6 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date }) {
       {result?.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(result.conditions.fetchedAt))}</Note>}
       {shown && <Forecast forecast={shown} day={shown.otherDay && t.day(shown.otherDay, now)} />}
       {conditions?.bulletin && <Bulletin bulletin={conditions.bulletin} />}
-      <ThemedText type="small" themeColor="textSecondary">
-        {t.conditions.credits}
-      </ThemedText>
     </View>
   );
 }
