@@ -6,6 +6,7 @@ import {
   daylightView,
   type ForecastHour,
   forecastView,
+  KEPT,
   MIN_FORECAST_HOURS,
   POINT_DECIMALS,
 } from './conditions';
@@ -71,21 +72,29 @@ const slf = {
   ],
 };
 
-const setup = ({ failing = false } = {}) => {
+const setup = ({ failing = false, bulletin = slf as unknown, forecast = null as unknown, stored = null as string | null } = {}) => {
   const world = { now: start, failing };
   const asked: string[] = [];
+  const storage = memoryStorage();
+  if (stored !== null) storage.setItem('barry.conditions', stored);
   const conditions = createConditions({
-    storage: memoryStorage(),
+    storage,
     now: () => world.now,
     language: () => 'en',
     fetchJson: async (url) => {
       asked.push(url);
       if (world.failing) throw new Error('no signal');
-      return url.includes('open-meteo') ? openMeteo(world.now, 120) : slf;
+      return url.includes('open-meteo') ? (forecast ?? openMeteo(world.now, 120)) : bulletin;
     },
   });
   return { conditions, asked, world };
 };
+
+const period = (startTime: string, endTime: string, mainValue: string) => ({
+  type: 'Feature',
+  properties: { validTime: { startTime, endTime }, dangerRatings: [{ mainValue, validTimePeriod: 'all_day' }] },
+  geometry: { type: 'MultiPolygon', coordinates: square(zermatt, 0.2) },
+});
 
 describe('Conditions', () => {
   it('sends Open-Meteo the point rounded to about a kilometre', async () => {
@@ -105,6 +114,53 @@ describe('Conditions', () => {
       problems: ['wind_slab', 'persistent_weak_layers'],
       validUntil: new Date('2026-02-01T16:00:00Z'),
     });
+  });
+
+  it('shows the validity period that covers now when the region has several, else the latest', async () => {
+    const morning = period('2026-02-01T07:00:00Z', '2026-02-01T09:00:00Z', 'low');
+    const evening = period('2026-02-01T09:00:00Z', '2026-02-01T16:00:00Z', 'high');
+    const { conditions } = setup({ bulletin: { features: [morning, evening] } });
+    const result = await conditions.at(zermatt);
+    if (result.kind !== 'shown') throw new Error(result.kind);
+    expect(result.conditions.bulletin?.level).toBe(4);
+    const later = setup({ bulletin: { features: [morning, evening] } });
+    later.world.now = new Date('2026-02-01T18:00:00Z');
+    const result2 = await later.conditions.at(zermatt);
+    if (result2.kind !== 'shown') throw new Error(result2.kind);
+    expect(result2.conditions.bulletin?.validUntil).toEqual(new Date('2026-02-01T16:00:00Z'));
+  });
+
+  it('keeps the forecast when the bulletin is malformed', async () => {
+    const { conditions } = setup({ bulletin: { features: [{ type: 'Feature', properties: {}, geometry: slf.features[0]!.geometry }] } });
+    const result = await conditions.at(zermatt);
+    if (result.kind !== 'shown') throw new Error(result.kind);
+    expect(result.conditions.forecast).toHaveLength(120);
+    expect(result.conditions.bulletin).toBeNull();
+  });
+
+  it('leaves out the hours Open-Meteo has no forecast for', async () => {
+    const forecast = openMeteo(start, 4) as unknown as { hourly: Record<string, (number | null)[]> };
+    forecast.hourly.temperature_2m![3] = null;
+    forecast.hourly.weather_code![1] = null;
+    const { conditions } = setup({ forecast });
+    const result = await conditions.at(zermatt);
+    if (result.kind !== 'shown') throw new Error(result.kind);
+    expect(result.conditions.forecast.map((h) => h.at.getUTCHours())).toEqual([9, 11]);
+  });
+
+  it('keeps the Conditions of the newest places only', async () => {
+    const { conditions, world } = setup();
+    const places = Array.from({ length: KEPT + 1 }, (_, i) => ({ latitude: 46.5 + i * 0.1, longitude: 7.75 }));
+    for (const place of places) await conditions.at(place);
+    world.failing = true;
+    expect(KEPT).toBe(5);
+    expect((await conditions.at(places[0]!)).kind).toBe('unavailable');
+    expect((await conditions.at(places[1]!)).kind).toBe('shown');
+  });
+
+  it('starts afresh when what storage holds is not a list', async () => {
+    const { conditions } = setup({ stored: '{"point":{}}' });
+    expect((await conditions.at(zermatt)).kind).toBe('shown');
   });
 
   it('loads the bulletin once for every place it covers', async () => {

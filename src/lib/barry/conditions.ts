@@ -9,11 +9,11 @@ export const CONDITIONS_REFRESH_MS = 30 * 60_000;
 export const POINT_DECIMALS = 2;
 /** The forecast shows at least these hours, even when the Deadline is sooner. */
 export const MIN_FORECAST_HOURS = 6;
-// The places whose Conditions the phone keeps; older ones make room.
-const KEPT = 5;
+/** The places whose Conditions the phone keeps; older ones make room. */
+export const KEPT = 5;
 
 const KEY = 'barry.conditions';
-const HOUR_MS = 3_600_000;
+export const HOUR_MS = 3_600_000;
 const THUNDERSTORM_CODES = new Set([95, 96, 99]);
 // Switzerland and Liechtenstein with a margin; the SLF covers no place outside.
 const SLF_AREA = { south: 45.7, north: 47.9, west: 5.8, east: 10.6 };
@@ -71,30 +71,39 @@ const slfUrl = (language: AppLanguage) => `https://aws.slf.ch/api/bulletin/caaml
 type OpenMeteo = {
   hourly: {
     time: number[];
-    temperature_2m: number[];
+    temperature_2m: (number | null)[];
     precipitation: (number | null)[];
-    wind_gusts_10m: number[];
-    weather_code: number[];
+    wind_gusts_10m: (number | null)[];
+    weather_code: (number | null)[];
     freezing_level_height?: (number | null)[];
   };
 };
 
+// An hour without a temperature, a weather code or gusts has no forecast, so it is left out rather than shown as 0° and clear.
 const parseForecast = (json: unknown): ForecastHour[] => {
   const { hourly } = json as OpenMeteo;
-  return hourly.time.map((time, i) => ({
-    at: new Date(time * 1000),
-    temperatureC: hourly.temperature_2m[i] ?? 0,
-    precipitationMm: hourly.precipitation[i] ?? null,
-    gustsKmh: hourly.wind_gusts_10m[i] ?? 0,
-    weatherCode: hourly.weather_code[i] ?? 0,
-    freezingLevelM: hourly.freezing_level_height?.[i] ?? null,
-  }));
+  return hourly.time.flatMap((time, i) => {
+    const temperatureC = hourly.temperature_2m[i];
+    const gustsKmh = hourly.wind_gusts_10m[i];
+    const weatherCode = hourly.weather_code[i];
+    if (temperatureC == null || gustsKmh == null || weatherCode == null) return [];
+    return [
+      {
+        at: new Date(time * 1000),
+        temperatureC,
+        precipitationMm: hourly.precipitation[i] ?? null,
+        gustsKmh,
+        weatherCode,
+        freezingLevelM: hourly.freezing_level_height?.[i] ?? null,
+      },
+    ];
+  });
 };
 
 type Ring = [number, number][];
 type Feature = {
   properties: {
-    validTime: { endTime: string };
+    validTime: { startTime: string; endTime: string };
     dangerRatings?: { mainValue: string; customData?: { CH?: { subdivision?: string } } }[];
     avalancheProblems?: { problemType: string }[];
   };
@@ -117,8 +126,13 @@ const inside = ({ latitude: y, longitude: x }: Point, rings: Ring[]) => {
 const rings = (geometry: Feature['geometry']): Ring[] =>
   !geometry ? [] : geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat();
 
-const bulletinAt = (features: Feature[], point: Point): AvalancheBulletin | null => {
-  const feature = features.find((f) => inside(point, rings(f.geometry)));
+const bulletinAt = (features: Feature[], point: Point, now: Date): AvalancheBulletin | null => {
+  const covering = features.filter((f) => inside(point, rings(f.geometry)));
+  const ends = (f: Feature) => Date.parse(f.properties.validTime.endTime);
+  // The feed carries one feature per validity period of a region: the period that covers now, else the latest one.
+  const feature =
+    covering.find((f) => Date.parse(f.properties.validTime.startTime) <= now.getTime() && now.getTime() < ends(f)) ??
+    covering.sort((a, b) => ends(b) - ends(a))[0];
   if (!feature) return null;
   const rated = (feature.properties.dangerRatings ?? [])
     .map((r) => ({ level: DANGER_LEVELS.indexOf(r.mainValue) + 1, subdivision: r.customData?.CH?.subdivision }))
@@ -195,7 +209,8 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
   const load = (): Kept[] => {
     if (kept) return kept;
     try {
-      kept = JSON.parse(storage.getItem(KEY) || '[]') as Kept[];
+      const parsed = JSON.parse(storage.getItem(KEY) || '[]') as unknown;
+      kept = Array.isArray(parsed) ? (parsed as Kept[]) : [];
     } catch {
       kept = [];
     }
@@ -222,7 +237,7 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
   const fetchConditions = async (point: Point): Promise<FetchedConditions> => {
     const [forecast, bulletin] = await Promise.all([
       fetchJson(openMeteoUrl(point)).then(parseForecast),
-      inSlfArea(point) ? slfFeatures().then((features) => bulletinAt(features, point), () => null) : null,
+      inSlfArea(point) ? slfFeatures().then((features) => bulletinAt(features, point, now())).catch(() => null) : null,
     ]);
     return { fetchedAt: now(), forecast, bulletin };
   };
