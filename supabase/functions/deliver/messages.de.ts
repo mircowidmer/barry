@@ -95,7 +95,10 @@ export const render = (facts: MessageFacts, links: TrailMapLinks | null): Render
             ? `Letzter Standort am ${time(p.takenAt)}: ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` +
                 (p.accuracyM === null ? '' : ` (auf ${Math.round(p.accuracyM)} m genau)`)
             : 'Letzter Standort: nicht erfasst',
-          trailLine(facts.trailToken),
+          trailLine(facts.trailToken) ||
+            // Without a Trail Map link the Last Position still gets a map, so the contact never has only coordinates.
+            (p !== null &&
+              `Karte: https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=15/${p.latitude}/${p.longitude}`),
           '',
           facts.profile.phone !== null && `Telefon von ${name}: ${facts.profile.phone}`,
           car !== '' && `Auto: ${car}`,

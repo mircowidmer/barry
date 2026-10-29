@@ -137,7 +137,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Arrival Notice | Adventurer | Local notification | The phone enters the region around the destination on the map | The destination, and a prompt to check in once back safe |
-| Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts for each Deadline | Plan, Deadline, Last Position, Adventurer Profile, the contact's Trail Map link |
+| Alert | Each contact of the Adventure | Every channel the contact has | The Grace Period ends, then every hour, up to three Alerts for each Deadline | Plan, Deadline, Last Position, Adventurer Profile, the contact's Trail Map link, or a map link to the Last Position when there is no Trail Map link |
 | All-clear | Each contact of the Adventure | Every channel the contact has | The Adventurer checks in | The time of the Check-in, the contact's Trail Map link to see where the Adventurer has been |
 
 ### Message rules

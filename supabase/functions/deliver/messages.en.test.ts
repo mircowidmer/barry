@@ -126,6 +126,16 @@ Deno.test('without a link base or a token the Heads-up and the Alert go out with
   assertEquals(alert.includes('Trail'), false, 'Alert without a token has no Trail line');
 });
 
+Deno.test('an Alert without a Trail Map link carries a map link to the Last Position instead', () => {
+  const position = { taken_at: '2026-10-17T12:12:00Z', latitude: 47.03, longitude: 8.68, accuracy_m: 12 };
+  const map = 'Map: https://www.openstreetmap.org/?mlat=47.03&mlon=8.68#map=15/47.03/8.68';
+  const facts = { ...base, kind: 'alert', round: 1, profile, last_known_position: position };
+  assertStringIncludes(render(parseFacts({ ...facts, trail_token: token }), null).text, map, 'no link base');
+  assertStringIncludes(render(parseFacts({ ...facts, trail_token: null }), links).text, map, 'no token');
+  assertEquals(render(parseFacts({ ...facts, trail_token: token }), links).text.includes('openstreetmap'), false, 'the Trail Map link is the only one');
+  assertEquals(render(parseFacts({ ...facts, trail_token: null, last_known_position: null }), links).text.includes('Map:'), false, 'no position, no map');
+});
+
 Deno.test('an unset or invalid TRAIL_MAP_URL gives no links', () => {
   assertEquals(trailMapLinks(undefined), null);
   assertEquals(trailMapLinks('not a url'), null);
