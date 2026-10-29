@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // Prints where the time goes in the recent successful runs of ci.yml, read through gh.
 // Usage: node .claude/skills/barry-continuous-integration-speed/scripts/timings.mjs [--runs N] [--workflow ci.yml] [--status success] [--json]
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const run = promisify(execFile);
+// How many runs are read from GitHub at once; more would only trip gh's rate limit.
+const AT_ONCE = 5;
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -13,14 +18,20 @@ const workflow = option('--workflow', 'ci.yml');
 const status = option('--status', 'success');
 const asJson = args.includes('--json');
 
-const gh = (...argv) => {
+const gh = async (...argv) => {
   try {
-    return JSON.parse(execFileSync('gh', argv, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }));
+    return JSON.parse((await run('gh', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })).stdout);
   } catch (error) {
     console.error(`gh failed: ${error.stderr?.trim() || error.message}`);
     console.error('Sign in with `gh auth login`, or estimate from the workflow and mark every number as an estimate.');
     process.exit(1);
   }
+};
+
+const inBatches = async (items, work) => {
+  const results = [];
+  for (let i = 0; i < items.length; i += AT_ONCE) results.push(...(await Promise.all(items.slice(i, i + AT_ONCE).map(work))));
+  return results;
 };
 
 const seconds = (from, to) => (from && to ? Math.round((new Date(to) - new Date(from)) / 1000) : null);
@@ -32,11 +43,11 @@ const median = (values) => {
 };
 const clock = (s) => (s === null ? '-' : `${Math.floor(s / 60)}m${String(s % 60).padStart(2, '0')}s`);
 
-const list = gh('run', 'list', '--workflow', workflow, '--status', status, '--limit', String(runs),
+const list = await gh('run', 'list', '--workflow', workflow, '--status', status, '--limit', String(runs),
   '--json', 'databaseId,event,headBranch,createdAt,updatedAt');
 
-const measured = list.map((run) => {
-  const { jobs } = gh('run', 'view', String(run.databaseId), '--json', 'jobs');
+const measured = await inBatches(list, async (run) => {
+  const { jobs } = await gh('run', 'view', String(run.databaseId), '--json', 'jobs');
   return {
     id: run.databaseId,
     kind: run.event === 'pull_request' ? 'pull request' : run.headBranch === 'main' ? 'main' : run.event,
