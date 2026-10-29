@@ -267,7 +267,7 @@ describe('forecastView', () => {
 
   it('covers the hours of today still to come, with the thunderstorm and the dark hours marked', () => {
     const view = forecastView(hours, zermatt, at(1, 19), now);
-    expect(view.day).toEqual(at(1, 0));
+    expect(view.otherDay).toBeNull();
     expect(view.hours[0]!.at).toEqual(at(1, 10));
     expect(view.hours.at(-1)!.at).toEqual(at(1, 23));
     expect(view.hours.map((h) => h.thunderstorm).indexOf(true)).toBe(2);
@@ -280,7 +280,7 @@ describe('forecastView', () => {
 
   it('covers the whole Adventure Day when it is another day', () => {
     const view = forecastView(hours, zermatt, at(3, 15), now);
-    expect(view.day).toEqual(at(3, 0));
+    expect(view.otherDay).toEqual(at(3, 0));
     expect(view.hours).toHaveLength(24);
     expect(view.hours[0]!.at).toEqual(at(3, 0));
     expect(view.hours.at(-1)!.at).toEqual(at(3, 23));
@@ -289,7 +289,7 @@ describe('forecastView', () => {
 
   it('runs through to a Deadline before the next dawn and marks the first hour of the new day', () => {
     const view = forecastView(hours, zermatt, at(2, 1), now);
-    expect(view.day).toEqual(at(1, 0));
+    expect(view.otherDay).toBeNull();
     expect(view.hours[0]!.at).toEqual(at(1, 10));
     expect(view.hours.at(-1)!.at).toEqual(at(2, 1));
     expect(view.hours.filter((h) => h.newDay).map((h) => h.at)).toEqual([at(2, 0)]);

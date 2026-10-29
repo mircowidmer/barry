@@ -1,10 +1,6 @@
-import { isDark, lastDarkBefore } from './daylight';
+import { darkBefore } from './daylight';
 import { reachableAddresses } from './reach';
 import type { EmergencyContact, Point, StartChecks, StartWarning } from './types';
-
-/** When the Deadline falls after Dark at the destination on the map, the Dark it falls after. */
-export const darkBefore = (deadline: Date | null, point: Point | null): Date | null =>
-  deadline && point && isDark(point, deadline) ? lastDarkBefore(point, deadline) : null;
 
 export const startWarnings = (
   contacts: EmergencyContact[],

@@ -54,9 +54,16 @@ export const daylightOn = (point: Point, on: Date): Daylight => {
   return { sunset: setting(SUNSET_ALTITUDE), dark: setting(DARK_ALTITUDE) };
 };
 
+/** Sunset and Dark on `day`, a midnight in the phone's time zone. Its noon, because the point's own day can begin hours from the phone's. */
+export const daylightOnDay = (point: Point, day: Date): Daylight => daylightOn(point, new Date(day.getTime() + DAY_MS / 2));
+
 /** The Dark that most recently fell before `at`, such as the evening before a Deadline before dawn. */
 export const lastDarkBefore = (point: Point, at: Date): Date | null => {
   const today = daylightOn(point, at).dark;
   if (today && today.getTime() <= at.getTime()) return today;
   return daylightOn(point, new Date(at.getTime() - DAY_MS)).dark;
 };
+
+/** When the Deadline falls after Dark at the destination on the map, the Dark it falls after. */
+export const darkBefore = (deadline: Date | null, point: Point | null): Date | null =>
+  deadline && point && isDark(point, deadline) ? lastDarkBefore(point, deadline) : null;

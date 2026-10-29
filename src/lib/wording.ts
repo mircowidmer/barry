@@ -20,6 +20,9 @@ export const formatWhenGerman = (at: Date) =>
 /** 18:00, the same in both languages. */
 export const formatClock = (at: Date) => `${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
 
+/** 18, the hour alone. */
+export const formatHour = (at: Date) => twoDigits(at.getHours());
+
 /** Sat, the weekday alone. */
 export const formatWeekday = (at: Date) => ENGLISH_WEEKDAYS[at.getDay()]!;
 
