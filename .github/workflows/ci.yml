@@ -70,6 +70,8 @@ jobs:
 
   backend:
     name: pgTAP and end-to-end against the local stack
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -113,28 +115,31 @@ jobs:
           name: backend-logs
           path: logs
 
-  native:
-    name: Native changes
+  changes:
+    name: Changed inputs
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      changed: ${{ steps.diff.outputs.changed }}
+      native: ${{ steps.diff.outputs.native }}
+      backend: ${{ steps.diff.outputs.backend }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # A pull request that changes none of what goes into the native project needs only its JavaScript bundle checked.
+      # A pull request that changes none of what goes into the native project needs only its JavaScript bundle checked,
+      # and one that changes none of what the stack, the e2e cases and the relay read needs no stack.
       - id: diff
         env:
           EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
         run: |
-          if [ "$EVENT" != pull_request ] ||
-            git diff --name-only "$BASE...HEAD" | grep -qE '^(package(-lock)?\.json|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml)'; then
-            echo changed=true >> "$GITHUB_OUTPUT"
-          else
-            echo changed=false >> "$GITHUB_OUTPUT"
-          fi
+          changed() {
+            [ "$EVENT" != pull_request ] || git diff --name-only "$BASE...HEAD" | grep -qE "$1"
+          }
+          native='^(package(-lock)?\.json|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml)'
+          backend='^(package(-lock)?\.json|patches/|supabase/|e2e/|scripts/sms-relay\.mjs|src/lib/database\.types\.ts|\.claude/skills/barry-backend-verify/scripts/doctor\.sh|\.github/workflows/ci\.yml)'
+          echo "native=$(changed "$native" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "backend=$(changed "$backend" && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   ios-bundle:
     name: iOS JavaScript bundle
@@ -155,8 +160,8 @@ jobs:
 
   ios:
     name: iOS Release build for the Simulator
-    needs: native
-    if: needs.native.outputs.changed == 'true'
+    needs: changes
+    if: needs.changes.outputs.native == 'true'
     runs-on: macos-26
     timeout-minutes: 60
     env:
