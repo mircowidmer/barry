@@ -144,6 +144,14 @@ export const missDeadline = async (adventureId, minutesAgo = 6) =>
     'move the Deadline into the past',
   );
 
+/** Lets the Plan Updates and Deadline Updates the pace holds back go out now, as if 15 minutes had passed. */
+export const paceOver = async (adventureId) =>
+  must(
+    await admin.from('messages').update({ next_attempt_at: new Date().toISOString() })
+      .eq('adventure_id', adventureId).in('kind', ['plan_update', 'deadline_update']).eq('status', 'pending'),
+    'end the wait between two updates',
+  );
+
 /** Runs deliver the way the clock does, and returns the health it reported. */
 export const runDeliver = async () => {
   const response = await fetch(`${API}/functions/v1/deliver`, {
