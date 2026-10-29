@@ -18,7 +18,7 @@ The repository is public, so GitHub bills no minutes for its standard runners (d
 The first pass took the big wins. What remains on the critical path is bounded by work that no cache touches: Swift compilation and the JavaScript bundle in the iOS build, and the clock's minute tick in the end-to-end suite. The findings of this pass:
 
 1. **CI-1:** the compiler cache's statistics are the sum since the first cold build, not the run's, so the hit rate the first pass recorded (two thirds) was wrong: every warm build since the fix hit on all 502 compiler calls. Applied: the counters are zeroed after the restore. No saving on the clock; it corrects the measurement lever 6 depends on.
-2. **CI-2:** the iOS build bundles the JavaScript inside Xcode for 43s, serially at the end of the build, while the `ios-bundle` job exports the same bundle on the same commit. 43s of the native pull request's critical path. Likely, left to the author.
+2. **CI-2:** the iOS build bundles the JavaScript inside Xcode for 43s, serially at the end of the build, while the `ios-bundle` job exports the same bundle on the same commit. 43s of the native pull request's critical path. Likely; the author chose to apply it after the report, so the native build now skips the bundle phase, saving to be confirmed by the next run.
 3. **CI-3:** the backend job spends up to 13s in retries against the anonymous pull quota of ECR Public, and 2 of the 5 failed runs since 27 October were this quota, not Barry. Likely, left to the author.
 
 ## Timeline
@@ -77,13 +77,13 @@ Time to red, over the 5 most recent failed runs: 9s when the scratch gate job fa
 ### CI-2: the iOS build bundles the JavaScript that the ios-bundle job exports on the same commit
 
 - **Lever:** 4, the same work twice. **Likely.**
-- **Where:** `.github/workflows/ci.yml:197-203`, the `Build` step (`xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release …`), whose script phase "Bundle React Native code and images" runs `expo export:embed`; and `.github/workflows/ci.yml:151` (`- run: npx expo export --platform ios --output-dir "$RUNNER_TEMP/ios-bundle"`), which runs on every pull request.
+- **Where:** `.github/workflows/ci.yml:200-209`, the `Build` step (`xcodebuild -workspace ios/Barry.xcworkspace -scheme Barry -configuration Release …`), whose script phase "Bundle React Native code and images" runs `expo export:embed`; and `.github/workflows/ci.yml:151` (`- run: npx expo export --platform ios --output-dir "$RUNNER_TEMP/ios-bundle"`), which runs on every pull request.
 - **Measured cost:** in run 40912772619 the bundle phase started at 306s, after the last compile, and ended at 349s, 3s before `BUILD SUCCEEDED`: 43s of the Build step, serial, on the critical path of every pull request with native changes and of every push to `main`. The `ios-bundle` job exported the same commit's bundle in 35s on a Linux runner at the same time.
 - **Change:** when the `ios` job runs, pass `SKIP_BUNDLING=1` to `xcodebuild`, which Expo's script phase honours, so the native build stops after the link; or, the other way round, skip `ios-bundle` when `ios` runs, which saves a Linux minute but nothing on the critical path.
 - **Expected saving:** 43s on the critical path of a native pull request (540s to about 497s) and of `main`.
 - **Still proves:** the Release build of the native project and, through `ios-bundle`, that the production bundle exports. It no longer proves that `expo export:embed` runs inside Xcode's environment with Hermes bytecode compilation and asset embedding, which is a different code path from `expo export`. That is why this stays likely: the author decides whether the embed step is part of what CI must prove.
 - **Source:** docs.expo.dev, "expo export" and the `SKIP_BUNDLING` check in `expo/scripts/react-native-xcode.sh`; the build log quoted above.
-- **Outcome:** **skipped**, rule 1: likely, not certain.
+- **Outcome:** **applied** in fd53726, on the author's decision after the report (rule 1 had skipped it as likely): the `Build` step passes `SKIP_BUNDLING: '1'`, which `expo/scripts/react-native-xcode.sh` checks before `export:embed`, and the project has no expo-updates phase that reads the bundle afterwards. Saving to be confirmed by the next run: the Build step should end about 43s after the last compile's link instead of after the bundle phase, and the log should show "SKIP_BUNDLING enabled; skipping." in place of `expo export:embed`.
 
 ### CI-3: the backend job pays the anonymous pull quota of ECR Public, in seconds and in failed runs
 
@@ -133,5 +133,6 @@ Time to red, over the 5 most recent failed runs: 9s when the scratch gate job fa
 ## Commits
 
 1. 767008f CI's iOS Release build zeroes ccache's counters after the cache restore, so the compiler cache hits it shows are this run's and not the sum since the first cold build (CI-1).
+2. fd53726 CI's iOS Release build skips the JavaScript bundle phase, which the ios-bundle job exports in parallel, instead of repeating it after the last compile (CI-2, applied on the author's decision after the report; the skill's rule 1 had left it as likely).
 
-Skipped: CI-2 (rule 1, likely: it drops the embed step from what the native build proves), CI-3 (rule 1, likely: it depends on a registry's quota and on a secret or an environment variable the author chooses).
+Skipped: CI-3 (rule 1, likely: it depends on a registry's quota and on a secret or an environment variable the author chooses).
