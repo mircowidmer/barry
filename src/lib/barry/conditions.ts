@@ -167,7 +167,7 @@ export const adventureDay = (point: Point, deadline: Date): Date => {
 };
 
 export type DaylightView = {
-  /** The Adventure Day when it is not today; sunset and Dark are then that day's. */
+  /** The Adventure Day when it still lies ahead; sunset and Dark are then that day's. */
   otherDay: Date | null;
   sunset: Date | null;
   dark: Date | null;
@@ -185,7 +185,7 @@ export const daylightView = (point: Point, deadline: Date, now: Date): DaylightV
 };
 
 export type ForecastView = {
-  /** The Adventure Day the hours are of, when it is not today. */
+  /** The Adventure Day the hours are of, when it still lies ahead. */
   otherDay: Date | null;
   hours: (ForecastHour & { thunderstorm: boolean; dark: boolean; newDay: boolean })[];
   freezingLevelM: { low: number; high: number } | null;
