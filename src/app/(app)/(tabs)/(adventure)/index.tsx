@@ -3,6 +3,7 @@ import { SymbolView } from 'expo-symbols';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
+import { ConditionsSection } from '@/components/conditions-section';
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { FirstLoad, LoadState, pressedStyle, Screen, Section } from '@/components/form';
 import { GroupHeader, Note } from '@/components/grouped-list';
@@ -274,6 +275,13 @@ function LiveAdventure({
           {adventure.stage !== 'alerted' && <Chevron />}
         </Pressable>
       </View>
+
+      {adventure.stage === 'active' && (
+        <ConditionsSection
+          key={[adventure.plan.destinationPoint?.latitude, adventure.plan.destinationPoint?.longitude, adventure.deadline.getTime()].join(' ')}
+          adventure={adventure}
+        />
+      )}
 
       {failures.length > 0 && (
         <View style={styles.titledCard}>

@@ -97,6 +97,7 @@ Before Start, the app shows these warnings when they apply. Start is still allow
 - The Adventurer has not allowed notifications. The app shows "you will get no Reminder or Overdue Notice".
 - While text messages are switched off, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
 - The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started", and that Barry cannot tell them when they reach their destination.
+- The Deadline falls after Dark at the destination on the map, or before the sky gets light again. The app shows it under the Deadline, with the time of Dark, while the Adventurer picks it.
 
 ### Move the Deadline
 
@@ -107,6 +108,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 - A move sends a Deadline Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets none, because the Heads-up carries the new Deadline.
 - The Deadline Update waits 3 minutes, and at least 15 minutes after the last Deadline Update to the same address. Another move in that time replaces it, so quick moves in a row send one Deadline Update, from the time the contact knew to the latest one.
 - A Deadline Update still waiting at the Check-in or when the Alert goes out is not sent.
+- When a move would put the Deadline after Dark at the destination on the map, the move's choice says so. The move is still allowed.
 
 ### Check-in
 
@@ -214,6 +216,20 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - `https://barry.support/privacy` and `https://barry.support/terms` hold the Privacy Policy and the Terms of Use, in English and German. The landing page, the Sign In screen and the Profile link to both, and Sign In and the Profile say that Barry is not an emergency service.
 - The iOS app is in German when the phone's first language is German, and in English otherwise. Settings › Barry › Language can pick either for Barry alone. The messages to the contacts follow the same language.
 
+## Conditions
+
+Conditions show the Adventurer the weather, the avalanche danger and the daylight at the destination on the map, because solo outings go wrong mostly through weather and darkness. They are advice. They never block a Start or a move, and the Emergency Contacts never see them.
+
+- Conditions show only when the Plan has a destination on the map: on a saved Planned Adventure's Plan sheet, and on the live Adventure screen of an Active Adventure, below the Plan. Without a point the section invites the Adventurer to put the destination on the map. An Overdue, Alerted or Ended Adventure shows none.
+- **Daylight.** Sunset and Dark at the destination on the map, where Dark is the end of civil twilight. The phone computes both itself, so they show without signal. For an Active Adventure the section counts the daylight left until Dark. When the Deadline is on another day, it shows sunset and Dark of that day.
+- **The Dark warning.** The Deadline falls after Dark when the sun is more than 6 degrees below the horizon at the destination at the Deadline, so a Deadline before dawn counts too. An overnight Adventure whose Deadline is in daylight gets no warning, and neither does a place where the sun does not set. The warning shows under the Deadline on the Plan sheet, among the Start warnings, in the Conditions section and on the choices to move the Deadline.
+- **Forecast.** The phone asks Open-Meteo for the hourly forecast at the destination, from its best model for that place, which in and around Switzerland is MeteoSwiss's ICON-CH. It shows the hours from now until the Deadline, at least the next few and at most as far as the forecast reaches: temperature, precipitation, wind gusts and thunderstorms per hour, and the range of the freezing level. A Deadline beyond the forecast shows from when the forecast will reach it.
+- **Avalanche bulletin.** In the avalanche season the phone also asks the SLF for the current bulletin and shows the danger level of the warning region that contains the destination, its avalanche problems, until when it is valid and a link to the whole bulletin on White Risk, the SLF's bulletin site. Outside the season, or outside the regions the SLF covers, the section leaves the bulletin out.
+- Barry shows no warning for weather or avalanche danger. Which weather is too much depends on the outing.
+- The phone sends only the destination's point, rounded to about a kilometre, to Open-Meteo, and asks the SLF for the whole bulletin, so the SLF learns nothing about the Adventure.
+- The phone asks again when the screen opens and when Barry returns to the foreground, but not more often than every half hour. It keeps the last Conditions of each Adventure. Without signal it shows them with the time they were fetched, and with none kept it says Conditions need signal.
+- The section credits Open-Meteo, MeteoSwiss and the SLF.
+
 ## Monitoring
 
 Supabase checks Deadlines every minute. Each run reports to an outside monitor, such as Healthchecks.io. If the reports stop for a few minutes, the monitor emails or texts the operator. It also does when an Alert could not be delivered, or when the email or text message provider refuses every message, because those fail at once instead of piling up.
@@ -229,6 +245,7 @@ A few limits are implementation choices, not promises to the Adventurer. Their v
 - `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261028120100_message_limits.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
 - `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
 - `RESEND_AFTER_SECONDS` in `src/lib/sign-in.ts` is how long **Send Again** waits after a confirmation link went out. It mirrors `max_frequency` in `[remotes.hosted.auth.email]` of `supabase/config.toml`, and `sign-in.test.ts` pins that the two agree.
+- `CONDITIONS_REFRESH_MS` in `src/lib/barry/conditions.ts` is how long the phone keeps the fetched Conditions before it asks again, `POINT_DECIMALS` there how far it rounds the destination's point before sending it, and `MIN_FORECAST_HOURS` how many hours of forecast show even when the Deadline is sooner. `conditions.test.ts` pins them. `KEPT` there is how many Adventures' Conditions the phone keeps, the newest first. `DARK_ALTITUDE` in `src/lib/barry/daylight.ts` is how far below the horizon the sun is at Dark, and `daylight.test.ts` pins it.
 - `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one. `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.
 
 ## Out of scope for the first version
