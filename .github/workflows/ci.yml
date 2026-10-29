@@ -113,8 +113,50 @@ jobs:
           name: backend-logs
           path: logs
 
+  native:
+    name: Native changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # A pull request that changes none of what goes into the native project needs only its JavaScript bundle checked.
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" != pull_request ] ||
+            git diff --name-only "$BASE...HEAD" | grep -qE '^(package(-lock)?\.json|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml)'; then
+            echo changed=true >> "$GITHUB_OUTPUT"
+          else
+            echo changed=false >> "$GITHUB_OUTPUT"
+          fi
+
+  ios-bundle:
+    name: iOS JavaScript bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Take the production env from eas.json
+        run: node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log(k + '=' + v)" >> "$GITHUB_ENV"
+      - run: npx expo export --platform ios --output-dir "$RUNNER_TEMP/ios-bundle"
+        env:
+          APP_VARIANT: production
+
   ios:
     name: iOS Release build for the Simulator
+    needs: native
+    if: needs.native.outputs.changed == 'true'
     runs-on: macos-26
     timeout-minutes: 60
     steps:
