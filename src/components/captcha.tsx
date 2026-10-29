@@ -8,6 +8,10 @@ import { turnstilePage, turnstileToken } from '@/lib/turnstile';
 // Set for the cloud builds only. The local stack asks for no captcha, so a build without a key shows none.
 const SITE_KEY = process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY || null;
 
+// The page itself, which says it comes from barry.support, and Turnstile, which loads from challenges.cloudflare.com
+// and renders its challenge in about:srcdoc frames. The view loads nothing else.
+const ORIGINS = [SITE, 'https://challenges.cloudflare.com', 'about:srcdoc'];
+
 export type Captcha = {
   widget: ReactNode;
   /** A token is in hand, or the build has no key and needs none. */
@@ -34,8 +38,7 @@ export function useCaptcha(onToken?: (token: string, renew: () => void) => void)
       <WebView
         key={round}
         source={{ html: turnstilePage(SITE_KEY), baseUrl: SITE }}
-        // Turnstile renders its challenge in about:srcdoc frames, which the default list blocks.
-        originWhitelist={['https://*', 'about:srcdoc']}
+        originWhitelist={ORIGINS}
         onMessage={(event) => {
           const received = turnstileToken(event.nativeEvent.data);
           setToken(received);
