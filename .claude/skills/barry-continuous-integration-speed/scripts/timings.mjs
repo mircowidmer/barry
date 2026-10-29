@@ -45,9 +45,15 @@ const measured = list.map((run) => {
       .filter((job) => job.conclusion !== 'skipped')
       .map((job) => ({
         name: job.name,
+        conclusion: job.conclusion,
         queued: seconds(run.createdAt, job.startedAt),
         duration: seconds(job.startedAt, job.completedAt),
-        steps: job.steps.map((step) => ({ name: step.name, duration: seconds(step.startedAt, step.completedAt) })),
+        steps: job.steps.map((step) => ({
+          name: step.name,
+          conclusion: step.conclusion,
+          duration: seconds(step.startedAt, step.completedAt),
+          sinceRunStart: seconds(run.createdAt, step.completedAt),
+        })),
       })),
   };
 });
