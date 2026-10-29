@@ -369,7 +369,7 @@ export const createBarry = ({
       await supabase.auth.signOut();
     },
 
-    startConditions: async () => {
+    startChecks: async () => {
       const [channels, notificationsAllowed, trailPermitted] = await Promise.all([
         enabledChannels(),
         notificationsPermitted(),

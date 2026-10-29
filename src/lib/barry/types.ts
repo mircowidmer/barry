@@ -92,7 +92,7 @@ export type StartWarning =
   | { kind: 'unreachable'; contacts: EmergencyContact[] }
   | { kind: 'no_trail' };
 
-export type StartConditions = { smsEnabled: boolean; notificationsPermitted: boolean; trailPermitted: boolean };
+export type StartChecks = { smsEnabled: boolean; notificationsPermitted: boolean; trailPermitted: boolean };
 
 export type RawLocation = { timestamp: number; coords: { latitude: number; longitude: number; accuracy: number | null } };
 
@@ -175,7 +175,7 @@ export type Barry = {
   /** Signs out and forgets the live Adventure, so its Reminder and Overdue Notice no longer fire. */
   logOut(): Promise<void>;
 
-  startConditions(): Promise<StartConditions>;
+  startChecks(): Promise<StartChecks>;
   start(id: AdventureId): Promise<StartResult>;
   moveDeadline(id: AdventureId, deadline: Date): Promise<MoveDeadlineResult>;
   checkIn(id: AdventureId): Promise<CheckInResult>;

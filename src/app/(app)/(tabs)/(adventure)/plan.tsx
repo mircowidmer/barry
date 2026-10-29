@@ -24,7 +24,7 @@ import {
   type Place,
   type Point,
   reachableAddresses,
-  type StartConditions,
+  type StartChecks,
   type StartWarning,
   startWarnings,
 } from '@/lib/barry';
@@ -94,12 +94,12 @@ const addresses = (contact: EmergencyContact) => {
 export default function PlanScreen() {
   const [id, setId] = useState(useStringParam<AdventureId>('id'));
   const loaded = useLoad(async () => {
-    const [contacts, adventure, conditions] = await Promise.all([
+    const [contacts, adventure, checks] = await Promise.all([
       barry.listContacts(),
       id ? barry.getAdventure(id) : null,
-      barry.startConditions(),
+      barry.startChecks(),
     ]);
-    return { contacts, adventure, conditions };
+    return { contacts, adventure, checks };
   });
   const t = useTexts();
 
@@ -123,7 +123,7 @@ function PlanForm({
   setId,
   reload,
 }: {
-  data: { contacts: EmergencyContact[]; adventure: Adventure | null; conditions: StartConditions };
+  data: { contacts: EmergencyContact[]; adventure: Adventure | null; checks: StartChecks };
   id: AdventureId | undefined;
   setId: (id: AdventureId) => void;
   reload: () => void;
@@ -143,7 +143,7 @@ function PlanForm({
   const adventure = data.adventure;
   const warnings = startWarnings(
     data.contacts.filter((c) => form.contactIds.includes(c.id)),
-    data.conditions,
+    data.checks,
   );
   const live = adventure !== null && adventure.stage !== 'planned';
   // Each Start warning sits in the group it is about; a live Adventure has started, so it shows none.
