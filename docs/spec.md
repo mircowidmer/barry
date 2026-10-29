@@ -39,7 +39,7 @@ The name must be filled in before the Adventurer starts their first Adventure. T
 - An Emergency Contact has a name and a phone number, an email address, or both.
 - The Adventurer adds a contact only by picking a Phone Contact in the phone's own picker. Barry asks for no access to the phone's contacts beyond that pick.
 - Barry copies the name, the first mobile number it can use, else the first other number it can use, and the first email address, and switches both addresses on. A number without a country code is read in the phone's region. A contact without a name takes the company's name, else the email address, else the number.
-- The copy is not typed over. To change an address, the Adventurer deletes the contact and picks it again.
+- The copy is not typed over. To change an address, the Adventurer deletes the contact and picks it again. Supabase refuses a changed address on a contact that an Active, Overdue or Alerted Adventure uses.
 - A pick whose email address or phone number a saved contact already has is refused, naming that contact. A pick with no email address and no usable phone number is refused.
 - The Adventurer can switch the email address and the phone number on and off. Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so switching it back on restores it.
 - A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved.
@@ -105,7 +105,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 - When a moved Deadline passes too, the contacts get up to three Alerts for it, the same way as for the first one. The History counts the Alerts for every Deadline.
 
 - A move sends a Deadline Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets none, because the Heads-up carries the new Deadline.
-- The Deadline Update waits 3 minutes. Another move in that time replaces it, so quick moves in a row send one Deadline Update, from the time the contact knew to the latest one.
+- The Deadline Update waits 3 minutes, and at least 15 minutes after the last Deadline Update to the same address. Another move in that time replaces it, so quick moves in a row send one Deadline Update, from the time the contact knew to the latest one.
 - A Deadline Update still waiting at the Check-in or when the Alert goes out is not sent.
 
 ### Check-in
@@ -119,9 +119,9 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 
 - The Alert always carries the latest Plan.
 - A change to the destination sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
-- Several changes before a Plan Update goes out send only one, with the latest Plan.
+- A Plan Update waits until 15 minutes after the last Plan Update to the same address. Several changes before a Plan Update goes out send only one, with the latest Plan.
 - Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update.
-- A contact added to the Adventure gets a Heads-up.
+- A contact added to the Adventure gets a Heads-up. One Adventure reaches at most 10 different contacts over its time, counting those removed again; adding an eleventh is refused.
 - A contact removed from the Adventure gets no further messages, and their Trail Map link stops working.
 - The Adventure always keeps at least one contact. Removing the last one is refused.
 
@@ -132,8 +132,8 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 | Message | Recipient | Channel | Sent when | Content |
 | --- | --- | --- | --- | --- |
 | Heads-up | Each contact of the Adventure | Every channel the contact has | Supabase confirms the Start, or a contact is added to an Active or Overdue Adventure | Adventurer's name, Plan, Deadline, the contact's Trail Map link |
-| Plan Update | Each contact whose Heads-up went out | Every channel the contact has | The Adventurer changes the Plan of an Active or Overdue Adventure | Adventurer's name, the new Plan, Deadline, the contact's Trail Map link |
-| Deadline Update | Each contact whose Heads-up went out | Every channel the contact has | 3 minutes after the Adventurer moves the Deadline | Adventurer's name, destination, the Deadline the contact knew, the new Deadline, the contact's Trail Map link |
+| Plan Update | Each contact whose Heads-up went out | Every channel the contact has | The Adventurer changes the Plan of an Active or Overdue Adventure, at most one in 15 minutes | Adventurer's name, the new Plan, Deadline, the contact's Trail Map link |
+| Deadline Update | Each contact whose Heads-up went out | Every channel the contact has | 3 minutes after the Adventurer moves the Deadline, and 15 minutes after the last one | Adventurer's name, destination, the Deadline the contact knew, the new Deadline, the contact's Trail Map link |
 | Reminder | Adventurer | Local notification | 30 minutes before the Deadline | Prompt to check in or move the Deadline |
 | Overdue Notice | Adventurer | Local notification | The Deadline passes | The time the Alert will go out |
 | Arrival Notice | Adventurer | Local notification | The phone enters the region around the destination on the map | The destination, and a prompt to check in once back safe |
@@ -225,6 +225,7 @@ A few limits are implementation choices, not promises to the Adventurer. Their v
 - `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many readings of Trail the phone keeps while it has no signal, and `SLOT_MS` there is how often the Trail keeps one. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values. The `slot` column of `position_readings` in the same migration is the window the server keeps one reading per Adventure in, and `trail.test.sql` pins it.
 - `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading. `ARRIVAL_RADIUS_M` there is how close to the destination on the map the Arrival Notice shows. `trail.test.ts` pins it.
 - `max_contacts`, `max_adventure_contacts` and `max_starts_per_day` (`supabase/migrations/20261028120100_message_limits.sql`) hold the limits above, and the triggers of `supabase/migrations/20261028130000_length_limits_on_change.sql` hold the length limits on the text fields, checked only when a text is new or changed. `LIMITS` in `src/lib/barry/limits.ts` repeats them for the app's inputs and texts. `limits.test.sql` and `limits.test.ts` pin both sides.
+- `update_pace` (`supabase/migrations/20261029090000_pace_updates.sql`) is how long an address waits between two Plan Updates or two Deadline Updates. `pace.test.sql` pins it.
 - `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261028120100_message_limits.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
 - `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
 - `RESEND_AFTER_SECONDS` in `src/lib/sign-in.ts` is how long **Send Again** waits after a confirmation link went out. It mirrors `max_frequency` in `[remotes.hosted.auth.email]` of `supabase/config.toml`, and `sign-in.test.ts` pins that the two agree.
