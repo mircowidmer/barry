@@ -3,25 +3,10 @@ import { type AppLanguage, appLanguage } from '@/lib/language';
 
 const ENGLISH_WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const ENGLISH_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-
-/** Sat 17 Oct at 18:00, spelled out because the engines disagree: iOS and Safari join date and time with "at", Node with a comma. */
-export const formatWhen = (at: Date) =>
-  `${ENGLISH_WEEKDAYS[at.getDay()]} ${at.getDate()} ${ENGLISH_MONTHS[at.getMonth()]} at ${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
-
 const GERMAN_WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const GERMAN_WEEKDAYS_BY_ENGLISH: Record<string, string> = { Sun: 'So', Mon: 'Mo', Tue: 'Di', Wed: 'Mi', Thu: 'Do', Fri: 'Fr', Sat: 'Sa' };
 const GERMAN_MONTHS = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'];
 const twoDigits = (n: number) => String(n).padStart(2, '0');
-
-/** Like the German messages to the contacts: Sa, 17. Okt. um 18:00. */
-export const formatWhenGerman = (at: Date) =>
-  `${GERMAN_WEEKDAYS[at.getDay()]}, ${at.getDate()}. ${GERMAN_MONTHS[at.getMonth()]} um ${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
-
-/** 18:00, the same in both languages. */
-export const formatClock = (at: Date) => `${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
-
-/** 18, the hour alone. */
-export const formatHour = (at: Date) => twoDigits(at.getHours());
 
 /** Sat, the weekday alone. */
 export const formatWeekday = (at: Date) => ENGLISH_WEEKDAYS[at.getDay()]!;
@@ -29,15 +14,25 @@ export const formatWeekday = (at: Date) => ENGLISH_WEEKDAYS[at.getDay()]!;
 /** Sa, the weekday alone. */
 export const formatWeekdayGerman = (at: Date) => GERMAN_WEEKDAYS[at.getDay()]!;
 
+/** 18:00, the same in both languages. */
+export const formatClock = (at: Date) => `${twoDigits(at.getHours())}:${twoDigits(at.getMinutes())}`;
+
+/** 18, the hour alone. */
+export const formatHour = (at: Date) => twoDigits(at.getHours());
+
+/** Sat 17 Oct at 18:00, spelled out because the engines disagree: iOS and Safari join date and time with "at", Node with a comma. */
+export const formatWhen = (at: Date) => `${formatWeekday(at)} ${at.getDate()} ${ENGLISH_MONTHS[at.getMonth()]} at ${formatClock(at)}`;
+
+/** Like the German messages to the contacts: Sa, 17. Okt. um 18:00. */
+export const formatWhenGerman = (at: Date) => `${formatWeekdayGerman(at)}, ${at.getDate()}. ${GERMAN_MONTHS[at.getMonth()]} um ${formatClock(at)}`;
+
 /** Sat 17 Oct, with the year when it is not the year of `now`. */
 export const formatDay = (at: Date, now: Date) =>
-  `${ENGLISH_WEEKDAYS[at.getDay()]} ${at.getDate()} ${ENGLISH_MONTHS[at.getMonth()]}` +
-  (at.getFullYear() === now.getFullYear() ? '' : ` ${at.getFullYear()}`);
+  `${formatWeekday(at)} ${at.getDate()} ${ENGLISH_MONTHS[at.getMonth()]}` + (at.getFullYear() === now.getFullYear() ? '' : ` ${at.getFullYear()}`);
 
 /** Sa, 17. Okt., with the year when it is not the year of `now`. */
 export const formatDayGerman = (at: Date, now: Date) =>
-  `${GERMAN_WEEKDAYS[at.getDay()]}, ${at.getDate()}. ${GERMAN_MONTHS[at.getMonth()]}` +
-  (at.getFullYear() === now.getFullYear() ? '' : ` ${at.getFullYear()}`);
+  `${formatWeekdayGerman(at)}, ${at.getDate()}. ${GERMAN_MONTHS[at.getMonth()]}` + (at.getFullYear() === now.getFullYear() ? '' : ` ${at.getFullYear()}`);
 
 export const formatDuration = (ms: number) => {
   const minutes = Math.max(0, Math.round(ms / 60_000));
