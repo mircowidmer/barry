@@ -61,7 +61,7 @@ The four test suites, each with its single-file form. The README's **Check it** 
 | pgTAP, `supabase/tests/database/*.test.sql` | `npx supabase test db supabase/tests/database/tick.test.sql` | `npx supabase start` |
 | End-to-end, `e2e/*.e2e.mjs` | `node --test --test-timeout=300000 e2e/missed-deadline.e2e.mjs` | the stack and `node scripts/sms-relay.mjs` |
 
-- Each e2e file creates its own account and contacts and deletes them afterwards, so files run in parallel. The clock ticks once a minute, so cases poll up to 150 seconds and the whole suite takes about four minutes.
+- Each e2e file creates its own account and contacts and deletes them afterwards, so files run in parallel. The clock ticks once a minute, so cases poll up to 150 seconds.
 - `npx supabase db reset --local` applies every migration and `supabase/seed.sql`, which holds the Vault secrets `deliver` needs locally. It also deletes the test account from `.env.local`.
 - The local Edge Runtime does not always reload `supabase/functions`. After a change there, run `docker restart supabase_edge_runtime_barry-local`.
 - `src/lib/database.types.ts` is generated: `npx supabase gen types typescript --local > src/lib/database.types.ts` with the stack running, after a migration changes a table, view, function or enum.
