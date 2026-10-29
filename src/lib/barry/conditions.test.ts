@@ -295,6 +295,13 @@ describe('forecastView', () => {
     expect(view.hours.filter((h) => h.newDay).map((h) => h.at)).toEqual([at(2, 0)]);
   });
 
+  it('stays on today after midnight when the Adventure Day was yesterday', () => {
+    const view = forecastView(hours, zermatt, at(2, 1), at(2, 0, 30));
+    expect(view.otherDay).toBeNull();
+    expect(view.hours.map((h) => h.at)).toEqual([0, 1, 2, 3, 4, 5].map((h) => at(2, h)));
+    expect(view.hours.some((h) => h.newDay)).toBe(false);
+  });
+
   it('is dry only when every shown hour forecasts no rain or snow, not when one has some or has no value', () => {
     const deadline = at(1, 19);
     expect(forecastView(hours, zermatt, deadline, now).dry).toBe(true);
