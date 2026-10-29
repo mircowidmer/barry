@@ -16,8 +16,8 @@ import {
   type ForecastView,
   forecastView,
   HOUR_MS,
+  placeKey,
   type Point,
-  POINT_DECIMALS,
 } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
 import { formatClock, formatHour } from '@/lib/wording';
@@ -52,8 +52,7 @@ export function ConditionsSection({ point, deadline }: { point: Point | null; de
     );
   }
   // A pin moved to another cell of the forecast's grid is another place, so it loads afresh; a moved Deadline only changes what is shown.
-  const cell = `${point.latitude.toFixed(POINT_DECIMALS)},${point.longitude.toFixed(POINT_DECIMALS)}`;
-  return <ConditionsAt key={cell} point={point} deadline={deadline} />;
+  return <ConditionsAt key={placeKey(point)} point={point} deadline={deadline} />;
 }
 
 function ConditionsAt({ point, deadline }: { point: Point; deadline: Date }) {

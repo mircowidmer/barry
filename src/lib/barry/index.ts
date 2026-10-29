@@ -20,7 +20,7 @@ import type { Place, Position } from './types';
 export type * from './types';
 export type { Alarm } from './alarms';
 export type { AvalancheBulletin, ConditionsResult, DaylightView, ForecastView } from './conditions';
-export { daylightView, forecastView, HOUR_MS, POINT_DECIMALS } from './conditions';
+export { daylightView, forecastView, HOUR_MS, placeKey } from './conditions';
 export { darkBefore } from './daylight';
 export { isEmailAddress, isPhoneNumber, reachableAddresses } from './reach';
 export { ARRIVAL_RADIUS_M } from './trail';
