@@ -8,14 +8,23 @@ import { ThemedText } from '@/components/themed-text';
 import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { type Adventure, type AvalancheBulletin, barry, type DaylightView, daylightView, type ForecastView, forecastView, type Point } from '@/lib/barry';
+import {
+  type Adventure,
+  type AvalancheBulletin,
+  barry,
+  type DaylightView,
+  daylightView,
+  type ForecastView,
+  forecastView,
+  HOUR_MS,
+  type Point,
+} from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
 // The European avalanche danger scale's own colours, which the bulletin uses too.
 const DANGER_COLOURS = ['#CCFF66', '#FFFF00', '#FF9900', '#FF0000', '#9B0000'];
 const SUBDIVISION = { minus: '−', neutral: '=', plus: '+' } as const;
-const HOUR_MS = 3_600_000;
 
 const symbol = (code: number, dark: boolean): SymbolViewProps['name'] => {
   if (code === 0) return dark ? 'moon.stars' : 'sun.max';
@@ -52,7 +61,8 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null
   const now = useNow();
   const loaded = useLoad(() => barry.conditions(point));
   const result = loaded.data;
-  const forecast = result && result.kind !== 'unavailable' ? result.conditions.forecast : null;
+  const conditions = result && result.kind !== 'unavailable' ? result.conditions : null;
+  const forecast = conditions?.forecast ?? null;
   const hour = Math.floor(now.getTime() / HOUR_MS);
   // The hours change only with the hour, not with every tick of the clock.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,7 +76,7 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null
       {result?.kind === 'unavailable' && <Note icon="wifi.slash">{t.conditions.needSignal}</Note>}
       {result?.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(result.conditions.fetchedAt))}</Note>}
       {shown && shown.hours.length > 0 && <Forecast forecast={shown} />}
-      {result && result.kind !== 'unavailable' && result.conditions.bulletin && <Bulletin bulletin={result.conditions.bulletin} />}
+      {conditions?.bulletin && <Bulletin bulletin={conditions.bulletin} />}
       <ThemedText type="small" themeColor="textSecondary">
         {t.conditions.credits}
       </ThemedText>
