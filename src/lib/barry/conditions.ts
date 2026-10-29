@@ -208,7 +208,7 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
     }));
   const freezing = hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null);
   return {
-    otherDay: sameDay(day, now) ? null : day,
+    otherDay: day > now ? day : null,
     hours,
     freezingLevelM: freezing.length > 0 ? { low: Math.min(...freezing), high: Math.max(...freezing) } : null,
     dry: hours.length > 0 && hours.every((h) => h.precipitationMm === 0),
