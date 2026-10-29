@@ -111,6 +111,7 @@ const en = {
     startOnlyBadge: 'Start position only',
     alertedLabel: 'Contacts alerted',
     movedFrom: (when: string) => `Moved from ${when}`,
+    moveAfterDark: (when: string) => `${when} · after dark`,
     notMovedTitle: 'Deadline Not Moved',
     waitingCheckIn: (time: string) => `Checked In at ${time}`,
     waitingForSignal: 'Waiting for signal.',
@@ -174,6 +175,7 @@ const en = {
     couldNotLoad: 'Could not load the adventure.',
     noTrail: 'Barry can share only where you started. Allow location Always to share your trail and to hear when you reach your destination.',
     noNotifications: 'Notifications are off for Barry, so you will get no reminder or overdue notice.',
+    afterDark: (dark: string) => `Your deadline is after dark, which falls at ${dark} at your destination.`,
     emailOnly: (names: string) => `Text messages are not set up yet, so ${names} get email only.`,
     unreachableOne: (name: string) =>
       `Text messages are not set up yet, and ${name} only has a phone number, so they will get no message at all.`,
@@ -412,6 +414,7 @@ const de: Texts = {
     startOnlyBadge: 'Nur Startpunkt',
     alertedLabel: 'Kontakte alarmiert',
     movedFrom: (when) => `Verschoben von ${when}`,
+    moveAfterDark: (when) => `${when} · nach Einbruch der Dunkelheit`,
     notMovedTitle: 'Rückkehrzeit nicht verschoben',
     waitingCheckIn: (time) => `Zurückgemeldet um ${time}`,
     waitingForSignal: 'Wartet auf Empfang.',
@@ -476,6 +479,7 @@ const de: Texts = {
     noTrail:
       'Barry kann nur teilen, wo du gestartet bist. Erlaube den Standortzugriff «Immer», um deine Spur zu teilen und zu erfahren, wann du dein Ziel erreichst.',
     noNotifications: 'Mitteilungen sind für Barry ausgeschaltet, also erhältst du keine Erinnerung und keinen Überfällig-Hinweis.',
+    afterDark: (dark) => `Deine Rückkehrzeit liegt nach Einbruch der Dunkelheit, die an deinem Ziel um ${dark} beginnt.`,
     emailOnly: (names) => `SMS sind noch nicht eingerichtet, darum erhalten ${names} nur E-Mails.`,
     unreachableOne: (name) =>
       `SMS sind noch nicht eingerichtet, und ${name} hat nur eine Telefonnummer und erhält darum gar keine Nachricht.`,

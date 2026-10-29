@@ -21,7 +21,7 @@ export type * from './types';
 export type { Alarm } from './alarms';
 export { isEmailAddress, isPhoneNumber, reachableAddresses } from './reach';
 export { ARRIVAL_RADIUS_M } from './trail';
-export { startWarnings } from './warnings';
+export { darkBefore, startWarnings } from './warnings';
 
 const POSITION_TIMEOUT_MS = 5_000;
 
