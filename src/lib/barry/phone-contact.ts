@@ -36,13 +36,15 @@ const hasNumber = (p: PhoneContact['phones'][number]): p is typeof p & { number:
 
 /**
  * The name, the first mobile number Barry can use, else the first other one, and the first email address of a
- * Phone Contact. A number is read in the region the phone gave it, else in the phone's own region.
+ * Phone Contact that Barry can save. A number is read in the region the phone gave it, else in the phone's own region.
  */
 export const copyPhoneContact = (contact: PhoneContact, region: string | null): ContactCopy => {
   const numbers = contact.phones.filter(hasNumber);
   const ordered = [...numbers.filter((p) => isMobile(p.label)), ...numbers.filter((p) => !isMobile(p.label))];
   const phone = ordered.map((p) => fullPhoneNumber(p.number, p.region ?? region)).find((n) => n !== null) ?? null;
-  const email = contact.emails.map((e) => e.address?.trim() ?? '').find(isEmailAddress) ?? null;
+  // An address over the limit is skipped, not cut: a shortened address would reach someone else.
+  const email =
+    contact.emails.map((e) => e.address?.trim() ?? '').find((a) => isEmailAddress(a) && a.length <= LIMITS.emailLength) ?? null;
   // || rather than ??: an empty name or company falls through to the next one.
   const name = contact.fullName.trim() || contact.company?.trim() || email || (phone ? formatPhoneNumber(phone) : '');
   return { name: name.slice(0, LIMITS.nameLength), email, phone };

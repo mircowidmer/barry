@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { LIMITS } from './limits';
 import { copyPhoneContact, fullPhoneNumber, MOBILE_LABELS, type PhoneContact } from './phone-contact';
 
 const picked = (overrides: Partial<PhoneContact>): PhoneContact => ({
@@ -56,6 +57,12 @@ describe('copyPhoneContact', () => {
   it('falls back to the first other number when no mobile number can be read', () => {
     const copy = copyPhoneContact(picked({ phones: [{ label: 'mobile', number: '12' }, { label: 'home', number: '044 123 45 67' }] }), 'CH');
     expect(copy.phone).toBe('+41441234567');
+  });
+
+  it('skips an email address longer than the limit the server keeps', () => {
+    const long = `${'s'.repeat(LIMITS.emailLength - 'x@example.com'.length + 1)}x@example.com`;
+    const copy = copyPhoneContact(picked({ emails: [{ address: long }, { address: 'sara@example.com' }] }), 'CH');
+    expect(copy.email).toBe('sara@example.com');
   });
 
   it('skips an email address that is not one', () => {

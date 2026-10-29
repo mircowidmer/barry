@@ -10,6 +10,7 @@ describe('LIMITS', () => {
       startsPerDay: 5,
       destinationLength: 200,
       nameLength: 100,
+      emailLength: 254,
       carMakeLength: 50,
       carColourLength: 50,
       carPlateLength: 20,
