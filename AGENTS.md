@@ -56,7 +56,7 @@ The four test suites, each with its single-file form. The README's **Check it** 
 
 | Suite | One file | Needs |
 | --- | --- | --- |
-| Jest, `src/**/*.test.ts` | `npx jest src/lib/barry/alarms.test.ts` | nothing |
+| Jest, `src/**/*.test.ts` and `scripts/*.test.ts` | `npx jest src/lib/barry/alarms.test.ts` | nothing |
 | Deno, the `deliver` Edge Function | `deno test supabase/functions/deliver/messages.en.test.ts` | Deno |
 | pgTAP, `supabase/tests/database/*.test.sql` | `npx supabase test db supabase/tests/database/tick.test.sql` | `npx supabase start` |
 | End-to-end, `e2e/*.e2e.mjs` | `node --test --test-timeout=300000 e2e/missed-deadline.e2e.mjs` | the stack and `node scripts/sms-relay.mjs` |
