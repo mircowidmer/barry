@@ -71,7 +71,8 @@ jobs:
   backend:
     name: pgTAP and end-to-end against the local stack
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    # A gate that failed is no reason to skip, since a skipped job passes the required checks.
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.backend == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -133,8 +134,11 @@ jobs:
           EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
         run: |
+          # A diff that cannot be taken counts as changed, so a broken gate runs the checks instead of skipping them.
           changed() {
-            [ "$EVENT" != pull_request ] || git diff --name-only "$BASE...HEAD" | grep -qE "$1"
+            [ "$EVENT" != pull_request ] && return 0
+            files=$(git diff --name-only "$BASE...HEAD") || return 0
+            printf '%s\n' "$files" | grep -qE "$1"
           }
           native='^(package(-lock)?\.json|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml)'
           backend='^(package(-lock)?\.json|patches/|supabase/|e2e/|scripts/sms-relay\.mjs|src/lib/database\.types\.ts|\.claude/skills/barry-backend-verify/scripts/doctor\.sh|\.github/workflows/ci\.yml)'
@@ -161,7 +165,7 @@ jobs:
   ios:
     name: iOS Release build for the Simulator
     needs: changes
-    if: needs.changes.outputs.native == 'true'
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.native == 'true') }}
     runs-on: macos-26
     timeout-minutes: 60
     env:
