@@ -105,26 +105,27 @@ function CheckInbox({ credentials, justSent, onBack }: { credentials: Credential
   const t = useTexts();
   const email = credentials.email.trim();
 
-  const confirm = async (token: string | undefined) => {
+  // The try on each return to Barry stays quiet while the link is unopened; only a tap on Sign In says so.
+  const confirm = async (token: string | undefined, quiet: boolean) => {
     setBusy('sign_in');
     setError(null);
     const outcome = await signIn.signIn(credentials, token);
     setBusy(null);
     if (outcome.kind === 'failed') setError(outcome.message);
-    else if (outcome.kind === 'unconfirmed') setError(t.checkInbox.notConfirmed);
+    else if (outcome.kind === 'unconfirmed' && !quiet) setError(t.checkInbox.notConfirmed);
   };
 
   const captcha = useCaptcha((token, renew) => {
     if (!signInOnToken.current) return;
     signInOnToken.current = false;
     renew();
-    void confirm(token);
+    void confirm(token, true);
   });
 
   const signInNow = () => {
     const token = captcha.token;
     captcha.renew();
-    void confirm(token);
+    void confirm(token, false);
   };
 
   const resend = async () => {
@@ -142,7 +143,7 @@ function CheckInbox({ credentials, justSent, onBack }: { credentials: Credential
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
       if (state !== 'active' || busy !== null) return;
-      if (!captcha.required) return void confirm(undefined);
+      if (!captcha.required) return void confirm(undefined, true);
       signInOnToken.current = true;
       captcha.renew();
     });
