@@ -195,8 +195,8 @@ export type ForecastView = {
   reachesFrom: Date | null;
 };
 
-/** The hours of the Adventure Day that are still to come, through to a Deadline the next morning, at least MIN_FORECAST_HOURS. */
-export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date, now: Date): ForecastView => {
+/** The hours of the Adventure Day that are still to come, through to a Deadline the next morning, at least MIN_FORECAST_HOURS; null when the forecast has nothing to say about the day. */
+export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date, now: Date): ForecastView | null => {
   const from = Math.floor(now.getTime() / HOUR_MS) * HOUR_MS;
   const day = adventureDay(point, deadline);
   const lastHour = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23).getTime();
@@ -212,13 +212,15 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
       dark: isDark(point, h.at),
       newDay: i > 0 && !sameDay(h.at, shown[i - 1]!.at),
     }));
+  const reachesFrom = last && lastHour > last.at.getTime() ? new Date(lastHour - (last.at.getTime() - from)) : null;
+  if (hours.length === 0 && !reachesFrom) return null;
   const freezing = hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null);
   return {
     otherDay: day > now ? day : null,
     hours,
     freezingLevelM: freezing.length > 0 ? { low: Math.min(...freezing), high: Math.max(...freezing) } : null,
     dry: hours.length > 0 && hours.every((h) => h.precipitationMm === 0),
-    reachesFrom: last && lastHour > last.at.getTime() ? new Date(lastHour - (last.at.getTime() - from)) : null,
+    reachesFrom,
   };
 };
 
