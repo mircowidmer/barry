@@ -161,7 +161,14 @@ function LiveAdventure({
     setAdventure(initial);
   }
   useEffect(() => {
-    barry.deliveryFailures(initial.id).then(setFailures, () => undefined);
+    let current = true;
+    barry.deliveryFailures(initial.id).then(
+      (next) => current && setFailures(next),
+      () => undefined,
+    );
+    return () => {
+      current = false;
+    };
   }, [initial.id, adventure]);
 
   const checkIn = async () => {
