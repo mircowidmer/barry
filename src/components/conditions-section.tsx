@@ -9,7 +9,6 @@ import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import {
-  type Adventure,
   type AvalancheBulletin,
   barry,
   type DaylightView,
@@ -41,10 +40,9 @@ const symbol = (code: number, dark: boolean): SymbolViewProps['name'] => {
 
 const metres = (m: number) => String(Math.round(m / 100) * 100);
 
-/** The weather, the avalanche bulletin and the daylight at the destination on the map. Advice only, so it warns about nothing. */
-export function ConditionsSection({ adventure }: { adventure: Adventure }) {
+/** The weather, the avalanche bulletin and the daylight at the destination on the map for the Adventure Day. Advice only, so it warns about nothing. */
+export function ConditionsSection({ point, deadline }: { point: Point | null; deadline: Date | null }) {
   const t = useTexts();
-  const point = adventure.plan.destinationPoint;
   if (!point) {
     return (
       <Section title={t.conditions.title}>
@@ -53,7 +51,7 @@ export function ConditionsSection({ adventure }: { adventure: Adventure }) {
     );
   }
   // A moved pin is another place, so it loads afresh; a moved Deadline only changes what is shown.
-  return <ConditionsAt key={`${point.latitude},${point.longitude}`} point={point} deadline={adventure.deadline} />;
+  return <ConditionsAt key={`${point.latitude},${point.longitude}`} point={point} deadline={deadline} />;
 }
 
 function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null }) {
@@ -75,7 +73,7 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date | null
       </Section>
       {result?.kind === 'unavailable' && <Note icon="wifi.slash">{t.conditions.needSignal}</Note>}
       {result?.kind === 'stale' && <Note icon="wifi.slash">{t.conditions.asOf(t.when(result.conditions.fetchedAt))}</Note>}
-      {shown && shown.hours.length > 0 && <Forecast forecast={shown} />}
+      {shown && shown.hours.length > 0 && <Forecast forecast={shown} now={now} />}
       {conditions?.bulletin && <Bulletin bulletin={conditions.bulletin} />}
       <ThemedText type="small" themeColor="textSecondary">
         {t.conditions.credits}
@@ -100,11 +98,12 @@ function Daylight({ daylight, now }: { daylight: DaylightView; now: Date }) {
   );
 }
 
-function Forecast({ forecast }: { forecast: ForecastView }) {
+function Forecast({ forecast, now }: { forecast: ForecastView; now: Date }) {
   const t = useTexts();
+  const day = forecast.day.toDateString() === now.toDateString() ? null : t.day(forecast.day, now);
   return (
     <Section>
-      <ThemedText type="smallBold">{t.conditions.forecast}</ThemedText>
+      <ThemedText type="smallBold">{day ? t.conditions.forecastOn(day) : t.conditions.forecast}</ThemedText>
       <View style={styles.table}>
         {/* VoiceOver reads each hour as a sentence with its units, so the label column is decoration to it. */}
         <View style={[styles.hour, styles.labels]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -122,7 +121,7 @@ function Forecast({ forecast }: { forecast: ForecastView }) {
       </View>
       {forecast.dry && (
         <ThemedText type="small" themeColor="textSecondary">
-          {t.conditions.dry}
+          {t.conditions.dry(day)}
         </ThemedText>
       )}
       {forecast.freezingLevelM && (
@@ -132,7 +131,7 @@ function Forecast({ forecast }: { forecast: ForecastView }) {
       )}
       {forecast.reachesFrom && (
         <ThemedText type="small" themeColor="textSecondary">
-          {t.conditions.forecastFrom(t.when(forecast.reachesFrom))}
+          {t.conditions.forecastFrom(t.when(forecast.reachesFrom), day)}
         </ThemedText>
       )}
     </Section>
@@ -174,7 +173,8 @@ function RowLabel({ icon, unit }: { icon: SymbolViewProps['name']; unit?: string
 function Hour({ hour, dry }: { hour: ForecastView['hours'][number]; dry: boolean }) {
   const theme = useTheme();
   const t = useTexts();
-  const time = formatClock(hour.at);
+  // The first hour of a new day carries its weekday, so Saturday 23:00 and Sunday 00:00 tell apart while scrolling.
+  const time = hour.newDay ? `${t.weekday(hour.at)} ${formatClock(hour.at)}` : formatClock(hour.at);
   const temperature = `${Math.round(hour.temperatureC)}°`;
   const precipitation = hour.precipitationMm === null ? null : `${hour.precipitationMm.toFixed(1)} mm`;
   const gusts = `${Math.round(hour.gustsKmh)} km/h`;
@@ -184,7 +184,7 @@ function Hour({ hour, dry }: { hour: ForecastView['hours'][number]; dry: boolean
       accessible
       accessibilityLabel={t.conditions.hour(time, temperature, precipitation, gusts, hour.thunderstorm)}>
       <ThemedText type="small" mono themeColor="textSecondary">
-        {time.slice(0, 2)}
+        {time.slice(0, -3)}
       </ThemedText>
       <SymbolView
         name={symbol(hour.weatherCode, hour.dark)}

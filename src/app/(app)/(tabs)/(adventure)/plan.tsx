@@ -388,7 +388,7 @@ function PlanForm({
         </Section>
       )}
 
-      {adventure?.stage === 'planned' && <ConditionsSection adventure={adventure} />}
+      {!live && <ConditionsSection point={form.destinationPoint} deadline={form.deadline} />}
 
       <Section title={t.plan.contacts}>
         {data.contacts.length === 0 && (

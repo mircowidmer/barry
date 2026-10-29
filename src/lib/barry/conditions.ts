@@ -1,13 +1,13 @@
 import type { AppLanguage } from '@/lib/language';
 
-import { daylightOn, isDark } from './daylight';
+import { daylightOn, isDark, lastDarkBefore } from './daylight';
 import type { Point } from './types';
 
 /** How long fetched Conditions count as current before the phone asks again. */
 export const CONDITIONS_REFRESH_MS = 30 * 60_000;
 /** Two decimals are about a kilometre, the forecast's own grid; more would only tell Open-Meteo where exactly. */
 export const POINT_DECIMALS = 2;
-/** The forecast shows at least these hours, even when the Deadline is sooner. */
+/** The forecast shows at least these hours, even when fewer are left of the Adventure Day. */
 export const MIN_FORECAST_HOURS = 6;
 /** The places whose Conditions the phone keeps; older ones make room. */
 export const KEPT = 5;
@@ -151,8 +151,17 @@ const bulletinAt = (features: Feature[], point: Point, now: Date): AvalancheBull
 const inSlfArea = ({ latitude, longitude }: Point) =>
   latitude >= SLF_AREA.south && latitude <= SLF_AREA.north && longitude >= SLF_AREA.west && longitude <= SLF_AREA.east;
 
+const midnightOf = (at: Date) => new Date(at.getFullYear(), at.getMonth(), at.getDate());
+const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+
+/** The Adventure Day, as midnight in the phone's time zone: the Deadline's day, or the day before when the Deadline falls in the dark before dawn. */
+export const adventureDay = (point: Point, deadline: Date): Date => {
+  const dark = isDark(point, deadline) ? lastDarkBefore(point, deadline) : null;
+  return midnightOf(dark && !sameDay(dark, deadline) ? dark : deadline);
+};
+
 export type DaylightView = {
-  /** The Deadline's day when it is not today; sunset and Dark are then that day's. */
+  /** The Adventure Day when it is not today; sunset and Dark are then that day's. */
   otherDay: Date | null;
   sunset: Date | null;
   dark: Date | null;
@@ -160,38 +169,51 @@ export type DaylightView = {
   left: number | null;
 };
 
-/** Sunset and Dark at the point on the Deadline's day, or today's with the daylight left. */
+/** Sunset and Dark at the point on the Adventure Day, or today's with the daylight left. */
 export const daylightView = (point: Point, deadline: Date | null, now: Date): DaylightView => {
-  const otherDay = deadline && deadline > now && deadline.toDateString() !== now.toDateString() ? deadline : null;
-  const { sunset, dark } = daylightOn(point, otherDay ?? now);
+  const day = deadline && deadline > now ? adventureDay(point, deadline) : null;
+  const otherDay = day && day > now ? day : null;
+  // Noon, because the daylight module takes the day at the point's own longitude and midnight here can be the evening before there.
+  const { sunset, dark } = daylightOn(point, otherDay ? new Date(otherDay.getTime() + 12 * HOUR_MS) : now);
   const left = !otherDay && dark && dark > now && !isDark(point, now) ? dark.getTime() - now.getTime() : null;
   return { otherDay, sunset, dark, left };
 };
 
 export type ForecastView = {
-  hours: (ForecastHour & { thunderstorm: boolean; dark: boolean })[];
+  /** The Adventure Day the hours are of. */
+  day: Date;
+  hours: (ForecastHour & { thunderstorm: boolean; dark: boolean; newDay: boolean })[];
   freezingLevelM: { low: number; high: number } | null;
   /** Every shown hour forecasts no rain or snow, so the table leaves the row out and says so in words. */
   dry: boolean;
-  /** From when the forecast reaches a Deadline beyond it. */
+  /** From when the forecast reaches an Adventure Day beyond it. */
   reachesFrom: Date | null;
 };
 
-/** The hours from now until the Deadline, at least MIN_FORECAST_HOURS. */
+/** The hours of the Adventure Day that are still to come, through to a Deadline the next morning, at least MIN_FORECAST_HOURS. */
 export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date | null, now: Date): ForecastView => {
   const from = Math.floor(now.getTime() / HOUR_MS) * HOUR_MS;
-  const until = Math.max(deadline?.getTime() ?? 0, from + (MIN_FORECAST_HOURS - 1) * HOUR_MS);
+  const day = deadline ? adventureDay(point, deadline) : midnightOf(now);
+  const lastHour = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1).getTime() - HOUR_MS;
+  const start = Math.max(from, day.getTime());
+  const until = Math.max(lastHour, deadline?.getTime() ?? 0, start + (MIN_FORECAST_HOURS - 1) * HOUR_MS);
   const upcoming = forecast.filter((h) => h.at.getTime() >= from);
   const last = upcoming.at(-1);
   const hours = upcoming
-    .filter((h) => h.at.getTime() <= until)
-    .map((h) => ({ ...h, thunderstorm: THUNDERSTORM_CODES.has(h.weatherCode), dark: isDark(point, h.at) }));
+    .filter((h) => h.at.getTime() >= start && h.at.getTime() <= until)
+    .map((h, i, shown) => ({
+      ...h,
+      thunderstorm: THUNDERSTORM_CODES.has(h.weatherCode),
+      dark: isDark(point, h.at),
+      newDay: i > 0 && !sameDay(h.at, shown[i - 1]!.at),
+    }));
   const freezing = hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null);
   return {
+    day,
     hours,
     freezingLevelM: freezing.length > 0 ? { low: Math.min(...freezing), high: Math.max(...freezing) } : null,
     dry: hours.length > 0 && hours.every((h) => h.precipitationMm === 0),
-    reachesFrom: deadline && last && deadline > last.at ? new Date(deadline.getTime() - (last.at.getTime() - from)) : null,
+    reachesFrom: last && until > last.at.getTime() ? new Date(until - (last.at.getTime() - from)) : null,
   };
 };
 
