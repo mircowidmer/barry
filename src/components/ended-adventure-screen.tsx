@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import { Screen, Section, Unavailable } from '@/components/form';
+import { Screen, Unavailable } from '@/components/form';
 import { Note } from '@/components/grouped-list';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -58,10 +58,7 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
           </ThemedText>
         ))}
 
-      <Section title={t.adventure.planSection}>
-        <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
-        {adventure.alertsSent > 0 && <ThemedText type="small">{t.ended.alertsSent(adventure.alertsSent)}</ThemedText>}
-      </Section>
+      {adventure.alertsSent > 0 && <ThemedText type="small">{t.ended.alertsSent(adventure.alertsSent)}</ThemedText>}
     </Screen>
   );
 }
