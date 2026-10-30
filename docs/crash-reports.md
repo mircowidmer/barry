@@ -21,13 +21,10 @@ A development build and a build without `EXPO_PUBLIC_SENTRY_DSN` send nothing.
 1. Create a Sentry account in the **EU (Frankfurt)** data region, which the privacy policy names, and a React Native project in it.
 2. In the project's settings, under **Security & Privacy**, turn on **Prevent Storing of IP Addresses** and keep **Data Scrubber** on. The privacy policy promises the first.
 3. Put the project's DSN into `EXPO_PUBLIC_SENTRY_DSN` of the `preview` and `production` profiles in `eas.json`. The DSN only lets an app send reports, so it ships inside the app like the Supabase publishable key.
-4. Create an organization auth token and write it, with the organization and project slugs and the regional URL, to `.env.sentry-build-plugin` at the root, which git ignores:
+4. The organization, the project and the regional URL stand in the `@sentry/react-native/expo` plugin entry in `app.json`. Create an organization auth token and write it to `.env.sentry-build-plugin` at the root, which git ignores:
 
    ```bash
    SENTRY_AUTH_TOKEN=sntrys_...
-   SENTRY_ORG=<organization slug>
-   SENTRY_PROJECT=<project slug>
-   SENTRY_URL=https://de.sentry.io/
    ```
 
 ## Readable stack traces

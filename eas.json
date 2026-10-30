@@ -22,7 +22,8 @@
         "APP_VARIANT": "preview",
         "EXPO_PUBLIC_SUPABASE_URL": "https://kizggaicooqhdzpqzawu.supabase.co",
         "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_SqZ4HbHahsoFGtsv05vXQQ_dycBrG6Y",
-        "EXPO_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAFpyqESvuO8c-3T3"
+        "EXPO_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAFpyqESvuO8c-3T3",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a3b349cce9e9306223bab16df7929ee5@o4512346769588224.ingest.de.sentry.io/4512346783875152"
       }
     },
     "production": {
@@ -31,7 +32,8 @@
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_SUPABASE_URL": "https://kizggaicooqhdzpqzawu.supabase.co",
         "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_SqZ4HbHahsoFGtsv05vXQQ_dycBrG6Y",
-        "EXPO_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAFpyqESvuO8c-3T3"
+        "EXPO_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAFpyqESvuO8c-3T3",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a3b349cce9e9306223bab16df7929ee5@o4512346769588224.ingest.de.sentry.io/4512346783875152"
       }
     }
   },
