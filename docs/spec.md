@@ -217,7 +217,7 @@ The Trail Map is a web page that lets an Emergency Contact follow the Adventurer
 - The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 - Any other address on `barry.support`, such as an old `/trail` link, opens the landing page.
 - The landing page, the Adventure page and the email confirmation page are in German when the browser's first preferred language is German, and in English otherwise.
-- `https://barry.support/privacy` and `https://barry.support/terms` hold the Privacy Policy and the Terms of Use, in English and German. The landing page, the Sign In screen and the Profile link to both, and Sign In and the Profile say that Barry is not an emergency service.
+- `https://barry.support/privacy` and `https://barry.support/terms` hold the Privacy Policy and the Terms of Use, in English and German. The landing page, the Sign In screen and the Profile link to both, and Sign In says that Barry is not an emergency service.
 - The iOS app is in German when the phone's first language is German, and in English otherwise. Settings › Barry › Language can pick either for Barry alone. The messages to the contacts follow the same language.
 
 ## Conditions
