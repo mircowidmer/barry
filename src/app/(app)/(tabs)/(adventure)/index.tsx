@@ -141,9 +141,6 @@ function LiveAdventure({
   const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
-  // The Deadline before the last move, with the stage the move left; the card shows it while that stage lasts, so a move is old news once the stage changes.
-  const [moved, setMoved] = useState<{ from: Date; stage: Adventure['stage'] } | null>(null);
-  const movedFrom = moved && moved.stage === adventure.stage ? moved.from : null;
   const [busy, setBusy] = useState(false);
   useEffect(() => barry.watchAdventure(initial.id, setAdventure), [initial.id]);
   // The screen reloads on focus and on returning to the foreground; the live view must follow.
@@ -195,7 +192,6 @@ function LiveAdventure({
     const result = await barry.moveDeadline(adventure.id, movedDeadline(adventure.deadline, minutes)).catch(() => null);
     setBusy(false);
     if (result?.kind === 'moved') {
-      setMoved({ from: adventure.deadline, stage: result.adventure.stage });
       setAdventure(result.adventure);
     } else if (result?.kind === 'refused') {
       Alert.alert(t.adventure.notMovedTitle, refusalText(result.refusal));
@@ -234,7 +230,7 @@ function LiveAdventure({
         </Note>
       )}
       {reloadFailure}
-      <DeadlineCard adventure={adventure} now={now} movedFrom={movedFrom} />
+      <DeadlineCard adventure={adventure} now={now} />
 
       {lastKnown ? (
         <View>
@@ -286,9 +282,9 @@ function LiveAdventure({
 
 /**
  * The time that matters next, large: the Deadline while Barry watches, the Alert once overdue. Once alerted the card
- * says so in red. VoiceOver reads the whole sentence, and a move shows here as the Deadline it replaced.
+ * says so in red. VoiceOver reads the whole sentence.
  */
-function DeadlineCard({ adventure, now, movedFrom }: { adventure: InProgressAdventure; now: Date; movedFrom: Date | null }) {
+function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now: Date }) {
   const theme = useTheme();
   const t = useTexts();
   if (adventure.stage === 'alerted') {
@@ -313,10 +309,7 @@ function DeadlineCard({ adventure, now, movedFrom }: { adventure: InProgressAdve
   const otherDay = at.toDateString() !== now.toDateString();
   const said = overdue ? t.adventure.overdue(t.when(at), left) : t.adventure.watching(t.when(at), left);
   return (
-    <View
-      accessible
-      accessibilityLabel={movedFrom ? `${said} ${t.adventure.movedFrom(t.when(movedFrom))}` : said}
-      style={[styles.card, { backgroundColor: `${color}1F` }]}>
+    <View accessible accessibilityLabel={said} style={[styles.card, { backgroundColor: `${color}1F` }]}>
       <ThemedText type="small" mono style={[styles.cardLabel, { color }]}>
         {(overdue ? t.adventure.alertAt : t.adventure.checkInBy).toUpperCase()}
       </ThemedText>
@@ -336,14 +329,6 @@ function DeadlineCard({ adventure, now, movedFrom }: { adventure: InProgressAdve
       <ThemedText type="small" style={{ color: theme.text }}>
         {overdue ? t.adventure.overdueNote : t.adventure.watchingNote}
       </ThemedText>
-      {movedFrom && (
-        <View style={styles.moved}>
-          <SymbolView name="checkmark" size={13} weight="bold" tintColor={color} fallback={null} />
-          <ThemedText type="small" style={{ color }}>
-            {t.adventure.movedFrom(t.when(movedFrom))}
-          </ThemedText>
-        </View>
-      )}
     </View>
   );
 }
@@ -375,7 +360,6 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
-  moved: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
   titledCard: { gap: 6 },
