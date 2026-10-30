@@ -16,6 +16,7 @@ import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, darkBefore, type DeliveryFailure, type InProgressAdventure, type Position, type TrailStatus } from '@/lib/barry';
+import { LIMITS } from '@/lib/barry/limits';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
@@ -308,7 +309,7 @@ function DeadlineCard({ adventure, now, movedFrom }: { adventure: InProgressAdve
           {t.adventure.alertedLabel.toUpperCase()}
         </ThemedText>
         <ThemedText mono style={styles.cardClock}>
-          {`${adventure.alertsSent}/3`}
+          {`${adventure.alertsSent}/${LIMITS.alertsPerDeadline}`}
         </ThemedText>
         <ThemedText type="small" style={{ color: theme.text }}>
           {t.adventure.alerted(adventure.alertsSent)}

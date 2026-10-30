@@ -1,12 +1,13 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(16);
+select plan(17);
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');
 select is(private.max_starts_per_day(), 5, 'an Adventurer starts at most 5 Adventures in 24 hours');
 select is(private.starts_window(), interval '24 hours', 'a Start counts towards the limit for 24 hours');
+select is(private.max_alerts(), 3::smallint, 'a Deadline brings at most 3 Alerts');
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name) values ('11111111-1111-1111-1111-111111111111', 'Anna');
