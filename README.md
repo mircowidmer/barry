@@ -42,6 +42,7 @@ On GitHub, `.github/workflows/ci.yml` runs all six against its own local stack a
 - [Builds](docs/builds.md)
 - [How to see what Barry sends locally](docs/local-messages.md)
 - [The hosted Supabase project](docs/hosted-supabase.md)
+- [Dependency updates](docs/dependency-updates.md), what Renovate opens and merges on its own
 - [How to host the Adventure page on GitHub Pages](docs/trail-map-hosting.md)
 - [Text messages](docs/text-messages.md)
 - [Sketch: the Simulator tests on GitHub](docs/ci-simulator.md), how the Simulator flows could run in CI
