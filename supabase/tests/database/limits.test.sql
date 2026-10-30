@@ -1,11 +1,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(14);
+select plan(16);
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');
 select is(private.max_starts_per_day(), 5, 'an Adventurer starts at most 5 Adventures in 24 hours');
+select is(private.starts_window(), interval '24 hours', 'a Start counts towards the limit for 24 hours');
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name) values ('11111111-1111-1111-1111-111111111111', 'Anna');
@@ -63,6 +64,10 @@ set local role authenticated;
 select is(public.start_adventure((select adventure_id from five), 'Europe/Zurich'), null::public.refusal,
   'a fifth Start in 24 hours goes through, and one from 25 hours ago does not count');
 select public.check_in((select adventure_id from five), null);
+reset role;
+select is((select count(*)::int from private.starts where adventurer_id = '11111111-1111-1111-1111-111111111111'), 5,
+  'a Start drops the Adventurer''s Starts older than 24 hours');
+set local role authenticated;
 
 create temporary table sixth on commit drop as
 select adventure_id from public.save_adventure(null, 'Pilatus', now() + interval '8 hours',
