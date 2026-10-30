@@ -2,7 +2,7 @@
 
 # dependencies
 node_modules/
-# Deno writes it when it runs the deliver tests; their imports pin exact versions
+# Deno writes it when it runs the deliver tests; deliver's deno.json pins exact versions
 deno.lock
 
 # Expo
