@@ -10,7 +10,7 @@ With the iOS "Always" location permission, Barry records the Trail in the backgr
 - `trail-offline` keeps readings on the phone without signal and sends them when the signal returns and Barry comes to the foreground.
 - `trail-map` shows `<name>'s Adventure`, the line, `Last position on …` and the Plan, without the Deadline, also while Overdue.
 - `trail-map-checked-in` shows `<name> checked in on …` above the map of the Trail after the Check-in.
-- `trail-live-map` shows the Trail on an Apple map on the live screen, below the Deadline card and above the Plan, with a dot per reading and a marker titled `Last position: <time>`. It adds new readings every five minutes, and the Plan's `Last position: <time>` always shows the same time as the marker.
+- `trail-live-map` shows the Trail on an Apple map on the live screen, below the Deadline card, with a dot per reading and a marker titled `Last position: <time>` for the newest reading. It adds new readings every five minutes.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the `You checked in … Welcome back.` screen.
 - `trail-history` opens an Ended Adventure from its day on the History tab (accessibility hint `Open <destination>`) with its Plan, Check-in time and the same map.
 - `history-delete` deletes an Ended Adventure, from its screen with `Delete` or from its day on the History tab by swiping the row left (`swipe` from (330, y) to (140, y)) and tapping `Delete`. Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this adventure. Try again in a few minutes.`

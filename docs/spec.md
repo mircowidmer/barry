@@ -198,7 +198,7 @@ If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear canno
 - Without signal, the phone keeps the readings and sends them when the signal returns.
 - iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Position is the newest reading, from Start, a Deadline move, or the Trail.
-- The Trail stays with the Adventure after the Check-in. The app shows the map on the live Adventure screen, below the Deadline card and above the Plan, where it adds new readings every 5 minutes and the Plan's Last Position shows the same newest reading, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
+- The Trail stays with the Adventure after the Check-in. The app shows the map on the live Adventure screen, below the Deadline card, where it adds new readings every 5 minutes and its marker shows the Last Position, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
 - The Trail is deleted with the Adventurer's account.
 
 ## Trail Map

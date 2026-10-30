@@ -11,7 +11,6 @@ import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
 import { useLoad } from '@/hooks/use-load';
-import { Spacing } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
@@ -244,24 +243,6 @@ function LiveAdventure({
         </>
       )}
 
-      <View style={styles.titledCard}>
-        <GroupHeader title={t.adventure.planSection} />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityHint={adventure.stage === 'alerted' ? undefined : t.adventure.edit}
-          disabled={adventure.stage === 'alerted'}
-          style={pressedStyle}
-          onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}>
-          <Section>
-            <ThemedText type="small">{t.adventure.destination(adventure.plan.destination)}</ThemedText>
-            <ThemedText type="small">{t.adventure.deadline(t.when(adventure.deadline))}</ThemedText>
-            {lastKnown && <ThemedText type="small">{t.adventure.lastKnown(t.when(lastKnown.takenAt))}</ThemedText>}
-            <ThemedText type="small">{t.adventure.contacts(adventure.contacts.map((c) => c.name).join(', '))}</ThemedText>
-          </Section>
-          {adventure.stage !== 'alerted' && <Chevron />}
-        </Pressable>
-      </View>
-
       {adventure.stage === 'active' && <ConditionsSection point={adventure.plan.destinationPoint} deadline={adventure.deadline} />}
 
       {failures.length > 0 && (
@@ -309,28 +290,38 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
   const otherDay = at.toDateString() !== now.toDateString();
   const said = overdue ? t.adventure.overdue(t.when(at), left) : t.adventure.watching(t.when(at), left);
   return (
-    <View accessible accessibilityLabel={said} style={[styles.card, { backgroundColor: `${color}1F` }]}>
-      <ThemedText type="small" mono style={[styles.cardLabel, { color }]}>
-        {(overdue ? t.adventure.alertAt : t.adventure.checkInBy).toUpperCase()}
-      </ThemedText>
-      {otherDay && (
-        <ThemedText mono style={styles.cardDay}>
-          {t.day(at, now)}
+    <View style={[styles.card, { backgroundColor: `${color}1F` }]}>
+      <View accessible accessibilityLabel={said} style={styles.cardBody}>
+        <ThemedText type="small" mono style={[styles.cardLabel, { color }]}>
+          {(overdue ? t.adventure.alertAt : t.adventure.checkInBy).toUpperCase()}
         </ThemedText>
-      )}
-      <View style={styles.cardTime}>
-        <ThemedText mono style={styles.cardClock}>
-          {formatClock(at)}
-        </ThemedText>
-        <ThemedText mono style={[styles.cardLeft, { color }]}>
-          {left}
-        </ThemedText>
+        {otherDay && (
+          <ThemedText mono style={styles.cardDay}>
+            {t.day(at, now)}
+          </ThemedText>
+        )}
+        <View style={styles.cardTime}>
+          <ThemedText mono style={styles.cardClock}>
+            {formatClock(at)}
+          </ThemedText>
+          <ThemedText mono style={[styles.cardLeft, { color }]}>
+            {left}
+          </ThemedText>
+        </View>
+        {overdue && (
+          <ThemedText type="small" style={{ color: theme.text }}>
+            {t.adventure.overdueNote}
+          </ThemedText>
+        )}
       </View>
-      {overdue && (
-        <ThemedText type="small" style={{ color: theme.text }}>
-          {t.adventure.overdueNote}
-        </ThemedText>
-      )}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t.adventure.edit}
+        hitSlop={8}
+        style={({ pressed }) => [styles.edit, { backgroundColor: `${color}2E`, opacity: pressed ? 0.6 : 1 }]}
+        onPress={() => router.push({ pathname: '/plan', params: { id: adventure.id } })}>
+        <SymbolView name="pencil" size={16} weight="semibold" tintColor={color} fallback={<ThemedText style={{ color }}>✎</ThemedText>} />
+      </Pressable>
     </View>
   );
 }
@@ -365,28 +356,13 @@ const styles = StyleSheet.create({
   badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
   titledCard: { gap: 6 },
-  chevron: { position: 'absolute', right: Spacing.three, top: 0, bottom: 0, justifyContent: 'center' },
+  cardBody: { gap: 2 },
+  edit: { position: 'absolute', right: 14, top: 14, width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });
-
-/** The Plan card's chevron: the card opens the Plan sheet while the Plan can still change. */
-function Chevron() {
-  const theme = useTheme();
-  return (
-    <View pointerEvents="none" style={styles.chevron}>
-      <SymbolView
-        name="chevron.right"
-        size={14}
-        weight="semibold"
-        tintColor={theme.textSecondary}
-        fallback={<ThemedText themeColor="textSecondary">›</ThemedText>}
-      />
-    </View>
-  );
-}
 
 const TRAIL_REFRESH_MS = 5 * 60_000;
 
-/** The Trail so far, growing with the readings that reach the server, so the Plan and the map agree. */
+/** The Trail so far, growing with the readings that reach the server. */
 function useLiveTrail(id: AdventureId): Position[] {
   const [trail, setTrail] = useState<Position[]>([]);
   useEffect(() => {
