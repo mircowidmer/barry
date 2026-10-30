@@ -40,7 +40,7 @@ The name must be filled in before the Adventurer starts their first Adventure. T
 
 - Each Adventurer keeps a saved list of Emergency Contacts.
 - An Emergency Contact has a name and a phone number, an email address, or both.
-- The Adventurer adds a contact only by picking a Phone Contact in the phone's own picker. Barry asks for no access to the phone's contacts beyond that pick.
+- The Adventurer adds a contact only by picking a Phone Contact in the phone's own picker. The pick needs no access to the phone's contacts. Barry keeps, on that phone only, which Phone Contact each Emergency Contact was copied from, so it can show that contact's card later. It asks for access to the contacts only then (see Delivery Failures).
 - Barry copies the name, the first mobile number it can use, else the first other number it can use, and the first email address, and switches both addresses on. A number without a country code is read in the phone's region. A contact without a name takes the company's name, else the email address, else the number.
 - The copy is not typed over. To change an address, the Adventurer deletes the contact and picks it again. Supabase refuses a changed address on a contact that an Active, Overdue or Alerted Adventure uses.
 - A pick whose email address or phone number a saved contact already has is refused, naming that contact. A pick with no email address and no usable phone number is refused.
@@ -184,9 +184,20 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
 - A channel can be switched off. While text messages are switched off, the contact list shows the text message symbol of each contact Barry would text in the warning colour, and VoiceOver reads "Text messages not set up yet". A contact left with no channel Barry can use gets an exclamation mark. A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
 
+### Sent to your contacts
+
+- The live Adventure screen and each Ended Adventure end with a list of the messages Barry sent to the Adventure's contacts, newest first. It shows only messages that went out and those that failed. A message still waiting, such as a Deadline Update held back by the pace, or one Barry cancelled, is not listed.
+- Each row names the message, with the round of an Alert ("Alert 2 of 3"), every contact on its address, the channel and the address, and its outcome with the time: Sent, Delivered, or Failed. Only a text message becomes Delivered, once Twilio confirms it; an email stays Sent.
+- Rows of a contact removed from the Adventure stay.
+- The list follows while the screen is open: a message appears as soon as it goes out or fails, and a text message turns Delivered when Twilio reports it. It also catches up after the app regains its connection.
+- The list is read-only.
+
 ### Delivery Failures
 
-If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer. That includes a text message that Twilio accepted but later reports as not delivered.
+- If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer. That includes a text message that Twilio accepted but later reports as not delivered.
+- A Delivery Failure is a row in the warning colour in the list above, with its reason. Barry names the reasons it records itself; any other reads "Could not be delivered". The contacts button of the live Adventure screen turns to the warning colour, and the sheet behind it lists the failures too.
+- While the app is open, a Delivery Failure appears as soon as Barry records it. Otherwise it appears when the app opens.
+- Tapping a Delivery Failure shows the phone's own card of the contact it was for, read-only, where the Adventurer can call, text or email them. The first time, Barry explains why and then iOS asks for access to the contacts. Without that access, for a contact picked before Barry kept the link, or for a Phone Contact deleted since, the tap offers to call, text or email the addresses Barry has instead. With several contacts on the address, the Adventurer first picks one.
 
 ## Location
 

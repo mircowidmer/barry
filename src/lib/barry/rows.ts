@@ -9,6 +9,7 @@ import type {
   EmergencyContactId,
   Point,
   Position,
+  SentMessage,
 } from './types';
 
 type Tables = Database['public']['Tables'];
@@ -60,6 +61,25 @@ export const parsePosition = (row: PositionRow): Position => ({
   latitude: row.latitude,
   longitude: row.longitude,
   accuracyM: row.accuracy_m,
+});
+
+export type MessageRow = Pick<
+  Database['public']['Views']['adventure_messages']['Row'],
+  'id' | 'kind' | 'round' | 'channel' | 'to_address' | 'contacts' | 'status' | 'delivered' | 'outcome_at' | 'failure_reason'
+>;
+
+export const MESSAGE_SELECT = 'id, kind, round, channel, to_address, contacts, status, delivered, outcome_at, failure_reason';
+
+export const parseSentMessage = (row: MessageRow): SentMessage => ({
+  id: row.id,
+  message: row.kind,
+  round: row.round,
+  channel: row.channel,
+  address: row.to_address,
+  contacts: row.contacts.map((c) => ({ id: c.id as EmergencyContactId, name: c.name })),
+  outcome: row.status === 'failed' ? 'failed' : row.delivered ? 'delivered' : 'sent',
+  at: new Date(row.outcome_at),
+  reason: row.status === 'failed' ? row.failure_reason : null,
 });
 
 // A row cached by an older version of the app has no point columns at all.

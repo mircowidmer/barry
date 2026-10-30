@@ -1,4 +1,5 @@
 import { router, Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { FirstLoad, Screen } from '@/components/form';
@@ -9,7 +10,7 @@ import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useStringParam } from '@/hooks/use-string-param';
 import { useTheme } from '@/hooks/use-theme';
-import { type AdventureId, barry, type EmergencyContact, reachableAddresses } from '@/lib/barry';
+import { type AdventureId, barry, type EmergencyContact, reachableAddresses, type SentMessage } from '@/lib/barry';
 import { initials } from '@/lib/initials';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
@@ -26,11 +27,12 @@ export default function WatchingSheet() {
   const loaded = useLoad(async () => {
     const { adventure } = await barry.getInProgressAdventure();
     if (!adventure || adventure.id !== id) return null;
-    const failures = await barry.deliveryFailures(adventure.id).catch(() => []);
-    return { adventure, failures };
+    return { adventure };
   });
   const t = useTexts();
   const now = useNow();
+  const [messages, setMessages] = useState<SentMessage[]>([]);
+  useEffect(() => (id ? barry.watchMessages(id, setMessages) : undefined), [id]);
 
   const close = (
     <Stack.Toolbar placement="left">
@@ -47,7 +49,8 @@ export default function WatchingSheet() {
     );
   }
 
-  const { adventure, failures } = loaded.data;
+  const { adventure } = loaded.data;
+  const failures = messages.filter((m) => m.outcome === 'failed');
   const alertAt = adventure.alertAt;
   const alertTime = alertAt.toDateString() === now.toDateString() ? formatClock(alertAt) : t.when(alertAt);
   return (

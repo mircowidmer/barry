@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { DeliveryFailure } from '@/lib/barry';
+import type { EmergencyContactId, SentMessage } from '@/lib/barry';
 
 import { texts } from './texts';
 
@@ -23,21 +23,36 @@ describe('the Conditions', () => {
   });
 });
 
-describe('a Delivery Failure', () => {
-  const failure: DeliveryFailure = {
+describe('a message to the contacts', () => {
+  const failure: SentMessage = {
     id: 1,
     message: 'alert',
-    contactName: 'Luca',
+    round: 2,
+    contacts: [{ id: 'c1' as EmergencyContactId, name: 'Luca' }],
     channel: 'email',
     address: 'luca@example.com',
+    outcome: 'failed',
+    at: new Date(2026, 9, 17, 16, 31),
     reason: 'HTTP 403: Resend validation_error',
   };
 
-  it('names the message with the glossary term, in English and German', () => {
-    expect(texts.en.adventure.failure(failure)).toBe('Luca: Alert by email (HTTP 403: Resend validation_error)');
-    expect(texts.de.adventure.failure(failure)).toBe('Luca: Alarm per E-Mail (HTTP 403: Resend validation_error)');
-    expect(texts.en.adventure.failure({ ...failure, message: 'deadline_update', channel: 'sms', reason: 'retries_exhausted' })).toBe(
+  it('names the message with the glossary term and its Alert round, in English and German', () => {
+    expect(texts.en.adventure.failure(failure)).toBe('Luca: Alert 2 of 3 by email (could not be delivered)');
+    expect(texts.de.adventure.failure(failure)).toBe('Luca: Alarm 2 von 3 per E-Mail (konnte nicht zugestellt werden)');
+    expect(texts.en.adventure.failure({ ...failure, message: 'deadline_update', round: null, channel: 'sms', reason: 'retries_exhausted' })).toBe(
       'Luca: Deadline Update by text message (gave up after several attempts)',
+    );
+    expect(texts.de.adventure.failure({ ...failure, message: 'heads_up', round: null, channel: 'sms', reason: 'channel_not_enabled' })).toBe(
+      'Luca: Startnachricht per SMS (SMS sind noch nicht eingerichtet)',
+    );
+  });
+
+  it('reads as one sentence to VoiceOver, naming every contact on a shared address', () => {
+    const shared = { ...failure, message: 'heads_up' as const, round: null, outcome: 'delivered' as const, reason: null,
+      contacts: [{ id: 'c1' as EmergencyContactId, name: 'Ben' }, { id: 'c2' as EmergencyContactId, name: 'Luca' }] };
+    expect(texts.en.adventure.messageLabel(shared, '14:03')).toBe('Heads-up to Ben, Luca by email, luca@example.com. Delivered 14:03.');
+    expect(texts.de.adventure.messageLabel(failure, '16:31')).toBe(
+      'Alarm 2 von 3 an Luca per E-Mail, luca@example.com. Fehlgeschlagen 16:31: Konnte nicht zugestellt werden. Doppeltippen, um sie selbst zu erreichen.',
     );
   });
 });

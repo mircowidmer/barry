@@ -19,7 +19,7 @@ A person in an Adventurer's saved list, copied from a Phone Contact, reachable b
 _Avoid_: Watcher, guardian, buddy, friend
 
 **Phone Contact**:
-A person in the phone's own contacts app. Barry reads one only through the phone's picker, copies what it needs into an Emergency Contact, and never keeps the rest.
+A person in the phone's own contacts app. Barry reads one only through the phone's picker, copies what it needs into an Emergency Contact, and keeps nothing else of it but a reference on that phone, to show its card again.
 _Avoid_: Address book, native contact, iOS contact, system contact
 
 ### Adventures

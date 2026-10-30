@@ -6,7 +6,8 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { ConditionsSection } from '@/components/conditions-section';
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { FirstLoad, LoadState, pressedStyle, Screen, Section } from '@/components/form';
-import { GroupHeader, Note } from '@/components/grouped-list';
+import { Note } from '@/components/grouped-list';
+import { SentMessages } from '@/components/sent-messages';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -14,7 +15,7 @@ import { useLoad } from '@/hooks/use-load';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
-import { type Adventure, type AdventureId, barry, darkBefore, type DeliveryFailure, type InProgressAdventure, LIMITS, type Position, type TrailStatus } from '@/lib/barry';
+import { type Adventure, type AdventureId, barry, darkBefore, type InProgressAdventure, LIMITS, type Position, type SentMessage, type TrailStatus } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
@@ -139,7 +140,7 @@ function LiveAdventure({
   const trailStatus = useTrailStatus(queuedAt);
   const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
-  const [failures, setFailures] = useState<DeliveryFailure[]>([]);
+  const [messages, setMessages] = useState<SentMessage[]>([]);
   const [busy, setBusy] = useState(false);
   useEffect(() => barry.watchAdventure(initial.id, setAdventure), [initial.id]);
   // The screen reloads on focus and on returning to the foreground; the live view must follow.
@@ -148,16 +149,7 @@ function LiveAdventure({
     setSeen(initial);
     setAdventure(initial);
   }
-  useEffect(() => {
-    let current = true;
-    barry.deliveryFailures(initial.id).then(
-      (next) => current && setFailures(next),
-      () => undefined,
-    );
-    return () => {
-      current = false;
-    };
-  }, [initial.id, adventure]);
+  useEffect(() => barry.watchMessages(initial.id, setMessages), [initial.id]);
 
   const checkIn = async () => {
     setBusy(true);
@@ -218,7 +210,7 @@ function LiveAdventure({
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
           icon="person.2"
-          tintColor={failures.length > 0 ? theme.warning : undefined}
+          tintColor={messages.some((m) => m.outcome === 'failed') ? theme.warning : undefined}
           accessibilityLabel={t.adventure.watchingTitle}
           onPress={() => router.push({ pathname: '/watching', params: { id: adventure.id } })}
         />
@@ -245,18 +237,7 @@ function LiveAdventure({
 
       {adventure.stage === 'active' && <ConditionsSection point={adventure.plan.destinationPoint} deadline={adventure.deadline} />}
 
-      {failures.length > 0 && (
-        <View style={styles.titledCard}>
-          <GroupHeader title={t.adventure.failuresTitle} />
-          <Section>
-            {failures.map((f) => (
-              <ThemedText key={f.id} type="small">
-                {t.adventure.failure(f)}
-              </ThemedText>
-            ))}
-          </Section>
-        </View>
-      )}
+      <SentMessages messages={messages} contacts={adventure.contacts} now={now} />
     </Screen>
   );
 }
@@ -355,7 +336,6 @@ const styles = StyleSheet.create({
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
   badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
-  titledCard: { gap: 6 },
   cardBody: { gap: 2 },
   edit: { position: 'absolute', right: 14, top: 14, width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { type AdventureWithRelations, parseAdventure, parseContact, parseProfile } from './rows';
+import { type AdventureWithRelations, type MessageRow, parseAdventure, parseContact, parseProfile, parseSentMessage } from './rows';
 
 const contact = {
   id: 'c1',
@@ -131,5 +131,29 @@ describe('parseProfile', () => {
 
   it('leaves the message language to the phone', () => {
     expect(parseProfile(profile)).not.toHaveProperty('messageLanguage');
+  });
+});
+
+describe('parseSentMessage', () => {
+  const message: MessageRow = {
+    id: 7,
+    kind: 'alert',
+    round: 2,
+    channel: 'sms',
+    to_address: '+41791111111',
+    contacts: [{ id: 'c1', name: 'Luca' }],
+    status: 'sent',
+    delivered: false,
+    outcome_at: '2026-10-17T16:31:00Z',
+    failure_reason: null,
+  };
+
+  it('tells a text message Twilio confirmed from one only sent, and keeps the reason only of a failed one', () => {
+    expect(parseSentMessage(message)).toMatchObject({ outcome: 'sent', reason: null });
+    expect(parseSentMessage({ ...message, delivered: true })).toMatchObject({ outcome: 'delivered', reason: null });
+    expect(parseSentMessage({ ...message, status: 'failed', failure_reason: 'Twilio 30003' })).toMatchObject({
+      outcome: 'failed',
+      reason: 'Twilio 30003',
+    });
   });
 });
