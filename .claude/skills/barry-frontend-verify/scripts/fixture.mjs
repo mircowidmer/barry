@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Preconditions and time travel for verification runs, against the local database only.
 // It never stands in for a user action: the app drives every step the user takes.
+//   fixture.mjs seed                  the baseline: the test account's Profile and its contacts Luca and Sara, where missing
 //   fixture.mjs state                 the test account's live Adventure, its contacts and messages
 //   fixture.mjs live [minutes]        create a live Adventure for the test account (Deadline in N min, default 120)
 //   fixture.mjs overdue               move the live Adventure's Deadline to now
@@ -26,6 +27,24 @@ const anna = `(select id from auth.users where email = '${email.replace(/'/g, "'
 const live = `(select id from public.adventures where adventurer_id = ${anna} and stage in ('active', 'overdue', 'alerted'))`;
 
 const commands = {
+  seed: () => {
+    if (!sql(`select id from auth.users where email = '${email.replace(/'/g, "''")}';`)) {
+      throw new Error(`no account for ${email}: create it in the app with Create Account first`);
+    }
+    return sql(`
+      insert into public.adventurer_profiles (id, name, phone)
+      select ${anna}, 'Anna', '+41790000001'
+      where not exists (select 1 from public.adventurer_profiles where id = ${anna});
+      insert into public.emergency_contacts (adventurer_id, name, email, phone)
+      select ${anna}, v.name, v.email, v.phone
+        from (values ('Luca', 'luca@example.com', null), ('Sara', null, '+41792222222')) as v (name, email, phone)
+       where not exists (
+         select 1 from public.emergency_contacts c
+          where c.adventurer_id = ${anna} and c.name = v.name and c.removed_at is null);
+      select 'profile', name, coalesce(phone, '-') from public.adventurer_profiles where id = ${anna};
+      select 'contact', name, coalesce(email, '-'), coalesce(phone, '-') from public.emergency_contacts
+       where adventurer_id = ${anna} and removed_at is null order by name;`);
+  },
   state: () =>
     sql(`
       select 'adventure', stage, destination, to_char(deadline at time zone 'Europe/Zurich', 'HH24:MI'),
@@ -77,7 +96,7 @@ const commands = {
 
 const [name, ...args] = process.argv.slice(2);
 if (!commands[name]) {
-  console.error('usage: fixture.mjs state | live [minutes] | overdue | trail | end | offline | online');
+  console.error('usage: fixture.mjs seed | state | live [minutes] | overdue | trail | end | offline | online');
   process.exit(2);
 }
 console.log(commands[name](...args));
