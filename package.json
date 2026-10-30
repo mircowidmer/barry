@@ -49,7 +49,7 @@
     "jest": "30",
     "jest-expo": "58",
     "supabase": "2",
-    "typescript": "6"
+    "typescript": "7"
   },
   "scripts": {
     "start": "APP_VARIANT=development expo start --dev-client",
