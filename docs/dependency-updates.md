@@ -20,7 +20,7 @@ A security fix ignores both the Monday window and the three days. Renovate learn
 
 | Pull request | Holds | Merges on its own |
 | --- | --- | --- |
-| npm minor and patch updates | Every npm package not named below, and the imports in `supabase/functions/deliver/deno.json` such as `@std/assert` | Yes |
+| Weekly minor and patch updates | Every npm package not named below, and the imports in `supabase/functions/deliver/deno.json` such as `@std/assert` | Yes |
 | Supabase CLI | The `supabase` devDependency | Yes |
 | supabase-js | `@supabase/supabase-js` in `package.json` and in `deliver`'s `deno.json` | Yes |
 | GitHub Actions | Every Action in `.github/workflows`, pinned to a commit hash with its version as a comment | Yes |
