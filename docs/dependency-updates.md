@@ -31,7 +31,7 @@ A security fix ignores both the Monday window and the three days. Renovate learn
 
 Merging on its own means GitHub's auto-merge: the pull request merges once the six checks the ruleset "main requires CI" names have passed. A failing check leaves it open.
 
-The Supabase CLI has its own pull request because a new CLI can change what `npx supabase gen types` writes. CI then rejects the stale `src/lib/database.types.ts`, and that pull request waits until the types are regenerated as AGENTS.md says.
+The Supabase CLI has its own pull request because a new CLI can change what `npx supabase gen types` writes. CI then rejects the stale `src/lib/database.types.ts`, and that pull request waits until the types are regenerated as AGENTS.md says. Its range in `package.json` is the major version, like every other, so the Tuesday lock file maintenance can move it too and then waits the same way.
 
 ## What still needs a person
 
