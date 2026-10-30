@@ -16,7 +16,7 @@ Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
 npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
 npm start                   # start Metro for the development build (APP_VARIANT=development)
 npx expo lint               # lint
-npx tsc --noEmit            # typecheck
+npx tsc --noEmit            # typecheck; needs the gitignored expo-env.d.ts, which `npm start` writes (in a fresh worktree: printf '/// <reference types="expo/types" />\n' > expo-env.d.ts)
 npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 ```
