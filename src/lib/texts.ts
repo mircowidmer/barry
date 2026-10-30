@@ -115,7 +115,6 @@ const en = {
     watching: (when: string, left: string) => `Barry is watching. Check in by ${when}, in ${left}.`,
     checkInBy: 'Check in by',
     alertAt: 'Overdue · Alert at',
-    watchingNote: 'Barry is watching. If you don’t check in by then, Barry alerts your emergency contacts.',
     overdueNote: 'You are overdue. Barry alerts your emergency contacts then, unless you check in.',
     overdue: (when: string, left: string) =>
       `You are overdue. Barry alerts your emergency contacts at ${when}, in ${left}, unless you check in.`,
@@ -459,7 +458,6 @@ const de: Texts = {
     watching: (when, left) => `Barry passt auf. Melde dich bis ${when} zurück, in ${left}.`,
     checkInBy: 'Zurückmelden bis',
     alertAt: 'Überfällig · Alarm um',
-    watchingNote: 'Barry passt auf. Wenn du dich bis dann nicht zurückmeldest, alarmiert Barry deine Notfallkontakte.',
     overdueNote: 'Du bist überfällig. Barry alarmiert dann deine Notfallkontakte, ausser du meldest dich vorher zurück.',
     overdue: (when, left) =>
       `Du bist überfällig. Barry alarmiert deine Notfallkontakte am ${when}, in ${left}, ausser du meldest dich vorher zurück.`,
