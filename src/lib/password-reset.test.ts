@@ -19,7 +19,7 @@ const setup = ({ codeAccepted = true, passwordAccepted = true, mailSent = true }
       calls.push({ method: 'updateUser', args: attributes });
       return passwordAccepted
         ? { data: { user: { id: 'u1' } }, error: null }
-        : { data: { user: null }, error: { message: 'Password should be at least 6 characters.' } };
+        : { data: { user: null }, error: { message: 'Password should be at least 10 characters.' } };
     },
     signOut: async () => {
       calls.push({ method: 'signOut', args: undefined });
@@ -71,7 +71,7 @@ describe('setPassword', () => {
     const { reset, calls } = setup({ passwordAccepted: false });
     expect(await reset.setPassword({ email: 'anna@example.com', code: '123456', password: 'short' })).toEqual({
       kind: 'failed',
-      message: 'Password should be at least 6 characters.',
+      message: 'Password should be at least 10 characters.',
     });
     expect(calls.map((c) => c.method)).toEqual(['verifyOtp', 'updateUser', 'signOut']);
   });
