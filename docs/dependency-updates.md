@@ -12,7 +12,9 @@ Renovate keeps the dependencies current. It runs as the Mend Renovate App, which
 
 Mend decides when a job runs: on its own timer and after events such as a push to `main` or a ticked checkbox. `schedule:weekly` in `renovate.json` only limits when a job may open or update a pull request, to Monday before 4 a.m. Zurich time, so the iOS Release build on barry-mac runs once a week instead of after every release. A checkbox ticked on the Dependency Dashboard is acted on at once.
 
-A release is proposed only once it is three days old (`minimumReleaseAge`), so a broken or hijacked release is usually withdrawn before it reaches a pull request.
+A release is proposed only once it is three days old (`minimumReleaseAge`), so a broken or hijacked release is usually withdrawn before it reaches a pull request. A release without a date, such as a new commit hash of an Action, is not held back.
+
+A security fix ignores both the Monday window and the three days. Renovate learns of a vulnerability from osv.dev and from GitHub's Dependabot alerts, which need **Dependency graph** and **Dependabot alerts** turned on under Settings → Advanced Security. The Dependency Dashboard lists the vulnerabilities still open.
 
 ## What it opens
 
@@ -23,6 +25,8 @@ A release is proposed only once it is three days old (`minimumReleaseAge`), so a
 | supabase-js | `@supabase/supabase-js` in `package.json` and in the import of `deliver` | Yes |
 | GitHub Actions | Every Action in `.github/workflows`, pinned to a commit hash with its version as a comment | Yes |
 | One per inline import of `supabase/functions` | Such as `jsr:@std/assert`, found by the custom manager in `renovate.json` | Yes |
+| Lock file maintenance | `package-lock.json` rebuilt every Monday, so the packages other packages pull in move too | Yes |
+| One per security fix | The lowest version that fixes the vulnerability, marked `[SECURITY]` | Yes |
 | Expo SDK | `expo`, `expo-*`, React, React Native, `react-native-*`, `jest-expo`, `eslint-config-expo`, `@types/react` and `typescript` | No, and it opens only after approval on the Dependency Dashboard |
 | One per major update | Any package outside the Expo SDK | No |
 
@@ -37,6 +41,8 @@ The Supabase CLI has its own pull request because a new CLI can change what `npx
 - **A major update.** Read its changelog, which Renovate links in the pull request, and merge it by hand.
 
 ## Change the configuration
+
+When Renovate renames an option `renovate.json` uses, it opens a pull request that migrates the file (`configMigration`).
 
 Edit `renovate.json` on a branch named `renovate/reconfigure` and open a pull request from it. Renovate validates the file there and comments with what the new configuration would open. To check a file locally:
 
