@@ -7,9 +7,9 @@ import { createAdventureCache } from './adventure-cache';
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
 import type { PhoneContact } from './phone-contact';
-import type { AdventureWithRelations, ContactRow } from './rows';
+import type { AdventureWithRelations, ContactRow, MessageRow } from './rows';
 import type { LocationService } from './trail';
-import type { AdventureId } from './types';
+import type { AdventureId, EmergencyContactId } from './types';
 
 const memoryStorage = () => {
   const items = new Map<string, string>();
@@ -73,6 +73,12 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     session: { data: { session: { user: { id: 'u1' } } }, error: null } as { data: { session: unknown }; error: unknown },
   };
   const contactsQuery = {
+    update: (values: Partial<ContactRow>) => ({
+      eq: async (_column: string, id: string) => {
+        world.contacts = world.contacts.map((c) => (c.id === id ? { ...c, ...values } : c));
+        return { error: null };
+      },
+    }),
     select: () => contactsQuery,
     is: () => contactsQuery,
     order: async () => ({ data: world.contacts.filter((c) => c.removed_at === null), error: null }),
@@ -99,8 +105,32 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     maybeSingle: async () =>
       world.signal && world.reads ? { data: world.server, error: null } : { data: null, error: { message: 'Network request failed' } },
   };
+  const messageRows: MessageRow[] = [];
+  const messagesQuery = {
+    select: () => messagesQuery,
+    eq: () => messagesQuery,
+    order: () => messagesQuery,
+    then: (resolve: (result: { data: MessageRow[]; error: null }) => void) => resolve({ data: [...messageRows], error: null }),
+  };
+  // The one Realtime subscription the test opens: its change handler and its status callback.
+  const realtime = { onChange: (_change: { new: object }) => undefined as void, onStatus: (_status: string) => undefined as void, removed: false };
+  const channel = {
+    on: (_event: string, _filter: object, handler: (change: { new: object }) => void) => {
+      realtime.onChange = handler;
+      return channel;
+    },
+    subscribe: (callback: (status: string) => void) => {
+      realtime.onStatus = callback;
+      return channel;
+    },
+  };
   const signOuts: unknown[] = [];
+  const shownCards: string[] = [];
   const supabase = {
+    channel: () => channel,
+    removeChannel: async () => {
+      realtime.removed = true;
+    },
     auth: {
       getSession: async () => world.session,
       signOut: async (options: unknown) => void signOuts.push(options),
@@ -109,7 +139,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
       if (world.refuse) return { data: null, error: { message: world.refuse, code: 'P0001' } };
       return world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } };
     },
-    from: (table: string) => (table === 'emergency_contacts' ? contactsQuery : query),
+    from: (table: string) => (table === 'emergency_contacts' ? contactsQuery : table === 'adventure_messages' ? messagesQuery : query),
   } as unknown as SupabaseClient<Database>;
   const updates: string[] = [];
   const fences: string[][] = [];
@@ -137,6 +167,10 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     language: () => 'de',
     now,
     pickContact: async () => picked,
+    showPhoneContact: async (phoneId) => {
+      shownCards.push(phoneId);
+      return true;
+    },
     region: () => 'CH',
     storage,
     notificationsPermitted: async () => true,
@@ -146,7 +180,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
       throw new Error('no signal');
     },
   });
-  return { barry, world, storage, updates, fences, arrivals, signOuts, scheduled: () => Object.fromEntries(scheduled) };
+  return { barry, world, storage, updates, fences, arrivals, signOuts, messageRows, realtime, shownCards, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -243,6 +277,7 @@ describe('local notifications', () => {
 
 describe('addContactFromPhone', () => {
   const luca: PhoneContact = {
+    phoneId: 'phone-luca',
     fullName: 'Luca Meier',
     company: null,
     phones: [{ label: 'mobile', number: '079 111 11 11' }],
@@ -256,6 +291,17 @@ describe('addContactFromPhone', () => {
       contact: { id: 'c1', name: 'Luca Meier', email: 'Luca@example.com', emailEnabled: true, phone: '+41791111111', phoneEnabled: true },
     });
     expect(world.contacts).toHaveLength(1);
+  });
+
+  it('remembers on the phone which Phone Contact it copied, so its card can be shown, until the contact is removed', async () => {
+    const { barry, world, shownCards } = setup({ picked: luca });
+    const options = { beforeAsking: async () => true, closeTitle: 'Close' };
+    await barry.addContactFromPhone();
+    const id = world.contacts[0]?.id as EmergencyContactId;
+    expect(await barry.showPhoneContact(id, options)).toBe(true);
+    await barry.removeContact(id);
+    expect(await barry.showPhoneContact(id, options)).toBe(false);
+    expect(shownCards).toEqual(['phone-luca']);
   });
 
   it('reports a cancelled pick and saves nothing', async () => {
@@ -334,5 +380,44 @@ describe('a Deadline more than a year ahead', () => {
     world.signal = true;
     world.refuse = 'barry:deadline_too_far';
     expect(await barry.moveDeadline(a1, farAhead)).toEqual({ kind: 'refused', refusal: 'deadline_too_far' });
+  });
+});
+
+describe('watchMessages', () => {
+  const sent: MessageRow = {
+    id: 1,
+    kind: 'heads_up',
+    round: null,
+    channel: 'sms',
+    to_address: '+41791111111',
+    contacts: [{ id: 'c1', name: 'Luca' }],
+    status: 'sent',
+    delivered: false,
+    outcome_at: '2026-10-17T06:01:00Z',
+    failure_reason: null,
+  };
+
+  const settled = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  it('lists the messages on each connection and after each outcome, but not while one waits or is being sent', async () => {
+    const { barry, messageRows, realtime } = setup();
+    const seen: number[] = [];
+    const stop = barry.watchMessages(a1, (messages) => void seen.push(messages.length));
+
+    realtime.onStatus('SUBSCRIBED');
+    await settled();
+    messageRows.push(sent);
+    realtime.onChange({ new: { status: 'pending' } });
+    realtime.onChange({ new: { status: 'sending' } });
+    await settled();
+    realtime.onChange({ new: { status: 'sent' } });
+    await settled();
+    messageRows.push({ ...sent, id: 2, status: 'failed', failure_reason: 'retries_exhausted' });
+    realtime.onChange({ new: { status: 'failed' } });
+    await settled();
+    stop();
+
+    expect(seen).toEqual([0, 1, 2]);
+    expect(realtime.removed).toBe(true);
   });
 });

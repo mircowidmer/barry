@@ -7,7 +7,7 @@ import { createAlarms, dueAlarms, type NotificationService } from './alarms';
 import { createArrival } from './arrival';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { createConditions } from './conditions';
-import { copyPhoneContact, type PhoneContact } from './phone-contact';
+import { copyPhoneContact, createPhoneContactLinks, type PhoneContact } from './phone-contact';
 import { createTrail, type LocationService } from './trail';
 import { createTrailBuffer } from './trail-buffer';
 import {
@@ -17,6 +17,8 @@ import {
   parseContact,
   parsePosition,
   parseProfile,
+  MESSAGE_SELECT,
+  parseSentMessage,
   POSITION_SELECT,
 } from './rows';
 import type {
@@ -26,12 +28,13 @@ import type {
   Barry,
   Channel,
   ContactDraft,
-  DeliveryFailure,
   EmergencyContact,
   InProgressAdventure,
   MessageLanguage,
   Place,
   Position,
+  SentMessage,
+  ShowPhoneContactOptions,
 } from './types';
 
 export type BarryDeps = {
@@ -46,6 +49,11 @@ export type BarryDeps = {
   now(): Date;
   /** The phone's picker: the picked Phone Contact, or null when the Adventurer cancels. */
   pickContact(): Promise<PhoneContact | null>;
+  /**
+   * Shows the phone's own card of a Phone Contact, asking for access to the contacts first if the Adventurer has
+   * not answered yet, and only if `beforeAsking` agrees. False when access is refused or the contact is gone.
+   */
+  showPhoneContact(phoneId: string, options: ShowPhoneContactOptions): Promise<boolean>;
   /** The phone's region, such as CH, which a number without a country code is read in. */
   region(): string | null;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
@@ -100,6 +108,7 @@ export const createBarry = ({
   language,
   now,
   pickContact,
+  showPhoneContact,
   region,
   storage,
   notificationsPermitted,
@@ -115,6 +124,7 @@ export const createBarry = ({
   };
 
   const cache = createAdventureCache(storage, now);
+  const phoneContacts = createPhoneContactLinks(storage);
   const conditions = createConditions({ fetchJson, storage, now, language });
 
   const cachedInProgress = () => {
@@ -146,6 +156,17 @@ export const createBarry = ({
     cache.save(row);
     void syncAlarms();
     if (fenceKey(row) !== before) syncTrail();
+  };
+
+  const messages = async (id: AdventureId): Promise<SentMessage[]> => {
+    const { data, error } = await supabase
+      .from('adventure_messages')
+      .select(MESSAGE_SELECT)
+      .eq('adventure_id', id)
+      .order('outcome_at', { ascending: false })
+      .order('id', { ascending: false });
+    if (error) fail('messages', error);
+    return (data ?? []).map(parseSentMessage);
   };
 
   const getAdventure = async (id: AdventureId) => {
@@ -290,6 +311,7 @@ export const createBarry = ({
           phone: copy.phone,
           phoneEnabled: copy.phone !== null,
         });
+        if (picked.phoneId) phoneContacts.set(contact.id, picked.phoneId);
         return { kind: 'added', contact };
       } catch (error) {
         if (error instanceof Error && error.message.includes('barry:too_many_contacts')) return { kind: 'full' };
@@ -306,7 +328,13 @@ export const createBarry = ({
         .eq('id', id);
       if (error?.message.includes('barry:contact_in_use')) return { kind: 'in_use' };
       if (error) fail('removeContact', error);
+      phoneContacts.forget(id);
       return { kind: 'removed' };
+    },
+
+    showPhoneContact: async (id, options) => {
+      const phoneId = phoneContacts.get(id);
+      return phoneId !== null && showPhoneContact(phoneId, options);
     },
 
     enabledChannels,
@@ -446,23 +474,21 @@ export const createBarry = ({
       await flushCheckIns();
     },
 
-    deliveryFailures: async (id) => {
-      const { data, error } = await supabase
-        .from('delivery_failures')
-        .select('id, kind, contact_name, channel, to_address, failure_reason')
-        .eq('adventure_id', id)
-        .order('created_at');
-      if (error) fail('deliveryFailures', error);
-      return (data ?? []).map(
-        (row): DeliveryFailure => ({
-          id: row.id,
-          message: row.kind,
-          contactName: row.contact_name ?? '',
-          channel: row.channel,
-          address: row.to_address,
-          reason: row.failure_reason ?? '',
-        }),
-      );
+    messages,
+
+    watchMessages: (id, onChange) => {
+      const refresh = () => messages(id).then(onChange, () => undefined);
+      const channel = supabase
+        .channel(`messages:${id}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `adventure_id=eq.${id}` }, (change) => {
+          // A message waiting or being sent is not listed, so only an outcome changes the list.
+          const status = 'status' in change.new ? change.new.status : null;
+          if (status === 'sent' || status === 'failed') void refresh();
+        })
+        .subscribe((status) => status === 'SUBSCRIBED' && void refresh());
+      return () => {
+        supabase.removeChannel(channel).catch(() => undefined);
+      };
     },
 
     readings: async (id, after) => {

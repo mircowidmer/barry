@@ -44,7 +44,7 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "Barry copies only the contact you pick, so it can tell them when you start an adventure and if you don’t check in on time."
+          "contactsPermission": "Barry opens the card of a contact you picked when a message to them did not arrive, so you can reach them yourself. It reads no other contact."
         }
       ],
       [

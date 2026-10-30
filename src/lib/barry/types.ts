@@ -79,13 +79,33 @@ export type EndedAdventure = StartedFields & { stage: 'ended'; checkedInAt: Date
 export type InProgressAdventure = ActiveAdventure | OverdueAdventure | AlertedAdventure;
 export type Adventure = PlannedAdventure | InProgressAdventure | EndedAdventure;
 
-export type DeliveryFailure = {
+export type MessageKind = Database['public']['Enums']['message_kind'];
+
+/**
+ * A message that went out to an address of the Adventure's contacts, or failed. Contacts who share the address
+ * are all named. Only a text message can become `delivered`, once Twilio confirms it; `at` is the time of the outcome.
+ */
+export type SentMessage = {
   id: number;
-  message: 'heads_up' | 'plan_update' | 'deadline_update' | 'alert' | 'all_clear';
-  contactName: string;
+  message: MessageKind;
+  /** Which Alert of the current Deadline, from 1; null for every other message. */
+  round: number | null;
   channel: Channel;
   address: string;
-  reason: string;
+  contacts: { id: EmergencyContactId; name: string }[];
+  outcome: 'sent' | 'delivered' | 'failed';
+  at: Date;
+  reason: string | null;
+};
+
+/** A message that could not be delivered. */
+export type DeliveryFailure = SentMessage & { outcome: 'failed' };
+
+export type ShowPhoneContactOptions = {
+  /** Explains why Barry asks for access to the contacts, before iOS asks; true to go on. */
+  beforeAsking(): Promise<boolean>;
+  /** The title of the button that closes the card. */
+  closeTitle: string;
 };
 
 export type StartWarning =
@@ -162,6 +182,11 @@ export type Barry = {
   addContactFromPhone(): Promise<AddContactResult>;
   saveContact(contact: ContactDraft): Promise<EmergencyContact>;
   removeContact(id: EmergencyContactId): Promise<{ kind: 'removed' } | { kind: 'in_use' }>;
+  /**
+   * Shows the card of the Phone Contact an Emergency Contact was copied from, read-only. False when this phone does
+   * not know which one it was, access to the contacts is refused, or the Phone Contact is gone.
+   */
+  showPhoneContact(id: EmergencyContactId, options: ShowPhoneContactOptions): Promise<boolean>;
   enabledChannels(): Promise<ReadonlySet<Channel>>;
 
   listAdventures(): Promise<Adventure[]>;
@@ -188,7 +213,10 @@ export type Barry = {
   pendingCheckIns(): PendingCheckIn[];
   flushPendingCheckIns(): Promise<void>;
 
-  deliveryFailures(id: AdventureId): Promise<DeliveryFailure[]>;
+  /** The messages to the contacts that went out or failed, newest first. */
+  messages(id: AdventureId): Promise<SentMessage[]>;
+  /** Calls `onChange` with the messages each time one goes out, is delivered or fails, and after each reconnect. */
+  watchMessages(id: AdventureId, onChange: (messages: SentMessage[]) => void): () => void;
   /** Every reading of the Adventure, from Start, Deadline moves and the Trail, oldest first. With `after`, only the readings taken after it. */
   readings(id: AdventureId, after?: Date): Promise<Position[]>;
   watchAdventure(id: AdventureId, onChange: (adventure: Adventure) => void): () => void;

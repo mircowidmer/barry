@@ -4,6 +4,7 @@ import { LIMITS } from './limits';
 import { copyPhoneContact, fullPhoneNumber, MOBILE_LABELS, type PhoneContact } from './phone-contact';
 
 const picked = (overrides: Partial<PhoneContact>): PhoneContact => ({
+  phoneId: null,
   fullName: 'Sara Keller',
   company: null,
   phones: [],

@@ -1,4 +1,4 @@
-import { presentContactPickerAsync } from 'expo-contacts/legacy';
+import { getPermissionsAsync, presentContactPickerAsync, presentFormAsync, requestPermissionsAsync } from 'expo-contacts/legacy';
 import { getLocales } from 'expo-localization';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
@@ -15,7 +15,7 @@ import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './t
 import { SLOT_MS } from './trail-buffer';
 import { searchPlaces } from '../../../modules/place-search';
 
-import type { Place, Position } from './types';
+import type { Place, Position, ShowPhoneContactOptions } from './types';
 
 export type * from './types';
 export type { Alarm } from './alarms';
@@ -79,11 +79,29 @@ const pickContact = async (): Promise<PhoneContact | null> => {
   // The picker's copy carries the name parts but not always the formatted full name.
   const parts = [contact.firstName, contact.middleName, contact.lastName].filter((part) => part?.trim());
   return {
+    phoneId: contact.id ?? null,
     fullName: contact.name?.trim() || parts.join(' '),
     company: contact.company ?? null,
     phones: (contact.phoneNumbers ?? []).map((p) => ({ label: p.label, number: p.number, region: p.countryCode })),
     emails: (contact.emails ?? []).map((e) => ({ label: e.label, address: e.email })),
   };
+};
+
+// Reading a contact by its identifier needs access to the contacts, which the picker never asked for.
+const showPhoneContact = async (phoneId: string, { beforeAsking, closeTitle }: ShowPhoneContactOptions): Promise<boolean> => {
+  try {
+    let permission = await getPermissionsAsync();
+    if (permission.status === 'undetermined') {
+      if (!(await beforeAsking())) return false;
+      permission = await requestPermissionsAsync();
+    }
+    if (!permission.granted) return false;
+    // Rejects when the Phone Contact is gone or outside the contacts the Adventurer shared.
+    await presentFormAsync(phoneId, null, { allowsEditing: false, cancelButtonTitle: closeTitle });
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 const UPDATE_OPTIONS = {
@@ -175,6 +193,7 @@ export const barry = createBarry({
   language: appLanguage,
   now: () => new Date(),
   pickContact,
+  showPhoneContact,
   region: () => getLocales()[0].regionCode ?? null,
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,

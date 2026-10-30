@@ -7,6 +7,8 @@ import { isEmailAddress, isPhoneNumber } from './reach';
 
 /** What Barry reads from the Phone Contact the Adventurer picked. */
 export type PhoneContact = {
+  /** The phone's own identifier, which only this phone's contacts know. */
+  phoneId: string | null;
   fullName: string;
   company: string | null;
   /** `region` is the phone's own reading of the number's country, such as `ch`, when it has one. */
@@ -48,4 +50,23 @@ export const copyPhoneContact = (contact: PhoneContact, region: string | null): 
   // || rather than ??: an empty name or company falls through to the next one.
   const name = contact.fullName.trim() || contact.company?.trim() || email || (phone ? formatPhoneNumber(phone) : '');
   return { name: clip(name, LIMITS.nameLength), email, phone };
+};
+
+const KEY = 'barry.phoneContacts';
+
+/**
+ * Which Phone Contact each Emergency Contact was copied from, kept only on this phone: the identifier means nothing
+ * on another one. A contact picked before Barry kept it has none.
+ */
+export const createPhoneContactLinks = (storage: Pick<Storage, 'getItem' | 'setItem'>) => {
+  const load = (): Record<string, string> => JSON.parse(storage.getItem(KEY) || '{}') as Record<string, string>;
+  return {
+    get: (contactId: string): string | null => load()[contactId] ?? null,
+    set: (contactId: string, phoneId: string) => storage.setItem(KEY, JSON.stringify({ ...load(), [contactId]: phoneId })),
+    forget: (contactId: string) => {
+      const links = load();
+      delete links[contactId];
+      storage.setItem(KEY, JSON.stringify(links));
+    },
+  };
 };

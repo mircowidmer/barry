@@ -1,13 +1,16 @@
 import { router, Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { Screen, Unavailable } from '@/components/form';
 import { Note } from '@/components/grouped-list';
+import { SentMessages } from '@/components/sent-messages';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
 import { useLoad } from '@/hooks/use-load';
+import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { barry, type EndedAdventure } from '@/lib/barry';
+import { barry, type EndedAdventure, type SentMessage } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { useTexts } from '@/lib/texts';
 
@@ -16,6 +19,10 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
   const readings = useLoad(() => barry.readings(adventure.id));
   const t = useTexts();
   const theme = useTheme();
+  const now = useNow();
+  // The All-clear goes out after the Check-in, so the list keeps following while the screen is open.
+  const [messages, setMessages] = useState<SentMessage[]>([]);
+  useEffect(() => barry.watchMessages(adventure.id, setMessages), [adventure.id]);
 
   // A failed delete is an alert here as in the lists, so the same action fails the same way everywhere.
   const remove = async () => {
@@ -59,6 +66,8 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
         ))}
 
       {adventure.alertsSent > 0 && <ThemedText type="small">{t.ended.alertsSent(adventure.alertsSent)}</ThemedText>}
+
+      <SentMessages messages={messages} contacts={adventure.contacts} now={now} />
     </Screen>
   );
 }

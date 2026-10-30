@@ -1,4 +1,4 @@
-import type { DeliveryFailure, Refusal } from '@/lib/barry';
+import type { Channel, MessageKind, Refusal, SentMessage } from '@/lib/barry';
 import { LIMITS } from '@/lib/barry/limits';
 import { appLanguage, useAppLanguage } from '@/lib/language';
 import {
@@ -13,6 +13,46 @@ import {
 } from '@/lib/wording';
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+
+// The failure reasons Barry records itself. A provider's own error stays in the database and reads as the generic one.
+type KnownReason = 'channel_not_enabled' | 'retries_exhausted';
+const reasonOf = (reasons: Record<KnownReason, string>, fallback: string) => (reason: string | null) =>
+  (reason !== null && reason in reasons ? reasons[reason as KnownReason] : fallback);
+
+const kindsEn: Record<MessageKind, string> = {
+  heads_up: 'Heads-up',
+  plan_update: 'Plan Update',
+  deadline_update: 'Deadline Update',
+  alert: 'Alert',
+  all_clear: 'All-clear',
+};
+const channelsEn: Record<Channel, string> = { email: 'email', sms: 'text message', push: 'push' };
+const outcomesEn: Record<SentMessage['outcome'], string> = { sent: 'Sent', delivered: 'Delivered', failed: 'Failed' };
+const messageNameEn = (m: Pick<SentMessage, 'message' | 'round'>) =>
+  m.message === 'alert' && m.round !== null ? `Alert ${m.round} of ${LIMITS.alertsPerDeadline}` : kindsEn[m.message];
+const reasonEn = reasonOf(
+  { channel_not_enabled: 'Text messages are not set up yet', retries_exhausted: 'Gave up after several attempts' },
+  'Could not be delivered',
+);
+// A reason inside parentheses starts in lower case, unless it starts with an abbreviation such as SMS.
+const inParentheses = (reason: string) => (/^\p{Lu}\p{Ll}/u.test(reason) ? reason.charAt(0).toLowerCase() + reason.slice(1) : reason);
+const namesOf = (m: SentMessage) => m.contacts.map((c) => c.name).join(', ');
+
+const kindsDe: Record<MessageKind, string> = {
+  heads_up: 'Startnachricht',
+  plan_update: 'Plan-Update',
+  deadline_update: 'Neue Rückkehrzeit',
+  alert: 'Alarm',
+  all_clear: 'Entwarnung',
+};
+const channelsDe: Record<Channel, string> = { email: 'per E-Mail', sms: 'per SMS', push: 'per Push' };
+const outcomesDe: Record<SentMessage['outcome'], string> = { sent: 'Gesendet', delivered: 'Zugestellt', failed: 'Fehlgeschlagen' };
+const messageNameDe = (m: Pick<SentMessage, 'message' | 'round'>) =>
+  m.message === 'alert' && m.round !== null ? `Alarm ${m.round} von ${LIMITS.alertsPerDeadline}` : kindsDe[m.message];
+const reasonDe = reasonOf(
+  { channel_not_enabled: 'SMS sind noch nicht eingerichtet', retries_exhausted: 'Nach mehreren Versuchen aufgegeben' },
+  'Konnte nicht zugestellt werden',
+);
 
 const en = {
   when: formatWhen,
@@ -147,9 +187,23 @@ const en = {
     lastKnown: (when: string) => `Last position: ${when}`,
     edit: 'Edit Plan or Contacts',
     failuresTitle: 'Messages That Did Not Arrive',
-    failure: (f: DeliveryFailure) =>
-      `${f.contactName}: ${{ heads_up: 'Heads-up', plan_update: 'Plan Update', deadline_update: 'Deadline Update', alert: 'Alert', all_clear: 'All-clear' }[f.message]} by ${{ email: 'email', sms: 'text message', push: 'push' }[f.channel]}` +
-      ` (${({ channel_not_enabled: 'text messages are not set up yet', retries_exhausted: 'gave up after several attempts' } as Record<string, string>)[f.reason] ?? f.reason})`,
+    failure: (f: SentMessage) => `${namesOf(f)}: ${messageNameEn(f)} by ${channelsEn[f.channel]} (${inParentheses(reasonEn(f.reason))})`,
+    messagesTitle: 'Sent to Your Contacts',
+    messageName: messageNameEn,
+    outcome: (m: SentMessage, time: string) => `${outcomesEn[m.outcome]} ${time}`,
+    failureReason: reasonEn,
+    messageLabel: (m: SentMessage, time: string) =>
+      `${messageNameEn(m)} to ${namesOf(m)} by ${channelsEn[m.channel]}, ${m.address}. ${outcomesEn[m.outcome]} ${time}` +
+      (m.outcome === 'failed' ? `: ${reasonEn(m.reason)}. Double-tap to reach them yourself.` : '.'),
+    contactsAccessTitle: 'Show Your Contact?',
+    contactsAccessMessage: 'To open this contact’s card, Barry asks iOS for access to your contacts. Barry reads only this contact.',
+    continue: 'Continue',
+    close: 'Close',
+    reachTitle: (name: string) => `Reach ${name}`,
+    call: 'Call',
+    text: 'Send a Text Message',
+    email: 'Send an Email',
+    whichContact: 'Which Contact?',
   },
   ended: {
     checkedIn: (when: string) => `You checked in ${when}.`,
@@ -486,9 +540,23 @@ const de: Texts = {
     lastKnown: (when) => `Letzter Standort: ${when}`,
     edit: 'Plan oder Kontakte bearbeiten',
     failuresTitle: 'Nachrichten, die nicht ankamen',
-    failure: (f) =>
-      `${f.contactName}: ${{ heads_up: 'Startnachricht', plan_update: 'Plan-Update', deadline_update: 'Neue Rückkehrzeit', alert: 'Alarm', all_clear: 'Entwarnung' }[f.message]} ${{ email: 'per E-Mail', sms: 'per SMS', push: 'per Push' }[f.channel]}` +
-      ` (${({ channel_not_enabled: 'SMS sind noch nicht eingerichtet', retries_exhausted: 'nach mehreren Versuchen aufgegeben' } as Record<string, string>)[f.reason] ?? f.reason})`,
+    failure: (f) => `${namesOf(f)}: ${messageNameDe(f)} ${channelsDe[f.channel]} (${inParentheses(reasonDe(f.reason))})`,
+    messagesTitle: 'An deine Kontakte gesendet',
+    messageName: messageNameDe,
+    outcome: (m, time) => `${outcomesDe[m.outcome]} ${time}`,
+    failureReason: reasonDe,
+    messageLabel: (m, time) =>
+      `${messageNameDe(m)} an ${namesOf(m)} ${channelsDe[m.channel]}, ${m.address}. ${outcomesDe[m.outcome]} ${time}` +
+      (m.outcome === 'failed' ? `: ${reasonDe(m.reason)}. Doppeltippen, um sie selbst zu erreichen.` : '.'),
+    contactsAccessTitle: 'Kontakt anzeigen?',
+    contactsAccessMessage: 'Um die Karte dieses Kontakts zu öffnen, fragt Barry iOS nach Zugriff auf deine Kontakte. Barry liest nur diesen Kontakt.',
+    continue: 'Weiter',
+    close: 'Schliessen',
+    reachTitle: (name) => `${name} erreichen`,
+    call: 'Anrufen',
+    text: 'SMS senden',
+    email: 'E-Mail senden',
+    whichContact: 'Welcher Kontakt?',
   },
   ended: {
     checkedIn: (when) => `Du hast dich am ${when} zurückgemeldet.`,
