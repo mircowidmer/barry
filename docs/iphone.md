@@ -60,18 +60,24 @@ It runs the three steps below through `scripts/iphone-production.sh`. The iPhone
 BARRY_IPHONE="Anna's iPhone" npm run iphone:production
 ```
 
+With ccache installed (`brew install ccache`), the C, C++ and Objective-C of the native modules compile once and come from the cache in later runs, which cuts a run from about four minutes to about two and a half.
+
 The steps one by one:
 
-1. Generate the iOS project for the production variant:
+1. Generate the iOS project for the production variant. `USE_CCACHE=1` turns on ccache, if it is installed:
 
    ```bash
-   APP_VARIANT=production BARRY_WITHOUT_PUSH=1 LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios
+   APP_VARIANT=production BARRY_WITHOUT_PUSH=1 USE_CCACHE=1 LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios
    ```
 
-2. Build with the iPhone connected and unlocked. The first command takes the hosted Supabase URL and publishable key from the production profile in `eas.json`:
+2. Build with the iPhone connected and unlocked. The first command takes the hosted Supabase URL and publishable key from the production profile in `eas.json`, the second points React Native's ccache wrapper at ccache:
 
    ```bash
    eval "$(node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log('export ' + k + '=' + JSON.stringify(v))")"
+   ```
+
+   ```bash
+   export CCACHE_BINARY="$(command -v ccache)"
    ```
 
    ```bash
