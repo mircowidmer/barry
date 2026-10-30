@@ -13,6 +13,11 @@
   ],
   "packageRules": [
     {
+      "description": "Everything but a major update merges on its own once the checks that main requires pass",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "automerge": true
+    },
+    {
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm minor and patch updates"
@@ -21,7 +26,8 @@
       "description": "Expo SDK 58 pins these; update them with npx expo install --fix, or approve on the Dependency Dashboard",
       "matchPackageNames": ["expo", "expo-*", "@expo/*", "*-expo", "react", "react-dom", "react-native", "react-native-*", "@react-native/*", "@react-native-community/*", "@types/react", "typescript"],
       "groupName": "Expo SDK",
-      "dependencyDashboardApproval": true
+      "dependencyDashboardApproval": true,
+      "automerge": false
     },
     {
       "matchPackageNames": ["@supabase/supabase-js"],
