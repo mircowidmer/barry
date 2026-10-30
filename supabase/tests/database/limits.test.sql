@@ -2,6 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
 select plan(24);
+delete from public.messages;
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');

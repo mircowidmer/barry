@@ -2,6 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
 select plan(10);
+delete from public.messages;
 
 select is(private.update_pace(), interval '15 minutes', 'an address gets at most one Plan Update and one Deadline Update in 15 minutes');
 
