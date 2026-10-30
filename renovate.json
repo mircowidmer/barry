@@ -29,7 +29,7 @@
       "groupName": "npm minor and patch updates"
     },
     {
-      "description": "Expo SDK 58 pins these; approve a patch on the Dependency Dashboard, but move to a new SDK with npx expo install --fix",
+      "description": "Expo pins these per SDK; a new SDK goes in with npx expo install --fix",
       "matchPackageNames": ["expo", "expo-*", "@expo/*", "*-expo", "react", "react-dom", "react-native", "react-native-*", "@react-native/*", "@react-native-community/*", "@types/react", "typescript"],
       "groupName": "Expo SDK",
       "dependencyDashboardApproval": true,

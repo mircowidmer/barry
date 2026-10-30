@@ -27,7 +27,7 @@ A security fix ignores both the Monday window and the three days. Renovate learn
 | One per inline import of `supabase/functions` | Such as `jsr:@std/assert`, found by the custom manager in `renovate.json` | Yes |
 | Lock file maintenance | `package-lock.json` rebuilt every Monday, so the packages other packages pull in move too | Yes |
 | One per security fix | The lowest version that fixes the vulnerability, marked `[SECURITY]` | Yes |
-| Expo SDK | `expo`, `expo-*`, React, React Native, `react-native-*`, `jest-expo`, `eslint-config-expo`, `@types/react` and `typescript` | No, and it opens only after approval on the Dependency Dashboard |
+| Expo SDK | The Expo, React and React Native packages the Expo SDK rule in `renovate.json` names | No, and it opens only after approval on the Dependency Dashboard |
 | One per major update | Any package outside the Expo SDK | No |
 
 Merging on its own means GitHub's auto-merge: the pull request merges once the six checks the ruleset "main requires CI" names have passed. A failing check leaves it open.
