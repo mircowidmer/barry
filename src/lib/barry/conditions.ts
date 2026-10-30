@@ -41,7 +41,8 @@ export type AvalancheBulletin = {
   validUntil: Date;
 };
 
-type FetchedConditions = { fetchedAt: Date; forecast: ForecastHour[]; bulletin: AvalancheBulletin | null };
+/** `unavailable` when the bulletin could not be loaded, so a missing bulletin never looks like no danger. */
+type FetchedConditions = { fetchedAt: Date; forecast: ForecastHour[]; bulletin: AvalancheBulletin | 'unavailable' | null };
 
 export type ConditionsResult =
   | { kind: 'shown' | 'stale'; conditions: FetchedConditions }
@@ -224,12 +225,12 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
   };
 };
 
-type Kept = { point: Point; fetchedAt: string; forecast: (Omit<ForecastHour, 'at'> & { at: string })[]; bulletin: (Omit<AvalancheBulletin, 'validUntil'> & { validUntil: string }) | null };
+type Kept = { point: Point; fetchedAt: string; forecast: (Omit<ForecastHour, 'at'> & { at: string })[]; bulletin: (Omit<AvalancheBulletin, 'validUntil'> & { validUntil: string }) | 'unavailable' | null };
 
 const revive = (kept: Kept): FetchedConditions => ({
   fetchedAt: new Date(kept.fetchedAt),
   forecast: kept.forecast.map((h) => ({ ...h, at: new Date(h.at) })),
-  bulletin: kept.bulletin && { ...kept.bulletin, validUntil: new Date(kept.bulletin.validUntil) },
+  bulletin: typeof kept.bulletin === 'object' && kept.bulletin ? { ...kept.bulletin, validUntil: new Date(kept.bulletin.validUntil) } : kept.bulletin,
 });
 
 export const createConditions = ({ fetchJson, storage, now, language }: ConditionsDeps) => {
@@ -263,10 +264,16 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
     return slf.features;
   };
 
-  const fetchConditions = async (point: Point): Promise<FetchedConditions> => {
+  const fetchConditions = async (point: Point, last: FetchedConditions | undefined): Promise<FetchedConditions> => {
+    // A bulletin that failed to load gives way to the last one while it is still valid.
+    const lastValid = typeof last?.bulletin === 'object' && last.bulletin && last.bulletin.validUntil > now() ? last.bulletin : null;
     const [forecast, bulletin] = await Promise.all([
       fetchJson(openMeteoUrl(point)).then(parseForecast),
-      inSlfArea(point) ? slfFeatures().then((features) => bulletinAt(features, point, now())).catch(() => null) : null,
+      inSlfArea(point)
+        ? slfFeatures()
+            .then((features) => bulletinAt(features, point, now()))
+            .catch(() => lastValid ?? ('unavailable' as const))
+        : null,
     ]);
     return { fetchedAt: now(), forecast, bulletin };
   };
@@ -277,9 +284,11 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
       const point = round(exact);
       const found = load().find((k) => samePlace(k.point, point));
       const last = found && revive(found);
-      if (last && now().getTime() - last.fetchedAt.getTime() < CONDITIONS_REFRESH_MS) return { kind: 'shown', conditions: last };
+      // Without its bulletin the Conditions are not fresh, so the next look asks again.
+      const fresh = last && last.bulletin !== 'unavailable' && now().getTime() - last.fetchedAt.getTime() < CONDITIONS_REFRESH_MS;
+      if (fresh) return { kind: 'shown', conditions: last };
       try {
-        const conditions = await fetchConditions(point);
+        const conditions = await fetchConditions(point, last);
         keep(point, conditions);
         return { kind: 'shown', conditions };
       } catch {

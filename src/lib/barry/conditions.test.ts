@@ -74,7 +74,7 @@ const slf = {
 };
 
 const setup = ({ failing = false, bulletin = slf as unknown, forecast = null as unknown, stored = null as string | null } = {}) => {
-  const world = { now: start, failing };
+  const world = { now: start, failing, bulletinFailing: false };
   const asked: string[] = [];
   const storage = memoryStorage();
   if (stored !== null) storage.setItem('barry.conditions', stored);
@@ -85,6 +85,7 @@ const setup = ({ failing = false, bulletin = slf as unknown, forecast = null as 
     fetchJson: async (url) => {
       asked.push(url);
       if (world.failing) throw new Error('no signal');
+      if (world.bulletinFailing && url.includes('slf')) throw new Error('503');
       return url.includes('open-meteo') ? (forecast ?? openMeteo(world.now, 120)) : bulletin;
     },
   });
@@ -123,20 +124,44 @@ describe('Conditions', () => {
     const { conditions } = setup({ bulletin: { features: [morning, evening] } });
     const result = await conditions.at(zermatt);
     if (result.kind !== 'shown') throw new Error(result.kind);
-    expect(result.conditions.bulletin?.level).toBe(4);
+    expect(result.conditions.bulletin).toMatchObject({ level: 4 });
     const later = setup({ bulletin: { features: [morning, evening] } });
     later.world.now = new Date('2026-02-01T18:00:00Z');
     const result2 = await later.conditions.at(zermatt);
     if (result2.kind !== 'shown') throw new Error(result2.kind);
-    expect(result2.conditions.bulletin?.validUntil).toEqual(new Date('2026-02-01T16:00:00Z'));
+    expect(result2.conditions.bulletin).toMatchObject({ validUntil: new Date('2026-02-01T16:00:00Z') });
   });
 
-  it('keeps the forecast when the bulletin is malformed', async () => {
+  it('marks the bulletin unavailable when it fails to load, and asks again on the next look', async () => {
+    const { conditions, world, asked } = setup();
+    world.bulletinFailing = true;
+    const result = await conditions.at(zermatt);
+    if (result.kind !== 'shown') throw new Error(result.kind);
+    expect(result.conditions.forecast).toHaveLength(120);
+    expect(result.conditions.bulletin).toBe('unavailable');
+    world.bulletinFailing = false;
+    const again = await conditions.at(zermatt);
+    if (again.kind !== 'shown') throw new Error(again.kind);
+    expect(again.conditions.bulletin).toMatchObject({ level: 3 });
+    expect(asked.filter((u) => u.includes('slf'))).toHaveLength(2);
+  });
+
+  it('keeps the last bulletin while it is valid when a later one fails to load', async () => {
+    const { conditions, world } = setup();
+    await conditions.at(zermatt);
+    world.now = new Date(start.getTime() + CONDITIONS_REFRESH_MS);
+    world.bulletinFailing = true;
+    const result = await conditions.at(zermatt);
+    if (result.kind !== 'shown') throw new Error(result.kind);
+    expect(result.conditions.bulletin).toMatchObject({ level: 3 });
+  });
+
+  it('keeps the forecast and marks the bulletin unavailable when it is malformed', async () => {
     const { conditions } = setup({ bulletin: { features: [{ type: 'Feature', properties: {}, geometry: slf.features[0]!.geometry }] } });
     const result = await conditions.at(zermatt);
     if (result.kind !== 'shown') throw new Error(result.kind);
     expect(result.conditions.forecast).toHaveLength(120);
-    expect(result.conditions.bulletin).toBeNull();
+    expect(result.conditions.bulletin).toBe('unavailable');
   });
 
   it('leaves out the hours Open-Meteo has no forecast for', async () => {
