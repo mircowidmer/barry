@@ -42,7 +42,7 @@ On GitHub, `.github/workflows/ci.yml` runs all six against its own local stack a
 - [Text messages](docs/text-messages.md)
 - [Sketch: the Simulator tests on GitHub](docs/ci-simulator.md), how the Simulator flows could run in CI
 - [Backend design](docs/design/backend/design.md) and [Trail design](docs/design/trail/design.md), the sketches the implementation started from
-- [Project overview](docs/overview/barry-overview.html), a snapshot of the project, and [Prompt overview](barry-prompts.html), the prompts of its first two days
+- [Prompt overview](barry-prompts.html), the prompts of its first two days
 - [Reviews](docs/reviews/), the dated reports of the maintenance skills
 
 ## Skills
