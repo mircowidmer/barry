@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { FirstLoad, LoadState, Screen } from '@/components/form';
-import { ActionRow, Group, InfoNote } from '@/components/grouped-list';
+import { ActionRow, Group } from '@/components/grouped-list';
 import { openPrivacy, openTerms } from '@/components/legal-links';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, type ThemeColor } from '@/constants/theme';
@@ -90,8 +90,6 @@ export default function ProfileScreen() {
         <ActionRow title={t.profile.logOut} centered onPress={() => void askToLogOut()} />
         <ActionRow title={t.profile.deleteAccount} tone="danger" centered onPress={() => void deleteAccount()} busy={deleting} />
       </Group>
-
-      <InfoNote>{t.legal.notEmergency}</InfoNote>
     </Screen>
   );
 }
