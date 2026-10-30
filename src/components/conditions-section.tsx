@@ -15,9 +15,9 @@ import {
   daylightView,
   type ForecastView,
   forecastView,
-  HOUR_MS,
   placeKey,
   type Point,
+  viewClock,
 } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
 import { formatClock, formatHour } from '@/lib/wording';
@@ -62,10 +62,9 @@ function ConditionsAt({ point, deadline }: { point: Point; deadline: Date }) {
   const result = loaded.data;
   const conditions = result && result.kind !== 'unavailable' ? result.conditions : null;
   const forecast = conditions?.forecast ?? null;
-  const hour = Math.floor(now.getTime() / HOUR_MS);
-  // The hours change only with the hour, not with every tick of the clock.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const shown = useMemo(() => forecast && forecastView(forecast, point, deadline, now), [forecast, point, deadline, hour]);
+  // The view reads the clock through its hour and its day, so it changes once an hour, not with every tick.
+  const { hour, dayStart } = viewClock(now);
+  const shown = useMemo(() => forecast && forecastView(forecast, point, deadline, { hour, dayStart }), [forecast, point, deadline, hour, dayStart]);
   return (
     <View style={styles.titled}>
       <GroupHeader title={t.conditions.title} />
