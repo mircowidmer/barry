@@ -8,6 +8,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
+import { tellAboutChangedTerms } from '@/lib/terms-notice';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 SplashScreen.setOptions({ fade: true, duration: 300 });
@@ -25,6 +26,7 @@ function Navigation() {
         .catch(() => undefined);
       barry.syncMessageLanguage().catch(() => undefined);
       askForNotifications().catch(() => undefined);
+      tellAboutChangedTerms(async () => (await barry.getInProgressAdventure()).adventure !== null).catch(() => undefined);
     };
     catchUp();
     const subscription = AppState.addEventListener('change', (state) => state === 'active' && catchUp());

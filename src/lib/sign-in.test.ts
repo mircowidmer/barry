@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { CURRENT_TERMS } from './site';
 import { createSignIn, RESEND_AFTER_SECONDS, type SignInAuth } from './sign-in';
 
 type Failure = { message: string; code?: string };
@@ -46,10 +47,12 @@ describe('signIn', () => {
 });
 
 describe('signUp', () => {
-  it('waits for the confirmation link when Supabase hands out no session', async () => {
+  it('records the Terms of Use and waits for the confirmation link when Supabase hands out no session', async () => {
     const { signIn, calls } = setup();
     expect(await signIn.signUp(anna)).toEqual({ kind: 'unconfirmed' });
-    expect(calls).toEqual([{ method: 'signUp', args: { email: 'anna@example.com', password: 'secret', options: {} } }]);
+    expect(calls).toEqual([
+      { method: 'signUp', args: { email: 'anna@example.com', password: 'secret', options: { data: { terms_version: CURRENT_TERMS } } } },
+    ]);
   });
 
   it('is signed in at once where the stack confirms no addresses', async () => {
