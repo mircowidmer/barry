@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(9);
+select plan(10);
 
 select is(private.update_pace(), interval '15 minutes', 'an address gets at most one Plan Update and one Deadline Update in 15 minutes');
 
@@ -45,6 +45,15 @@ set local role authenticated;
 select public.save_adventure((select id from adventure), 'Titlis', null, array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[]);
 select is((select next_attempt_at from public.messages where kind = 'plan_update' and status = 'pending'),
   now() + interval '15 minutes', 'the next Plan Update to the same address waits 15 minutes after the last one');
+
+-- The waiting Plan Update goes out 15 minutes later; the next one counts from that send, not from its creation.
+reset role;
+update public.messages set status = 'sent', sent_at = now() + interval '15 minutes' where kind = 'plan_update' and status = 'pending';
+set local role authenticated;
+
+select public.save_adventure((select id from adventure), 'Engelberg', null, array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[]);
+select is((select next_attempt_at from public.messages where kind = 'plan_update' and status = 'pending'),
+  now() + interval '30 minutes', 'a Plan Update that waited paces the next one from when it went out');
 
 select public.move_deadline((select id from adventure), now() + interval '9 hours');
 select is((select next_attempt_at from public.messages where kind = 'deadline_update' and status = 'pending'),
