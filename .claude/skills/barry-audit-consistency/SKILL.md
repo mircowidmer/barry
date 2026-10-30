@@ -40,7 +40,7 @@ Not an inconsistency: a style preference, a thing you would have done differentl
 5. **Config**: `app.json`, `app.config.js`, `eas.json`, `supabase/config.toml`, `supabase/seed.sql`, `.env.example`, `tsconfig.json`, `eslint.config.js`, the `jest` block in `package.json`, `.github/workflows/trail-map.yml`, `plugins/without-push.js`.
 6. **Guides**: `README.md`, `AGENTS.md`, everything in `docs/*.md`, `docs/adr/`, and the two verify skills, `.claude/skills/barry-backend-verify/` and `.claude/skills/barry-frontend-verify/` with its feature files, with their scripts.
 7. **Tests**: `src/**/*.test.ts`, `supabase/tests/database/*.test.sql`, `supabase/functions/deliver/*.test.ts`, `e2e/*.e2e.mjs`.
-8. **Web and static content**: `web/*.html`, `locales/de.json`, `barry-prompts.html`, `docs/overview/`.
+8. **Web and static content**: `web/*.html`, `locales/de.json`, `barry-prompts.html`.
 
 When two sources disagree, say which one you believe is right and why. If you cannot tell, say so.
 
@@ -128,7 +128,7 @@ Report an export on one side that is missing on the other, a differing signature
 
 - Regenerate the database types in a scratch location with the Supabase CLI against the local migrations if the stack is available, or otherwise compare `src/lib/database.types.ts` by hand with the final shape of every table, view, function, and enum in the migrations. Report every difference.
 - Compare `locales/de.json` keys with the `infoPlist` keys in `app.json` and the ones `app.config.js` adds. Report keys on one side only, and English strings whose German counterpart says something different.
-- Check `barry-prompts.html` and `docs/overview/` against the spec. These are likely to be stale. Report, with low severity, each claim they make that the spec or the code no longer supports.
+- Check `barry-prompts.html` against the spec. It is likely to be stale. Report, with low severity, each claim it makes that the spec or the code no longer supports.
 
 ### 10. Documents against each other and against the code
 
