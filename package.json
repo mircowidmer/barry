@@ -6,6 +6,7 @@
     "@expo/ui": "58",
     "@maplibre/maplibre-gl-leaflet": "0.1",
     "@react-native-community/datetimepicker": "9.2.1",
+    "@sentry/react-native": "8",
     "@supabase/supabase-js": "2",
     "expo": "58",
     "expo-constants": "58",

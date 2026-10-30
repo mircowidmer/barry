@@ -45,6 +45,7 @@ On GitHub, `.github/workflows/ci.yml` runs all six against its own local stack a
 - [Dependency updates](docs/dependency-updates.md), what Renovate opens and merges on its own
 - [How to host the Adventure page on GitHub Pages](docs/trail-map-hosting.md)
 - [Text messages](docs/text-messages.md)
+- [Crash reports](docs/crash-reports.md), what the app sends to Sentry and how to set the project up
 - [Sketch: the Simulator tests on GitHub](docs/ci-simulator.md), how the Simulator flows could run in CI
 - [Backend design](docs/design/backend/design.md) and [Trail design](docs/design/trail/design.md), the sketches the implementation started from
 - [Prompt overview](barry-prompts.html), the prompts of its first two days

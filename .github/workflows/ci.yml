@@ -213,5 +213,7 @@ jobs:
         env:
           LANG: en_US.UTF-8
           SKIP_BUNDLING: '1'
+          # CI has no Sentry token, and a build it proves is never shipped.
+          SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       - name: Show the compiler cache hits
         run: ccache --show-stats

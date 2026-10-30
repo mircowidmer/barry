@@ -56,3 +56,4 @@ supabase/.env.hosted
 # Written in a cloud session by .claude/hooks/session-start.sh, next to proxy-ca.pem (*.pem)
 supabase/functions/.env
 site/
+.env.sentry-build-plugin
