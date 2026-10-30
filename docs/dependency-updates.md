@@ -12,7 +12,7 @@ Renovate keeps the dependencies current. It runs as the Mend Renovate App, which
 
 Mend decides when a job runs: on its own timer and after events such as a push to `main` or a ticked checkbox. `schedule:weekly` in `renovate.json` only limits when a job may open or update a pull request, to Monday before 4 a.m. Zurich time, so the iOS Release build on barry-mac runs once a week instead of after every release. A checkbox ticked on the Dependency Dashboard is acted on at once.
 
-A release is proposed only once it is three days old (`minimumReleaseAge`), so a broken or hijacked release is usually withdrawn before it reaches a pull request. A release without a date, such as a new commit hash of an Action, is not held back.
+A release is proposed only once it is three days old (`minimumReleaseAge`), so a broken or hijacked release is usually withdrawn before it reaches a pull request. A new commit hash of an Action has no date and is not held back.
 
 A security fix ignores both the Monday window and the three days. Renovate learns of a vulnerability from osv.dev and from GitHub's Dependabot alerts, which need **Dependency graph** and **Dependabot alerts** turned on under Settings → Advanced Security. The Dependency Dashboard lists the vulnerabilities still open.
 
