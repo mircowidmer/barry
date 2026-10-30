@@ -35,7 +35,7 @@ The Supabase CLI has its own pull request because a new CLI can change what `npx
 
 ## What still needs a person
 
-- **A new Expo SDK.** Run `npx expo install expo@^<major>` and then `npx expo install --fix`, which moves every SDK package to the versions that SDK supports. An Expo SDK pull request approved on the Dependency Dashboard bumps versions with plain npm resolution, so it suits a patch, and CI's `npx expo-doctor` rejects a version outside the SDK. The Tuesday lock file maintenance also moves the Expo packages to new patches within their `~` ranges without approval, with `npx expo-doctor` as the same guard.
+- **A new Expo SDK.** Run `npx expo install expo@^<major>` and then `npx expo install --fix`, which moves every SDK package to the versions that SDK supports, and then `npm run versions`, which trims the ranges those commands wrote back to the major version. An Expo SDK pull request approved on the Dependency Dashboard bumps versions with plain npm resolution, so it suits a patch, and CI's `npx expo-doctor` rejects a version outside the SDK. The Tuesday lock file maintenance also moves the Expo packages within their ranges without approval, with `npx expo-doctor` as the same guard.
 - **The hosted Edge Function.** A merged supabase-js update changes `deliver` on `main` only. It reaches the hosted project with `npx supabase functions deploy deliver`, as [The hosted Supabase project](hosted-supabase.md) describes.
 - **A major update.** Read its changelog, which Renovate links in the pull request, and merge it by hand.
 
