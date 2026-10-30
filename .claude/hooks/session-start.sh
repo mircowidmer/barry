@@ -18,6 +18,10 @@ fi
 git -C "$repo" config user.name "Mirco Widmer"
 git -C "$repo" config user.email "mirco.widmer@gmail.com"
 
+# The environment signs commits with its own SSH key, which is not on the owner's GitHub account,
+# so GitHub marks every cloud commit Unverified. Commits from the Mac are unsigned and get no badge.
+git -C "$repo" config commit.gpgsign false
+
 # Outbound HTTPS in a cloud session goes through an agent proxy that re-signs every certificate
 # with its own CA. The local Edge Runtime trusts only its bundled roots, so `deliver` fails to
 # boot with "invalid peer certificate: UnknownIssuer" while loading @supabase/supabase-js.
