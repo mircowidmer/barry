@@ -166,11 +166,11 @@ function CheckInbox({ credentials, justSent, onBack }: { credentials: Credential
       {error && <Note tone="danger">{error}</Note>}
       <Button title={t.signIn.signIn} onPress={signInNow} busy={busy === 'sign_in'} disabled={busy !== null || !captcha.ready} />
       <Button
-        title={secondsLeft > 0 ? t.checkInbox.sendAgainIn(secondsLeft) : t.checkInbox.sendAgain}
+        title={counting ? t.checkInbox.sendAgainIn(secondsLeft) : t.checkInbox.sendAgain}
         kind="secondary"
         onPress={() => void resend()}
         busy={busy === 'resend'}
-        disabled={busy !== null || secondsLeft > 0 || !captcha.ready}
+        disabled={busy !== null || counting || !captcha.ready}
       />
       <ThemedText type="small" themeColor="accent" accessibilityRole="link" style={styles.link} onPress={onBack}>
         {t.checkInbox.otherAddress}
