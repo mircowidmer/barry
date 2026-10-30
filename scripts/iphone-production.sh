@@ -14,7 +14,19 @@ if ccache="$(command -v ccache)"; then
   export USE_CCACHE=1 CCACHE_BINARY="$ccache"
 fi
 
-npx expo prebuild --clean --platform ios
+# ios/ is regenerated only when what goes into it changed since this script last generated it: the native fingerprint
+# of the production variant, the German permission strings and whether ccache is on. A development prebuild in between
+# replaces ios/ and its marker, and changes the bundle identifier.
+marker=ios/.barry-production
+inputs="$(node_modules/.bin/fingerprint fingerprint:generate --platform ios | node -p 'JSON.parse(require("fs").readFileSync(0)).hash')"
+inputs="$inputs $(cat locales/*.json | shasum | cut -c1-40) ccache=${USE_CCACHE:-0}"
+if [ "$(cat "$marker" 2>/dev/null)" = "$inputs" ] &&
+  grep -q 'PRODUCT_BUNDLE_IDENTIFIER = support.barry;' ios/Barry.xcodeproj/project.pbxproj; then
+  echo "ios/ is current for the production variant, skipping prebuild"
+else
+  npx expo prebuild --clean --platform ios
+  echo "$inputs" > "$marker"
+fi
 
 # The hosted Supabase URL, the publishable key and the Turnstile key of the production profile.
 eval "$(node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log('export ' + k + '=' + JSON.stringify(v))")"
