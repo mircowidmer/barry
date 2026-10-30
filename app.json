@@ -37,7 +37,10 @@
       "./plugins/without-push",
       "./plugins/accent-color",
       "expo-router",
-      "@sentry/react-native/expo",
+      [
+        "@sentry/react-native/expo",
+        { "url": "https://de.sentry.io/", "organization": "mirco-widmer", "project": "barry" }
+      ],
       [
         "expo-contacts",
         {
