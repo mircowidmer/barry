@@ -1,13 +1,14 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(17);
+select plan(21);
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');
 select is(private.max_starts_per_day(), 5, 'an Adventurer starts at most 5 Adventures in 24 hours');
 select is(private.starts_window(), interval '24 hours', 'a Start counts towards the limit for 24 hours');
 select is(private.max_alerts(), 3::smallint, 'a Deadline brings at most 3 Alerts');
+select is(private.max_alerts_per_adventure(), 9::smallint, 'an Adventure brings at most 9 Alerts');
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name) values ('11111111-1111-1111-1111-111111111111', 'Anna');
@@ -95,6 +96,21 @@ set local session_replication_role = origin;
 select lives_ok(
   $$update public.adventures set updated_at = now() where id = 'b0000000-0000-0000-0000-000000000001'$$,
   'an Adventure saved before the limits with a longer destination still updates');
+
+-- Six Alerts for earlier Deadlines and one for this one: a full three more would make ten.
+reset role;
+update public.adventures set earlier_alerts = 6 where id = 'b0000000-0000-0000-0000-000000000001';
+set local role authenticated;
+select is(public.move_deadline('b0000000-0000-0000-0000-000000000001', now() + interval '2 hours'),
+  'too_many_alerts'::public.refusal, 'a move that could bring a tenth Alert is refused');
+select is((select stage from public.adventures where id = 'b0000000-0000-0000-0000-000000000001'),
+  'alerted'::public.adventure_stage, 'the refused move leaves the Adventure Alerted');
+
+reset role;
+update public.adventures set earlier_alerts = 5 where id = 'b0000000-0000-0000-0000-000000000001';
+set local role authenticated;
+select is(public.move_deadline('b0000000-0000-0000-0000-000000000001', now() + interval '2 hours'),
+  null::public.refusal, 'a move whose three Alerts would make nine goes through');
 
 select * from finish();
 rollback;
