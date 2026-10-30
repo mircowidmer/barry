@@ -449,7 +449,7 @@ function PlanForm({
             {t.plan.startHint(t.when(form.deadline))}
           </ThemedText>
           <Row>
-            <Button title={t.plan.saveForLater} kind="secondary" onPress={() => void onSave()} busy={busy === 'save'} />
+            <Button title={t.plan.save} kind="secondary" onPress={() => void onSave()} busy={busy === 'save'} />
             {id && <Button title={t.common.delete} kind="danger" onPress={() => void onDelete()} />}
           </Row>
         </>
