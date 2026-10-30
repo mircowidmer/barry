@@ -1,4 +1,4 @@
-import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
+import { createClient } from '@supabase/supabase-js';
 
 import { readDeliveryReport } from './delivery-report.ts';
 import { type Channel, parseFacts } from './facts.ts';

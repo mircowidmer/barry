@@ -1,4 +1,4 @@
-import { assertEquals, assertMatch } from 'jsr:@std/assert@1.0.13';
+import { assertEquals, assertMatch } from '@std/assert';
 
 import { readDeliveryReport, reportToken, reportUrl } from './delivery-report.ts';
 
