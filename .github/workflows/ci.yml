@@ -156,9 +156,9 @@ jobs:
     name: iOS Release build for the Simulator
     needs: changes
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.native == 'true') }}
-    # barry-mac, the self-hosted runner with the label ios, builds every push to main and every pull request, forks included.
-    # The Actions setting that holds a fork's first workflow run for approval is the only gate before its code runs there.
-    runs-on: ios
+    # barry-mac, the self-hosted runner with the label ios, builds pushes to main and this repository's pull requests.
+    # A pull request from a fork runs whatever code it brings, so it stays on a hosted runner.
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'macos-26' || 'ios' }}
     timeout-minutes: 60
     env:
       # The Podfile wraps clang in React Native's ccache script when USE_CCACHE is set at pod install.
