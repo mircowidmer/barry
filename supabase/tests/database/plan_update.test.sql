@@ -2,6 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
 select plan(11);
+delete from public.messages;
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name, phone) values ('11111111-1111-1111-1111-111111111111', 'Anna', '+41790000001');

@@ -1,6 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(25);
+delete from public.messages;
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
