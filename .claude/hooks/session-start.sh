@@ -34,10 +34,16 @@ if [ -f "$ca" ]; then
     "$repo/supabase/functions/proxy-ca.pem" > "$repo/supabase/functions/.env"
 fi
 
-# The tests and linters need node_modules, which a fresh checkout lacks. npm install rather than
-# npm ci, so the cached container keeps what an earlier session installed, and --no-save, because
-# the container's older npm would rewrite package-lock.json.
-(cd "$repo" && npm install --no-save --no-audit --no-fund)
+# The tests and linters need node_modules, which a fresh checkout lacks. npm ci installs exactly the
+# versions package-lock.json names and never rewrites it, where npm install may move a package inside
+# its range. npm ci deletes node_modules first, so it runs only when the lock changed since the
+# cached container last installed.
+lock_sum=$(sha256sum "$repo/package-lock.json" | cut -d' ' -f1)
+stamp="$repo/node_modules/.package-lock.sha256"
+if [ "$(cat "$stamp" 2>/dev/null)" != "$lock_sum" ]; then
+  (cd "$repo" && npm ci --no-audit --no-fund)
+  echo "$lock_sum" > "$stamp"
+fi
 
 # `npx tsc --noEmit` needs expo-env.d.ts, which `npm start` writes on its first run and git ignores.
 if [ ! -f "$repo/expo-env.d.ts" ]; then
