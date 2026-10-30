@@ -65,7 +65,7 @@ Write the report in Markdown, in the language the user writes in (German in Swis
 
 Quote the workflow verbatim with `path:line`. One finding per root cause, with every job it touches. A finding states its saving as a number from the measurement, never as "faster".
 
-With `--fix`, write the report to `docs/reviews/<YYYY-MM-DD>-continuous-integration-speed.md`, like the other maintenance skills' reports, and commit it after the changes, with a message such as `docs/reviews: the CI speed analysis of 29 October 2026, with two changes applied and one left to the author`. Without `--fix`, give it in the reply unless the user asks for a file.
+Give the report in the reply, with or without `--fix`, unless the user asks for a file.
 
 With `--fix`, append the commits made, in order, one line each, and the skipped findings with their rules.
 
