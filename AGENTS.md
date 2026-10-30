@@ -39,7 +39,7 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Rules
 
-- `package.json` names only the major version of each package: `"expo": "58"`, not `"~58.0.21"`. Below 1 the minor is the breaking part, so those keep it: `"react-native-web": "0.21"`. Exact versions that Expo pins, such as `react` and `react-native`, stay exact. `package-lock.json` holds the installed versions. `npx expo install` writes full ranges, so run `npm run versions` after it; `scripts/version-ranges.test.ts` fails on any range it missed.
+- `package.json` names only the major version of each package: `"expo": "58"`, not `"~58.0.21"`. Below 1 the minor is the breaking part, so those keep it: `"react-native-web": "0.21"`. A version stays exact only where Expo's `bundledNativeModules.json` pins it exactly, such as `react` and `react-native`, or where it is a prerelease. `package-lock.json` holds the installed versions. `npx expo install` writes full ranges, so run `npm run versions` after it; `scripts/version-ranges.test.ts` fails on any range it missed.
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a new development build: `npm run ios` locally, or `npm run build:dev` in the cloud.

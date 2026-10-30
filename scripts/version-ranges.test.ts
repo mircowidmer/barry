@@ -18,7 +18,7 @@ describe('the version ranges in package.json', () => {
 
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
-  it('keep only the major version, the minor below 1, and exact pins as they are', () => {
+  it("keep only the major version, the minor below 1, Expo's exact pins and pinned prereleases", () => {
     const before = {
       dependencies: {
         expo: '~58.0.21',
@@ -28,6 +28,8 @@ describe('the version ranges in package.json', () => {
         'react-native-web': '~0.21.0',
         tiny: '^0.0.3',
         react: '19.3.0',
+        'date-fns': '4.1.0',
+        'beta-lib': '1.0.0-beta.2',
       },
       devDependencies: { '@react-native/jest-preset': '^0.88.0-rc.4', typescript: '6' },
     };
@@ -40,8 +42,10 @@ describe('the version ranges in package.json', () => {
         'react-native-web': '0.21',
         tiny: '0.0.3',
         react: '19.3.0',
+        'date-fns': '4',
+        'beta-lib': '1.0.0-beta.2',
       },
-      devDependencies: { '@react-native/jest-preset': '0.88', typescript: '6' },
+      devDependencies: { '@react-native/jest-preset': '0.88.0-rc.4', typescript: '6' },
     };
     write('package.json', before);
     write('package-lock.json', { lockfileVersion: 3, packages: { '': { name: 'barry', ...before } } });
