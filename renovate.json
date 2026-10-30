@@ -3,64 +3,27 @@
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests", "schedule:weekly"],
   "timezone": "Europe/Zurich",
   "minimumReleaseAge": "3 days",
-  "prConcurrentLimit": 4,
-  "labels": ["dependencies"],
   "customManagers": [
     {
       "customType": "regex",
-      "description": "The Edge Function pins its npm and JSR imports inline, which the deno manager does not read",
+      "description": "The Edge Function pins its npm and JSR imports inline",
       "managerFilePatterns": ["/^supabase/functions/.+\\.ts$/"],
       "matchStrings": ["['\"](?<datasource>npm|jsr):(?<depName>@?[^@'\"]+)@(?<currentValue>[^/'\"]+)"]
     }
   ],
   "packageRules": [
     {
-      "description": "One pull request for the npm updates within a major, so the iOS job runs once a week",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm minor and patch updates"
     },
     {
-      "description": "Expo SDK 58 pins these; CI's expo-doctor rejects versions outside the SDK",
-      "matchPackageNames": [
-        "expo",
-        "expo-*",
-        "@expo/*",
-        "jest-expo",
-        "eslint-config-expo",
-        "react",
-        "react-dom",
-        "react-native",
-        "react-native-*",
-        "@react-native/*",
-        "@react-native-community/*",
-        "@types/react",
-        "typescript"
-      ],
-      "groupName": "Expo SDK"
-    },
-    {
-      "description": "A new Expo SDK goes in by hand with npx expo install --fix, so Renovate waits for approval on the Dependency Dashboard",
-      "matchPackageNames": [
-        "expo",
-        "expo-*",
-        "@expo/*",
-        "jest-expo",
-        "eslint-config-expo",
-        "react",
-        "react-dom",
-        "react-native",
-        "react-native-*",
-        "@react-native/*",
-        "@react-native-community/*",
-        "@types/react",
-        "typescript"
-      ],
-      "matchUpdateTypes": ["minor", "major"],
+      "description": "Expo SDK 58 pins these; update them with npx expo install --fix, or approve on the Dependency Dashboard",
+      "matchPackageNames": ["expo", "expo-*", "@expo/*", "*-expo", "react", "react-dom", "react-native", "react-native-*", "@react-native/*", "@react-native-community/*", "@types/react", "typescript"],
+      "groupName": "Expo SDK",
       "dependencyDashboardApproval": true
     },
     {
-      "description": "The app and the Edge Function move to the same supabase-js",
       "matchPackageNames": ["@supabase/supabase-js"],
       "groupName": "supabase-js"
     },
