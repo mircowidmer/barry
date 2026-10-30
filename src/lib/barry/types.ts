@@ -8,7 +8,8 @@ type Brand<T, B extends string> = T & { readonly __brand: B };
 export type AdventureId = Brand<string, 'AdventureId'>;
 export type EmergencyContactId = Brand<string, 'EmergencyContactId'>;
 
-export type Refusal = Database['public']['Enums']['refusal'];
+// The trigger guard_deadline_bound raises deadline_too_far instead of a command returning it, so the client adds it here.
+export type Refusal = Database['public']['Enums']['refusal'] | 'deadline_too_far';
 export type Channel = Database['public']['Enums']['channel'];
 
 /** The messages to the contacts follow the phone's language. */

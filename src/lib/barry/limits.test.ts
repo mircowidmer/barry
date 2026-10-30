@@ -17,6 +17,7 @@ describe('LIMITS', () => {
       carColourLength: 50,
       carPlateLength: 20,
       medicalNotesLength: 500,
+      deadlineAheadMonths: 12,
     });
   });
 });
