@@ -8,6 +8,7 @@
   "vulnerabilityAlerts": { "automerge": true },
   "lockFileMaintenance": { "enabled": true, "automerge": true },
   "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "postUpdateOptions": ["npmDedupe"],
   "customManagers": [
     {
       "customType": "regex",
