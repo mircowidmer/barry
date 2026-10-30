@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { barry, type EmergencyContact, type SentMessage } from '@/lib/barry';
+import { formatPhoneNumber } from '@/lib/phone';
 import { type Texts, useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
@@ -63,7 +64,7 @@ function MessageRow({ message, time, onReach }: { message: SentMessage; time: st
           tintColor={theme.textSecondary}
         />
         <ThemedText numberOfLines={1} themeColor="textSecondary" style={[styles.line, styles.address]}>
-          {`${message.contacts.map((c) => c.name).join(', ')} · ${message.address}`}
+          {`${message.contacts.map((c) => c.name).join(', ')} · ${message.channel === 'sms' ? formatPhoneNumber(message.address) : message.address}`}
         </ThemedText>
       </View>
       {failed && (
