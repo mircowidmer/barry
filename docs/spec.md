@@ -59,7 +59,7 @@ The name must be filled in before the Adventurer starts their first Adventure. T
 | --- | --- | --- |
 | Destination | Yes | Part of the Plan. Up to 200 characters. |
 | Destination on the map | No | Part of the Plan. While the Adventurer types the destination, Apple Maps suggests places, nearest first; picking one sets the name and the point. **Tell Me When I Arrive** is on exactly while there is a point: switching it on opens a full-screen map on the found place, else where the Adventurer is, and they move the map under a fixed pin; **Adjust** opens the same map. Switching it off removes the point. The contacts are not told the point. |
-| Deadline | Yes | An absolute moment in time. Must be in the future at Start. No maximum length. |
+| Deadline | Yes | An absolute moment in time. Must be in the future at Start. At most a year ahead when saved or moved. |
 | Emergency Contacts | Yes, at least one | Each must have a phone number or an email address that is switched on. |
 | Last Position | No | Recorded by Barry, not entered. |
 
