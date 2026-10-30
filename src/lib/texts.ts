@@ -145,9 +145,7 @@ const en = {
     failureNote: 'A message that does not arrive shows here in orange, so you can tell your contacts yourself.',
     planSection: 'Plan',
     destination: (v: string) => `Destination: ${v}`,
-    deadline: (when: string) => `Deadline: ${when}`,
     lastKnown: (when: string) => `Last position: ${when}`,
-    contacts: (names: string) => `Contacts: ${names}`,
     edit: 'Edit Plan or Contacts',
     failuresTitle: 'Messages That Did Not Arrive',
     failure: (f: DeliveryFailure) =>
@@ -488,9 +486,7 @@ const de: Texts = {
     failureNote: 'Kommt eine Nachricht nicht an, steht sie hier in Orange, damit du deine Kontakte selbst informieren kannst.',
     planSection: 'Plan',
     destination: (v) => `Ziel: ${v}`,
-    deadline: (when) => `Rückkehrzeit: ${when}`,
     lastKnown: (when) => `Letzter Standort: ${when}`,
-    contacts: (names) => `Kontakte: ${names}`,
     edit: 'Plan oder Kontakte bearbeiten',
     failuresTitle: 'Nachrichten, die nicht ankamen',
     failure: (f) =>
