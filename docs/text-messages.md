@@ -14,7 +14,7 @@ Text messages are switched on in `private.channel_config`. Locally, `supabase/co
    - For a country without alphanumeric senders, buy an SMS-capable number in **Phone Numbers > Manage > Buy a number** and use it in E.164 form, for example `+41445551234`.
 5. Copy the **Account SID** from the Console's account dashboard.
 6. Create an API key in the Console's API key settings. Choose the key type **Restricted** and tick only **Create** on **Messaging > Messages > messages**. That is the classic Messaging API that `deliver` calls. Leave **Comms** unticked: it is Twilio's Communications API, a Private Beta that answers asynchronously, so a refused number would not fail at once. The counter above the list must read **1 item selected**. Copy the key's **SID** and its **Client secret** on the last step, because Twilio shows the secret only once.
-7. Add them to `supabase/.env.hosted`, which git ignores, and remove any `LINKMOBILITY_*` lines:
+7. Add them to `supabase/.env.hosted`, which git ignores:
 
    ```
    TWILIO_ACCOUNT_SID=AC...
@@ -35,8 +35,6 @@ Text messages are switched on in `private.channel_config`. Locally, `supabase/co
    ```
 
 9. Send one test text message and check it arrives.
-
-The hosted project still holds `LINKMOBILITY_ACCESS_TOKEN` from before. `deliver` ignores it. Remove it with `npx supabase secrets unset LINKMOBILITY_ACCESS_TOKEN`.
 
 ## How `deliver` reads the answer
 
