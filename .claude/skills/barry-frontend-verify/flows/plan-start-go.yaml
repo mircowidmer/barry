@@ -1,0 +1,9 @@
+# The Start after plan-start and the type flow: checks DEST is in the field, taps Start and waits for the live screen.
+appId: support.barry.dev
+---
+- assertVisible: "${DEST || 'Grosser Mythen'}"
+- tapOn: "Start"
+- extendedWaitUntil:
+    visible: "Barry is watching\\..*"
+    timeout: 20000
+- takeScreenshot: plan-started

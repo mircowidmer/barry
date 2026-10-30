@@ -1,5 +1,6 @@
 # The plan sheet of the test account, opened with Plan an Adventure: the refusal without a
-# destination, Sara's warnings, then a Start with DEST.
+# destination, Sara's warnings, then the Destination field scrolled into view. Typing into it needs the box's
+# point: `maestro.sh field "Destination"`, the `type` flow with AT and VALUE, then `plan-start-go` for the Start.
 appId: support.barry.dev
 ---
 - tapOn: "Luca"
@@ -17,17 +18,14 @@ appId: support.barry.dev
 # Maestro reads a React Native checkbox as unchecked on iOS; its value says the truth.
 - assertNotVisible: "checkbox, unchecked"
 - takeScreenshot: plan-warnings
-- scrollUntilVisible:
-    element: "Destination"
-    direction: UP
-# The field's name and its input box both carry the label; the box is the one below the name.
-- tapOn:
-    text: "Destination"
-    below: "Destination"
-- inputText: "${DEST || 'Grosser Mythen'}"
-- assertVisible: "${DEST || 'Grosser Mythen'}"
-- tapOn: "Start"
+# One swipe back to the top, not scrollUntilVisible UP: scrolling past the top arms the sheet's pull-down gesture,
+# and the next tap then closes the sheet into "Discard Changes?" instead of focusing the field. The field's name
+# and its input box carry the same label, so the typing is left to the type flow with the box's point.
+- swipe:
+    start: "50%,45%"
+    end: "50%,90%"
+    duration: 400
 - extendedWaitUntil:
-    visible: "Barry is watching\\..*"
-    timeout: 20000
-- takeScreenshot: plan-started
+    visible: "Destination"
+    timeout: 5000
+- waitForAnimationToEnd
