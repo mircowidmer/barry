@@ -47,8 +47,7 @@ jobs:
       - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: v2.x
-      # Supabase's Edge Functions pin their packages inline, as in 'npm:@supabase/supabase-js@2.117.3'.
-      - run: deno lint --rules-exclude=no-import-prefix supabase/functions/deliver
+      - run: deno lint supabase/functions/deliver
       - run: deno check supabase/functions/deliver/index.ts
       - run: deno test supabase/functions/deliver
 
