@@ -6,6 +6,7 @@
   "osvVulnerabilityAlerts": true,
   "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
   "vulnerabilityAlerts": { "automerge": true },
+  "lockFileMaintenance": { "enabled": true, "automerge": true },
   "customManagers": [
     {
       "customType": "regex",
