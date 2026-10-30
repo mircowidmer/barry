@@ -31,6 +31,7 @@ describe('the CI gate', () => {
     commit('backend', 'supabase/migrations/1.sql');
     commit('native', 'app.json');
     commit('deno', 'deno.json');
+    commit('node', '.nvmrc');
   });
 
   afterAll(() => rmSync(repo, { recursive: true, force: true }));
@@ -50,6 +51,8 @@ describe('the CI gate', () => {
     expect(outputs({ EVENT: 'pull_request', BASE: shas.backend! })).toEqual({ native: 'true', backend: 'false' });
     git('checkout', '-q', shas.deno!);
     expect(outputs({ EVENT: 'pull_request', BASE: shas.native! })).toEqual({ native: 'false', backend: 'true' });
+    git('checkout', '-q', shas.node!);
+    expect(outputs({ EVENT: 'pull_request', BASE: shas.deno! })).toEqual({ native: 'true', backend: 'true' });
   });
 
   it('counts a diff it cannot take as changed, so a broken gate runs the checks', () => {

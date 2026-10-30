@@ -5,8 +5,8 @@
 #   EVENT=pull_request BASE=<sha of the base branch> scripts/changed-inputs.sh
 set -u
 
-native='^(package(-lock)?\.json|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml|scripts/changed-inputs\.sh)'
-backend='^(package(-lock)?\.json|deno\.json|patches/|supabase/|e2e/|scripts/sms-relay\.mjs|src/lib/database\.types\.ts|\.claude/skills/barry-backend-verify/scripts/doctor\.sh|\.github/workflows/ci\.yml|scripts/changed-inputs\.sh)'
+native='^(package(-lock)?\.json|\.nvmrc|app\.json|app\.config\.js|eas\.json|plugins/|modules/|patches/|locales/|assets/|\.github/workflows/ci\.yml|scripts/changed-inputs\.sh)'
+backend='^(package(-lock)?\.json|\.nvmrc|deno\.json|patches/|supabase/|e2e/|scripts/sms-relay\.mjs|src/lib/database\.types\.ts|\.claude/skills/barry-backend-verify/scripts/doctor\.sh|\.github/workflows/ci\.yml|scripts/changed-inputs\.sh)'
 
 changed() {
   [ "${EVENT:-}" != pull_request ] && return 0
