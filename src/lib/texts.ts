@@ -224,7 +224,7 @@ const en = {
     start: 'Start',
     startHint: (when: string) =>
       `Starting sends a heads-up to your contacts with your plan and deadline, which is ${when}.`,
-    saveForLater: 'Save for Later',
+    save: 'Save',
   },
   conditions: {
     title: 'Conditions',
@@ -571,7 +571,7 @@ const de: Texts = {
     start: 'Starten',
     startHint: (when) =>
       `Beim Start erhalten deine Kontakte eine Nachricht mit deinem Plan und deiner Rückkehrzeit: ${when}.`,
-    saveForLater: 'Für später speichern',
+    save: 'Speichern',
   },
   conditions: {
     title: 'Verhältnisse',
