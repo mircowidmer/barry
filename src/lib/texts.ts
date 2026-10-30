@@ -239,6 +239,7 @@ const en = {
     asOf: (when: string) => `No signal. These are the conditions as of ${when}.`,
     needSignal: 'The forecast and the avalanche bulletin need signal. Sunset and dark show without it.',
     avalanche: 'Avalanche Danger',
+    bulletinUnavailable: 'The avalanche bulletin could not be loaded, so the avalanche danger is missing here.',
     levels: ['Low', 'Moderate', 'Considerable', 'High', 'Very high'],
     level: (n: number, name: string) => `Level ${n}, ${name}`,
     problems: {
@@ -579,6 +580,7 @@ const de: Texts = {
     asOf: (when) => `Kein Empfang. Das sind die Verhältnisse von ${when}.`,
     needSignal: 'Prognose und Lawinenbulletin brauchen Empfang. Sonnenuntergang und Dunkelheit siehst du auch ohne.',
     avalanche: 'Lawinengefahr',
+    bulletinUnavailable: 'Das Lawinenbulletin konnte nicht geladen werden, darum fehlt hier die Lawinengefahr.',
     levels: ['Gering', 'Mässig', 'Erheblich', 'Gross', 'Sehr gross'],
     level: (n, name) => `Stufe ${n}, ${name}`,
     problems: {
