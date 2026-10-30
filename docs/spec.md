@@ -20,6 +20,7 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 - The Adventurer changes the password and the email address on the Account screen, which slides up as a sheet from **Email and Password** in the Account group of the Profile tab. A password change needs the current password. Supabase also refuses a password change from a sign-in older than 24 hours, so a stolen session cannot lock the Adventurer out. A changed email address takes effect once the Adventurer has confirmed it from both the old and the new address, with the link Barry sends to each.
 - The Adventurer deletes the account from the Profile tab with **Delete Account**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
 - An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
+- The Adventurer logs out from the Profile tab with **Log Out**, after confirming. Logging out forgets the live Adventure and the kept Conditions on this phone, so its Reminder and Overdue Notice no longer fire there and the Trail stops. The Adventure itself goes on, and Barry still alerts the contacts if the Deadline passes.
 
 ## Adventurer Profile
 
