@@ -60,6 +60,9 @@ export type BarryDeps = {
 // command may or may not have reached Supabase.
 const isNoSignal = (error: PostgrestError) => !error.code;
 
+// Raised by the trigger that bounds the Deadline to a year ahead, on a save and on a move alike.
+const isDeadlineTooFar = (error: PostgrestError) => error.message.includes('barry:deadline_too_far');
+
 const fail = (what: string, error: PostgrestError): never => {
   throw new Error(`${what}: ${error.message}`);
 };
@@ -339,7 +342,7 @@ export const createBarry = ({
         p_deadline: orNull(deadline?.toISOString()),
         p_contact_ids: contactIds,
       });
-      if (error) return fail('saveAdventure', error);
+      if (error) return isDeadlineTooFar(error) ? { kind: 'refused', refusal: 'deadline_too_far' } : fail('saveAdventure', error);
       const [result] = data;
       if (!result) throw new Error('saveAdventure: the command returned no row');
       if (result.refusal) return { kind: 'refused', refusal: result.refusal };
@@ -408,7 +411,10 @@ export const createBarry = ({
         p_deadline: deadline.toISOString(),
         ...positionArgs(position),
       });
-      if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('moveDeadline', error);
+      if (error) {
+        if (isDeadlineTooFar(error)) return { kind: 'refused', refusal: 'deadline_too_far' };
+        return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('moveDeadline', error);
+      }
       if (data) return { kind: 'refused', refusal: data };
       const adventure = await getAdventure(id).catch(() => null);
       syncTrail();

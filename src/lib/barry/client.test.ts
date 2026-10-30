@@ -66,6 +66,8 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
   const world = {
     signal: false,
     reads: true,
+    // The message of a raised exception the next RPC answers with, such as a trigger's barry: code.
+    refuse: null as string | null,
     server: ended,
     contacts,
     session: { data: { session: { user: { id: 'u1' } } }, error: null } as { data: { session: unknown }; error: unknown },
@@ -103,7 +105,10 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
       getSession: async () => world.session,
       signOut: async (options: unknown) => void signOuts.push(options),
     },
-    rpc: async () => (world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } }),
+    rpc: async () => {
+      if (world.refuse) return { data: null, error: { message: world.refuse, code: 'P0001' } };
+      return world.signal ? { data: null, error: null } : { data: null, error: { message: 'Network request failed' } };
+    },
     from: (table: string) => (table === 'emergency_contacts' ? contactsQuery : query),
   } as unknown as SupabaseClient<Database>;
   const updates: string[] = [];
@@ -302,5 +307,24 @@ describe('logOut', () => {
     await barry.logOut();
     expect(storage.getItem('barry.conditions')).toBe('');
     expect((await barry.getInProgressAdventure()).adventure).toBeNull();
+  });
+});
+
+describe('a Deadline more than a year ahead', () => {
+  const farAhead = new Date('2028-01-01T10:00:00Z');
+
+  it('is refused on a save with its own refusal, which the sheet names', async () => {
+    const { barry, world } = setup();
+    world.signal = true;
+    world.refuse = 'barry:deadline_too_far';
+    const result = await barry.saveAdventure({ plan: { destination: 'Rigi' }, deadline: farAhead, contactIds: [] });
+    expect(result).toEqual({ kind: 'refused', refusal: 'deadline_too_far' });
+  });
+
+  it('is refused on a move with its own refusal, not as a lost signal', async () => {
+    const { barry, world } = setup();
+    world.signal = true;
+    world.refuse = 'barry:deadline_too_far';
+    expect(await barry.moveDeadline(a1, farAhead)).toEqual({ kind: 'refused', refusal: 'deadline_too_far' });
   });
 });

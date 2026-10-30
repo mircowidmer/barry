@@ -16,6 +16,8 @@ export const LIMITS = {
   carColourLength: 50,
   carPlateLength: 20,
   medicalNotesLength: 500,
+  /** `max_deadline_ahead` in `20261030120100_deadline_bound.sql`, a year, as the Deadline picker's latest date. */
+  deadlineAheadMonths: 12,
 } as const;
 
 /**

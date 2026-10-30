@@ -42,6 +42,13 @@ type Form = {
   contactIds: EmergencyContactId[];
 };
 
+// The latest Deadline the server takes, so the picker offers no day the save would refuse.
+const latestDeadline = () => {
+  const at = new Date();
+  at.setMonth(at.getMonth() + LIMITS.deadlineAheadMonths);
+  return at;
+};
+
 const inFourHours = () => {
   const at = new Date(Date.now() + 4 * 3600_000);
   at.setMinutes(Math.ceil(at.getMinutes() / 15) * 15, 0, 0);
@@ -269,6 +276,7 @@ function PlanForm({
       value: form.deadline,
       mode: 'date',
       minimumDate: new Date(),
+      maximumDate: latestDeadline(),
       onChange: (event, date) => {
         if (event.type !== 'set' || !date) return;
         DateTimePickerAndroid.open({
@@ -374,6 +382,7 @@ function PlanForm({
                 mode="datetime"
                 display="compact"
                 minimumDate={new Date()}
+                maximumDate={latestDeadline()}
                 accentColor={theme.accent}
                 onChange={(_, date) => date && setForm((f) => ({ ...f, deadline: date }))}
                 accessibilityLabel={t.plan.deadline}
