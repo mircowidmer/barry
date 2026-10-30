@@ -26,10 +26,23 @@ type DeliveryFailures = Omit<Public['Views']['delivery_failures'], 'Row'> & {
   };
 };
 
+// The view builds these with coalesce or a comparison, so they are never null.
+type AdventureMessageRow = Public['Views']['adventure_messages']['Row'];
+type AdventureMessages = Omit<Public['Views']['adventure_messages'], 'Row'> & {
+  Row: Omit<AdventureMessageRow, 'contacts' | 'delivered' | 'outcome_at'> & {
+    contacts: { id: string; name: string }[];
+    delivered: boolean;
+    outcome_at: string;
+  };
+};
+
 export type Database = Omit<Generated, 'public'> & {
   public: Omit<Public, 'Functions' | 'Views'> & {
     Functions: Omit<Functions, Command | 'save_adventure'> & Commands & { save_adventure: SaveAdventure };
-    Views: Omit<Public['Views'], 'delivery_failures'> & { delivery_failures: DeliveryFailures };
+    Views: Omit<Public['Views'], 'adventure_messages' | 'delivery_failures'> & {
+      adventure_messages: AdventureMessages;
+      delivery_failures: DeliveryFailures;
+    };
   };
 };
 

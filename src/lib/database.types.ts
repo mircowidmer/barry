@@ -154,7 +154,27 @@ isOneToOne: false
                 }
           }
           Views: {
-            "delivery_failures": {
+            "adventure_messages": {
+                  Row: {
+                    "adventure_id": string,"channel": Database["public"]['Enums']["channel"],"contacts": Json | null,"delivered": boolean | null,"failure_reason": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"outcome_at": string | null,"round": number | null,"status": Database["public"]['Enums']["message_status"],"to_address": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                           "adventure_id"?: string | null,"channel"?: Database["public"]['Enums']["channel"] | null,"contacts"?: never,"delivered"?: never,"failure_reason"?: string | null,"id"?: number | null,"kind"?: Database["public"]['Enums']["message_kind"] | null,"outcome_at"?: never,"round"?: number | null,"status"?: Database["public"]['Enums']["message_status"] | null,"to_address"?: string | null
+                         }
+                        Update: {
+                           "adventure_id"?: string | null,"channel"?: Database["public"]['Enums']["channel"] | null,"contacts"?: never,"delivered"?: never,"failure_reason"?: string | null,"id"?: number | null,"kind"?: Database["public"]['Enums']["message_kind"] | null,"outcome_at"?: never,"round"?: number | null,"status"?: Database["public"]['Enums']["message_status"] | null,"to_address"?: string | null
+                         }
+                        Relationships: [
+                    {
+      foreignKeyName: "messages_adventure_id_fkey"
+      columns: ["adventure_id"]
+isOneToOne: false
+      referencedRelation: "adventures"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"delivery_failures": {
                   Row: {
                     "adventure_id": string,"channel": Database["public"]['Enums']["channel"],"contact_id": string | null,"contact_name": string | null,"created_at": string,"failure_reason": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"round": number | null,"to_address": string
                   }
