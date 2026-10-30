@@ -14,6 +14,7 @@ Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
 
 ```bash
 npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
+npm run versions            # ALWAYS run after adding or updating a package — trims the ranges to the major version
 npm start                   # start Metro for the development build (APP_VARIANT=development)
 npx expo lint               # lint
 npx tsc --noEmit            # typecheck; needs the gitignored expo-env.d.ts, which `npm start` writes (in a fresh worktree: printf '/// <reference types="expo/types" />\n' > expo-env.d.ts)
@@ -37,6 +38,8 @@ Docs: https://docs.expo.dev/eas/index.md
 `eas.json` has the profiles `development`, `development-simulator`, `preview` and `production`, and `app.config.js` turns `APP_VARIANT` into the bundle identifier, the name under the icon and the URL scheme. [Builds](docs/builds.md) describes the variants and the cloud builds, and [How to run Barry on your iPhone](docs/iphone.md) the local ones.
 
 ## Rules
+
+- `package.json` names only the major version of each package: `"expo": "58"`, not `"~58.0.21"`. Below 1 the minor is the breaking part, so those keep it: `"react-native-web": "0.21"`. Exact versions that Expo pins, such as `react` and `react-native`, stay exact. `package-lock.json` holds the installed versions. `npx expo install` writes full ranges, so run `npm run versions` after it; `scripts/version-ranges.test.ts` fails on any range it missed.
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a new development build: `npm run ios` locally, or `npm run build:dev` in the cloud.

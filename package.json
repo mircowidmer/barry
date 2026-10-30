@@ -65,7 +65,8 @@
     "build:dev:simulator": "npx eas-cli@latest build --profile development-simulator --platform ios",
     "build:preview": "npx eas-cli@latest build --profile preview --platform ios",
     "build:production": "npx eas-cli@latest build --profile production --platform ios",
-    "submit:production": "npx eas-cli@latest submit --profile production --platform ios --latest"
+    "submit:production": "npx eas-cli@latest submit --profile production --platform ios --latest",
+    "versions": "node scripts/version-ranges.mjs"
   },
   "private": true,
   "jest": {
