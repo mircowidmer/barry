@@ -207,12 +207,15 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
   const last = upcoming.at(-1);
   const hours = upcoming
     .filter((h) => h.at.getTime() >= start && h.at.getTime() <= until)
-    .map((h, i, shown) => ({
-      ...h,
-      thunderstorm: THUNDERSTORM_CODES.has(h.weatherCode),
-      dark: isDark(point, h.at),
-      newDay: i > 0 && !sameDay(h.at, shown[i - 1]!.at),
-    }));
+    .map((h, i, shown) => {
+      const previous = shown[i - 1];
+      return {
+        ...h,
+        thunderstorm: THUNDERSTORM_CODES.has(h.weatherCode),
+        dark: isDark(point, h.at),
+        newDay: previous !== undefined && !sameDay(h.at, previous.at),
+      };
+    });
   const reachesFrom = last && lastHour > last.at.getTime() ? new Date(lastHour - (last.at.getTime() - from)) : null;
   if (hours.length === 0 && !reachesFrom) return null;
   const freezing = hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null);
