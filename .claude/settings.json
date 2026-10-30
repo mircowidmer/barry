@@ -5,7 +5,11 @@
     "GIT_COMMITTER_NAME": "Mirco Widmer",
     "GIT_COMMITTER_EMAIL": "mirco.widmer@gmail.com"
   },
-  "attribution": false,
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "enabledPlugins": {
     "pstack@pstack-claude": true
   },
