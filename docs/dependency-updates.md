@@ -10,7 +10,7 @@ Renovate keeps the dependencies current. It runs as the Mend Renovate App, which
 
 ## When it runs
 
-Mend decides when a job runs: on its own timer, several times a day, and after events such as a push to `main` or a ticked checkbox. `schedule:weekly` in `renovate.json` only limits when a job may open or update a pull request, to Monday before 4 a.m. Zurich time, so the iOS Release build on barry-mac runs once a week instead of after every release. A checkbox ticked on the Dependency Dashboard is acted on at once.
+Mend decides when a job runs: on its own timer and after events such as a push to `main` or a ticked checkbox. `schedule:weekly` in `renovate.json` only limits when a job may open or update a pull request, to Monday before 4 a.m. Zurich time, so the iOS Release build on barry-mac runs once a week instead of after every release. A checkbox ticked on the Dependency Dashboard is acted on at once.
 
 A release is proposed only once it is three days old (`minimumReleaseAge`), so a broken or hijacked release is usually withdrawn before it reaches a pull request.
 
