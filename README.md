@@ -16,6 +16,8 @@ The app needs the development build, Barry Dev. `npm run ios` builds it into the
 
 `python3 scripts/make-icons.py` renders the app icons, the favicon, the logo and the launch screens in `assets/images` from the Icon Composer source `assets/brand/icon.icon` and the colours in `src/constants/theme.ts`. Run it after changing either; it needs a Mac with Xcode 26, Pillow and NumPy.
 
+`npx expo install <package>` adds a package. `npm run versions` then trims its range in `package.json` to the major version, or to the minor below 1, and `npm test` fails on a range it missed.
+
 ## Check it
 
 ```bash
