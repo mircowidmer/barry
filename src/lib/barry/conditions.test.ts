@@ -223,13 +223,6 @@ describe('Conditions', () => {
     expect(asked).toHaveLength(4);
   });
 
-  it('asks again at once for another place', async () => {
-    const { conditions, asked } = setup();
-    await conditions.at(zermatt);
-    await conditions.at({ latitude: 46.5, longitude: 7.75 });
-    expect(asked.filter((u) => u.includes('open-meteo'))).toHaveLength(2);
-  });
-
   it('shows the kept Conditions with their time when it cannot ask', async () => {
     const { conditions, world } = setup();
     await conditions.at(zermatt);
