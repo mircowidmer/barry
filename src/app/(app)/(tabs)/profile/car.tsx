@@ -1,6 +1,6 @@
 import { ActionRow, Group, InputRow } from '@/components/grouped-list';
 import { ProfileEdit } from '@/components/profile-edit';
-import { LIMITS } from '@/lib/barry/limits';
+import { LIMITS } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
 
 /** The car an Alert describes, so rescuers can find where the Adventurer parked. */

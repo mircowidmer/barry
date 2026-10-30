@@ -1,6 +1,6 @@
 import { Group, TextAreaRow } from '@/components/grouped-list';
 import { ProfileEdit } from '@/components/profile-edit';
-import { LIMITS } from '@/lib/barry/limits';
+import { LIMITS } from '@/lib/barry';
 import { useTexts } from '@/lib/texts';
 
 /** The medical notes an Alert carries, such as allergies or medication. */

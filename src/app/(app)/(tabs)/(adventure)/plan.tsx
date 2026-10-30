@@ -22,6 +22,7 @@ import {
   barry,
   type EmergencyContact,
   type EmergencyContactId,
+  LIMITS,
   type Place,
   type Point,
   reachableAddresses,
@@ -29,7 +30,6 @@ import {
   type StartWarning,
   startWarnings,
 } from '@/lib/barry';
-import { LIMITS } from '@/lib/barry/limits';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { formatPhoneNumber } from '@/lib/phone';
 import { refusalText, type Texts, useTexts } from '@/lib/texts';
