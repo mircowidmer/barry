@@ -352,12 +352,13 @@ function PlanForm({
                 trackColor={{ true: theme.success }}
               />
             </View>
-            {form.destinationPoint && (
+            {form.destinationPoint ? (
               <DestinationPreview point={form.destinationPoint} adjust={t.plan.adjust} onAdjust={() => void openPicker()} />
+            ) : (
+              <ThemedText type="small" themeColor="textSecondary">
+                {t.plan.arriveOff}
+              </ThemedText>
             )}
-            <ThemedText type="small" themeColor="textSecondary">
-              {form.destinationPoint ? t.plan.arriveOn : t.plan.arriveOff}
-            </ThemedText>
           </>
         )}
         {noTrail && (
