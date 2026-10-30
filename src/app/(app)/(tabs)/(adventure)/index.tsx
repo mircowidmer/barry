@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { ConditionsSection } from '@/components/conditions-section';
@@ -141,25 +141,15 @@ function LiveAdventure({
   const trail = useLiveTrail(initial.id);
   const [adventure, setAdventure] = useState<Adventure>(initial);
   const [failures, setFailures] = useState<DeliveryFailure[]>([]);
-  // The Deadline before the last move, shown in the card until the stage changes.
-  const [movedFrom, setMovedFrom] = useState<Date | null>(null);
+  // The Deadline before the last move, with the stage the move left; the card shows it while that stage lasts, so a move is old news once the stage changes.
+  const [moved, setMoved] = useState<{ from: Date; stage: Adventure['stage'] } | null>(null);
+  const movedFrom = moved && moved.stage === adventure.stage ? moved.from : null;
   const [busy, setBusy] = useState(false);
-  const stage = useRef<Adventure['stage']>(initial.stage);
-
-  useEffect(() => {
-    stage.current = adventure.stage;
-  }, [adventure]);
-  // A move is old news once the stage changes.
-  const apply = useCallback((next: Adventure) => {
-    if (next.stage !== stage.current) setMovedFrom(null);
-    setAdventure(next);
-  }, []);
-  useEffect(() => barry.watchAdventure(initial.id, apply), [initial.id, apply]);
+  useEffect(() => barry.watchAdventure(initial.id, setAdventure), [initial.id]);
   // The screen reloads on focus and on returning to the foreground; the live view must follow.
   const [seen, setSeen] = useState(initial);
   if (seen !== initial) {
     setSeen(initial);
-    if (initial.stage !== adventure.stage) setMovedFrom(null);
     setAdventure(initial);
   }
   useEffect(() => {
@@ -205,7 +195,7 @@ function LiveAdventure({
     const result = await barry.moveDeadline(adventure.id, movedDeadline(adventure.deadline, minutes)).catch(() => null);
     setBusy(false);
     if (result?.kind === 'moved') {
-      setMovedFrom(adventure.deadline);
+      setMoved({ from: adventure.deadline, stage: result.adventure.stage });
       setAdventure(result.adventure);
     } else if (result?.kind === 'refused') {
       Alert.alert(t.adventure.notMovedTitle, refusalText(result.refusal));
