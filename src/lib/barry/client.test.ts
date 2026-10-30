@@ -113,7 +113,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     then: (resolve: (result: { data: MessageRow[]; error: null }) => void) => resolve({ data: [...messageRows], error: null }),
   };
   // The one Realtime subscription the test opens: its change handler and its status callback.
-  const realtime = { onChange: (_change: { new: object }) => undefined as void, onStatus: (_status: string) => undefined as void, removed: false };
+  const realtime = { onChange: (_change: { new: object }) => undefined as void, onStatus: (_status: string) => undefined as void, removed: false, names: [] as string[] };
   const channel = {
     on: (_event: string, _filter: object, handler: (change: { new: object }) => void) => {
       realtime.onChange = handler;
@@ -127,7 +127,10 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
   const signOuts: unknown[] = [];
   const shownCards: string[] = [];
   const supabase = {
-    channel: () => channel,
+    channel: (name: string) => {
+      realtime.names.push(name);
+      return channel;
+    },
     removeChannel: async () => {
       realtime.removed = true;
     },
@@ -419,5 +422,12 @@ describe('watchMessages', () => {
 
     expect(seen).toEqual([0, 1, 2]);
     expect(realtime.removed).toBe(true);
+  });
+
+  it('opens a channel of its own for each screen that watches the same Adventure', () => {
+    const { barry, realtime } = setup();
+    barry.watchMessages(a1, () => undefined);
+    barry.watchMessages(a1, () => undefined);
+    expect(new Set(realtime.names).size).toBe(2);
   });
 });
