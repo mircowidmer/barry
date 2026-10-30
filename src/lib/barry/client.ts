@@ -125,6 +125,7 @@ export const createBarry = ({
 
   const cache = createAdventureCache(storage, now);
   const phoneContacts = createPhoneContactLinks(storage);
+  let messageWatchers = 0;
   const conditions = createConditions({ fetchJson, storage, now, language });
 
   const cachedInProgress = () => {
@@ -478,8 +479,10 @@ export const createBarry = ({
 
     watchMessages: (id, onChange) => {
       const refresh = () => messages(id).then(onChange, () => undefined);
+      // Supabase hands out the open channel for a name already in use, and a subscribed one takes no more
+      // listeners, so the live screen and the contacts sheet each need their own.
       const channel = supabase
-        .channel(`messages:${id}`)
+        .channel(`messages:${id}:${++messageWatchers}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `adventure_id=eq.${id}` }, (change) => {
           // A message waiting or being sent is not listed, so only an outcome changes the list.
           const status = 'status' in change.new ? change.new.status : null;
