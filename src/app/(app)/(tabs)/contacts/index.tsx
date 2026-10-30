@@ -84,8 +84,7 @@ export default function ContactsScreen() {
       if (outcome.kind === 'added') {
         setAdded(outcome.contact.id);
         void loaded.reload();
-      }
-      else if (outcome.kind === 'duplicate') Alert.alert(t.contacts.alreadyAdded(outcome.name));
+      } else if (outcome.kind === 'duplicate') Alert.alert(t.contacts.alreadyAdded(outcome.name));
       else if (outcome.kind === 'unreachable') Alert.alert(t.contacts.nothingToReach(outcome.name));
       else if (outcome.kind === 'full') Alert.alert(t.contacts.full);
     } catch {
