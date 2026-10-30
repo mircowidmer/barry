@@ -182,9 +182,15 @@ function PlanForm({
       return;
     }
     setBusy('find');
-    const [found] = await barry.findPlaces(form.destination);
-    const center = found?.point ?? (await barry.currentPosition());
-    setBusy(null);
+    let center: Point | null = null;
+    try {
+      const [found] = await barry.findPlaces(form.destination);
+      center = found?.point ?? (await barry.currentPosition());
+    } catch {
+      // Without a place or a fix the picker still opens, on Switzerland.
+    } finally {
+      setBusy(null);
+    }
     setPicking(center ? { center, zoom: PLACE_ZOOM } : SWITZERLAND);
   };
 
