@@ -60,7 +60,10 @@ It runs the three steps below through `scripts/iphone-production.sh`. The iPhone
 BARRY_IPHONE="Anna's iPhone" npm run iphone:production
 ```
 
-With ccache installed (`brew install ccache`), the C, C++ and Objective-C of the native modules compile once and come from the cache in later runs, which cuts a run from about four minutes to about two and a half.
+The first run takes about four minutes. Later runs keep what they can:
+
+- The script skips the prebuild when `ios/` already holds the production variant and nothing native changed. It compares the `@expo/fingerprint` hash and `locales/` with the ones it saved in `ios/.barry-production` at its last prebuild. Xcode then builds incrementally, so a run after a JavaScript change takes well under a minute.
+- With ccache installed (`brew install ccache`), the C, C++ and Objective-C of the native modules come from the cache after a prebuild, which cuts a run after a native change to about two and a half minutes.
 
 The steps one by one:
 
