@@ -1,30 +1,49 @@
 // Keeps the ranges in package.json at the major version: "~58.0.21" becomes "58", and below 1,
 // where the minor is the breaking part, "^0.21.4" becomes "0.21". Exact pins stay as they are.
+// Rewrites the root entry of package-lock.json alongside, so the two files stay in sync.
 // Usage: node scripts/version-ranges.mjs [--check] [path/to/package.json]
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const args = process.argv.slice(2);
+const unknown = args.filter((arg) => arg.startsWith('-') && arg !== '--check');
+if (unknown.length) {
+  console.error(`Unknown option ${unknown.join(', ')}. Usage: node scripts/version-ranges.mjs [--check] [package.json]`);
+  process.exit(1);
+}
 const check = args.includes('--check');
-const file = args.find((arg) => arg !== '--check') ?? 'package.json';
+const file = args.find((arg) => !arg.startsWith('-')) ?? 'package.json';
+const lockFile = join(dirname(file), 'package-lock.json');
+const sections = ['dependencies', 'devDependencies'];
 
 const rangeFor = (version) => {
-  const match = version.match(/^[~^](\d+)\.(\d+)/);
-  if (!match) return version;
-  const [, major, minor] = match;
-  return major === '0' ? `0.${minor}` : major;
+  if (/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) return version;
+  const match = version.match(/^[~^]?(\d+)(?:\.(\d+)(?:\.(\d+)(?:-[\w.]+)?)?)?$/);
+  if (!match) return undefined;
+  const [, major, minor = '0', patch = '0'] = match;
+  if (major !== '0') return major;
+  // Below 0.1 every patch is breaking, as npm's own caret treats it.
+  return minor === '0' ? `0.0.${patch}` : `0.${minor}`;
 };
 
 const json = JSON.parse(readFileSync(file, 'utf8'));
 const drift = [];
-for (const section of ['dependencies', 'devDependencies']) {
+const unreadable = [];
+for (const section of sections) {
   for (const [name, version] of Object.entries(json[section] ?? {})) {
     const range = rangeFor(version);
-    if (range === version) continue;
-    drift.push(`${name}: "${version}" should be "${range}"`);
-    json[section][name] = range;
+    if (range === undefined) unreadable.push(`${name}: "${version}" is no version this script can rewrite`);
+    else if (range !== version) {
+      drift.push(`${name}: "${version}" should be "${range}"`);
+      json[section][name] = range;
+    }
   }
 }
 
+if (unreadable.length) {
+  console.error(`${file} has ranges to write by hand as the major version.\n${unreadable.join('\n')}`);
+  process.exit(1);
+}
 if (check) {
   if (drift.length) {
     console.error(`${file} has ranges beyond the major version. Run npm run versions.\n${drift.join('\n')}`);
@@ -32,5 +51,11 @@ if (check) {
   }
 } else if (drift.length) {
   writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`);
+  if (existsSync(lockFile)) {
+    const lock = JSON.parse(readFileSync(lockFile, 'utf8'));
+    const root = lock.packages?.[''];
+    if (root) for (const section of sections) if (json[section]) root[section] = json[section];
+    writeFileSync(lockFile, `${JSON.stringify(lock, null, 2)}\n`);
+  }
   console.log(drift.join('\n'));
 }
