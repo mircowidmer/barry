@@ -55,7 +55,7 @@ export default function ProfileScreen() {
           <Header profile={profile} />
           <Group
             title={t.profile.inAlert}
-            footer={named ? t.profile.alertFooter : t.profile.nameFirst}
+            footer={named ? undefined : t.profile.nameFirst}
             footerInfo
             inset={Spacing.three + TILE + TILE_GAP}>
             <SummaryRow

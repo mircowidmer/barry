@@ -23,7 +23,7 @@ export function Group({
   children,
 }: {
   title?: string;
-  footer?: string;
+  footer?: string | undefined;
   footerInfo?: boolean;
   footerTone?: NoteTone | undefined;
   footerIcon?: SymbolViewProps['name'] | undefined;
