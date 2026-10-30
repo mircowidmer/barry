@@ -69,16 +69,22 @@ The script sets these values, removes the local-only `EMAIL_API_URL` and `TWILIO
 
 To rotate the key, put the new one in `AUTH_SMTP_PASS`, run the script, then delete the old key in Resend.
 
-## Switch on the captcha
+## The captcha
 
-Cloudflare Turnstile guards sign-up, sign-in, the password check before a password change, and the recovery email. The app shows the widget only in a build that has the site key, so the order matters: a captcha switched on before that build is out refuses every sign-in from the app.
+Cloudflare Turnstile guards sign-up, sign-in, the password check before a password change, and the recovery email. It is on in the hosted project, and every preview and production build carries the site key, so the app shows the widget and Auth accepts its token. An Adventurer who stays signed in never sees it, because renewing a session needs no captcha.
 
-1. In the Cloudflare dashboard, open **Turnstile**, click **Add widget**, name it Barry, add the hostname `barry.support`, keep the mode **Managed** and click **Create**. The app shows the widget on a page that says it comes from `barry.support`, so that hostname covers the app.
-2. Put the **Site Key** in `eas.json` as `EXPO_PUBLIC_TURNSTILE_SITE_KEY` in the `env` of the `preview` and `production` profiles. It is public, like the publishable key. Build and ship the app.
-3. Put the **Secret Key** in `supabase/.env.hosted` as `AUTH_CAPTCHA_SECRET`. It never goes into the repository.
-4. Once the build with the site key is the one Adventurers have, run `node scripts/hosted-auth.mjs`. `[remotes.hosted.auth.captcha]` in `supabase/config.toml` already has `enabled = true`, and the script refuses while the secret is missing.
+`[remotes.hosted.auth.captcha]` in `supabase/config.toml` has `enabled = true`, so every run of `node scripts/hosted-auth.mjs` keeps it on, and the script refuses while `AUTH_CAPTCHA_SECRET` is missing from `supabase/.env.hosted`. The site key is public, like the publishable key, and sits in `eas.json` as `EXPO_PUBLIC_TURNSTILE_SITE_KEY`. The secret key never goes into the repository.
 
 Builds without the site key, such as the development build against the local stack, show no widget, and the local stack asks for no captcha.
+
+### Switching it on again
+
+The order matters only when the captcha is switched on in a project that runs without it: after it was switched off, for a new hosted project, or with a new Turnstile widget whose site key the app does not carry yet. Auth then refuses every sign-in, sign-up and recovery email from a build without that site key, while Adventurers who are signed in carry on. So ship the key first and switch on second:
+
+1. In the Cloudflare dashboard, open **Turnstile**, click **Add widget**, name it Barry, add the hostname `barry.support`, keep the mode **Managed** and click **Create**. The app shows the widget on a page that says it comes from `barry.support`, so that hostname covers the app.
+2. Put the **Site Key** in `eas.json` as `EXPO_PUBLIC_TURNSTILE_SITE_KEY` in the `env` of the `preview` and `production` profiles. Build and ship the app.
+3. Put the **Secret Key** in `supabase/.env.hosted` as `AUTH_CAPTCHA_SECRET`.
+4. Once the build with the site key is the one Adventurers have, run `node scripts/hosted-auth.mjs`.
 
 ## Password rules
 
