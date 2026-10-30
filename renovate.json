@@ -9,14 +9,6 @@
   "lockFileMaintenance": { "enabled": true, "automerge": true, "schedule": ["before 4am on tuesday"] },
   "postUpdateOptions": ["npmDedupe"],
   "configMigration": true,
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "The Edge Function pins its npm and JSR imports inline",
-      "managerFilePatterns": ["/^supabase/functions/.+\\.ts$/"],
-      "matchStrings": ["['\"](?<datasource>npm|jsr):(?<depName>@?[^@'\"]+)@(?<currentValue>[^/'\"]+)"]
-    }
-  ],
   "packageRules": [
     {
       "description": "Safe to merge unseen because the ruleset on main requires the full CI first",
@@ -24,7 +16,7 @@
       "automerge": true
     },
     {
-      "matchManagers": ["npm", "custom.regex"],
+      "matchManagers": ["npm", "deno"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm minor and patch updates"
     },
