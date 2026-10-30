@@ -1,6 +1,6 @@
 import { Group, InputRow } from '@/components/grouped-list';
 import { ProfileEdit } from '@/components/profile-edit';
-import { LIMITS } from '@/lib/barry/limits';
+import { LIMITS } from '@/lib/barry';
 import { phoneInput } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
 
