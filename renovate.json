@@ -19,8 +19,8 @@
   ],
   "packageRules": [
     {
-      "description": "Minor, patch and digest updates merge on their own once the checks that main requires pass, apart from the Expo SDK below",
-      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "description": "Safe to merge unseen because the ruleset on main requires the full CI first",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pinDigest"],
       "automerge": true
     },
     {
