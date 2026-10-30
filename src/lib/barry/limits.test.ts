@@ -9,6 +9,7 @@ describe('LIMITS', () => {
       adventureContacts: 5,
       startsPerDay: 5,
       alertsPerDeadline: 3,
+      alertsPerAdventure: 9,
       destinationLength: 200,
       nameLength: 100,
       emailLength: 254,

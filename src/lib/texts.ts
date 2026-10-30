@@ -55,6 +55,7 @@ const en = {
     adventure_in_progress: 'Check in from your adventure first.',
     too_many_contacts: `An adventure can have at most ${LIMITS.adventureContacts} emergency contacts.`,
     too_many_starts: `You have started ${LIMITS.startsPerDay} adventures in the past 24 hours. Try again later.`,
+    too_many_alerts: `Barry sends your emergency contacts at most ${LIMITS.alertsPerAdventure} alerts for one adventure, so the deadline cannot move again. Check in to send them the all-clear.`,
   } satisfies Record<Refusal, string>,
   signIn: {
     intro: 'Barry tells the people you choose when you don’t check in from an adventure.',
@@ -394,6 +395,7 @@ const de: Texts = {
     adventure_in_progress: 'Melde dich zuerst von deinem Abenteuer zurück.',
     too_many_contacts: `Ein Abenteuer kann höchstens ${LIMITS.adventureContacts} Notfallkontakte haben.`,
     too_many_starts: `Du hast in den letzten 24 Stunden ${LIMITS.startsPerDay} Abenteuer gestartet. Versuch es später nochmals.`,
+    too_many_alerts: `Barry sendet deinen Notfallkontakten für ein Abenteuer höchstens ${LIMITS.alertsPerAdventure} Alarme, darum lässt sich die Rückkehrzeit nicht mehr verschieben. Melde dich zurück, damit sie die Entwarnung erhalten.`,
   },
   signIn: {
     intro: 'Barry sagt den Menschen Bescheid, die du auswählst, wenn du dich von einem Abenteuer nicht zurückmeldest.',
