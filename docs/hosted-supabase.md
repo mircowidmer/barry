@@ -80,6 +80,10 @@ Cloudflare Turnstile guards sign-up, sign-in, the password check before a passwo
 
 Builds without the site key, such as the development build against the local stack, show no widget, and the local stack asks for no captcha.
 
+## Password rules
+
+`[remotes.hosted.auth]` asks for at least ten characters with lower and upper case letters and digits, so a guessed password of an Adventurer whose email a contact knows is no longer a short list. The local stack keeps six characters and no rules, so test accounts stay short. Passwords set before the rule stay valid until they change. Leaked password protection, which checks a new password against HaveIBeenPwned, is not in `supabase/config.toml` because `npx supabase config push` cannot set it: switch it on in the dashboard under **Authentication > Providers > Email** where the plan offers it.
+
 ## Edit the sign-up email
 
 The confirmation email that Supabase Auth sends after **Create account** lives only in the dashboard, under **Authentication > Emails > Templates > Confirm signup**, and needs custom SMTP to be editable. Its subject is "Confirm your email for Barry". Supabase treats the template as HTML and builds the plain-text part from it, so write each sentence in its own `<p>`. Keep `{{ .ConfirmationURL }}` as the link target.
