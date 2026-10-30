@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(21);
+select plan(24);
 
 select is(private.max_contacts(), 10, 'an Adventurer keeps at most 10 Emergency Contacts');
 select is(private.max_adventure_contacts(), 5, 'an Adventure has at most 5 contacts');
@@ -9,6 +9,7 @@ select is(private.max_starts_per_day(), 5, 'an Adventurer starts at most 5 Adven
 select is(private.starts_window(), interval '24 hours', 'a Start counts towards the limit for 24 hours');
 select is(private.max_alerts(), 3::smallint, 'a Deadline brings at most 3 Alerts');
 select is(private.max_alerts_per_adventure(), 9::smallint, 'an Adventure brings at most 9 Alerts');
+select is(private.max_deadline_ahead(), interval '1 year', 'a Deadline lies at most a year ahead');
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
 insert into public.adventurer_profiles (id, name) values ('11111111-1111-1111-1111-111111111111', 'Anna');
@@ -50,6 +51,9 @@ select throws_ok(
   $$select * from public.save_adventure(null, repeat('R', 201), now() + interval '8 hours',
       array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[])$$,
   '23514', null, 'a destination longer than 200 characters is refused');
+select throws_ok(
+  $$select * from public.save_adventure(null, 'Rigi', now() + interval '13 months', array['aaaaaaaa-0000-0000-0000-000000000001']::uuid[])$$,
+  'P0001', 'barry:deadline_too_far', 'a Deadline more than a year ahead is refused');
 
 create temporary table five on commit drop as
 select adventure_id from public.save_adventure(null, 'Rigi', now() + interval '8 hours',
@@ -111,6 +115,11 @@ update public.adventures set earlier_alerts = 5 where id = 'b0000000-0000-0000-0
 set local role authenticated;
 select is(public.move_deadline('b0000000-0000-0000-0000-000000000001', now() + interval '2 hours'),
   null::public.refusal, 'a move whose three Alerts would make nine goes through');
+
+reset role;
+select throws_ok(
+  $$update public.adventures set deadline = 'infinity' where id = 'b0000000-0000-0000-0000-000000000001'$$,
+  'P0001', 'barry:deadline_too_far', 'a Deadline cannot be moved more than a year ahead');
 
 select * from finish();
 rollback;
