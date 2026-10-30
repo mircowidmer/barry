@@ -156,7 +156,7 @@ isOneToOne: false
           Views: {
             "delivery_failures": {
                   Row: {
-                    "adventure_id": string | null,"channel": Database["public"]['Enums']["channel"] | null,"contact_id": string | null,"contact_name": string | null,"created_at": string | null,"failure_reason": string | null,"id": number | null,"kind": Database["public"]['Enums']["message_kind"] | null,"round": number | null,"to_address": string | null
+                    "adventure_id": string,"channel": Database["public"]['Enums']["channel"],"contact_id": string | null,"contact_name": string | null,"created_at": string,"failure_reason": string | null,"id": number,"kind": Database["public"]['Enums']["message_kind"],"round": number | null,"to_address": string
                   }
                   ComputedFields: never
                   Relationships: [
