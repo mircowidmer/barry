@@ -13,7 +13,7 @@
   ],
   "packageRules": [
     {
-      "description": "Everything but a major update merges on its own once the checks that main requires pass",
+      "description": "Minor, patch and digest updates merge on their own once the checks that main requires pass, apart from the Expo SDK below",
       "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
       "automerge": true
     },
