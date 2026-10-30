@@ -357,3 +357,26 @@ describe('forecastView', () => {
     expect(edge.reachesFrom).toBeNull();
   });
 });
+
+describe('answers of another shape', () => {
+  it('count as no signal when Open-Meteo answers without hourly data', async () => {
+    const { conditions } = setup({ forecast: { hourly: null } });
+    expect(await conditions.at(zermatt)).toEqual({ kind: 'unavailable' });
+  });
+
+  it('leave out the hours whose values are not numbers', async () => {
+    const forecast = openMeteo(start, 3) as unknown as { hourly: Record<string, unknown[]> };
+    forecast.hourly.temperature_2m![1] = '7';
+    forecast.hourly.time![2] = 'noon';
+    const { conditions } = setup({ forecast });
+    const result = await conditions.at(zermatt);
+    if (result.kind !== 'shown') throw new Error(result.kind);
+    expect(result.conditions.forecast.map((h) => h.at.getUTCHours())).toEqual([9]);
+  });
+
+  it('drop a kept entry of an older shape and ask afresh instead of failing on it', async () => {
+    const { conditions, asked } = setup({ stored: '[{"point":{"latitude":46.02,"longitude":7.75},"fetchedAt":"2026-02-01T09:00:00Z"}]' });
+    expect((await conditions.at(zermatt)).kind).toBe('shown');
+    expect(asked.filter((u) => u.includes('open-meteo'))).toHaveLength(1);
+  });
+});

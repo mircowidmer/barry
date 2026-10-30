@@ -75,33 +75,34 @@ const openMeteoUrl = ({ latitude, longitude }: Point) =>
 
 const slfUrl = (language: AppLanguage) => `https://aws.slf.ch/api/bulletin/caaml/${language}/geojson`;
 
-type OpenMeteo = {
-  hourly: {
-    time: number[];
-    temperature_2m: (number | null)[];
-    precipitation: (number | null)[];
-    wind_gusts_10m: (number | null)[];
-    weather_code: (number | null)[];
-    freezing_level_height?: (number | null)[];
-  };
-};
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+const num = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
-// An hour without a temperature, a weather code or gusts has no forecast, so it is left out rather than shown as 0° and clear.
+// An hour without a time, a temperature, a weather code or gusts has no forecast, so it is left out rather than shown as 0° and clear.
 const parseForecast = (json: unknown): ForecastHour[] => {
-  const { hourly } = json as OpenMeteo;
-  return hourly.time.flatMap((time, i) => {
-    const temperatureC = hourly.temperature_2m[i];
-    const gustsKmh = hourly.wind_gusts_10m[i];
-    const weatherCode = hourly.weather_code[i];
-    if (temperatureC == null || gustsKmh == null || weatherCode == null) return [];
+  const hourly = isRecord(json) && isRecord(json.hourly) ? json.hourly : null;
+  if (!hourly) throw new Error('Open-Meteo answered without hourly data');
+  const series = (key: string) => list(hourly[key]);
+  const temperature = series('temperature_2m');
+  const precipitation = series('precipitation');
+  const gusts = series('wind_gusts_10m');
+  const codes = series('weather_code');
+  const freezing = series('freezing_level_height');
+  return series('time').flatMap((time, i) => {
+    const at = num(time);
+    const temperatureC = num(temperature[i]);
+    const gustsKmh = num(gusts[i]);
+    const weatherCode = num(codes[i]);
+    if (at === null || temperatureC === null || gustsKmh === null || weatherCode === null) return [];
     return [
       {
-        at: new Date(time * 1000),
+        at: new Date(at * 1000),
         temperatureC,
-        precipitationMm: hourly.precipitation[i] ?? null,
+        precipitationMm: num(precipitation[i]),
         gustsKmh,
         weatherCode,
-        freezingLevelM: hourly.freezing_level_height?.[i] ?? null,
+        freezingLevelM: num(freezing[i]),
       },
     ];
   });
@@ -109,12 +110,21 @@ const parseForecast = (json: unknown): ForecastHour[] => {
 
 type Ring = [number, number][];
 type Feature = {
-  properties: {
-    validTime: { startTime: string; endTime: string };
-    dangerRatings?: { mainValue: string; customData?: { CH?: { subdivision?: string } } }[];
-    avalancheProblems?: { problemType: string }[];
-  };
+  properties: { validTime: { startTime: string; endTime: string }; dangerRatings?: unknown; avalancheProblems?: unknown };
   geometry: { type: 'Polygon'; coordinates: Ring[] } | { type: 'MultiPolygon'; coordinates: Ring[][] } | null;
+};
+
+// What the bulletin needs of a GeoJSON feature; a feature of another shape is left out rather than read blindly.
+const isFeature = (value: unknown): value is Feature => {
+  if (!isRecord(value) || !isRecord(value.properties) || !isRecord(value.properties.validTime)) return false;
+  const { startTime, endTime } = value.properties.validTime;
+  const geometry = value.geometry;
+  return (
+    typeof startTime === 'string' &&
+    typeof endTime === 'string' &&
+    (geometry == null ||
+      (isRecord(geometry) && (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') && Array.isArray(geometry.coordinates)))
+  );
 };
 
 // Even-odd ray casting over every ring, so holes count as outside.
@@ -141,8 +151,12 @@ const bulletinAt = (features: Feature[], point: Point, now: Date): AvalancheBull
     covering.find((f) => Date.parse(f.properties.validTime.startTime) <= now.getTime() && now.getTime() < ends(f)) ??
     covering.sort((a, b) => ends(b) - ends(a))[0];
   if (!feature) return null;
-  const rated = (feature.properties.dangerRatings ?? [])
-    .map((r) => ({ level: DANGER_LEVELS.indexOf(r.mainValue) + 1, subdivision: r.customData?.CH?.subdivision }))
+  const rated = list(feature.properties.dangerRatings)
+    .filter(isRecord)
+    .map((r) => ({
+      level: DANGER_LEVELS.indexOf(String(r.mainValue)) + 1,
+      subdivision: isRecord(r.customData) && isRecord(r.customData.CH) ? r.customData.CH.subdivision : undefined,
+    }))
     .filter((r) => r.level > 0);
   if (rated.length === 0) return null;
   const highest = rated.reduce((a, b) => (b.level > a.level ? b : a));
@@ -150,7 +164,14 @@ const bulletinAt = (features: Feature[], point: Point, now: Date): AvalancheBull
   return {
     level: highest.level,
     subdivision,
-    problems: [...new Set((feature.properties.avalancheProblems ?? []).map((p) => p.problemType))],
+    problems: [
+      ...new Set(
+        list(feature.properties.avalancheProblems)
+          .filter(isRecord)
+          .map((p) => p.problemType)
+          .filter((p): p is string => typeof p === 'string'),
+      ),
+    ],
     validUntil: new Date(feature.properties.validTime.endTime),
   };
 };
@@ -235,6 +256,16 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
 
 type Kept = { point: Point; fetchedAt: string; forecast: (Omit<ForecastHour, 'at'> & { at: string })[]; bulletin: (Omit<AvalancheBulletin, 'validUntil'> & { validUntil: string }) | 'unavailable' | null };
 
+// A kept entry the app wrote itself; whatever else storage holds, such as an older build's shape, is dropped.
+const isKept = (value: unknown): value is Kept =>
+  isRecord(value) &&
+  isRecord(value.point) &&
+  num(value.point.latitude) !== null &&
+  num(value.point.longitude) !== null &&
+  typeof value.fetchedAt === 'string' &&
+  Array.isArray(value.forecast) &&
+  (value.bulletin === null || value.bulletin === 'unavailable' || isRecord(value.bulletin));
+
 const revive = (kept: Kept): FetchedConditions => ({
   fetchedAt: new Date(kept.fetchedAt),
   forecast: kept.forecast.map((h) => ({ ...h, at: new Date(h.at) })),
@@ -247,8 +278,9 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
   const load = (): Kept[] => {
     if (kept) return kept;
     try {
-      const parsed = JSON.parse(storage.getItem(KEY) || '[]') as unknown;
-      kept = Array.isArray(parsed) ? (parsed as Kept[]) : [];
+      // || rather than ??: forget() leaves an empty string behind.
+      const parsed: unknown = JSON.parse(storage.getItem(KEY) || '[]');
+      kept = list(parsed).filter(isKept);
     } catch {
       kept = [];
     }
@@ -256,8 +288,13 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
   };
 
   const keep = (point: Point, conditions: FetchedConditions) => {
-    // A round trip through JSON turns the dates into the strings storage keeps.
-    const entry = JSON.parse(JSON.stringify({ point, ...conditions })) as Kept;
+    const { bulletin } = conditions;
+    const entry: Kept = {
+      point,
+      fetchedAt: conditions.fetchedAt.toISOString(),
+      forecast: conditions.forecast.map((h) => ({ ...h, at: h.at.toISOString() })),
+      bulletin: typeof bulletin === 'object' && bulletin ? { ...bulletin, validUntil: bulletin.validUntil.toISOString() } : bulletin,
+    };
     kept = [entry, ...load().filter((k) => !samePlace(k.point, point))].slice(0, KEPT);
     storage.setItem(KEY, JSON.stringify(kept));
   };
@@ -267,8 +304,11 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
   const slfFeatures = async (): Promise<Feature[]> => {
     const lang = language();
     if (slf && slf.language === lang && now().getTime() - slf.fetchedAt < CONDITIONS_REFRESH_MS) return slf.features;
-    const json = (await fetchJson(slfUrl(lang))) as { features?: Feature[] };
-    slf = { language: lang, fetchedAt: now().getTime(), features: json.features ?? [] };
+    const json = await fetchJson(slfUrl(lang));
+    const features = isRecord(json) && Array.isArray(json.features) ? json.features : null;
+    // A feed of another shape fails the load, so it shows as unavailable and never as no danger.
+    if (!features || !features.every(isFeature)) throw new Error('the SLF answered with features of another shape');
+    slf = { language: lang, fetchedAt: now().getTime(), features };
     return slf.features;
   };
 
