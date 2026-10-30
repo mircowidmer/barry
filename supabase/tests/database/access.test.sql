@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(25);
 
 insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'anna@example.com'),
@@ -172,6 +172,12 @@ select is(has_function_privilege('authenticated', 'public.trail_map(text, timest
   'The app does not read the Trail Map');
 select is(has_table_privilege('anon', 'public.adventure_contacts', 'select'), false,
   'Without an account no link token can be listed');
+select is(
+  (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+   where n.nspname = 'private' and p.proacl is null or n.nspname = 'private' and p.proacl::text ~ '(^|[{,])=X'),
+  null,
+  'No private function is executable by public'
+);
 
 select * from finish();
 rollback;
