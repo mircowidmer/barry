@@ -64,10 +64,13 @@ describe('keychainSessionStorage', () => {
   });
 
   it('answers a read that was under way with the session written meanwhile', async () => {
-    const { storage } = setup({ 'sb-auth-token': 'old' });
+    const { keychain, file, storage } = setup({ 'sb-auth-token': 'old' });
     const [first] = await Promise.all([storage.getItem('sb-auth-token'), storage.setItem('sb-auth-token', 'new')]);
     expect(first).toBe('new');
     expect(await storage.getItem('sb-auth-token')).toBe('new');
+    // The file's older session does not move over the new one, which would sign the Adventurer out on the next launch.
+    expect(keychain.get('sb-auth-token')).toBe('new');
+    expect(file).toEqual({});
   });
 
   it('answers no session while the Keychain cannot be read, and reads it again on the next request', async () => {
