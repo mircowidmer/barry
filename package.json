@@ -5,7 +5,7 @@
   "dependencies": {
     "@expo/ui": "58",
     "@maplibre/maplibre-gl-leaflet": "0.1",
-    "@react-native-community/datetimepicker": "9.2.1",
+    "@react-native-community/datetimepicker": "9.2.2",
     "@supabase/supabase-js": "2",
     "expo": "58",
     "expo-constants": "58",
@@ -29,8 +29,8 @@
     "leaflet": "1",
     "libphonenumber-js": "1",
     "maplibre-gl": "6",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "react-native": "0.88.1",
     "react-native-gesture-handler": "3",
     "react-native-reanimated": "4.7.1",
@@ -38,7 +38,7 @@
     "react-native-screens": "4",
     "react-native-web": "0.21",
     "react-native-webview": "14.0.1",
-    "react-native-worklets": "0.13.0"
+    "react-native-worklets": "0.13.1"
   },
   "devDependencies": {
     "@react-native/jest-preset": "0.88",
