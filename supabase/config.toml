@@ -435,7 +435,6 @@ project_id = "kizggaicooqhdzpqzawu"
 additional_redirect_urls = []
 site_url = "https://barry.support/confirmed"
 minimum_password_length = 10
-password_requirements = "lower_upper_letters_digits"
 
 [remotes.hosted.auth.email]
 enable_confirmations = true

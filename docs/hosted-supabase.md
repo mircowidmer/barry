@@ -88,7 +88,7 @@ The order matters only when the captcha is switched on in a project that runs wi
 
 ## Password rules
 
-`[remotes.hosted.auth]` asks for at least ten characters with lower and upper case letters and digits, so a guessed password of an Adventurer whose email a contact knows is no longer a short list. The local stack keeps six characters and no rules, so test accounts stay short. Passwords set before the rule stay valid until they change. Leaked password protection, which checks a new password against HaveIBeenPwned, is not in `supabase/config.toml` because `npx supabase config push` cannot set it: switch it on in the dashboard under **Authentication > Providers > Email** where the plan offers it.
+`[remotes.hosted.auth]` asks for at least ten characters, so a guessed password of an Adventurer whose email a contact knows is no longer a short list. It asks for no particular kinds of characters, because length makes a password strong and such rules mostly push people to predictable patterns, so a long passphrase is welcome. The local stack keeps six characters, so test accounts stay short. Passwords set before the rule stay valid until they change. Leaked password protection, which checks a new password against HaveIBeenPwned, is not in `supabase/config.toml` because `npx supabase config push` cannot set it: switch it on in the dashboard under **Authentication > Providers > Email** where the plan offers it.
 
 ## Edit the sign-up email
 
