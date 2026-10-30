@@ -2,15 +2,17 @@ import { describe, expect, it } from '@jest/globals';
 
 import { type Keychain, keychainSessionStorage } from './keychain-session';
 
-const setup = (file: Record<string, string> = {}) => {
+const setup = (file: Record<string, string> = {}, fails: { read?: boolean; write?: boolean } = {}) => {
   const keychain = new Map<string, string>();
   let reads = 0;
   const fake: Keychain = {
     getItemAsync: async (key) => {
       reads += 1;
+      if (fails.read) throw new Error('User interaction is not allowed.');
       return keychain.get(key) ?? null;
     },
     setItemAsync: async (key, value) => {
+      if (fails.write) throw new Error('User interaction is not allowed.');
       keychain.set(key, value);
     },
     deleteItemAsync: async (key) => {
@@ -23,7 +25,7 @@ const setup = (file: Record<string, string> = {}) => {
       delete file[key];
     },
   };
-  return { keychain, file, storage: keychainSessionStorage(fake, legacy), reads: () => reads };
+  return { keychain, file, fails, storage: keychainSessionStorage(fake, legacy), reads: () => reads };
 };
 
 describe('keychainSessionStorage', () => {
@@ -66,5 +68,20 @@ describe('keychainSessionStorage', () => {
     const [first] = await Promise.all([storage.getItem('sb-auth-token'), storage.setItem('sb-auth-token', 'new')]);
     expect(first).toBe('new');
     expect(await storage.getItem('sb-auth-token')).toBe('new');
+  });
+
+  it('answers no session while the Keychain cannot be read, and reads it again on the next request', async () => {
+    const { keychain, fails, storage, reads } = setup({}, { read: true });
+    keychain.set('sb-auth-token', 'kept');
+    expect(await storage.getItem('sb-auth-token')).toBeNull();
+    fails.read = false;
+    expect(await storage.getItem('sb-auth-token')).toBe('kept');
+    expect(reads()).toBe(2);
+  });
+
+  it('keeps the session in the storage file when the move into the Keychain fails, so nobody is signed out', async () => {
+    const { file, storage } = setup({ 'sb-auth-token': 'old' }, { write: true });
+    expect(await storage.getItem('sb-auth-token')).toBe('old');
+    expect(file).toEqual({ 'sb-auth-token': 'old' });
   });
 });

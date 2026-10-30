@@ -21,14 +21,24 @@ export const keychainSessionStorage = (keychain: Keychain, legacy: LegacyStorage
     if (kept !== null) return kept;
     const old = legacy.getItem(key);
     if (old === null) return null;
-    await keychain.setItemAsync(key, old);
-    legacy.removeItem(key);
+    try {
+      await keychain.setItemAsync(key, old);
+      legacy.removeItem(key);
+    } catch {
+      // The file keeps the session, and the next launch moves it again.
+    }
     return old;
   };
   return {
     getItem: async (key: string): Promise<string | null> => {
       if (!known.has(key)) {
-        const value = await read(key);
+        let value: string | null;
+        try {
+          value = await read(key);
+        } catch {
+          // Not remembered, so the next request reads the Keychain again; until then requests fail like a lost signal.
+          return null;
+        }
         // A write that landed while the Keychain was read is the newer one.
         if (!known.has(key)) known.set(key, value);
       }
