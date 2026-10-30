@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { admin, adventurer, messageKinds, must, runDeliver } from './stack.mjs';
+import { admin, adventurer, messageKinds, messagesOut, must } from './stack.mjs';
 
 // docs/spec.md § Adventures > Start "An Adventurer can start at most 5 Adventures in 24 hours. A sixth Start is refused, and deleting an Adventure does not give a Start back."
 test('a sixth Start in 24 hours is refused, even after the earlier Adventures are deleted', async () => {
@@ -13,8 +13,8 @@ test('a sixth Start in 24 hours is refused, even after the earlier Adventures ar
     started.push(id);
   }
   // An Ended Adventure can be deleted once its Heads-ups are out.
-  await runDeliver();
   for (const id of started) {
+    await messagesOut(id);
     assert.equal(must(await anna.client.rpc('delete_adventure', { p_id: id }), 'delete_adventure'), null, 'the Ended Adventure is deleted');
   }
 
