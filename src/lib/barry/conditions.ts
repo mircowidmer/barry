@@ -185,6 +185,11 @@ export const daylightView = (point: Point, deadline: Date, now: Date): DaylightV
   return { otherDay, sunset, dark, left };
 };
 
+/** The clock as the forecast view reads it: the hour, so the view changes once an hour, and the day, for the Adventure Day. */
+export type ViewClock = { hour: number; dayStart: number };
+
+export const viewClock = (now: Date): ViewClock => ({ hour: Math.floor(now.getTime() / HOUR_MS), dayStart: midnightOf(now).getTime() });
+
 export type ForecastView = {
   /** The Adventure Day the hours are of, when it still lies ahead. */
   otherDay: Date | null;
@@ -197,8 +202,8 @@ export type ForecastView = {
 };
 
 /** The hours of the Adventure Day that are still to come, through to a Deadline the next morning, at least MIN_FORECAST_HOURS; null when the forecast has nothing to say about the day. */
-export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date, now: Date): ForecastView | null => {
-  const from = Math.floor(now.getTime() / HOUR_MS) * HOUR_MS;
+export const forecastView = (forecast: ForecastHour[], point: Point, deadline: Date, clock: ViewClock): ForecastView | null => {
+  const from = clock.hour * HOUR_MS;
   const day = adventureDay(point, deadline);
   const lastHour = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23).getTime();
   const start = Math.max(from, day.getTime());
@@ -220,7 +225,7 @@ export const forecastView = (forecast: ForecastHour[], point: Point, deadline: D
   if (hours.length === 0 && !reachesFrom) return null;
   const freezing = hours.map((h) => h.freezingLevelM).filter((m): m is number => m !== null);
   return {
-    otherDay: day > now ? day : null,
+    otherDay: day.getTime() > clock.dayStart ? day : null,
     hours,
     freezingLevelM: freezing.length > 0 ? { low: Math.min(...freezing), high: Math.max(...freezing) } : null,
     dry: hours.length > 0 && hours.every((h) => h.precipitationMm === 0),

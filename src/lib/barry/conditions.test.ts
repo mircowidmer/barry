@@ -10,6 +10,7 @@ import {
   KEPT,
   MIN_FORECAST_HOURS,
   POINT_DECIMALS,
+  viewClock,
 } from './conditions';
 import type { Point } from './types';
 
@@ -293,7 +294,7 @@ describe('forecastView', () => {
   }));
 
   it('covers the hours of today still to come, with the thunderstorm and the dark hours marked', () => {
-    const view = forecastView(hours, zermatt, at(1, 19), now)!;
+    const view = forecastView(hours, zermatt, at(1, 19), viewClock(now))!;
     expect(view.otherDay).toBeNull();
     expect(view.hours[0]!.at).toEqual(at(1, 10));
     expect(view.hours.at(-1)!.at).toEqual(at(1, 23));
@@ -306,7 +307,7 @@ describe('forecastView', () => {
   });
 
   it('covers the whole Adventure Day when it is another day', () => {
-    const view = forecastView(hours, zermatt, at(3, 15), now)!;
+    const view = forecastView(hours, zermatt, at(3, 15), viewClock(now))!;
     expect(view.otherDay).toEqual(at(3, 0));
     expect(view.hours).toHaveLength(24);
     expect(view.hours[0]!.at).toEqual(at(3, 0));
@@ -315,7 +316,7 @@ describe('forecastView', () => {
   });
 
   it('runs through to a Deadline before the next dawn and marks the first hour of the new day', () => {
-    const view = forecastView(hours, zermatt, at(2, 1), now)!;
+    const view = forecastView(hours, zermatt, at(2, 1), viewClock(now))!;
     expect(view.otherDay).toBeNull();
     expect(view.hours[0]!.at).toEqual(at(1, 10));
     expect(view.hours.at(-1)!.at).toEqual(at(2, 1));
@@ -323,7 +324,7 @@ describe('forecastView', () => {
   });
 
   it('stays on today after midnight when the Adventure Day was yesterday', () => {
-    const view = forecastView(hours, zermatt, at(2, 1), at(2, 0, 30))!;
+    const view = forecastView(hours, zermatt, at(2, 1), viewClock(at(2, 0, 30)))!;
     expect(view.otherDay).toBeNull();
     expect(view.hours.map((h) => h.at)).toEqual([0, 1, 2, 3, 4, 5].map((h) => at(2, h)));
     expect(view.hours.some((h) => h.newDay)).toBe(false);
@@ -331,27 +332,27 @@ describe('forecastView', () => {
 
   it('is dry only when every shown hour forecasts no rain or snow, not when one has some or has no value', () => {
     const deadline = at(1, 19);
-    expect(forecastView(hours, zermatt, deadline, now)!.dry).toBe(true);
+    expect(forecastView(hours, zermatt, deadline, viewClock(now))!.dry).toBe(true);
     const wet = hours.map((h, i) => (i === 14 ? { ...h, precipitationMm: 0.4 } : h));
-    expect(forecastView(wet, zermatt, deadline, now)!.dry).toBe(false);
+    expect(forecastView(wet, zermatt, deadline, viewClock(now))!.dry).toBe(false);
     const gap = hours.map((h, i) => (i === 14 ? { ...h, precipitationMm: null } : h));
-    expect(forecastView(gap, zermatt, deadline, now)!.dry).toBe(false);
-    expect(forecastView([], zermatt, deadline, now)).toBeNull();
+    expect(forecastView(gap, zermatt, deadline, viewClock(now))!.dry).toBe(false);
+    expect(forecastView([], zermatt, deadline, viewClock(now))).toBeNull();
   });
 
   it('shows at least a few hours late in the day, past midnight', () => {
     expect(MIN_FORECAST_HOURS).toBe(6);
-    const view = forecastView(hours, zermatt, at(1, 22), at(1, 21, 20))!;
+    const view = forecastView(hours, zermatt, at(1, 22), viewClock(at(1, 21, 20)))!;
     expect(view.hours).toHaveLength(MIN_FORECAST_HOURS);
     expect(view.hours.at(-1)!.at).toEqual(at(2, 2));
     expect(view.hours.filter((h) => h.newDay).map((h) => h.at)).toEqual([at(2, 0)]);
   });
 
   it('says from when the forecast reaches an Adventure Day beyond it, not a Deadline past its last hour', () => {
-    const view = forecastView(hours, zermatt, at(9, 15), now)!;
+    const view = forecastView(hours, zermatt, at(9, 15), viewClock(now))!;
     expect(view.hours).toHaveLength(0);
     expect(view.reachesFrom).toEqual(at(3, 10));
-    const edge = forecastView(hours, zermatt, at(8, 1), now)!;
+    const edge = forecastView(hours, zermatt, at(8, 1), viewClock(now))!;
     expect(edge.hours.at(-1)!.at).toEqual(at(7, 23));
     expect(edge.reachesFrom).toBeNull();
   });
