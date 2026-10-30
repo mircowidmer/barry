@@ -17,6 +17,13 @@ describe('signedOnly', () => {
     expect(fetchFn).not.toHaveBeenCalled();
   });
 
+  it('fails a database Request object signed only with the publishable key, without sending it', async () => {
+    const { fetchFn, guarded } = ok();
+    const request = new Request('http://127.0.0.1:54321/rest/v1/adventures', { headers: { Authorization: `Bearer ${KEY}` } });
+    await expect(guarded(request)).rejects.toThrow(TypeError);
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
+
   it('sends a database request that carries the Adventurer’s token', async () => {
     const { fetchFn, guarded } = ok();
     await guarded('http://127.0.0.1:54321/rest/v1/rpc/check_in', { headers: { Authorization: 'Bearer eyJ.user.token', apikey: KEY } });

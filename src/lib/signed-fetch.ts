@@ -8,7 +8,9 @@ export const signedOnly =
   (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const toDatabase = url.includes('/rest/v1/') || url.includes('/functions/v1/');
-    const unsigned = new Headers(init?.headers).get('Authorization') === `Bearer ${publishableKey}`;
+    // Like fetch itself: headers in init replace a Request's own.
+    const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+    const unsigned = headers.get('Authorization') === `Bearer ${publishableKey}`;
     if (toDatabase && unsigned) return Promise.reject(new TypeError('Network request failed: no session token'));
     return fetchFn(input, init);
   };
