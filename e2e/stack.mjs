@@ -163,6 +163,16 @@ export const runDeliver = async () => {
   return (await response.json()).health;
 };
 
+/** Runs deliver until none of the Adventure's messages is still pending or sending. Another file's deliver may hold some under its lease. */
+export const messagesOut = (adventureId) =>
+  poll(`messages of ${adventureId} out`, async () => {
+    await runDeliver();
+    const { count, error } = await admin.from('messages').select('id', { count: 'exact', head: true })
+      .eq('adventure_id', adventureId).in('status', ['pending', 'sending']);
+    if (error) throw new Error(`open messages: ${error.message}`);
+    return count === 0;
+  });
+
 /** The heartbeats the text message relay received in place of Healthchecks.io, oldest first. */
 export const heartbeatsSince = async (since) =>
   (await fetch(HEARTBEATS).then((r) => r.json())).filter((h) => new Date(h.at) >= since);
