@@ -326,9 +326,11 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
           {left}
         </ThemedText>
       </View>
-      <ThemedText type="small" style={{ color: theme.text }}>
-        {overdue ? t.adventure.overdueNote : t.adventure.watchingNote}
-      </ThemedText>
+      {overdue && (
+        <ThemedText type="small" style={{ color: theme.text }}>
+          {t.adventure.overdueNote}
+        </ThemedText>
+      )}
     </View>
   );
 }
