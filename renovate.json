@@ -18,7 +18,7 @@
     {
       "matchManagers": ["npm", "deno"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "npm minor and patch updates"
+      "groupName": "weekly minor and patch updates"
     },
     {
       "description": "Expo pins these per SDK; a new SDK goes in with npx expo install --fix and npm run versions",
@@ -28,7 +28,7 @@
       "automerge": false
     },
     {
-      "description": "A new CLI can change the generated database types, which CI checks, so it must not hold up the npm group",
+      "description": "A new CLI can change the generated database types, which CI checks, so it must not hold up the weekly group",
       "matchPackageNames": ["supabase"],
       "groupName": "Supabase CLI"
     },
