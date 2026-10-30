@@ -29,7 +29,8 @@ export type DeliveryReport =
   | { kind: 'report'; messageId: number; providerRef: string; status: 'delivered' | 'undelivered' | 'failed'; reason: string | null };
 
 /** Reads one Twilio status callback. Statuses before the final one, such as queued and sent, are ignored. */
-export const readDeliveryReport = async (url: URL, form: URLSearchParams, secret: string): Promise<DeliveryReport | null> => {
+export const readDeliveryReport = async (url: URL, form: URLSearchParams, secret: string | undefined): Promise<DeliveryReport | null> => {
+  if (secret === undefined || secret === '') return null;
   const messageId = Number(url.searchParams.get('message'));
   const token = url.searchParams.get('token') ?? '';
   if (!Number.isSafeInteger(messageId) || !sameSecret(token, await reportToken(secret, messageId))) return null;

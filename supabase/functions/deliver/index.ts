@@ -79,7 +79,7 @@ const reportHealth = async (): Promise<Health> => {
 const receiveDeliveryReport = async (request: Request) => {
   const url = new URL(request.url);
   const form = new URLSearchParams(await request.text());
-  const report = await readDeliveryReport(url, form, Deno.env.get('DELIVER_SECRET')!);
+  const report = await readDeliveryReport(url, form, Deno.env.get('DELIVER_SECRET'));
   if (report === null) return new Response('unauthorized', { status: 401 });
   if (report.kind === 'report') {
     await rpc('report_delivery', {
