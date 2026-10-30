@@ -37,6 +37,7 @@
       "./plugins/without-push",
       "./plugins/accent-color",
       "expo-router",
+      "@sentry/react-native/expo",
       [
         "expo-contacts",
         {
