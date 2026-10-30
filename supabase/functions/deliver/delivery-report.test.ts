@@ -47,3 +47,9 @@ Deno.test('a wrong token, or the token of another message, is refused', async ()
   assertEquals(await readDeliveryReport(await urlFor(7), delivered, 'another-secret'), null);
   assertEquals(await readDeliveryReport(new URL('https://barry.example/functions/v1/deliver/status'), delivered, secret), null);
 });
+
+Deno.test('without DELIVER_SECRET every report is refused', async () => {
+  const delivered = form({ MessageSid: 'SM123', MessageStatus: 'delivered' });
+  assertEquals(await readDeliveryReport(await urlFor(7), delivered, undefined), null);
+  assertEquals(await readDeliveryReport(await urlFor(7), delivered, ''), null);
+});
