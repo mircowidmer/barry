@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { CURRENT_TERMS } from '@/lib/site';
+import { TERMS_KEY } from '@/lib/terms';
 import { captchaOptions } from '@/lib/turnstile';
 
 /**
@@ -16,7 +18,10 @@ export type ResendOutcome = { kind: 'sent' } | { kind: 'failed'; message: string
 
 export type SignInAuth = Pick<SupabaseClient['auth'], 'signInWithPassword' | 'signUp' | 'resend'>;
 
-/** Signing in and creating an account. A new account waits for its confirmation link before it can sign in. */
+/**
+ * Signing in and creating an account. A new account waits for its confirmation link before it can sign in, and records
+ * the Terms of Use it accepted.
+ */
 export const createSignIn = (auth: SignInAuth) => ({
   signIn: async ({ email, password }: Credentials, captchaToken?: string): Promise<SignInOutcome> => {
     const { error } = await auth.signInWithPassword({ email: email.trim(), password, options: captchaOptions(captchaToken) });
@@ -25,7 +30,11 @@ export const createSignIn = (auth: SignInAuth) => ({
   },
 
   signUp: async ({ email, password }: Credentials, captchaToken?: string): Promise<SignInOutcome> => {
-    const { data, error } = await auth.signUp({ email: email.trim(), password, options: captchaOptions(captchaToken) });
+    const { data, error } = await auth.signUp({
+      email: email.trim(),
+      password,
+      options: { ...captchaOptions(captchaToken), data: { [TERMS_KEY]: CURRENT_TERMS } },
+    });
     if (error) return { kind: 'failed', message: error.message };
     return data.session ? { kind: 'signed_in' } : { kind: 'unconfirmed' };
   },

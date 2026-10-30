@@ -91,6 +91,10 @@ const en = {
     notEmergency: 'Barry is not an emergency service and never calls rescue services. In an emergency, call 112, or 1414 for Rega in Switzerland.',
     privacy: 'Privacy Policy',
     terms: 'Terms of Use',
+    termsChangedTitle: 'Terms of Use Changed',
+    termsChanged: (day: string) => `Barry’s Terms of Use changed on ${day}. By using Barry, you accept them.`,
+    read: 'Read',
+    ok: 'OK',
   },
   adventure: {
     title: 'Adventure',
@@ -432,6 +436,10 @@ const de: Texts = {
     notEmergency: 'Barry ist kein Notdienst und ruft nie die Rettung. Ruf im Notfall 112, in der Schweiz für die Rega 1414.',
     privacy: 'Datenschutzerklärung',
     terms: 'Nutzungsbedingungen',
+    termsChangedTitle: 'Nutzungsbedingungen geändert',
+    termsChanged: (day: string) => `Barrys Nutzungsbedingungen haben sich am ${day} geändert. Wenn du Barry nutzt, akzeptierst du sie.`,
+    read: 'Lesen',
+    ok: 'OK',
   },
   adventure: {
     title: 'Abenteuer',
