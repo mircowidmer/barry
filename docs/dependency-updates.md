@@ -20,11 +20,10 @@ A security fix ignores both the Monday window and the three days. Renovate learn
 
 | Pull request | Holds | Merges on its own |
 | --- | --- | --- |
-| npm minor and patch updates | Every npm package not named below | Yes |
+| npm minor and patch updates | Every npm package not named below, and the inline imports of `supabase/functions` such as `jsr:@std/assert`, which the custom manager in `renovate.json` finds | Yes |
 | Supabase CLI | The `supabase` devDependency | Yes |
 | supabase-js | `@supabase/supabase-js` in `package.json` and in the import of `deliver` | Yes |
 | GitHub Actions | Every Action in `.github/workflows`, pinned to a commit hash with its version as a comment | Yes |
-| One per inline import of `supabase/functions` | Such as `jsr:@std/assert`, found by the custom manager in `renovate.json` | Yes |
 | Lock file maintenance | `package-lock.json` rebuilt every Tuesday, after Monday's updates, so the packages other packages pull in move too | Yes |
 | One per security fix | The lowest version that fixes the vulnerability, marked `[SECURITY]` | Yes |
 | Expo SDK | The Expo, React and React Native packages the Expo SDK rule in `renovate.json` names | No, and it opens only after approval on the Dependency Dashboard |

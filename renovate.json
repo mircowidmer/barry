@@ -24,7 +24,7 @@
       "automerge": true
     },
     {
-      "matchManagers": ["npm"],
+      "matchManagers": ["npm", "custom.regex"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm minor and patch updates"
     },
