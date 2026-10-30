@@ -40,4 +40,4 @@ Preconditions:
 - After `xcrun simctl launch`, the Expo developer menu button floats under `+` and catches the tap. Relaunch with the deep link `exp+barry://?__expo_url=http%3A%2F%2F<mac-ip>%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1` through `xcrun simctl openurl`, which hides it.
 - A screenshot written into `.verify-artifacts/` while the app is open shows a `Refreshing…` banner and can reset the sheet's unsaved switches. Write proof to a folder outside the repo and copy it in at the end.
 - Removing is a soft delete. A removed contact no longer appears, but past messages still name them.
-- A contact's name and addresses cannot be edited in Barry. The fixture's `Luca` and `Sara` are inserted by `fixture.mjs`, not picked.
+- A contact's name and addresses cannot be edited in Barry. The baseline's `Luca` and `Sara` are created by `fixture.mjs seed`, not picked.
