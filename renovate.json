@@ -6,7 +6,7 @@
   "osvVulnerabilityAlerts": true,
   "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
   "vulnerabilityAlerts": { "automerge": true },
-  "lockFileMaintenance": { "enabled": true, "automerge": true },
+  "lockFileMaintenance": { "enabled": true, "automerge": true, "schedule": ["before 4am on tuesday"] },
   "postUpdateOptions": ["npmDedupe"],
   "configMigration": true,
   "customManagers": [
