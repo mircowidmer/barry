@@ -20,9 +20,9 @@ A security fix ignores both the Monday window and the three days. Renovate learn
 
 | Pull request | Holds | Merges on its own |
 | --- | --- | --- |
-| npm minor and patch updates | Every npm package not named below, and the inline imports of `supabase/functions` such as `jsr:@std/assert`, which the custom manager in `renovate.json` finds | Yes |
+| npm minor and patch updates | Every npm package not named below, and the imports in `supabase/functions/deliver/deno.json` such as `@std/assert` | Yes |
 | Supabase CLI | The `supabase` devDependency | Yes |
-| supabase-js | `@supabase/supabase-js` in `package.json` and in the import of `deliver` | Yes |
+| supabase-js | `@supabase/supabase-js` in `package.json` and in `deliver`'s `deno.json` | Yes |
 | GitHub Actions | Every Action in `.github/workflows`, pinned to a commit hash with its version as a comment | Yes |
 | Lock file maintenance | `package-lock.json` rebuilt every Tuesday, after Monday's updates, so the packages other packages pull in move too | Yes |
 | One per security fix | The lowest version that fixes the vulnerability, marked `[SECURITY]` | Yes |
