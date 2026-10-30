@@ -1,8 +1,10 @@
 // Keeps the ranges in package.json at the major version: "~58.0.21" becomes "58", and below 1,
-// where the minor is the breaking part, "^0.21.4" becomes "0.21". Exact pins stay as they are.
+// where the minor is the breaking part, "^0.21.4" becomes "0.21". An exact version stays exact only
+// where Expo's bundledNativeModules.json pins that package exactly, and a prerelease stays pinned.
 // Rewrites the root entry of package-lock.json alongside, so the two files stay in sync.
 // Usage: node scripts/version-ranges.mjs [--check] [path/to/package.json]
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
 const args = process.argv.slice(2);
@@ -16,11 +18,22 @@ const file = args.find((arg) => !arg.startsWith('-')) ?? 'package.json';
 const lockFile = join(dirname(file), 'package-lock.json');
 const sections = ['dependencies', 'devDependencies'];
 
-const rangeFor = (version) => {
-  if (/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) return version;
-  const match = version.match(/^[~^]?(\d+)(?:\.(\d+)(?:\.(\d+)(?:-[\w.]+)?)?)?$/);
+const expoVersions = (() => {
+  try {
+    return createRequire(import.meta.url)('expo/bundledNativeModules.json');
+  } catch {
+    return {};
+  }
+})();
+const pinnedByExpo = (name) => /^\d/.test(expoVersions[name] ?? '');
+
+const rangeFor = (name, version) => {
+  const match = version.match(/^([~^]?)(\d+)(?:\.(\d+)(?:\.(\d+)(-[\w.]+)?)?)?$/);
   if (!match) return undefined;
-  const [, major, minor = '0', patch = '0'] = match;
+  const [, prefix, major, minor = '0', patch = '0', prerelease] = match;
+  // A range without the prerelease would match no prerelease at all, so it stays pinned.
+  if (prerelease) return `${major}.${minor}.${patch}${prerelease}`;
+  if (!prefix && match[4] && pinnedByExpo(name)) return version;
   if (major !== '0') return major;
   // Below 0.1 every patch is breaking, as npm's own caret treats it.
   return minor === '0' ? `0.0.${patch}` : `0.${minor}`;
@@ -31,7 +44,7 @@ const drift = [];
 const unreadable = [];
 for (const section of sections) {
   for (const [name, version] of Object.entries(json[section] ?? {})) {
-    const range = rangeFor(version);
+    const range = rangeFor(name, version);
     if (range === undefined) unreadable.push(`${name}: "${version}" is no version this script can rewrite`);
     else if (range !== version) {
       drift.push(`${name}: "${version}" should be "${range}"`);
