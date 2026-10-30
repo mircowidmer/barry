@@ -113,7 +113,7 @@ const en = {
     overdueNote: 'You are overdue. Barry alerts your emergency contacts then, unless you check in.',
     overdue: (when: string, left: string) =>
       `You are overdue. Barry alerts your emergency contacts at ${when}, in ${left}, unless you check in.`,
-    alerted: (sent: number) => `Your emergency contacts were alerted (${sent} of 3). Check in to send them the all-clear.`,
+    alerted: (sent: number) => `Your emergency contacts were alerted (${sent} of ${LIMITS.alertsPerDeadline}). Check in to send them the all-clear.`,
     offline: (when: string) =>
       `No signal. This is your adventure as of ${when}. Check-in still works and is sent when you have signal.`,
     recording: 'Barry is recording your trail. Closing Barry stops the trail.',
@@ -452,7 +452,7 @@ const de: Texts = {
     overdueNote: 'Du bist überfällig. Barry alarmiert dann deine Notfallkontakte, ausser du meldest dich vorher zurück.',
     overdue: (when, left) =>
       `Du bist überfällig. Barry alarmiert deine Notfallkontakte am ${when}, in ${left}, ausser du meldest dich vorher zurück.`,
-    alerted: (sent) => `Deine Notfallkontakte wurden alarmiert (${sent} von 3). Melde dich zurück, damit sie die Entwarnung erhalten.`,
+    alerted: (sent) => `Deine Notfallkontakte wurden alarmiert (${sent} von ${LIMITS.alertsPerDeadline}). Melde dich zurück, damit sie die Entwarnung erhalten.`,
     offline: (when) =>
       `Kein Empfang. So sah dein Abenteuer am ${when} aus. Das Zurückmelden funktioniert trotzdem und wird gesendet, sobald du Empfang hast.`,
     recording: 'Barry zeichnet deine Spur auf. Wenn du Barry schliesst, endet die Spur.',
