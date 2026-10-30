@@ -2,7 +2,7 @@ import { type CountryCode, parsePhoneNumberFromString } from 'libphonenumber-js/
 
 import { formatPhoneNumber } from '@/lib/phone';
 
-import { LIMITS } from './limits';
+import { clip, LIMITS } from './limits';
 import { isEmailAddress, isPhoneNumber } from './reach';
 
 /** What Barry reads from the Phone Contact the Adventurer picked. */
@@ -47,5 +47,5 @@ export const copyPhoneContact = (contact: PhoneContact, region: string | null): 
     contact.emails.map((e) => e.address?.trim() ?? '').find((a) => isEmailAddress(a) && a.length <= LIMITS.emailLength) ?? null;
   // || rather than ??: an empty name or company falls through to the next one.
   const name = contact.fullName.trim() || contact.company?.trim() || email || (phone ? formatPhoneNumber(phone) : '');
-  return { name: name.slice(0, LIMITS.nameLength), email, phone };
+  return { name: clip(name, LIMITS.nameLength), email, phone };
 };

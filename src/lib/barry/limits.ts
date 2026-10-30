@@ -17,3 +17,9 @@ export const LIMITS = {
   carPlateLength: 20,
   medicalNotesLength: 500,
 } as const;
+
+/**
+ * The text cut to `max` characters as Postgres counts them, whole code points, so a cut never splits an emoji into
+ * half a surrogate pair.
+ */
+export const clip = (text: string, max: number): string => Array.from(text).slice(0, max).join('');

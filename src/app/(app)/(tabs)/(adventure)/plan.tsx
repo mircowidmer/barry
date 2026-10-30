@@ -20,6 +20,7 @@ import {
   type Adventure,
   type AdventureId,
   barry,
+  clip,
   type EmergencyContact,
   type EmergencyContactId,
   LIMITS,
@@ -164,7 +165,7 @@ function PlanForm({
 
   const choose = (place: Place) => {
     // The typed field stops at the limit; a place's name must too, or the save is refused.
-    setForm((f) => ({ ...f, destination: place.name.slice(0, LIMITS.destinationLength), destinationPoint: place.point }));
+    setForm((f) => ({ ...f, destination: clip(place.name, LIMITS.destinationLength), destinationPoint: place.point }));
     setSuggesting(false);
     Keyboard.dismiss();
   };
