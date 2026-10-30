@@ -378,7 +378,6 @@ function TrailBadge({ status }: { status: TrailStatus }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   card: { borderRadius: 26, paddingHorizontal: 20, paddingVertical: 18, gap: 2 },
   cardLabel: { fontSize: 12, letterSpacing: 0.3 },
