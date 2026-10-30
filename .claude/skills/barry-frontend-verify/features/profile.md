@@ -39,6 +39,6 @@ Preconditions:
 - `Could Not Save` always names the phone number, also when the save failed for lack of signal.
 - Every save also writes the phone's language to the Profile, which `profile-language` in [Sign in](./sign-in.md) covers.
 - Without signal each request waits up to 10 seconds before it fails.
-- A wrong current password shows Barry's own text in the footer; anything else Supabase refuses, such as a new password under six characters or an address another account uses, shows Supabase's English message.
+- A wrong current password shows Barry's own text in the footer; anything else Supabase refuses, such as a new password under ten characters or an address another account uses, shows Supabase's English message.
 - Locally `enable_confirmations = false` in `supabase/config.toml` makes Auth confirm an address change with the first link that is opened; the other link then fails with `otp_expired`. The hosted project confirms new accounts by email, so there both links are needed: the first lands on `https://barry.support/confirmed` saying `One more link to open`, the second saying `Your email address is changed`. The screen's texts describe the hosted behaviour.
 - The confirmation links redirect to the Site URL in `supabase/config.toml`, `http://127.0.0.1:3000`, where nothing listens locally. The change is complete once Safari lands there without `error` in the address.

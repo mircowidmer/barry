@@ -57,9 +57,9 @@ describe('signUp', () => {
   });
 
   it('reports why the account was not created', async () => {
-    expect(await setup({ signUpError: { message: 'Password should be at least 6 characters.' } }).signIn.signUp(anna)).toEqual({
+    expect(await setup({ signUpError: { message: 'Password should be at least 10 characters.' } }).signIn.signUp(anna)).toEqual({
       kind: 'failed',
-      message: 'Password should be at least 6 characters.',
+      message: 'Password should be at least 10 characters.',
     });
   });
 });
