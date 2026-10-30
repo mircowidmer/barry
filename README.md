@@ -14,6 +14,8 @@ Copy `.env.example` to `.env.local` first, and set `EXPO_PUBLIC_SUPABASE_PUBLISH
 
 The app needs the development build, Barry Dev. `npm run ios` builds it into the iOS Simulator. [How to run Barry on your iPhone](docs/iphone.md) covers a phone, where `npm run iphone:production` builds and installs the production app, and [Builds](docs/builds.md) the variants and the cloud builds with EAS.
 
+`python3 scripts/make-icons.py` renders the app icons, the favicon, the logo and the launch screens in `assets/images` from the Icon Composer source `assets/brand/icon.icon` and the colours in `src/constants/theme.ts`. Run it after changing either; it needs a Mac with Xcode 26, Pillow and NumPy.
+
 ## Check it
 
 ```bash
