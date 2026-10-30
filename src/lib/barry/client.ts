@@ -366,12 +366,14 @@ export const createBarry = ({
       if (error) fail('deleteAccount', error);
       if (data) return { kind: 'refused', refusal: data };
       remember(null);
+      conditions.forget();
       await supabase.auth.signOut({ scope: 'local' });
       return { kind: 'deleted' };
     },
 
     logOut: async () => {
       remember(null);
+      conditions.forget();
       await supabase.auth.signOut();
     },
 

@@ -286,5 +286,10 @@ export const createConditions = ({ fetchJson, storage, now, language }: Conditio
         return last ? { kind: 'stale', conditions: last } : { kind: 'unavailable' };
       }
     },
+    /** Drops the kept Conditions, whose points tell where the Adventurer planned to go. */
+    forget: () => {
+      kept = [];
+      storage.setItem(KEY, '');
+    },
   };
 };

@@ -88,7 +88,7 @@ const setup = ({ failing = false, bulletin = slf as unknown, forecast = null as 
       return url.includes('open-meteo') ? (forecast ?? openMeteo(world.now, 120)) : bulletin;
     },
   });
-  return { conditions, asked, world };
+  return { conditions, asked, world, storage };
 };
 
 const period = (startTime: string, endTime: string, mainValue: string) => ({
@@ -213,6 +213,15 @@ describe('Conditions', () => {
     const result = await conditions.at(zermatt);
     expect(result.kind).toBe('stale');
     expect(result.kind === 'stale' && result.conditions.fetchedAt).toEqual(start);
+  });
+
+  it('forgets the kept Conditions on this phone', async () => {
+    const { conditions, world, storage } = setup();
+    await conditions.at(zermatt);
+    conditions.forget();
+    world.failing = true;
+    expect(await conditions.at(zermatt)).toEqual({ kind: 'unavailable' });
+    expect(storage.getItem('barry.conditions')).toBe('');
   });
 
   it('says Conditions need signal when none are kept', async () => {

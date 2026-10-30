@@ -141,7 +141,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
       throw new Error('no signal');
     },
   });
-  return { barry, world, updates, fences, arrivals, signOuts, scheduled: () => Object.fromEntries(scheduled) };
+  return { barry, world, storage, updates, fences, arrivals, signOuts, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -283,12 +283,24 @@ describe('addContactFromPhone', () => {
 });
 
 describe('deleteAccount', () => {
-  it('forgets the saved Adventure and signs out on this phone only', async () => {
-    const { barry, world, signOuts } = setup();
+  it('forgets the saved Adventure and the kept Conditions and signs out on this phone only', async () => {
+    const { barry, world, storage, signOuts } = setup();
+    storage.setItem('barry.conditions', '[{"point":{"latitude":46.02,"longitude":7.75}}]');
     world.signal = true;
     expect(await barry.deleteAccount()).toEqual({ kind: 'deleted' });
     expect(signOuts).toEqual([{ scope: 'local' }]);
+    expect(storage.getItem('barry.conditions')).toBe('');
     world.signal = false;
+    expect((await barry.getInProgressAdventure()).adventure).toBeNull();
+  });
+});
+
+describe('logOut', () => {
+  it('forgets the saved Adventure and the kept Conditions', async () => {
+    const { barry, storage } = setup();
+    storage.setItem('barry.conditions', '[{"point":{"latitude":46.02,"longitude":7.75}}]');
+    await barry.logOut();
+    expect(storage.getItem('barry.conditions')).toBe('');
     expect((await barry.getInProgressAdventure()).adventure).toBeNull();
   });
 });
