@@ -28,6 +28,7 @@ import {
   type Point,
   reachableAddresses,
   type StartChecks,
+  type StartResult,
   type StartWarning,
   startWarnings,
 } from '@/lib/barry';
@@ -249,22 +250,22 @@ function PlanForm({
 
   const onStart = async () => {
     setBusy('start');
-    const unsaved = id === undefined ? initial : null;
-    const result = await save()
-      .then(async (saved) => {
-        if (!saved) return null;
-        const started = await barry.start(saved);
-        // A refused Start keeps nothing the Adventurer did not save themselves.
-        if (started.kind === 'refused' && unsaved) {
-          const removed = await barry.deleteAdventure(saved).catch(() => null);
-          if (removed?.kind === 'deleted') {
-            setId(undefined);
-            setInitial(unsaved);
-          }
+    const wasNew = id === undefined;
+    let result: StartResult | 'failed' | null = null;
+    try {
+      const saved = await save();
+      if (saved) result = await barry.start(saved);
+      // A refused Start keeps nothing the Adventurer did not save themselves.
+      if (saved && wasNew && result?.kind === 'refused') {
+        const removed = await barry.deleteAdventure(saved).catch(() => null);
+        if (removed?.kind === 'deleted') {
+          setId(undefined);
+          setInitial(initial);
         }
-        return started;
-      })
-      .catch(() => 'failed' as const);
+      }
+    } catch {
+      result = 'failed';
+    }
     setBusy(null);
     if (result === 'failed') Alert.alert(t.plan.couldNotStartTitle, t.plan.couldNotStart);
     else if (result?.kind === 'protected') leave();
