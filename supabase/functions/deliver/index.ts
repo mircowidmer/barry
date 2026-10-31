@@ -15,7 +15,9 @@ const TIME_BUDGET_MS = 20_000;
 
 const links = trailMapLinks(Deno.env.get('TRAIL_MAP_URL'));
 
-const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
+const secretKeys = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')!) as Record<string, string>;
+
+const db = createClient(Deno.env.get('SUPABASE_URL')!, secretKeys.default, {
   auth: { persistSession: false },
 });
 
