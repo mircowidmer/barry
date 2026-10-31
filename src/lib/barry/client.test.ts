@@ -168,6 +168,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     schedule: async (alarm) => void scheduled.set(alarm.identifier, alarm.at.toISOString()),
     cancel: async (id) => void scheduled.delete(id),
     showArrival: async (adventure) => void arrivals.push(adventure.plan.destination),
+    showDeliveryFailure: async () => undefined,
   };
   const barry = createBarry({
     supabase,
@@ -405,6 +406,7 @@ describe('watchMessages', () => {
     delivered: false,
     outcome_at: '2026-10-17T06:01:00Z',
     failure_reason: null,
+    undelivered: false,
   };
 
   const settled = () => new Promise((resolve) => setTimeout(resolve, 0));

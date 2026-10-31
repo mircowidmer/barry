@@ -96,6 +96,8 @@ export type SentMessage = {
   outcome: 'sent' | 'delivered' | 'failed';
   at: Date;
   reason: string | null;
+  /** A text message Twilio reported not delivered, as opposed to one that failed to send. */
+  undelivered: boolean;
 };
 
 /** A message that could not be delivered. */
@@ -217,6 +219,10 @@ export type Barry = {
   messages(id: AdventureId): Promise<SentMessage[]>;
   /** Calls `onChange` with the messages each time one goes out, is delivered or fails, and after each reconnect. */
   watchMessages(id: AdventureId, onChange: (messages: SentMessage[]) => void): () => void;
+  /** Shows a notification for each text message of the live or last Adventure that Twilio reported not delivered, once. */
+  noticeDeliveryFailures(): Promise<void>;
+  /** Calls `noticeDeliveryFailures` each time a message of the Adventurer fails, and after each reconnect. */
+  watchDeliveryFailures(): () => void;
   /** Every reading of the Adventure, from Start, Deadline moves and the Trail, oldest first. With `after`, only the readings taken after it. */
   readings(id: AdventureId, after?: Date): Promise<Position[]>;
   watchAdventure(id: AdventureId, onChange: (adventure: Adventure) => void): () => void;

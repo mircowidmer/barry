@@ -1,6 +1,7 @@
 import type { Channel, MessageKind, Refusal, SentMessage } from '@/lib/barry';
 import { LIMITS } from '@/lib/barry/limits';
 import { appLanguage, useAppLanguage } from '@/lib/language';
+import { formatPhoneNumber } from '@/lib/phone';
 import {
   formatDay,
   formatDayGerman,
@@ -191,6 +192,10 @@ const en = {
     messageName: messageNameEn,
     outcome: (m: SentMessage, time: string) => `${outcomesEn[m.outcome]} ${time}`,
     failureReason: reasonEn,
+    deliveryFailureNotice: (m: SentMessage) => ({
+      title: `${messageNameEn(m)} not delivered to ${namesOf(m)}`,
+      body: `Your text message to ${formatPhoneNumber(m.address)} did not arrive. Reach ${m.contacts.length === 1 ? namesOf(m) : 'them'} another way.`,
+    }),
     messageLabel: (m: SentMessage, time: string) =>
       `${messageNameEn(m)} to ${namesOf(m)} by ${channelsEn[m.channel]}, ${m.address}. ${outcomesEn[m.outcome]} ${time}` +
       (m.outcome === 'failed' ? `: ${reasonEn(m.reason)}. Double-tap to reach them yourself.` : '.'),
@@ -541,6 +546,10 @@ const de: Texts = {
     messageName: messageNameDe,
     outcome: (m, time) => `${outcomesDe[m.outcome]} ${time}`,
     failureReason: reasonDe,
+    deliveryFailureNotice: (m) => ({
+      title: `${messageNameDe(m)} an ${namesOf(m)} nicht zugestellt`,
+      body: `Deine SMS an ${formatPhoneNumber(m.address)} kam nicht an. Erreiche ${m.contacts.length === 1 ? namesOf(m) : 'sie'} auf anderem Weg.`,
+    }),
     messageLabel: (m, time) =>
       `${messageNameDe(m)} an ${namesOf(m)} ${channelsDe[m.channel]}, ${m.address}. ${outcomesDe[m.outcome]} ${time}` +
       (m.outcome === 'failed' ? `: ${reasonDe(m.reason)}. Doppeltippen, um sie selbst zu erreichen.` : '.'),

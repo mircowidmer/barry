@@ -6,6 +6,7 @@ import * as Notifications from 'expo-notifications';
 import { storage } from '@/lib/storage';
 import { fetchWithTimeout, supabase } from '@/lib/supabase';
 import { appLanguage } from '@/lib/language';
+import { currentTexts } from '@/lib/texts';
 import { arrivalText, notificationText } from '@/lib/wording';
 
 import type { NotificationService } from './alarms';
@@ -180,6 +181,13 @@ const notifications: NotificationService = {
     await Notifications.scheduleNotificationAsync({
       identifier: `barry.arrival.${adventure.id}`,
       content: arrivalText(adventure),
+      trigger: null,
+    });
+  },
+  showDeliveryFailure: async (message, adventureId) => {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `barry.delivery-failure.${message.id}`,
+      content: { ...currentTexts().adventure.deliveryFailureNotice(message), data: { deliveryFailureOf: adventureId } },
       trigger: null,
     });
   },

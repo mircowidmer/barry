@@ -55,6 +55,7 @@ const fakeNotifications = (initial: string[] = []) => {
     schedule: async (a) => void scheduled.set(a.identifier, a.at.toISOString()),
     cancel: async (id) => void scheduled.delete(id),
     showArrival: async () => undefined,
+    showDeliveryFailure: async () => undefined,
   };
   return { service, scheduled: () => Object.fromEntries(scheduled) };
 };

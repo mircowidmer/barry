@@ -1,11 +1,12 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { useLastNotificationResponse } from 'expo-notifications';
+import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { barry } from '@/lib/barry';
+import { type AdventureId, barry } from '@/lib/barry';
 import { askForNotifications } from '@/lib/notifications';
 import { SessionProvider, useSession } from '@/lib/session';
 import { tellAboutChangedTerms } from '@/lib/terms-notice';
@@ -24,6 +25,7 @@ function Navigation() {
         .catch(() => undefined)
         .then(() => barry.trail.sync())
         .catch(() => undefined);
+      barry.noticeDeliveryFailures().catch(() => undefined);
       barry.syncMessageLanguage().catch(() => undefined);
       askForNotifications().catch(() => undefined);
       tellAboutChangedTerms(async () => (await barry.getInProgressAdventure()).adventure !== null).catch(() => undefined);
@@ -32,6 +34,26 @@ function Navigation() {
     const subscription = AppState.addEventListener('change', (state) => state === 'active' && catchUp());
     return () => subscription.remove();
   }, [session]);
+
+  useEffect(() => (session ? barry.watchDeliveryFailures() : undefined), [session]);
+
+  // A tapped Delivery Failure opens the contacts sheet while the Adventure is in progress, and the Ended Adventure after.
+  const response = useLastNotificationResponse();
+  const handled = useRef<string | null>(null);
+  useEffect(() => {
+    const adventureId = response?.notification.request.content.data?.deliveryFailureOf as AdventureId | undefined;
+    const identifier = response?.notification.request.identifier ?? null;
+    if (!session || !adventureId || handled.current === identifier) return;
+    handled.current = identifier;
+    void barry
+      .getInProgressAdventure()
+      .catch(() => ({ adventure: null }))
+      .then(({ adventure }) =>
+        adventure?.id === adventureId
+          ? router.push({ pathname: '/watching', params: { id: adventureId } })
+          : router.push({ pathname: '/history/[id]', params: { id: adventureId } }),
+      );
+  }, [response, session]);
 
   useEffect(() => {
     if (!loading) SplashScreen.hideAsync().catch(() => undefined);
