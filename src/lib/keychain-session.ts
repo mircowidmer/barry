@@ -6,7 +6,7 @@ export type Keychain = {
 };
 
 /** Where sessions were kept before the Keychain: the app's plain storage file. */
-export type LegacyStorage = Pick<Storage, 'getItem' | 'removeItem'>;
+type LegacyStorage = Pick<Storage, 'getItem' | 'removeItem'>;
 
 /**
  * Keeps the Supabase session in the iOS Keychain instead of the app's storage file, which device backups
