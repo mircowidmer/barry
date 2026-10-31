@@ -61,7 +61,7 @@ const messageTimeParts = (at: Date, timeZone: string, month: 'short' | 'numeric'
   return { weekday: part('weekday'), day: part('day'), month: part('month'), clock };
 };
 
-export const formatMessageTime = (at: Date, timeZone: string) => {
+const formatMessageTime = (at: Date, timeZone: string) => {
   const { weekday, day, month, clock } = messageTimeParts(at, timeZone, 'short');
   return `${weekday} ${day} ${month}, ${clock}`;
 };
