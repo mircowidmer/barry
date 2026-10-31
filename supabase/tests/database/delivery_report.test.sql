@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(11);
 delete from public.messages;
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
@@ -39,6 +39,19 @@ select is(
   'The undelivered Alert is a Delivery Failure for the Adventurer'
 );
 select is((select delivery_ok from public.health()), false, 'An undelivered Alert makes the monitor raise the alarm');
+
+-- 904 failed to send; 905 is still sending when its report arrives.
+insert into public.messages (id, adventure_id, kind, plan_revision, channel, to_address, contact_id, status, attempts, failure_reason) overriding system value values
+  (904, 'a0000000-0000-0000-0000-000000000001', 'plan_update', 1, 'sms', '+41791111111', 'aaaaaaaa-0000-0000-0000-000000000001', 'failed', 1, 'channel_not_enabled'),
+  (905, 'a0000000-0000-0000-0000-000000000001', 'plan_update', 2, 'sms', '+41791111111', 'aaaaaaaa-0000-0000-0000-000000000001', 'sending', 1, null);
+select public.report_delivery(905, 'SM-overtaking', 'undelivered', 'Twilio 30005: Unknown destination handset');
+select is(
+  (select array_agg(id order by id) from public.adventure_messages where undelivered),
+  array[902, 905]::bigint[],
+  'Only the text messages Twilio reported not delivered are undelivered, also a report that overtook settle_message'
+);
+select is((select undelivered from public.adventure_messages where id = 904), false, 'A text message that failed to send is no undelivered report');
+select is((select undelivered from public.adventure_messages where id = 901), false, 'A delivered text message is not undelivered');
 
 set local role authenticated;
 select throws_ok($$select public.report_delivery(901, 'SM-heads-up', 'undelivered')$$, '42501', null, 'The app cannot report deliveries');
