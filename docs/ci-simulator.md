@@ -44,7 +44,7 @@ flowchart LR
    - permissions, through Maestro's `launchApp: permissions` for notifications and location;
    - a location, with `xcrun simctl location`;
    - contacts, with `xcrun simctl addmedia booted contacts.vcf`.
-4. **Create a throwaway account** with the CI project's service-role key, as each `e2e/*.e2e.mjs` file does locally. Seed the Emergency Contacts and the Adventure the flows expect, and pass the email and password to Maestro as parameters.
+4. **Create a throwaway account** with the CI project's secret key, as each `e2e/*.e2e.mjs` file does locally. Seed the Emergency Contacts and the Adventure the flows expect, and pass the email and password to Maestro as parameters.
 5. **Run the flows** with `maestro test`, and upload the screenshots and Maestro's debug output as an artifact on failure.
    - Steps that the recipe does with the Simulator control tool need Maestro equivalents:
      - tapping a tab bar item: `tapOn: point`;
