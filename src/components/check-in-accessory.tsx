@@ -16,8 +16,7 @@ export function CheckInAccessory({ offer }: { offer: CheckInOffer }) {
   if (offer.waiting) return <Waiting waiting={offer.waiting} inline={inline} />;
   return (
     <HoldButton
-      title={inline ? t.adventure.holdShort : t.adventure.hold}
-      label={t.adventure.hold}
+      title={t.adventure.hold}
       onComplete={offer.checkIn}
       disabled={offer.busy}
     />
