@@ -68,6 +68,17 @@ describe('the version ranges in package.json', () => {
     expect(result.stderr).toContain('leaflet: ">=1.9.4"');
   });
 
+  it("hold Expo's packages back in Renovate's Expo SDK group, so no automerged update moves them past the SDK", () => {
+    const { dependencies, devDependencies } = require('../package.json');
+    const expoPackages = Object.keys({ ...dependencies, ...devDependencies }).filter(
+      (name) => name === 'expo' || name in require('expo/bundledNativeModules.json'),
+    );
+    const { packageRules } = require('../renovate.json');
+    const patterns: string[] = packageRules.find((rule: { groupName?: string }) => rule.groupName === 'Expo SDK').matchPackageNames;
+    const globs = patterns.map((glob) => new RegExp(`^${glob.replace(/[.+/]/g, '\\$&').replace(/\*/g, '.*')}$`));
+    expect(expoPackages.filter((name) => !globs.some((glob) => glob.test(name)))).toEqual([]);
+  });
+
   it('are already rewritten in the repository', () => {
     const result = run('--check', resolve(__dirname, '../package.json'));
     expect(result.stderr).toBe('');
