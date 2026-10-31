@@ -13,8 +13,8 @@ export const RESEND_AFTER_SECONDS = 60;
 export type Credentials = { email: string; password: string };
 
 /** `unconfirmed`: the address has an account but its confirmation link is not opened yet. */
-export type SignInOutcome = { kind: 'signed_in' } | { kind: 'unconfirmed' } | { kind: 'failed'; message: string };
-export type ResendOutcome = { kind: 'sent' } | { kind: 'failed'; message: string };
+type SignInOutcome = { kind: 'signed_in' } | { kind: 'unconfirmed' } | { kind: 'failed'; message: string };
+type ResendOutcome = { kind: 'sent' } | { kind: 'failed'; message: string };
 
 export type SignInAuth = Pick<SupabaseClient['auth'], 'signInWithPassword' | 'signUp' | 'resend'>;
 
