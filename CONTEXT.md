@@ -119,6 +119,10 @@ _Avoid_: Cancellation, resolution
 A notification the Adventurer's phone shows when their Deadline passes, saying when the Alert will go out.
 _Avoid_: Second reminder, warning
 
+**Live Activity**:
+The card the Adventurer's phone shows on the Lock Screen and in the Dynamic Island from the Start until the Check-in, with the time left before the Deadline and a Check In button.
+_Avoid_: Widget, lock screen notification
+
 **Arrival Notice**:
 A notification the Adventurer's phone shows when they reach the destination they put on the map, reminding them to check in once back safe.
 _Avoid_: Arrival alert, geofence notification, destination reached

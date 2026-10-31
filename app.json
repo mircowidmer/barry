@@ -92,6 +92,7 @@
         }
       ],
       "expo-notifications",
+      "expo-widgets",
       [
         "expo-localization",
         {

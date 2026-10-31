@@ -209,7 +209,8 @@ export type Barry = {
   /** Saves the draft and starts it in one step; when the Start is refused, nothing of the draft is saved. */
   start(draft: AdventureDraft): Promise<StartResult>;
   moveDeadline(id: AdventureId, deadline: Date): Promise<MoveDeadlineResult>;
-  checkIn(id: AdventureId): Promise<CheckInResult>;
+  /** `checkedInAt` is when the Adventurer checked in, such as the tap on the Live Activity; now by default. */
+  checkIn(id: AdventureId, checkedInAt?: Date): Promise<CheckInResult>;
   pendingCheckIns(): PendingCheckIn[];
   flushPendingCheckIns(): Promise<void>;
 

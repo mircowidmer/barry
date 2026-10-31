@@ -1,3 +1,4 @@
+import { serialized } from './serialized';
 import type { InProgressAdventure } from './types';
 
 const REMINDER_LEAD_MS = 30 * 60_000;
@@ -45,14 +46,8 @@ export const createAlarms = ({ notifications, due }: { notifications: Notificati
     await Promise.all([...stale.map(notifications.cancel), ...wanted.map(notifications.schedule)]);
   };
 
-  // One sync at a time, so a slow sync from older state cannot reschedule what a newer one cancelled.
-  let last: Promise<void> = Promise.resolve();
   return {
     /** Brings the scheduled notifications in line with `due()`. Idempotent. */
-    sync: (): Promise<void> => {
-      const run = last.then(apply);
-      last = run.catch(() => undefined);
-      return run;
-    },
+    sync: serialized(apply),
   };
 };

@@ -27,6 +27,7 @@
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.7",
     "expo-task-manager": "~58.0.13",
+    "expo-widgets": "~58.0.26",
     "leaflet": "1",
     "libphonenumber-js": "1",
     "maplibre-gl": "6",

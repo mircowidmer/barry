@@ -2,6 +2,7 @@ import type { Channel, MessageKind, Refusal, SentMessage } from '@/lib/barry';
 import { LIMITS } from '@/lib/barry/limits';
 import { appLanguage, useAppLanguage } from '@/lib/language';
 import {
+  formatClock,
   formatDay,
   formatDayGerman,
   formatDuration,
@@ -767,5 +768,11 @@ export const useTexts = (): Texts => texts[useAppLanguage()];
 
 /** The texts in the phone's language, for dialogs and other code outside components. */
 export const currentTexts = (): Texts => texts[appLanguage()];
+
+/** The Live Activity's texts. A Deadline on another day names the day, so a long Adventure cannot be misread. */
+export const liveActivityText = (deadline: Date, now: Date, t: Texts = currentTexts()) => ({
+  checkInBy: `${t.adventure.checkInBy} ${deadline.toDateString() === now.toDateString() ? formatClock(deadline) : t.when(deadline)}`,
+  checkIn: t.adventure.hold,
+});
 
 export const refusalText = (refusal: Refusal) => currentTexts().refusals[refusal];
