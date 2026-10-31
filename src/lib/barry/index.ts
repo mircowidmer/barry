@@ -189,6 +189,8 @@ const notifications: NotificationService = {
   },
 };
 
+const LIVE_ADVENTURE_URL = Linking.createURL('/');
+
 // Starting fails when the Adventurer switched Live Activities off or the build has no widget extension; the client
 // ignores that, because the Reminder and the Overdue Notice still fire.
 const liveActivity: LiveActivityService = {
@@ -202,10 +204,10 @@ const liveActivity: LiveActivityService = {
       startedAt: view.startedAt.getTime(),
       deadline: view.deadline.getTime(),
       ...liveActivityText(view.deadline, new Date()),
-      url: Linking.createURL('/'),
+      url: LIVE_ADVENTURE_URL,
     };
     if (running) await running.update(props);
-    else AdventureActivity.start(props, props.url);
+    else AdventureActivity.start(props, LIVE_ADVENTURE_URL);
   },
 };
 
