@@ -14,7 +14,6 @@ import { type AdventureId, barry, type EmergencyContact, reachableAddresses, typ
 import { initials } from '@/lib/initials';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
-import { formatClock } from '@/lib/wording';
 
 const AVATAR = 40;
 
@@ -52,7 +51,7 @@ export default function WatchingSheet() {
   const { adventure } = loaded.data;
   const failures = messages.filter((m) => m.outcome === 'failed');
   const alertAt = adventure.alertAt;
-  const alertTime = alertAt.toDateString() === now.toDateString() ? formatClock(alertAt) : t.when(alertAt);
+  const alertTime = t.clock(alertAt, now);
   return (
     <Screen onRefresh={loaded.reload}>
       <Stack.Screen options={{ title: t.adventure.watchingTitle }} />

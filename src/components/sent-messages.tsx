@@ -8,7 +8,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { barry, type EmergencyContact, type SentMessage } from '@/lib/barry';
 import { formatPhoneNumber } from '@/lib/phone';
 import { type Texts, useTexts } from '@/lib/texts';
-import { formatClock } from '@/lib/wording';
 
 const OUTCOME_SYMBOLS: Record<SentMessage['outcome'], { name: SymbolViewProps['name']; color: ThemeColor }> = {
   sent: { name: 'paperplane', color: 'textSecondary' },
@@ -23,7 +22,7 @@ const OUTCOME_SYMBOLS: Record<SentMessage['outcome'], { name: SymbolViewProps['n
 export function SentMessages({ messages, contacts, now }: { messages: SentMessage[]; contacts: EmergencyContact[]; now: Date }) {
   const t = useTexts();
   if (messages.length === 0) return null;
-  const time = (at: Date) => (at.toDateString() === now.toDateString() ? formatClock(at) : t.when(at));
+  const time = (at: Date) => t.clock(at, now);
   return (
     <Group title={t.adventure.messagesTitle}>
       {messages.map((m) => (
