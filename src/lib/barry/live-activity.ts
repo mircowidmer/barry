@@ -9,19 +9,9 @@ export type LiveActivityService = {
   show(view: LiveActivityView | null): Promise<void>;
 };
 
-const CHECK_IN_TARGET = 'check-in:';
-
 export const liveActivityView = (adventure: InProgressAdventure | null, checkedIn: boolean): LiveActivityView | null =>
   adventure && !checkedIn
     ? { adventureId: adventure.id, destination: adventure.plan.destination, startedAt: adventure.startedAt, deadline: adventure.deadline }
-    : null;
-
-/** The target of the Check In button names its Adventure, so a tap on a stale Live Activity cannot check in another one. */
-export const checkInTarget = (id: AdventureId) => `${CHECK_IN_TARGET}${id}`;
-
-export const checkInTargetId = (target: string): AdventureId | null =>
-  target.startsWith(CHECK_IN_TARGET) && target.length > CHECK_IN_TARGET.length
-    ? (target.slice(CHECK_IN_TARGET.length) as AdventureId)
     : null;
 
 type LiveActivityDeps = {

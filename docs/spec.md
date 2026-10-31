@@ -116,8 +116,8 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 
 ### Check-in
 
-- In the app, a Check-in needs a deliberate gesture: the Adventurer presses and holds **Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure. One tap is not enough there.
-- The Live Activity on the Lock Screen and in the Dynamic Island has a **Check In** button too. iOS gives a Live Activity buttons only, so there one tap checks in, without opening Barry. The tap reaches Barry even when iOS has to relaunch it in the background, and the Check-in takes the time of the tap.
+- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else. One tap is not enough.
+- The **Check In** on the Live Activity does not check in. It opens Barry on the live Adventure, so iOS asks a locked phone to unlock first, and whoever holds a locked phone cannot send the All-clear.
 - A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
 - With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
@@ -170,7 +170,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Live Activity
 
-- From the Start until the Check-in, the phone shows a Live Activity with the destination, the Deadline, the time left, how much of the time between Start and Deadline has passed, and **Check In**. It needs no signal and no push, because the phone starts, updates and ends it itself, like the Reminder.
+- From the Start until the Check-in, the phone shows a Live Activity with the destination, the Deadline, the time left, how much of the time between Start and Deadline has passed, and **Check In**, which opens Barry like a tap anywhere on it. It needs no signal and no push, because the phone starts, updates and ends it itself, like the Reminder.
 - A moved Deadline moves it. A Check-in ends it at once, even while the Check-in waits for signal.
 - Once the Deadline passes, the time left stays at zero. The Overdue Notice says what happens next.
 - Without Live Activities allowed in the iPhone's settings, or on a build signed by a free Apple team, which cannot sign the App Group the Live Activity needs, there is none. Everything else works as before.
@@ -179,7 +179,7 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 - With the "Always" location permission, the phone watches a region around the destination on the map from the Start until the Check-in, whether Barry is open or not. iOS wakes Barry when the Adventurer walks into it, and the phone shows the Arrival Notice. It needs no signal and no push.
 - Each Adventure shows it at most once, even when the Adventurer walks out of the region and back in.
-- It does not check in. A Check-in stays the Adventurer's own decision, because reaching the destination is not being back safe.
+- It does not check in. A Check-in stays the Adventurer's deliberate press and hold, because reaching the destination is not being back safe.
 - Without a point on the map, without the "Always" permission, or once a Check-in waits for signal, there is no Arrival Notice.
 
 ### Channels

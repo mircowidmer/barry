@@ -61,7 +61,7 @@ export type BarryDeps = {
   /** Whether the system lets Barry show notifications. */
   notificationsPermitted(): Promise<boolean>;
   notifications: NotificationService;
-  /** The Live Activity on the Lock Screen, whose Check In button reaches `checkIn` through the effects. */
+  /** The Live Activity on the Lock Screen. */
   liveActivity: LiveActivityService;
   location: LocationService;
   /** The parsed JSON at a URL outside Supabase, such as the forecast; throws without signal or on an error status. */
@@ -476,7 +476,8 @@ export const createBarry = ({
       return isInProgress(adventure) ? { kind: 'moved', adventure } : { kind: 'unconfirmed' };
     },
 
-    checkIn: async (id, checkedInAt = now()) => {
+    checkIn: async (id) => {
+      const checkedInAt = now();
       queue.add({ adventureId: id, checkedInAt });
       const [, sent] = await Promise.all([syncLockScreen(), flushCheckIns()]);
       const adventure = sent.get(id) ?? null;

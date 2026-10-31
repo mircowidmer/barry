@@ -1,20 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { checkInTarget, checkInTargetId, createLiveActivity, type LiveActivityView } from './live-activity';
+import { createLiveActivity, type LiveActivityView } from './live-activity';
 import type { AdventureId } from './types';
 
 const a1 = 'a1' as AdventureId;
-
-describe('checkInTargetId', () => {
-  it('reads back the Adventure the Check In button names', () => {
-    expect(checkInTargetId(checkInTarget(a1))).toBe(a1);
-  });
-
-  it('ignores a tap on anything else', () => {
-    expect(checkInTargetId('check-in:')).toBeNull();
-    expect(checkInTargetId('move-deadline:a1')).toBeNull();
-  });
-});
 
 describe('createLiveActivity', () => {
   it('passes on only a changed view or text context, and tries again after iOS refused one', async () => {
