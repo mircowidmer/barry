@@ -2,7 +2,7 @@ import { barry, type EmergencyContact } from '@/lib/barry';
 import { confirmDestructive } from '@/lib/confirm-destructive';
 import { currentTexts } from '@/lib/texts';
 
-export type RemoveOutcome = { kind: 'cancelled' } | { kind: 'removed' } | { kind: 'in_use' } | { kind: 'failed' };
+type RemoveOutcome = { kind: 'cancelled' } | { kind: 'removed' } | { kind: 'in_use' } | { kind: 'failed' };
 
 const confirmed = (name: string) => {
   const t = currentTexts();
