@@ -112,4 +112,5 @@ A text change usually touches more than one of them, and the tests of each pin t
 ## Conventions
 
 - Commit titles are one prose sentence naming the behaviour that changed, in the glossary's terms, as in `git log`. A change to a skill or the README is prefixed with its name, such as `barry-frontend-verify:` or `README:`.
+- Before creating a pull request, run `/simplify` on the branch, commit its fixes, then write the reviewed HEAD to the marker with `git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/simplified"`. The hook `.claude/hooks/simplify-before-pr.sh` refuses `gh pr create` until the marker names the current HEAD, so a commit after `/simplify` asks for it again.
 - Constants that are implementation choices stay in the code next to what they protect, with a test that pins them, and the spec names them instead of their values.
