@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomInt } from 'node:crypto';
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 
 import { adventurer, must, sleep, waitForMail, waitForText } from './stack.mjs';
 
@@ -12,7 +12,12 @@ const listen = (client, id) => {
       statuses.push(change.new.status),
     );
   const ready = new Promise((resolve) => channel.subscribe((status) => status === 'SUBSCRIBED' && resolve()));
-  return { statuses, ready, stop: () => client.removeChannel(channel) };
+  // An open Realtime socket keeps the file's process alive, so node --test never moves on.
+  after(async () => {
+    await client.removeChannel(channel);
+    client.realtime.disconnect();
+  });
+  return { statuses, ready };
 };
 
 // The local relay reports a text message to a number ending in 30003 as undelivered, like Twilio.
@@ -64,5 +69,4 @@ test('The Adventurer sees each message to the contacts as it goes out, is delive
   assert.deepEqual(must(await marco.client.from('adventure_messages').select('id').eq('adventure_id', id), 'Marco reads'), [], 'Marco reads none of them');
   await sleep(2);
   assert.deepEqual(marcoHears.statuses, [], 'Marco hears none of them');
-  await Promise.all([annaHears.stop(), marcoHears.stop()]);
 });
