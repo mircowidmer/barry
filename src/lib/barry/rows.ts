@@ -13,10 +13,10 @@ import type {
 } from './types';
 
 type Tables = Database['public']['Tables'];
-export type AdventureRow = Tables['adventures']['Row'];
+type AdventureRow = Tables['adventures']['Row'];
 export type ContactRow = Tables['emergency_contacts']['Row'];
-export type ProfileRow = Tables['adventurer_profiles']['Row'];
-export type PositionRow = Pick<Tables['position_readings']['Row'], 'taken_at' | 'latitude' | 'longitude' | 'accuracy_m'>;
+type ProfileRow = Tables['adventurer_profiles']['Row'];
+type PositionRow = Pick<Tables['position_readings']['Row'], 'taken_at' | 'latitude' | 'longitude' | 'accuracy_m'>;
 
 export type AdventureWithRelations = AdventureRow & {
   adventure_contacts: { emergency_contacts: ContactRow | null }[];
