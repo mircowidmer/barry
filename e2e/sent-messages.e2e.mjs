@@ -4,14 +4,19 @@ import { after, test } from 'node:test';
 
 import { adventurer, must, sleep, waitForMail, waitForText } from './stack.mjs';
 
+// SUBSCRIBED only means the channel joined. Realtime hears the database once it says so in a system message, which
+// on a fresh stack comes seconds later, and a change committed before then never reaches the listener.
 const listen = (client, id) => {
   const statuses = [];
+  let heard;
+  const ready = new Promise((resolve) => (heard = resolve));
   const channel = client
     .channel(`messages:${id}:${randomInt(1e6)}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `adventure_id=eq.${id}` }, (change) =>
       statuses.push(change.new.status),
-    );
-  const ready = new Promise((resolve) => channel.subscribe((status) => status === 'SUBSCRIBED' && resolve()));
+    )
+    .on('system', {}, (message) => message.extension === 'postgres_changes' && message.status === 'ok' && heard())
+    .subscribe();
   // An open Realtime socket keeps the file's process alive, so node --test never moves on.
   after(async () => {
     await client.removeChannel(channel);
