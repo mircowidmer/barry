@@ -100,9 +100,6 @@ export type SentMessage = {
   undelivered: boolean;
 };
 
-/** A message that could not be delivered. */
-export type DeliveryFailure = SentMessage & { outcome: 'failed' };
-
 export type ShowPhoneContactOptions = {
   /** Explains why Barry asks for access to the contacts, before iOS asks; true to go on. */
   beforeAsking(): Promise<boolean>;
