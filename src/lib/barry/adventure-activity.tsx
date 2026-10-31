@@ -7,6 +7,7 @@ import {
   font,
   foregroundStyle,
   frame,
+  labelsHidden,
   lineLimit,
   monospacedDigit,
   padding,
@@ -40,26 +41,30 @@ const AdventureActivity = (props: AdventureActivityProps, environment: LiveActiv
 
   const icon = (size = 16) => <Image systemName="mountain.2.fill" color={accent} size={size} />;
 
-  const checkIn = (
+  const checkIn = (width: number) => (
     <Button
       label={props.checkIn}
       target={props.target}
-      modifiers={[buttonStyle('borderedProminent'), buttonBorderShape('capsule'), controlSize('large'), tint(success), frame({ maxWidth: Infinity })]}
+      modifiers={[buttonStyle('borderedProminent'), buttonBorderShape('capsule'), controlSize('large'), tint(success), foregroundStyle('#FFFFFF'), frame({ maxWidth: width })]}
     />
   );
 
   return {
     banner: (
-      <VStack spacing={12} modifiers={[padding({ horizontal: 18, vertical: 16 }), activityBackgroundTint('#FAF8F5')]}>
+      // iOS clips a Lock Screen banner taller than 160 points, so the countdown shares its row with Check In.
+      <VStack spacing={10} modifiers={[padding({ horizontal: 16, vertical: 14 }), activityBackgroundTint('#FAF8F5')]}>
         <HStack spacing={10}>
           {icon(18)}
           <Text modifiers={[font({ size: 15, weight: 'bold', design: 'monospaced' }), foregroundStyle(text), lineLimit(1)]}>{props.destination}</Text>
           <Spacer />
           <Text modifiers={[font({ size: 13, design: 'monospaced' }), foregroundStyle(secondary), lineLimit(1)]}>{props.checkInBy}</Text>
         </HStack>
-        <HStack modifiers={[foregroundStyle(text)]}>{countdown(30)}</HStack>
-        <ProgressView timerInterval={interval} countsDown={false} modifiers={[tint(accent)]} />
-        {checkIn}
+        <HStack modifiers={[foregroundStyle(text)]}>
+          {countdown(28)}
+          <Spacer />
+          {checkIn(150)}
+        </HStack>
+        <ProgressView timerInterval={interval} countsDown={false} modifiers={[tint(accent), labelsHidden()]} />
       </VStack>
     ),
     compactLeading: icon(),
@@ -72,7 +77,7 @@ const AdventureActivity = (props: AdventureActivityProps, environment: LiveActiv
     expandedBottom: (
       <VStack spacing={8} modifiers={[padding({ horizontal: 8 })]}>
         <Text modifiers={[font({ size: 13, design: 'monospaced' }), foregroundStyle('#B3ACA5')]}>{props.checkInBy}</Text>
-        {checkIn}
+        {checkIn(Infinity)}
       </VStack>
     ),
   };
