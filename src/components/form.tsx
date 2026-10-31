@@ -17,6 +17,7 @@ import {
 
 import { Button } from '@/components/button';
 import { GroupHeader, Note } from '@/components/grouped-list';
+import { SleepyBarry } from '@/components/sleepy-barry';
 import { ThemedText } from '@/components/themed-text';
 import { FontFamily, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useInputColors } from '@/hooks/use-input-colors';
@@ -212,10 +213,15 @@ export function Field({
 }
 
 const HOLD_MS = 1500;
+/** How long a released hold takes to fall back, so Barry visibly dozes off again. */
+const LET_GO_MS = 250;
+/** How long Barry stays awake with his tongue out after a completed hold. */
+const AWAKE_MS = 1500;
 
 /**
  * Completes only after a deliberate hold, so a pocket press cannot end protection. It fills the tab bar's bottom
  * accessory, whose glass capsule surrounds it, and VoiceOver reads `label` even when the shown title is shorter.
+ * Barry sleeps at its right end and wakes up while the hold fills.
  */
 export function HoldButton({
   title,
@@ -232,19 +238,39 @@ export function HoldButton({
   const t = useTexts();
   const [progress] = useState(() => new Animated.Value(0));
   const [holding, setHolding] = useState(false);
+  const [awake, setAwake] = useState(false);
+  // The finger usually lifts after the hold completed, and that must not put Barry back to sleep.
+  const completed = useRef(false);
+
+  useEffect(() => {
+    if (!awake) return;
+    const timer = setTimeout(() => {
+      completed.current = false;
+      setAwake(false);
+      progress.setValue(0);
+    }, AWAKE_MS);
+    return () => clearTimeout(timer);
+  }, [awake, progress]);
 
   const start = () => {
+    if (completed.current) return;
     setHolding(true);
-    Animated.timing(progress, { toValue: 1, duration: HOLD_MS, useNativeDriver: false }).start(({ finished }) => {
-      setHolding(false);
-      progress.setValue(0);
-      if (finished) onComplete();
+    progress.stopAnimation((value) => {
+      Animated.timing(progress, { toValue: 1, duration: HOLD_MS * (1 - value), useNativeDriver: false }).start(({ finished }) => {
+        setHolding(false);
+        if (!finished) return;
+        completed.current = true;
+        setAwake(true);
+        onComplete();
+      });
     });
   };
   const cancel = () => {
-    progress.stopAnimation();
-    progress.setValue(0);
+    if (completed.current) return;
     setHolding(false);
+    progress.stopAnimation((value) => {
+      Animated.timing(progress, { toValue: 0, duration: LET_GO_MS * value, useNativeDriver: false }).start();
+    });
   };
 
   return (
@@ -263,9 +289,10 @@ export function HoldButton({
           { backgroundColor: theme.onAccent, opacity: 0.25, width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) },
         ]}
       />
-      <ThemedText numberOfLines={1} style={{ color: theme.onAccent, fontWeight: 700 }}>
+      <ThemedText numberOfLines={1} style={[styles.holdTitle, { color: theme.onAccent }]}>
         {holding ? t.adventure.keepHolding : title}
       </ThemedText>
+      <SleepyBarry progress={progress} awake={awake} woof={t.adventure.woof} />
     </Pressable>
   );
 }
@@ -289,7 +316,16 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 16 },
   multiline: { minHeight: 72, textAlignVertical: 'top' },
   // The accessory sets the height, and the radius is larger than half of any height it gives, so the ends stay round.
-  hold: { flex: 1, borderRadius: 999, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.three },
+  hold: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: Spacing.two,
+    borderRadius: 999,
+    overflow: 'hidden',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.three,
+  },
+  holdTitle: { flex: 1, textAlign: 'center', fontWeight: 700 },
   loading: { marginTop: Spacing.four },
   unavailable: { alignItems: 'center', gap: Spacing.two, marginTop: 96, paddingHorizontal: Spacing.four },
   unavailableCompact: { marginTop: Spacing.four },
