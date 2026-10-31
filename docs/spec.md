@@ -93,7 +93,7 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 
 An Adventurer can start at most 5 Adventures in 24 hours. A sixth Start is refused, and deleting an Adventure does not give a Start back.
 
-If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, an alert says why.
+If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, an alert says why. **Start** on a new Adventure saves it first; if Supabase then refuses the Start, the app deletes it again, so the sheet stays unsaved and the Adventure tab lists nothing new.
 
 Before Start, the app shows these warnings when they apply. Start is still allowed.
 

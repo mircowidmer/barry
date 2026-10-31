@@ -136,7 +136,7 @@ function PlanForm({
 }: {
   data: { contacts: EmergencyContact[]; adventure: Adventure | null; checks: StartChecks };
   id: AdventureId | undefined;
-  setId: (id: AdventureId) => void;
+  setId: (id: AdventureId | undefined) => void;
   reload: () => void;
 }) {
   const [initial, setInitial] = useState<Form>(() => toForm(data.adventure));
@@ -249,8 +249,21 @@ function PlanForm({
 
   const onStart = async () => {
     setBusy('start');
+    const unsaved = id === undefined ? initial : null;
     const result = await save()
-      .then((saved) => saved && barry.start(saved))
+      .then(async (saved) => {
+        if (!saved) return null;
+        const started = await barry.start(saved);
+        // A refused Start keeps nothing the Adventurer did not save themselves.
+        if (started.kind === 'refused' && unsaved) {
+          const removed = await barry.deleteAdventure(saved).catch(() => null);
+          if (removed?.kind === 'deleted') {
+            setId(undefined);
+            setInitial(unsaved);
+          }
+        }
+        return started;
+      })
       .catch(() => 'failed' as const);
     setBusy(null);
     if (result === 'failed') Alert.alert(t.plan.couldNotStartTitle, t.plan.couldNotStart);
