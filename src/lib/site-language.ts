@@ -3,7 +3,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import type { LastKnown } from '@/lib/trail-map/types';
 import { formatWhen, formatWhenGerman } from '@/lib/wording';
 
-export type SiteLanguage = 'en' | 'de';
+type SiteLanguage = 'en' | 'de';
 
 /** German when the browser's first preferred language is German, English otherwise. */
 export const preferredLanguage = (languages: readonly string[]): SiteLanguage =>
