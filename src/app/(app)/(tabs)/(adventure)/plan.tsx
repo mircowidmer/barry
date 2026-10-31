@@ -18,6 +18,7 @@ import { useStringParam } from '@/hooks/use-string-param';
 import { useTheme } from '@/hooks/use-theme';
 import {
   type Adventure,
+  type AdventureDraft,
   type AdventureId,
   barry,
   clip,
@@ -28,7 +29,6 @@ import {
   type Point,
   reachableAddresses,
   type StartChecks,
-  type StartResult,
   type StartWarning,
   startWarnings,
 } from '@/lib/barry';
@@ -137,7 +137,7 @@ function PlanForm({
 }: {
   data: { contacts: EmergencyContact[]; adventure: Adventure | null; checks: StartChecks };
   id: AdventureId | undefined;
-  setId: (id: AdventureId | undefined) => void;
+  setId: (id: AdventureId) => void;
   reload: () => void;
 }) {
   const [initial, setInitial] = useState<Form>(() => toForm(data.adventure));
@@ -213,16 +213,18 @@ function PlanForm({
         : [...f.contactIds, contactId],
     }));
 
+  const draft = (): AdventureDraft => ({
+    id,
+    plan: {
+      destination: orNull(form.destination) ?? undefined,
+      destinationPoint: form.destinationPoint,
+    },
+    deadline: form.deadline,
+    contactIds: form.contactIds,
+  });
+
   const save = async (): Promise<AdventureId | null> => {
-    const result = await barry.saveAdventure({
-      id,
-      plan: {
-        destination: orNull(form.destination) ?? undefined,
-        destinationPoint: form.destinationPoint,
-      },
-      deadline: form.deadline,
-      contactIds: form.contactIds,
-    });
+    const result = await barry.saveAdventure(draft());
     if (result.kind === 'refused') {
       Alert.alert(t.common.couldNotSave, refusalText(result.refusal));
       return null;
@@ -250,27 +252,12 @@ function PlanForm({
 
   const onStart = async () => {
     setBusy('start');
-    const wasNew = id === undefined;
-    let result: StartResult | 'failed' | null = null;
-    try {
-      const saved = await save();
-      if (saved) result = await barry.start(saved);
-      // A refused Start keeps nothing the Adventurer did not save themselves.
-      if (saved && wasNew && result?.kind === 'refused') {
-        const removed = await barry.deleteAdventure(saved).catch(() => null);
-        if (removed?.kind === 'deleted') {
-          setId(undefined);
-          setInitial(initial);
-        }
-      }
-    } catch {
-      result = 'failed';
-    }
+    const result = await barry.start(draft()).catch(() => 'failed' as const);
     setBusy(null);
     if (result === 'failed') Alert.alert(t.plan.couldNotStartTitle, t.plan.couldNotStart);
-    else if (result?.kind === 'protected') leave();
-    else if (result?.kind === 'refused') Alert.alert(t.plan.couldNotStartTitle, refusalText(result.refusal));
-    else if (result) {
+    else if (result.kind === 'protected') leave();
+    else if (result.kind === 'refused') Alert.alert(t.plan.couldNotStartTitle, refusalText(result.refusal));
+    else {
       Alert.alert(t.plan.notProtectedTitle, t.plan.notProtected, [
         { text: t.common.cancel, style: 'cancel' },
         { text: t.common.tryAgain, onPress: () => void onStart() },

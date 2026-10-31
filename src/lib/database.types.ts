@@ -248,6 +248,11 @@ isOneToOne: false
               "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
             }[]
                            },
+"save_and_start_adventure":
+{ Args: { "p_accuracy_m"?: number,"p_contact_ids": (string)[],"p_deadline": string,"p_destination": string,"p_destination_point"?: Json,"p_id": string,"p_latitude"?: number,"p_longitude"?: number,"p_position_taken_at"?: string,"p_time_zone": string }; Returns: {
+              "adventure_id": string,"refusal": Database["public"]['Enums']["refusal"]
+            }[]
+                           },
 "settle_message":
 { Args: { "p_attempt": number,"p_id": number,"p_outcome": string,"p_provider_ref"?: string,"p_reason"?: string,"p_retry_after"?: string }; Returns: undefined
                            },
