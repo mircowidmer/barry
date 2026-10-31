@@ -18,14 +18,18 @@ describe('the version ranges in package.json', () => {
 
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
-  it("keep only the major version, the minor below 1, Expo's exact pins and pinned prereleases", () => {
+  it("keep only the major version, the minor below 1, Expo's ranges and pinned prereleases", () => {
+    const expoRange = (name: string): string => require('expo/bundledNativeModules.json')[name];
     const before = {
       dependencies: {
-        expo: '~58.0.21',
+        expo: '~58.0.1',
+        'expo-router': '58',
+        'react-native-gesture-handler': '^3.3.0',
+        'react-native-screens': '~4.0.0',
         'maplibre-gl': '^6.16.0',
         leaflet: '^1',
         zod: '4.1',
-        'react-native-web': '~0.21.0',
+        'zero-lib': '~0.21.0',
         tiny: '^0.0.3',
         react: '19.3.0',
         'date-fns': '4.1.0',
@@ -35,11 +39,14 @@ describe('the version ranges in package.json', () => {
     };
     const after = {
       dependencies: {
-        expo: '58',
+        expo: '~58.0.1',
+        'expo-router': expoRange('expo-router'),
+        'react-native-gesture-handler': expoRange('react-native-gesture-handler'),
+        'react-native-screens': '~4.0.0',
         'maplibre-gl': '6',
         leaflet: '1',
         zod: '4',
-        'react-native-web': '0.21',
+        'zero-lib': '0.21',
         tiny: '0.0.3',
         react: '19.3.0',
         'date-fns': '4',

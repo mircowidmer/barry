@@ -1,7 +1,9 @@
-// Keeps the ranges in package.json at the major version: "~58.0.21" becomes "58", and below 1,
-// where the minor is the breaking part, "^0.21.4" becomes "0.21". An exact version stays exact only
-// where Expo's bundledNativeModules.json pins that package exactly, and a prerelease stays pinned.
-// Rewrites the root entry of package-lock.json alongside, so the two files stay in sync.
+// Keeps the ranges in package.json at the major version: "^6.16.0" becomes "6", and below 1,
+// where the minor is the breaking part, "^0.21.4" becomes "0.21". A package Expo's
+// bundledNativeModules.json lists, and expo itself, keeps the range Expo pins, such as "~58.0.21",
+// because a wider one lets the lock file maintenance move it to a version the SDK does not support.
+// A prerelease stays pinned. Rewrites the root entry of package-lock.json alongside, so the two
+// files stay in sync.
 // Usage: node scripts/version-ranges.mjs [--check] [path/to/package.json]
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -18,14 +20,14 @@ const file = args.find((arg) => !arg.startsWith('-')) ?? 'package.json';
 const lockFile = join(dirname(file), 'package-lock.json');
 const sections = ['dependencies', 'devDependencies'];
 
+const require = createRequire(import.meta.url);
 const expoVersions = (() => {
   try {
-    return createRequire(import.meta.url)('expo/bundledNativeModules.json');
+    return { ...require('expo/bundledNativeModules.json'), expo: `~${require('expo/package.json').version}` };
   } catch {
     return {};
   }
 })();
-const pinnedByExpo = (name) => /^\d/.test(expoVersions[name] ?? '');
 
 const rangeFor = (name, version) => {
   const match = version.match(/^([~^]?)(\d+)(?:\.(\d+)(?:\.(\d+)(-[\w.]+)?)?)?$/);
@@ -33,7 +35,12 @@ const rangeFor = (name, version) => {
   const [, prefix, major, minor = '0', patch = '0', prerelease] = match;
   // A range without the prerelease would match no prerelease at all, so it stays pinned.
   if (prerelease) return `${major}.${minor}.${patch}${prerelease}`;
-  if (!prefix && match[4] && pinnedByExpo(name)) return version;
+  const expoRange = expoVersions[name];
+  if (expoRange) {
+    // Expo's own range is kept as written, so a patch the lock file moved to does not make it drift.
+    if (match[4] && prefix === expoRange.match(/^[~^]?/)[0]) return version;
+    return expoRange;
+  }
   if (major !== '0') return major;
   // Below 0.1 every patch is breaking, as npm's own caret treats it.
   return minor === '0' ? `0.0.${patch}` : `0.${minor}`;
@@ -59,7 +66,7 @@ if (unreadable.length) {
 }
 if (check) {
   if (drift.length) {
-    console.error(`${file} has ranges beyond the major version. Run npm run versions.\n${drift.join('\n')}`);
+    console.error(`${file} has ranges other than the major version or Expo's. Run npm run versions.\n${drift.join('\n')}`);
     process.exit(1);
   }
 } else if (drift.length) {

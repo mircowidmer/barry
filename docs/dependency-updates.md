@@ -26,7 +26,7 @@ A security fix ignores both the Monday window and the three days. Renovate learn
 | GitHub Actions | Every Action in `.github/workflows`, pinned to a commit hash with its version as a comment | Yes |
 | Lock file maintenance | `package-lock.json` rebuilt every Tuesday, after Monday's updates, so the packages other packages pull in move too | Yes |
 | One per security fix | The lowest version that fixes the vulnerability, marked `[SECURITY]` | Yes |
-| Expo SDK | The Expo, React and React Native packages the Expo SDK rule in `renovate.json` names | No, and it opens only after approval on the Dependency Dashboard |
+| Expo SDK | The Expo, React, React Native and Sentry packages the Expo SDK rule in `renovate.json` names | No, and it opens only after approval on the Dependency Dashboard |
 | One per major update | Any package outside the Expo SDK | No |
 
 Merging on its own means GitHub's auto-merge: the pull request merges once the six checks the ruleset "main requires CI" names have passed. A failing check leaves it open.
@@ -35,7 +35,7 @@ The Supabase CLI has its own pull request because a new CLI can change what `npx
 
 ## What still needs a person
 
-- **A new Expo SDK.** Run `npx expo install expo@^<major>` and then `npx expo install --fix`, which moves every SDK package to the versions that SDK supports, and then `npm run versions`, which trims the ranges those commands wrote back to the major version. An Expo SDK pull request approved on the Dependency Dashboard bumps versions with plain npm resolution, so it suits a patch, and CI's `npx expo-doctor` rejects a version outside the SDK. The Tuesday lock file maintenance also moves the Expo packages within their ranges without approval, with `npx expo-doctor` as the same guard.
+- **A new Expo SDK.** Run `npx expo install expo@^<major>` and then `npx expo install --fix`, which moves every SDK package to the versions that SDK supports, and then `npm run versions`, which trims the other ranges those commands wrote back to the major version. An Expo SDK pull request approved on the Dependency Dashboard bumps versions with plain npm resolution, so it suits a patch, and CI's `npx expo-doctor` rejects a version outside the SDK. The packages Expo pins keep Expo's range in `package.json`, such as `"~3.3.0"`, so the Tuesday lock file maintenance moves them only to a newer patch. With the major version alone it moved them to minors the SDK does not support and, held back by the three days, to patches older than those on `main`, and `npx expo-doctor` failed.
 - **The hosted Edge Function.** A merged supabase-js update changes `deliver` on `main` only. It reaches the hosted project with `npx supabase functions deploy deliver`, as [The hosted Supabase project](hosted-supabase.md) describes.
 - **A major update.** Read its changelog, which Renovate links in the pull request, and merge it by hand.
 

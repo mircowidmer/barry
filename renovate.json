@@ -22,7 +22,7 @@
     },
     {
       "description": "Expo pins these per SDK; a new SDK goes in with npx expo install --fix and npm run versions",
-      "matchPackageNames": ["expo", "expo-*", "@expo/*", "*-expo", "react", "react-dom", "react-native", "react-native-*", "@react-native/*", "@react-native-community/*", "@types/react", "typescript"],
+      "matchPackageNames": ["expo", "expo-*", "@expo/*", "*-expo", "react", "react-dom", "react-native", "react-native-*", "@react-native/*", "@react-native-community/*", "@sentry/react-native", "@types/react", "typescript"],
       "groupName": "Expo SDK",
       "dependencyDashboardApproval": true,
       "automerge": false
