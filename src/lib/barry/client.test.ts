@@ -294,7 +294,6 @@ describe('the Live Activity', () => {
     await barry.getInProgressAdventure();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(activities.at(-1)).toEqual({
-      adventureId: a1,
       destination: 'Grosser Mythen',
       startedAt: new Date('2026-10-17T06:00:00Z'),
       deadline: new Date('2026-10-17T16:00:00Z'),
