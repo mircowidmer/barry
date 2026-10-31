@@ -181,7 +181,8 @@ export type Barry = {
   logOut(): Promise<void>;
 
   startChecks(): Promise<StartChecks>;
-  start(id: AdventureId): Promise<StartResult>;
+  /** Saves the draft and starts it in one step; when the Start is refused, nothing of the draft is saved. */
+  start(draft: AdventureDraft): Promise<StartResult>;
   moveDeadline(id: AdventureId, deadline: Date): Promise<MoveDeadlineResult>;
   checkIn(id: AdventureId): Promise<CheckInResult>;
   pendingCheckIns(): PendingCheckIn[];

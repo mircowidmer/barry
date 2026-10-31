@@ -21,6 +21,7 @@ import {
 } from './rows';
 import type {
   Adventure,
+  AdventureDraft,
   AdventureId,
   Barry,
   Channel,
@@ -60,7 +61,7 @@ export type BarryDeps = {
 // command may or may not have reached Supabase.
 const isNoSignal = (error: PostgrestError) => !error.code;
 
-// Raised by the trigger that bounds the Deadline to a year ahead, on a save and on a move alike.
+// Raised by the trigger that bounds the Deadline to a year ahead, on a save, a Start and a move alike.
 const isDeadlineTooFar = (error: PostgrestError) => error.message.includes('barry:deadline_too_far');
 
 const fail = (what: string, error: PostgrestError): never => {
@@ -79,6 +80,14 @@ const positionArgs = (position: Position | null) =>
 
 // The generated argument types mark every parameter as required, but Postgres takes null for them.
 const orNull = <T,>(value: T | null | undefined): T => (value ?? null) as T;
+
+const draftArgs = ({ id, plan, deadline, contactIds }: AdventureDraft) => ({
+  p_id: orNull(id),
+  p_destination: orNull(plan.destination),
+  ...(plan.destinationPoint && { p_destination_point: plan.destinationPoint }),
+  p_deadline: orNull(deadline?.toISOString()),
+  p_contact_ids: contactIds,
+});
 
 const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
   a !== null && (a.stage === 'active' || a.stage === 'overdue' || a.stage === 'alerted');
@@ -334,14 +343,8 @@ export const createBarry = ({
       return { adventure: isInProgress(adventure) ? adventure : null, offlineSince: null };
     },
 
-    saveAdventure: async ({ id, plan, deadline, contactIds }) => {
-      const { data, error } = await supabase.rpc('save_adventure', {
-        p_id: orNull(id),
-        p_destination: orNull(plan.destination),
-        ...(plan.destinationPoint && { p_destination_point: plan.destinationPoint }),
-        p_deadline: orNull(deadline?.toISOString()),
-        p_contact_ids: contactIds,
-      });
+    saveAdventure: async (draft) => {
+      const { data, error } = await supabase.rpc('save_adventure', draftArgs(draft));
       if (error) return isDeadlineTooFar(error) ? { kind: 'refused', refusal: 'deadline_too_far' } : fail('saveAdventure', error);
       const [result] = data;
       if (!result) throw new Error('saveAdventure: the command returned no row');
@@ -389,17 +392,22 @@ export const createBarry = ({
       return { smsEnabled: channels.has('sms'), notificationsPermitted: notificationsAllowed, trailPermitted };
     },
 
-    start: async (id) => {
+    start: async (draft) => {
       const position = await readPosition();
-      const { data, error } = await supabase.rpc('start_adventure', {
-        p_id: id,
+      const { data, error } = await supabase.rpc('save_and_start_adventure', {
+        ...draftArgs(draft),
         p_time_zone: timeZone(),
         ...positionArgs(position),
       });
-      if (error) return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('start', error);
-      if (data) return { kind: 'refused', refusal: data };
+      if (error) {
+        if (isDeadlineTooFar(error)) return { kind: 'refused', refusal: 'deadline_too_far' };
+        return isNoSignal(error) ? { kind: 'unconfirmed' } : fail('start', error);
+      }
+      const [result] = data;
+      if (!result) throw new Error('start: the command returned no row');
+      if (result.refusal) return { kind: 'refused', refusal: result.refusal };
       // The command went through; a refetch that fails for lack of signal is only unconfirmed.
-      const adventure = await getAdventure(id).catch(() => null);
+      const adventure = await getAdventure(result.adventure_id as AdventureId).catch(() => null);
       syncTrail();
       return isInProgress(adventure) ? { kind: 'protected', adventure } : { kind: 'unconfirmed' };
     },

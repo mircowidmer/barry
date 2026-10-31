@@ -321,6 +321,14 @@ describe('a Deadline more than a year ahead', () => {
     expect(result).toEqual({ kind: 'refused', refusal: 'deadline_too_far' });
   });
 
+  it('is refused on a Start with its own refusal, not as a lost signal', async () => {
+    const { barry, world } = setup();
+    world.signal = true;
+    world.refuse = 'barry:deadline_too_far';
+    const result = await barry.start({ plan: { destination: 'Rigi' }, deadline: farAhead, contactIds: [] });
+    expect(result).toEqual({ kind: 'refused', refusal: 'deadline_too_far' });
+  });
+
   it('is refused on a move with its own refusal, not as a lost signal', async () => {
     const { barry, world } = setup();
     world.signal = true;
