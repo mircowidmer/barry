@@ -1,8 +1,8 @@
 import { serialized } from './serialized';
-import type { AdventureId, InProgressAdventure } from './types';
+import type { InProgressAdventure } from './types';
 
 /** What the Live Activity on the Lock Screen shows: the live Adventure until the Adventurer checks in. */
-export type LiveActivityView = { adventureId: AdventureId; destination: string; startedAt: Date; deadline: Date };
+export type LiveActivityView = { destination: string; startedAt: Date; deadline: Date };
 
 export type LiveActivityService = {
   /** Starts, updates or ends the Live Activity so it shows `view`, or nothing for null. */
@@ -11,7 +11,7 @@ export type LiveActivityService = {
 
 export const liveActivityView = (adventure: InProgressAdventure | null, checkedIn: boolean): LiveActivityView | null =>
   adventure && !checkedIn
-    ? { adventureId: adventure.id, destination: adventure.plan.destination, startedAt: adventure.startedAt, deadline: adventure.deadline }
+    ? { destination: adventure.plan.destination, startedAt: adventure.startedAt, deadline: adventure.deadline }
     : null;
 
 type LiveActivityDeps = {
