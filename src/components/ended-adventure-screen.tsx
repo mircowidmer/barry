@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { Screen, Unavailable } from '@/components/form';
-import { Note } from '@/components/grouped-list';
 import { SentMessages } from '@/components/sent-messages';
 import { ThemedText } from '@/components/themed-text';
 import { TrailMapView } from '@/components/trail-map-view';
@@ -41,9 +40,6 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
           <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={() => void remove()} />
         )}
       </Stack.Toolbar>
-      <Note tone="success" icon="checkmark">
-        {t.ended.checkedIn(t.when(adventure.checkedInAt)) + (onDone ? t.ended.welcome : '')}
-      </Note>
 
       {readings.status === 'error' && (
         <View style={[styles.mapFailed, { backgroundColor: theme.backgroundElement }]}>
