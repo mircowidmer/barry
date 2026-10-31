@@ -2,8 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { captchaOptions } from '@/lib/turnstile';
 
-export type RequestCodeOutcome = { kind: 'sent' } | { kind: 'failed'; message: string };
-export type SetPasswordOutcome = { kind: 'reset' } | { kind: 'failed'; message: string };
+type RequestCodeOutcome = { kind: 'sent' } | { kind: 'failed'; message: string };
+type SetPasswordOutcome = { kind: 'reset' } | { kind: 'failed'; message: string };
 
 export type PasswordResetAuth = Pick<SupabaseClient['auth'], 'resetPasswordForEmail' | 'verifyOtp' | 'updateUser' | 'signOut'>;
 
@@ -26,5 +26,3 @@ export const createPasswordReset = (auth: PasswordResetAuth) => ({
     return { kind: 'reset' };
   },
 });
-
-export type PasswordReset = ReturnType<typeof createPasswordReset>;
