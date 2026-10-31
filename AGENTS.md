@@ -106,7 +106,7 @@ A text change usually touches more than one of them, and the tests of each pin t
 
 - App screens: `src/lib/texts.ts`, with date and duration formats and the texts of the Reminder and the Overdue Notice (`notificationText`) in `src/lib/wording.ts`, and those of the Live Activity (`liveActivityText`) in `texts.ts`. The language comes from the phone (`src/lib/language.ts`) and is synced to the server so contacts get the Adventurer's language.
 - Messages to contacts: `supabase/functions/deliver/messages.en.ts` and `messages.de.ts`.
-- iOS permission strings: the `expo-location` plugin block in `app.json` and the development build's `NSLocalNetworkUsageDescription` in `app.config.js` (English), and `locales/de.json` (German).
+- iOS permission strings: the `expo-location` and `expo-contacts` plugin blocks in `app.json` and the development build's `NSLocalNetworkUsageDescription` in `app.config.js` (English), and `locales/de.json` (German).
 - The website and the Trail Map: `src/lib/site-language.ts` and the pages in `web/`.
 
 ## Conventions
