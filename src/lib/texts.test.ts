@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { EmergencyContactId, SentMessage } from '@/lib/barry';
 
-import { texts } from './texts';
+import { liveActivityText, texts } from './texts';
 
 describe('the Conditions', () => {
   it('say in both languages when the Deadline is after Dark, when no rain or snow is expected and when the forecast reaches the Adventure Day', () => {
@@ -54,5 +54,19 @@ describe('a message to the contacts', () => {
     expect(texts.de.adventure.messageLabel(failure, '16:31')).toBe(
       'Alarm 2 von 3 an Luca per E-Mail, luca@example.com. Fehlgeschlagen 16:31: Konnte nicht zugestellt werden. Doppeltippen, um sie selbst zu erreichen.',
     );
+  });
+});
+
+describe('liveActivityText', () => {
+  const now = new Date(2026, 9, 17, 11, 58);
+
+  it('gives the time alone for a Deadline today, in both languages', () => {
+    expect(liveActivityText(new Date(2026, 9, 17, 12, 15), now, texts.en)).toEqual({ checkInBy: 'Check in by 12:15', checkIn: 'Check In' });
+    expect(liveActivityText(new Date(2026, 9, 17, 12, 15), now, texts.de)).toEqual({ checkInBy: 'Zurückmelden bis 12:15', checkIn: 'Zurückmelden' });
+  });
+
+  it('names the day of a Deadline tomorrow', () => {
+    expect(liveActivityText(new Date(2026, 9, 18, 9, 0), now, texts.en).checkInBy).toBe('Check in by Sun 18 Oct at 09:00');
+    expect(liveActivityText(new Date(2026, 9, 18, 9, 0), now, texts.de).checkInBy).toBe('Zurückmelden bis So, 18. Okt. um 09:00');
   });
 });
