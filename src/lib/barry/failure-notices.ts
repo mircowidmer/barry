@@ -9,7 +9,8 @@ export type FailureNoticesDeps = {
   /** Shows the notice on the phone at once. Needs neither push nor the app in front. */
   show(message: SentMessage, adventureId: AdventureId): Promise<void>;
   inProgress(): InProgressAdventure | null;
-  messages(id: AdventureId): Promise<SentMessage[]>;
+  /** The text messages of the Adventure that Twilio reported not delivered. */
+  undelivered(id: AdventureId): Promise<SentMessage[]>;
 };
 
 /**
@@ -17,7 +18,7 @@ export type FailureNoticesDeps = {
  * a Trail wake in the background, or coming to the front. After the Check-in it keeps looking at the last
  * Adventure, because an All-clear goes out then.
  */
-export const createFailureNotices = ({ storage, show, inProgress, messages }: FailureNoticesDeps) => {
+export const createFailureNotices = ({ storage, show, inProgress, undelivered }: FailureNoticesDeps) => {
   const load = (): Shown | null => {
     try {
       return JSON.parse(storage.getItem(KEY) ?? 'null') as Shown | null;
@@ -32,18 +33,35 @@ export const createFailureNotices = ({ storage, show, inProgress, messages }: Fa
     if (!adventureId) return;
     const shown = new Set(stored?.adventureId === adventureId ? stored.ids : []);
     const save = () => storage.setItem(KEY, JSON.stringify({ adventureId, ids: [...shown] } satisfies Shown));
-    save();
-    for (const message of await messages(adventureId)) {
-      if (!message.undelivered || shown.has(message.id)) continue;
+    if (stored?.adventureId !== adventureId) save();
+    for (const message of await undelivered(adventureId)) {
+      if (shown.has(message.id)) continue;
       await show(message, adventureId);
       shown.add(message.id);
       save();
     }
   };
 
-  // One at a time, so a Realtime event and a foreground arriving together cannot show the same notice twice.
-  let last: Promise<void> = Promise.resolve();
+  // One run at a time, so triggers arriving together cannot show a notice twice; those that arrive during a run
+  // share the one run after it.
+  let running: Promise<void> | null = null;
+  let queued: Promise<void> | null = null;
+  const run = (): Promise<void> => {
+    running = notice().finally(() => {
+      running = null;
+    });
+    return running;
+  };
   return {
-    notice: () => (last = last.catch(() => undefined).then(notice)),
+    notice: (): Promise<void> => {
+      if (!running) return run();
+      queued ??= running
+        .catch(() => undefined)
+        .then(() => {
+          queued = null;
+          return run();
+        });
+      return queued;
+    },
   };
 };
