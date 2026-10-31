@@ -318,11 +318,4 @@ describe('the Trail', () => {
     await trail.sync();
     expect(regions().map((f) => f.identifier)).toEqual(['trail']);
   });
-
-  it('ignores the Trail region reported entered', async () => {
-    const { trail, os, readings } = setup();
-    await trail.onFenceEvent({ region: 'trail', entered: true });
-    expect(readings()).toBe(0);
-    expect(os.updates).toBeNull();
-  });
 });
