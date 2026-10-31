@@ -48,7 +48,7 @@ flowchart LR
 5. **Run the flows** with `maestro test`, and upload the screenshots and Maestro's debug output as an artifact on failure.
    - Steps that the recipe does with the Simulator control tool need Maestro equivalents:
      - tapping a tab bar item: `tapOn: point`;
-     - the long press on `Hold to Check In`: `longPressOn`.
+     - the long press on `Check In`: `longPressOn`.
    - The gotchas in `.claude/skills/barry-frontend-verify/features/` still apply, such as waiting after a sheet closes.
 6. **Clean up.** Check in from any live Adventure and delete the account, in an `if: always()` step, so the CI project's clock sends nothing later.
 

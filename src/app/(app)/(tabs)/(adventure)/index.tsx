@@ -173,7 +173,7 @@ function LiveAdventure({
     }
   };
 
-  // Hold to Check In sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
+  // The Check In button sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
   useOfferCheckIn(
     adventure.stage !== 'planned' && adventure.stage !== 'ended',
     busy,
