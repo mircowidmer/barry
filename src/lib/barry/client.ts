@@ -100,6 +100,11 @@ const draftArgs = ({ id, plan, deadline, contactIds }: AdventureDraft) => ({
 const isInProgress = (a: Adventure | null): a is InProgressAdventure =>
   a !== null && (a.stage === 'active' || a.stage === 'overdue' || a.stage === 'alerted');
 
+// SUBSCRIBED only means the channel joined. Realtime says in a system message once it hears the database, and a
+// change committed before then never arrives, so a watcher reloads on that message instead.
+const hearsDatabase = (message: { extension?: string; status?: string }) =>
+  message.extension === 'postgres_changes' && message.status === 'ok';
+
 export const createBarry = ({
   supabase,
   readPosition,
@@ -488,7 +493,8 @@ export const createBarry = ({
           const status = 'status' in change.new ? change.new.status : null;
           if (status === 'sent' || status === 'failed') void refresh();
         })
-        .subscribe((status) => status === 'SUBSCRIBED' && void refresh());
+        .on('system', {}, (message) => hearsDatabase(message) && void refresh())
+        .subscribe();
       return () => {
         supabase.removeChannel(channel).catch(() => undefined);
       };
@@ -509,7 +515,8 @@ export const createBarry = ({
         .channel(`adventure:${id}`)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'adventures', filter: `id=eq.${id}` }, () => void refresh())
         // Realtime does not replay the updates missed while the socket was down, so each connection refetches.
-        .subscribe((status) => status === 'SUBSCRIBED' && void refresh());
+        .on('system', {}, (message) => hearsDatabase(message) && void refresh())
+        .subscribe();
       return () => {
         supabase.removeChannel(channel).catch(() => undefined);
       };
