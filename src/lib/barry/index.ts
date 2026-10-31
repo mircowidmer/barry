@@ -1,5 +1,6 @@
 import { getPermissionsAsync, presentContactPickerAsync, presentFormAsync, requestPermissionsAsync } from 'expo-contacts/legacy';
 import { getLocales } from 'expo-localization';
+import * as Linking from 'expo-linking';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 
@@ -12,11 +13,10 @@ import { arrivalText, notificationText } from '@/lib/wording';
 import AdventureActivity from './adventure-activity';
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
-import { checkInTarget, checkInTargetId, type LiveActivityService } from './live-activity';
+import type { LiveActivityService } from './live-activity';
 import type { PhoneContact } from './phone-contact';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
 import { SLOT_MS } from './trail-buffer';
-import { listenForTaps } from '../../../modules/live-activity-taps';
 import { searchPlaces } from '../../../modules/place-search';
 
 import type { Place, Position, ShowPhoneContactOptions } from './types';
@@ -202,10 +202,10 @@ const liveActivity: LiveActivityService = {
       startedAt: view.startedAt.getTime(),
       deadline: view.deadline.getTime(),
       ...liveActivityText(view.deadline, new Date()),
-      target: checkInTarget(view.adventureId),
+      url: Linking.createURL('/'),
     };
     if (running) await running.update(props);
-    else AdventureActivity.start(props);
+    else AdventureActivity.start(props, props.url);
   },
 };
 
@@ -225,12 +225,4 @@ export const barry = createBarry({
   liveActivity,
   location,
   fetchJson,
-});
-
-// A tap on the Live Activity's Check In button may have relaunched Barry in the background, before any screen.
-listenForTaps(async (taps) => {
-  for (const { target, at } of taps) {
-    const id = checkInTargetId(target);
-    if (id) await barry.checkIn(id, new Date(at)).catch(() => undefined);
-  }
 });

@@ -289,7 +289,7 @@ describe('local notifications', () => {
 });
 
 describe('the Live Activity', () => {
-  it('shows the live Adventure without signal and ends once the Adventurer checks in from it', async () => {
+  it('shows the live Adventure without signal and ends once the Adventurer checks in', async () => {
     const { barry, activities } = setup();
     await barry.getInProgressAdventure();
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -300,8 +300,7 @@ describe('the Live Activity', () => {
       deadline: new Date('2026-10-17T16:00:00Z'),
     });
 
-    const tappedAt = new Date('2026-10-17T14:59:30Z');
-    expect(await barry.checkIn(a1, tappedAt)).toMatchObject({ kind: 'queued', checkedInAt: tappedAt });
+    expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
     expect(activities.at(-1)).toBeNull();
   });
 });

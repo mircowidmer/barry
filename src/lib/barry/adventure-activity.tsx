@@ -1,4 +1,4 @@
-import { Button, HStack, Image, ProgressView, Spacer, Text, VStack } from '@expo/ui/swift-ui';
+import { HStack, Image, Link, ProgressView, Spacer, Text, VStack } from '@expo/ui/swift-ui';
 import {
   activityBackgroundTint,
   buttonBorderShape,
@@ -22,8 +22,8 @@ export type AdventureActivityProps = {
   deadline: number;
   checkInBy: string;
   checkIn: string;
-  /** The Check In button's target, which names the Adventure. */
-  target: string;
+  /** Opens Barry on the live Adventure, where the Adventurer presses and holds Check In. iOS asks to unlock first. */
+  url: string;
 };
 
 // The layout runs in the widget extension's own runtime, so everything it uses is declared inside it.
@@ -42,9 +42,9 @@ const AdventureActivity = (props: AdventureActivityProps, environment: LiveActiv
   const icon = (size = 16) => <Image systemName="mountain.2.fill" color={accent} size={size} />;
 
   const checkIn = (width: number) => (
-    <Button
+    <Link
       label={props.checkIn}
-      target={props.target}
+      destination={props.url}
       modifiers={[buttonStyle('borderedProminent'), buttonBorderShape('capsule'), controlSize('large'), tint(success), foregroundStyle('#FFFFFF'), frame({ maxWidth: width })]}
     />
   );
