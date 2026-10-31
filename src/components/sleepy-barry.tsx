@@ -10,7 +10,7 @@ const EYE = '#4A2A1A';
 const TONGUE = '#E86A7A';
 
 /** The face is drawn on a 100-point grid and scaled to this size. */
-export const BARRY_SIZE = 36;
+const BARRY_SIZE = 36;
 
 /**
  * Barry asleep, waking as progress runs from 0 to 1: his eyes open, his brows lift and his ears perk up.
