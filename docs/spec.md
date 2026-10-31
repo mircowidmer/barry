@@ -116,7 +116,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 
 ### Check-in
 
-- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Hold to Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else. One tap is not enough.
+- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else. One tap is not enough.
 - A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
 - With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.

@@ -24,7 +24,7 @@ export function CheckInAccessory({ offer }: { offer: CheckInOffer }) {
   );
 }
 
-/** In place of Hold to Check In while a Check-in waits for signal: it is done, so nothing is left to hold. */
+/** In place of the Check In button while a Check-in waits for signal: it is done, so nothing is left to hold. */
 function Waiting({ waiting: { at, keepsTrying }, inline }: { waiting: WaitingCheckIn; inline: boolean }) {
   const theme = useTheme();
   const t = useTexts();

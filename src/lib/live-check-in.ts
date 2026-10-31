@@ -3,7 +3,7 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 /** A Check-in made without signal, which the phone keeps until it can send it. */
 export type WaitingCheckIn = { at: Date; keepsTrying: boolean };
 
-/** What the bottom accessory needs to offer Hold to Check In for the Live Adventure, or to say a Check-in waits. */
+/** What the bottom accessory needs to offer the Check In button for the Live Adventure, or to say a Check-in waits. */
 export type CheckInOffer = { busy: boolean; checkIn: () => void; waiting: WaitingCheckIn | null };
 
 let offer: CheckInOffer | null = null;
