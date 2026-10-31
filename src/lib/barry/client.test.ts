@@ -112,15 +112,22 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     order: () => messagesQuery,
     then: (resolve: (result: { data: MessageRow[]; error: null }) => void) => resolve({ data: [...messageRows], error: null }),
   };
-  // The one Realtime subscription the test opens: its change handler and its status callback.
-  const realtime = { onChange: (_change: { new: object }) => undefined as void, onStatus: (_status: string) => undefined as void, removed: false, names: [] as string[] };
+  // The one Realtime subscription the test opens: its change handler, its system handler and its status callback.
+  const realtime = {
+    onChange: (_change: { new: object }) => undefined as void,
+    onSystem: (_message: { extension: string; status: string }) => undefined as void,
+    onStatus: (_status: string) => undefined as void,
+    removed: false,
+    names: [] as string[],
+  };
   const channel = {
-    on: (_event: string, _filter: object, handler: (change: { new: object }) => void) => {
-      realtime.onChange = handler;
+    on: (event: string, _filter: object, handler: (payload: never) => void) => {
+      if (event === 'system') realtime.onSystem = handler as typeof realtime.onSystem;
+      else realtime.onChange = handler as typeof realtime.onChange;
       return channel;
     },
-    subscribe: (callback: (status: string) => void) => {
-      realtime.onStatus = callback;
+    subscribe: (callback?: (status: string) => void) => {
+      realtime.onStatus = callback ?? (() => undefined);
       return channel;
     },
   };
@@ -402,12 +409,15 @@ describe('watchMessages', () => {
 
   const settled = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-  it('lists the messages on each connection and after each outcome, but not while one waits or is being sent', async () => {
+  it('lists the messages once each connection hears the database and after each outcome, but not while one waits or is being sent', async () => {
     const { barry, messageRows, realtime } = setup();
     const seen: number[] = [];
     const stop = barry.watchMessages(a1, (messages) => void seen.push(messages.length));
 
     realtime.onStatus('SUBSCRIBED');
+    await settled();
+    expect(seen).toEqual([]);
+    realtime.onSystem({ extension: 'postgres_changes', status: 'ok' });
     await settled();
     messageRows.push(sent);
     realtime.onChange({ new: { status: 'pending' } });
