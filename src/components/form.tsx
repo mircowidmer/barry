@@ -220,17 +220,15 @@ const AWAKE_MS = 1500;
 
 /**
  * Completes only after a deliberate hold, so a pocket press cannot end protection. It fills the tab bar's bottom
- * accessory, whose glass capsule surrounds it, and VoiceOver reads `label` even when the shown title is shorter.
+ * accessory, whose glass capsule surrounds it.
  * Barry sleeps at its right end and wakes up while the hold fills.
  */
 export function HoldButton({
   title,
-  label = title,
   onComplete,
   disabled,
 }: {
   title: string;
-  label?: string;
   onComplete: () => void;
   disabled?: boolean;
 }) {
@@ -276,7 +274,7 @@ export function HoldButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={title}
       accessibilityHint={t.adventure.holdHint}
       accessibilityState={{ disabled, busy: disabled }}
       disabled={disabled}
