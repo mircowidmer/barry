@@ -8,6 +8,7 @@ import { createArrival } from './arrival';
 import { createFailureNotices } from './failure-notices';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { createConditions } from './conditions';
+import { createLiveActivity, liveActivityView, type LiveActivityService } from './live-activity';
 import { copyPhoneContact, createPhoneContactLinks, type PhoneContact } from './phone-contact';
 import { createTrail, type LocationService } from './trail';
 import { createTrailBuffer } from './trail-buffer';
@@ -61,6 +62,8 @@ export type BarryDeps = {
   /** Whether the system lets Barry show notifications. */
   notificationsPermitted(): Promise<boolean>;
   notifications: NotificationService;
+  /** The Live Activity on the Lock Screen. */
+  liveActivity: LiveActivityService;
   location: LocationService;
   /** The parsed JSON at a URL outside Supabase, such as the forecast; throws without signal or on an error status. */
   fetchJson(url: string): Promise<unknown>;
@@ -119,6 +122,7 @@ export const createBarry = ({
   storage,
   notificationsPermitted,
   notifications,
+  liveActivity,
   location,
   fetchJson,
 }: BarryDeps): Barry => {
@@ -150,9 +154,18 @@ export const createBarry = ({
     },
   });
 
+  const activity = createLiveActivity({
+    service: liveActivity,
+    due: () => {
+      const adventure = cachedInProgress();
+      return liveActivityView(adventure, checkedIn(adventure?.id));
+    },
+    textContext: () => `${now().toDateString()} ${language()}`,
+  });
+
   const arrival = createArrival({ storage, show: (adventure) => notifications.showArrival(adventure), inProgress: cachedInProgress, checkedIn });
 
-  const syncAlarms = () => alarms.sync().catch(() => undefined);
+  const syncLockScreen = () => Promise.all([alarms.sync().catch(() => undefined), activity.sync().catch(() => undefined)]);
 
   // The fences follow the live Adventure and where its destination is.
   const fenceKey = (row: AdventureWithRelations | null | undefined) =>
@@ -161,7 +174,7 @@ export const createBarry = ({
   const remember = (row: AdventureWithRelations | null) => {
     const before = fenceKey(cache.load()?.row);
     cache.save(row);
-    void syncAlarms();
+    void syncLockScreen();
     if (fenceKey(row) !== before) syncTrail();
   };
 
@@ -399,7 +412,7 @@ export const createBarry = ({
         .maybeSingle();
       if (error) {
         if (!isNoSignal(error)) fail('getInProgressAdventure', error);
-        void syncAlarms();
+        void syncLockScreen();
         return { adventure: cachedInProgress(), offlineSince: cache.load()?.savedAt ?? now() };
       }
       const row: AdventureWithRelations | null = data;
@@ -428,7 +441,7 @@ export const createBarry = ({
       const { data, error } = await supabase.rpc('delete_adventure', { p_id: id });
       if (error) fail('deleteAdventure', error);
       if (data) return { kind: 'refused', refusal: data };
-      await syncAlarms();
+      await syncLockScreen();
       return { kind: 'deleted' };
     },
 
@@ -497,8 +510,8 @@ export const createBarry = ({
     checkIn: async (id) => {
       const checkedInAt = now();
       queue.add({ adventureId: id, checkedInAt });
-      await syncAlarms();
-      const adventure = (await flushCheckIns()).get(id) ?? null;
+      const [, sent] = await Promise.all([syncLockScreen(), flushCheckIns()]);
+      const adventure = sent.get(id) ?? null;
       syncTrail();
       return adventure?.stage === 'ended'
         ? { kind: 'ended', adventure }

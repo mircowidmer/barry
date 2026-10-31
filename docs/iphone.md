@@ -16,7 +16,7 @@ This puts the development build of Barry, Barry Dev with the bundle identifier `
    npx supabase start
    ```
 
-2. Generate the iOS project for the development variant, without push notifications. A free team cannot sign the Push Notifications capability, and `BARRY_WITHOUT_PUSH=1` makes `plugins/without-push.js` leave it out. CocoaPods needs a UTF-8 locale:
+2. Generate the iOS project for the development variant, without push notifications. A free team cannot sign the Push Notifications capability, and `BARRY_WITHOUT_PUSH=1` makes `plugins/without-push.js` leave it out. It also leaves out the Live Activity, whose App Group a free team cannot sign either. CocoaPods needs a UTF-8 locale:
 
    ```bash
    APP_VARIANT=development BARRY_WITHOUT_PUSH=1 LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios

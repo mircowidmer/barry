@@ -6,6 +6,7 @@ import type { Database } from '@/lib/database';
 import { createAdventureCache } from './adventure-cache';
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
+import type { LiveActivityView } from './live-activity';
 import type { PhoneContact } from './phone-contact';
 import type { AdventureWithRelations, ContactRow, MessageRow } from './rows';
 import type { LocationService } from './trail';
@@ -170,6 +171,7 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     showArrival: async (adventure) => void arrivals.push(adventure.plan.destination),
     showDeliveryFailure: async () => undefined,
   };
+  const activities: (LiveActivityView | null)[] = [];
   const barry = createBarry({
     supabase,
     readPosition: async () => null,
@@ -186,12 +188,13 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     storage,
     notificationsPermitted: async () => true,
     notifications,
+    liveActivity: { show: async (view) => void activities.push(view) },
     location,
     fetchJson: async () => {
       throw new Error('no signal');
     },
   });
-  return { barry, world, storage, updates, fences, arrivals, signOuts, messageRows, realtime, shownCards, scheduled: () => Object.fromEntries(scheduled) };
+  return { barry, world, storage, updates, fences, arrivals, signOuts, messageRows, realtime, shownCards, activities, scheduled: () => Object.fromEntries(scheduled) };
 };
 
 describe('flushPendingCheckIns', () => {
@@ -283,6 +286,22 @@ describe('local notifications', () => {
 
     expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
     expect(scheduled()).toEqual({});
+  });
+});
+
+describe('the Live Activity', () => {
+  it('shows the live Adventure without signal and ends once the Adventurer checks in', async () => {
+    const { barry, activities } = setup();
+    await barry.getInProgressAdventure();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(activities.at(-1)).toEqual({
+      destination: 'Grosser Mythen',
+      startedAt: new Date('2026-10-17T06:00:00Z'),
+      deadline: new Date('2026-10-17T16:00:00Z'),
+    });
+
+    expect(await barry.checkIn(a1)).toMatchObject({ kind: 'queued' });
+    expect(activities.at(-1)).toBeNull();
   });
 });
 

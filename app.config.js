@@ -26,5 +26,7 @@ module.exports = ({ config }) => ({
       }),
     },
   },
+  // A free Apple team cannot sign the App Group the Live Activity shares with Barry, so its builds have none.
+  plugins: process.env.BARRY_WITHOUT_PUSH === '1' ? config.plugins.filter((plugin) => plugin !== 'expo-widgets') : config.plugins,
   android: { ...config.android, package: id },
 });

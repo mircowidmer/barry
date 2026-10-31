@@ -3,6 +3,7 @@ import { LIMITS } from '@/lib/barry/limits';
 import { appLanguage, useAppLanguage } from '@/lib/language';
 import { formatPhoneNumber } from '@/lib/phone';
 import {
+  formatClock,
   formatDay,
   formatDayGerman,
   formatDuration,
@@ -14,6 +15,10 @@ import {
 } from '@/lib/wording';
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+
+// A time today reads as the clock alone; on another day it names the day too, so it cannot be misread.
+const clockOr = (when: (at: Date) => string) => (at: Date, now: Date) =>
+  at.toDateString() === now.toDateString() ? formatClock(at) : when(at);
 
 // The failure reasons Barry records itself. A provider's own error stays in the database and reads as the generic one.
 type KnownReason = 'channel_not_enabled' | 'retries_exhausted';
@@ -57,6 +62,7 @@ const reasonDe = reasonOf(
 
 const en = {
   when: formatWhen,
+  clock: clockOr(formatWhen),
   day: formatDay,
   weekday: formatWeekday,
   duration: formatDuration,
@@ -410,6 +416,7 @@ export type Texts = typeof en;
 
 const de: Texts = {
   when: formatWhenGerman,
+  clock: clockOr(formatWhenGerman),
   day: formatDayGerman,
   weekday: formatWeekdayGerman,
   duration: formatDurationGerman,
@@ -770,5 +777,11 @@ export const useTexts = (): Texts => texts[useAppLanguage()];
 
 /** The texts in the phone's language, for dialogs and other code outside components. */
 export const currentTexts = (): Texts => texts[appLanguage()];
+
+/** The Live Activity's texts. */
+export const liveActivityText = (deadline: Date, now: Date, t: Texts = currentTexts()) => ({
+  checkInBy: `${t.adventure.checkInBy} ${t.clock(deadline, now)}`,
+  checkIn: t.adventure.hold,
+});
 
 export const refusalText = (refusal: Refusal) => currentTexts().refusals[refusal];

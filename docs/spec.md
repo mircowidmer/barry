@@ -117,6 +117,7 @@ The Adventurer can move the Deadline later at any time until the Check-in, also 
 ### Check-in
 
 - A Check-in needs a deliberate gesture: the Adventurer presses and holds **Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else. One tap is not enough.
+- The **Check In** on the Live Activity does not check in. It opens Barry on the live Adventure, so iOS asks a locked phone to unlock first, and whoever holds a locked phone cannot send the All-clear.
 - A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
 - If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
 - With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
@@ -166,6 +167,13 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 - A notification whose time has already passed is not scheduled. A Deadline set less than 30 minutes ahead therefore gets no Reminder.
 - Supabase does not push either notification and has no message for them, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
 - The phone's clock decides when they show. The Alert still follows the server's clock.
+
+### Live Activity
+
+- From the Start until the Check-in, the phone shows a Live Activity with the destination, the Deadline, the time left, how much of the time between Start and Deadline has passed, and **Check In**, which opens Barry like a tap anywhere on it. It needs no signal and no push, because the phone starts, updates and ends it itself, like the Reminder.
+- A moved Deadline moves it. A Check-in ends it at once, even while the Check-in waits for signal.
+- Once the Deadline passes, the time left stays at zero. The Overdue Notice says what happens next.
+- Without Live Activities allowed in the iPhone's settings, or on a build signed by a free Apple team, which cannot sign the App Group the Live Activity needs, there is none. Everything else works as before.
 
 ### Arrival Notice
 

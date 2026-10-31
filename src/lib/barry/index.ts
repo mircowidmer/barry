@@ -1,16 +1,19 @@
 import { getPermissionsAsync, presentContactPickerAsync, presentFormAsync, requestPermissionsAsync } from 'expo-contacts/legacy';
 import { getLocales } from 'expo-localization';
+import * as Linking from 'expo-linking';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 
 import { storage } from '@/lib/storage';
 import { fetchWithTimeout, supabase } from '@/lib/supabase';
 import { appLanguage } from '@/lib/language';
-import { currentTexts } from '@/lib/texts';
+import { currentTexts, liveActivityText } from '@/lib/texts';
 import { arrivalText, notificationText } from '@/lib/wording';
 
+import AdventureActivity from './adventure-activity';
 import type { NotificationService } from './alarms';
 import { createBarry } from './client';
+import type { LiveActivityService } from './live-activity';
 import type { PhoneContact } from './phone-contact';
 import { type LocationService, TRAIL_FENCE_TASK, TRAIL_LOCATION_TASK } from './trail';
 import { SLOT_MS } from './trail-buffer';
@@ -193,6 +196,28 @@ const notifications: NotificationService = {
   },
 };
 
+const LIVE_ADVENTURE_URL = Linking.createURL('/');
+
+// Starting fails when the Adventurer switched Live Activities off or the build has no widget extension; the client
+// ignores that, because the Reminder and the Overdue Notice still fire.
+const liveActivity: LiveActivityService = {
+  show: async (view) => {
+    const all = AdventureActivity.getInstances();
+    const running = view ? all[0] : undefined;
+    await Promise.all(all.filter((a) => a !== running).map((a) => a.end('immediate')));
+    if (!view) return;
+    const props = {
+      destination: view.destination,
+      startedAt: view.startedAt.getTime(),
+      deadline: view.deadline.getTime(),
+      ...liveActivityText(view.deadline, new Date()),
+      url: LIVE_ADVENTURE_URL,
+    };
+    if (running) await running.update(props);
+    else AdventureActivity.start(props, LIVE_ADVENTURE_URL);
+  },
+};
+
 export const barry = createBarry({
   supabase,
   readPosition,
@@ -206,6 +231,7 @@ export const barry = createBarry({
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
   notifications,
+  liveActivity,
   location,
   fetchJson,
 });
