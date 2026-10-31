@@ -205,8 +205,6 @@ const en = {
     whichContact: 'Which Contact?',
   },
   ended: {
-    checkedIn: (when: string) => `You checked in ${when}.`,
-    welcome: ' Welcome back.',
     mapFailed: (detail: string) => `Could not load the map. ${detail}`,
     mapFailedTitle: 'Could Not Load the Map',
     noPositions: 'No positions were recorded.',
@@ -557,8 +555,6 @@ const de: Texts = {
     whichContact: 'Welcher Kontakt?',
   },
   ended: {
-    checkedIn: (when) => `Du hast dich am ${when} zurückgemeldet.`,
-    welcome: ' Willkommen zurück.',
     mapFailed: (detail) => `Die Karte konnte nicht geladen werden. ${detail}`,
     mapFailedTitle: 'Karte nicht geladen',
     noPositions: 'Es wurden keine Standorte aufgezeichnet.',
