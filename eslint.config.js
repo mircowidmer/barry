@@ -4,7 +4,7 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', 'ios/*', 'android/*', 'supabase/functions/*'],
+    ignores: ['dist/*', 'site/*', 'ios/*', 'android/*', 'supabase/functions/*'],
   },
   {
     // The rules that need types read tsconfig.json, which leaves out the sketch under docs/.
