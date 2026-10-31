@@ -39,7 +39,7 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Rules
 
-- `package.json` names only the major version of each package: `"zod": "4"`, not `"^4.1.0"`. Below 1 the minor is the breaking part, so those keep it: `"@maplibre/maplibre-gl-leaflet": "0.1"`. The exceptions are `expo` and every package Expo's `bundledNativeModules.json` lists, which keep the range Expo pins, such as `"~58.0.21"`, `"~3.3.0"` or an exact `"19.3.0"`, because a wider range lets the Tuesday lock file maintenance move them to versions the SDK does not support, and a prerelease, which stays pinned. `package-lock.json` holds the installed versions. `npx expo install` writes full ranges, so run `npm run versions` after it; `scripts/version-ranges.test.ts` fails on any range it missed.
+- `package.json` names only the major version of each package: `"zod": "4"`, not `"^4.1.0"`. Below 1 the minor is the breaking part, so those keep it: `"@maplibre/maplibre-gl-leaflet": "0.1"`. `expo` and every package Expo's `bundledNativeModules.json` lists keep the range Expo pins, such as `"~58.0.21"` or an exact `"19.3.0"`, so the lock file maintenance cannot move them outside the SDK. A prerelease stays pinned. `package-lock.json` holds the installed versions. `npx expo install` writes full ranges, so run `npm run versions` after it; `scripts/version-ranges.test.ts` fails on any range it missed.
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a new development build: `npm run ios` locally, or `npm run build:dev` in the cloud.

@@ -1,7 +1,6 @@
 // Keeps the ranges in package.json at the major version: "^6.16.0" becomes "6", and below 1,
 // where the minor is the breaking part, "^0.21.4" becomes "0.21". A package Expo's
-// bundledNativeModules.json lists, and expo itself, keeps the range Expo pins, such as "~58.0.21",
-// because a wider one lets the lock file maintenance move it to a version the SDK does not support.
+// bundledNativeModules.json lists, and expo itself, keeps the range Expo pins, such as "~58.0.21".
 // A prerelease stays pinned. Rewrites the root entry of package-lock.json alongside, so the two
 // files stay in sync.
 // Usage: node scripts/version-ranges.mjs [--check] [path/to/package.json]
@@ -33,13 +32,14 @@ const rangeFor = (name, version) => {
   const match = version.match(/^([~^]?)(\d+)(?:\.(\d+)(?:\.(\d+)(-[\w.]+)?)?)?$/);
   if (!match) return undefined;
   const [, prefix, major, minor = '0', patch = '0', prerelease] = match;
+  const hasPatch = match[4] !== undefined;
   // A range without the prerelease would match no prerelease at all, so it stays pinned.
   if (prerelease) return `${major}.${minor}.${patch}${prerelease}`;
   const expoRange = expoVersions[name];
   if (expoRange) {
     // Expo's own range is kept as written, so a patch the lock file moved to does not make it drift.
-    if (match[4] && prefix === expoRange.match(/^[~^]?/)[0]) return version;
-    return expoRange;
+    const [, expoPrefix] = expoRange.match(/^([~^]?)/);
+    return hasPatch && prefix === expoPrefix ? version : expoRange;
   }
   if (major !== '0') return major;
   // Below 0.1 every patch is breaking, as npm's own caret treats it.
@@ -61,7 +61,7 @@ for (const section of sections) {
 }
 
 if (unreadable.length) {
-  console.error(`${file} has ranges to write by hand as the major version.\n${unreadable.join('\n')}`);
+  console.error(`${file} has ranges this script cannot rewrite. Write them by hand.\n${unreadable.join('\n')}`);
   process.exit(1);
 }
 if (check) {
