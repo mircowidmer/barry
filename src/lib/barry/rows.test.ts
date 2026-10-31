@@ -146,14 +146,16 @@ describe('parseSentMessage', () => {
     delivered: false,
     outcome_at: '2026-10-17T16:31:00Z',
     failure_reason: null,
+    undelivered: false,
   };
 
   it('tells a text message Twilio confirmed from one only sent, and keeps the reason only of a failed one', () => {
     expect(parseSentMessage(message)).toMatchObject({ outcome: 'sent', reason: null });
     expect(parseSentMessage({ ...message, delivered: true })).toMatchObject({ outcome: 'delivered', reason: null });
-    expect(parseSentMessage({ ...message, status: 'failed', failure_reason: 'Twilio 30003' })).toMatchObject({
+    expect(parseSentMessage({ ...message, status: 'failed', failure_reason: 'Twilio 30003', undelivered: true })).toMatchObject({
       outcome: 'failed',
       reason: 'Twilio 30003',
+      undelivered: true,
     });
   });
 });

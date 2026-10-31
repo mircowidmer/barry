@@ -34,6 +34,7 @@ describe('a message to the contacts', () => {
     outcome: 'failed',
     at: new Date(2026, 9, 17, 16, 31),
     reason: 'HTTP 403: Resend validation_error',
+    undelivered: false,
   };
 
   it('names the message with the glossary term and its Alert round, in English and German', () => {
@@ -45,6 +46,25 @@ describe('a message to the contacts', () => {
     expect(texts.de.adventure.failure({ ...failure, message: 'heads_up', round: null, channel: 'sms', reason: 'channel_not_enabled' })).toBe(
       'Luca: Startnachricht per SMS (SMS sind noch nicht eingerichtet)',
     );
+  });
+
+  it('tells in a notification which text message did not arrive and whom to reach, in English and German', () => {
+    const undelivered = { ...failure, message: 'heads_up' as const, round: null, channel: 'sms' as const, address: '+41791234567', undelivered: true };
+    expect(texts.en.adventure.deliveryFailureNotice(undelivered)).toEqual({
+      title: 'Heads-up not delivered to Luca',
+      body: 'Your text message to +41 79 123 45 67 did not arrive. Reach Luca another way.',
+    });
+    expect(texts.de.adventure.deliveryFailureNotice(undelivered)).toEqual({
+      title: 'Startnachricht an Luca nicht zugestellt',
+      body: 'Deine SMS an +41 79 123 45 67 kam nicht an. Erreiche Luca auf anderem Weg.',
+    });
+    const shared = { ...undelivered, message: 'alert' as const, round: 2,
+      contacts: [{ id: 'c1' as EmergencyContactId, name: 'Ben' }, { id: 'c2' as EmergencyContactId, name: 'Luca' }] };
+    expect(texts.en.adventure.deliveryFailureNotice(shared)).toEqual({
+      title: 'Alert 2 of 3 not delivered to Ben, Luca',
+      body: 'Your text message to +41 79 123 45 67 did not arrive. Reach them another way.',
+    });
+    expect(texts.de.adventure.deliveryFailureNotice(shared).title).toBe('Alarm 2 von 3 an Ben, Luca nicht zugestellt');
   });
 
   it('reads as one sentence to VoiceOver, naming every contact on a shared address', () => {
