@@ -159,6 +159,7 @@ export const createBarry = ({
       const adventure = cachedInProgress();
       return liveActivityView(adventure, checkedIn(adventure?.id));
     },
+    textContext: () => `${now().toDateString()} ${language()}`,
   });
 
   const arrival = createArrival({ storage, show: (adventure) => notifications.showArrival(adventure), inProgress: cachedInProgress, checkedIn });

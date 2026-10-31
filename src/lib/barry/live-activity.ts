@@ -24,14 +24,21 @@ export const checkInTargetId = (target: string): AdventureId | null =>
     ? (target.slice(CHECK_IN_TARGET.length) as AdventureId)
     : null;
 
-export const createLiveActivity = ({ service, due }: { service: LiveActivityService; due: () => LiveActivityView | null }) => {
+type LiveActivityDeps = {
+  service: LiveActivityService;
+  due: () => LiveActivityView | null;
+  /** What the texts depend on besides the view: the day, which decides whether the Deadline names its day, and the language. */
+  textContext: () => string;
+};
+
+export const createLiveActivity = ({ service, due, textContext }: LiveActivityDeps) => {
   // Every refetch of the live Adventure syncs, and the view rarely changes, so only a change reaches iOS.
   let shown: string | null = null;
   return {
     /** Brings the Live Activity in line with `due()`. Idempotent. */
     sync: serialized(async () => {
       const view = due();
-      const key = JSON.stringify(view);
+      const key = JSON.stringify([view, textContext()]);
       if (key === shown) return;
       await service.show(view);
       shown = key;
