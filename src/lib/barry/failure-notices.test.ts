@@ -27,7 +27,7 @@ const setup = ({ storage = memoryStorage() } = {}) => {
     storage,
     show: async (m, id) => void shown.push(`${id}:${m.id}`),
     inProgress: () => world.live,
-    messages: async (id) => world.messages.get(id) ?? [],
+    undelivered: async (id) => (world.messages.get(id) ?? []).filter((m) => m.undelivered),
   });
   return { notices, shown, world, storage };
 };
@@ -41,6 +41,21 @@ describe('the notice of an undelivered text message', () => {
     relaunched.world.messages = world.messages;
     await relaunched.notices.notice();
     expect([...shown, ...relaunched.shown]).toEqual(['a1:1']);
+  });
+
+  it('asks Supabase once more, not once per trigger, for the triggers that arrive while it is asking', async () => {
+    let asked = 0;
+    const notices = createFailureNotices({
+      storage: memoryStorage(),
+      show: async () => undefined,
+      inProgress: () => adventure(a1),
+      undelivered: async () => {
+        asked += 1;
+        return [];
+      },
+    });
+    await Promise.all([notices.notice(), notices.notice(), notices.notice(), notices.notice()]);
+    expect(asked).toBe(2);
   });
 
   it('keeps looking at the Adventure after the Check-in, for the All-clear, until another one starts', async () => {
@@ -71,7 +86,7 @@ describe('the notice of an undelivered text message', () => {
         throw new Error('not permitted');
       },
       inProgress: () => adventure(a1),
-      messages: async () => [message(1, 'failed', true)],
+      undelivered: async () => [message(1, 'failed', true)],
     });
     await expect(failing.notice()).rejects.toThrow('not permitted');
     const { notices, shown, world } = setup({ storage });

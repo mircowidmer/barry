@@ -49,9 +49,7 @@ function Navigation() {
       .getInProgressAdventure()
       .catch(() => ({ adventure: null }))
       .then(({ adventure }) =>
-        adventure?.id === adventureId
-          ? router.push({ pathname: '/watching', params: { id: adventureId } })
-          : router.push({ pathname: '/history/[id]', params: { id: adventureId } }),
+        router.push({ pathname: adventure?.id === adventureId ? '/watching' : '/history/[id]', params: { id: adventureId } }),
       );
   }, [response, session]);
 

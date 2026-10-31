@@ -176,12 +176,35 @@ export const createBarry = ({
     return (data ?? []).map(parseSentMessage);
   };
 
+  const undeliveredMessages = async (id: AdventureId): Promise<SentMessage[]> => {
+    const { data, error } = await supabase.from('adventure_messages').select(MESSAGE_SELECT).eq('adventure_id', id).eq('undelivered', true);
+    if (error) fail('undeliveredMessages', error);
+    return (data ?? []).map(parseSentMessage);
+  };
+
   const failureNotices = createFailureNotices({
     storage,
     show: (message, adventureId) => notifications.showDeliveryFailure(message, adventureId),
     inProgress: cachedInProgress,
-    messages,
+    undelivered: undeliveredMessages,
   });
+
+  // Realtime does not replay the changes missed while the socket was down, so each connection refetches.
+  const watchChanges = (
+    name: string,
+    changes: { event: 'UPDATE' | '*'; table: 'messages' | 'adventures'; filter: string },
+    onChange: (row: { status?: unknown }) => void,
+    refetch: () => void,
+  ) => {
+    const channel = supabase
+      .channel(name)
+      .on('postgres_changes', { schema: 'public', ...changes }, (change) => onChange(change.new))
+      .on('system', {}, (message) => hearsDatabase(message) && refetch())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel).catch(() => undefined);
+    };
+  };
 
   const getAdventure = async (id: AdventureId) => {
     const { data, error } = await supabase
@@ -491,21 +514,16 @@ export const createBarry = ({
     messages,
 
     watchMessages: (id, onChange) => {
-      const refresh = () => messages(id).then(onChange, () => undefined);
+      const refresh = () => void messages(id).then(onChange, () => undefined);
       // Supabase hands out the open channel for a name already in use, and a subscribed one takes no more
       // listeners, so the live screen and the contacts sheet each need their own.
-      const channel = supabase
-        .channel(`messages:${id}:${++messageWatchers}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `adventure_id=eq.${id}` }, (change) => {
-          // A message waiting or being sent is not listed, so only an outcome changes the list.
-          const status = 'status' in change.new ? change.new.status : null;
-          if (status === 'sent' || status === 'failed') void refresh();
-        })
-        .on('system', {}, (message) => hearsDatabase(message) && void refresh())
-        .subscribe();
-      return () => {
-        supabase.removeChannel(channel).catch(() => undefined);
-      };
+      return watchChanges(
+        `messages:${id}:${++messageWatchers}`,
+        { event: '*', table: 'messages', filter: `adventure_id=eq.${id}` },
+        // A message waiting or being sent is not listed, so only an outcome changes the list.
+        ({ status }) => (status === 'sent' || status === 'failed') && refresh(),
+        refresh,
+      );
     },
 
     noticeDeliveryFailures: failureNotices.notice,
@@ -513,14 +531,7 @@ export const createBarry = ({
     watchDeliveryFailures: () => {
       const notice = () => void failureNotices.notice().catch(() => undefined);
       // Row level security limits the changes to the Adventurer's own messages.
-      const channel = supabase
-        .channel(`delivery-failures:${++messageWatchers}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: 'status=eq.failed' }, notice)
-        .on('system', {}, (message) => hearsDatabase(message) && notice())
-        .subscribe();
-      return () => {
-        supabase.removeChannel(channel).catch(() => undefined);
-      };
+      return watchChanges(`delivery-failures:${++messageWatchers}`, { event: 'UPDATE', table: 'messages', filter: 'status=eq.failed' }, notice, notice);
     },
 
     readings: async (id, after) => {
@@ -533,16 +544,8 @@ export const createBarry = ({
     trail,
 
     watchAdventure: (id, onChange) => {
-      const refresh = () => getAdventure(id).then((adventure) => adventure && onChange(adventure), () => undefined);
-      const channel = supabase
-        .channel(`adventure:${id}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'adventures', filter: `id=eq.${id}` }, () => void refresh())
-        // Realtime does not replay the updates missed while the socket was down, so each connection refetches.
-        .on('system', {}, (message) => hearsDatabase(message) && void refresh())
-        .subscribe();
-      return () => {
-        supabase.removeChannel(channel).catch(() => undefined);
-      };
+      const refresh = () => void getAdventure(id).then((adventure) => adventure && onChange(adventure), () => undefined);
+      return watchChanges(`adventure:${id}`, { event: 'UPDATE', table: 'adventures', filter: `id=eq.${id}` }, refresh, refresh);
     },
   };
 };
