@@ -5,6 +5,7 @@ import type { Database } from '@/lib/database';
 import { createAdventureCache } from './adventure-cache';
 import { createAlarms, dueAlarms, type NotificationService } from './alarms';
 import { createArrival } from './arrival';
+import { createFailureNotices } from './failure-notices';
 import { createCheckInQueue, type SendOutcome } from './check-in-queue';
 import { createConditions } from './conditions';
 import { createLiveActivity, liveActivityView, type LiveActivityService } from './live-activity';
@@ -187,6 +188,13 @@ export const createBarry = ({
     if (error) fail('messages', error);
     return (data ?? []).map(parseSentMessage);
   };
+
+  const failureNotices = createFailureNotices({
+    storage,
+    show: (message, adventureId) => notifications.showDeliveryFailure(message, adventureId),
+    inProgress: cachedInProgress,
+    messages,
+  });
 
   const getAdventure = async (id: AdventureId) => {
     const { data, error } = await supabase
@@ -507,6 +515,21 @@ export const createBarry = ({
           if (status === 'sent' || status === 'failed') void refresh();
         })
         .on('system', {}, (message) => hearsDatabase(message) && void refresh())
+        .subscribe();
+      return () => {
+        supabase.removeChannel(channel).catch(() => undefined);
+      };
+    },
+
+    noticeDeliveryFailures: failureNotices.notice,
+
+    watchDeliveryFailures: () => {
+      const notice = () => void failureNotices.notice().catch(() => undefined);
+      // Row level security limits the changes to the Adventurer's own messages.
+      const channel = supabase
+        .channel(`delivery-failures:${++messageWatchers}`)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: 'status=eq.failed' }, notice)
+        .on('system', {}, (message) => hearsDatabase(message) && notice())
         .subscribe();
       return () => {
         supabase.removeChannel(channel).catch(() => undefined);
