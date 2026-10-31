@@ -1,6 +1,6 @@
 type Point = { latitude: number; longitude: number };
 
-export type Camera = { center: Point; zoom: number };
+type Camera = { center: Point; zoom: number };
 
 const MAX_ZOOM = 16;
 const PADDING = 1.4;
