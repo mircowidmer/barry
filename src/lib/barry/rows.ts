@@ -65,10 +65,10 @@ export const parsePosition = (row: PositionRow): Position => ({
 
 export type MessageRow = Pick<
   Database['public']['Views']['adventure_messages']['Row'],
-  'id' | 'kind' | 'round' | 'channel' | 'to_address' | 'contacts' | 'status' | 'delivered' | 'outcome_at' | 'failure_reason'
+  'id' | 'kind' | 'round' | 'channel' | 'to_address' | 'contacts' | 'status' | 'delivered' | 'outcome_at' | 'failure_reason' | 'undelivered'
 >;
 
-export const MESSAGE_SELECT = 'id, kind, round, channel, to_address, contacts, status, delivered, outcome_at, failure_reason';
+export const MESSAGE_SELECT = 'id, kind, round, channel, to_address, contacts, status, delivered, outcome_at, failure_reason, undelivered';
 
 export const parseSentMessage = (row: MessageRow): SentMessage => ({
   id: row.id,
@@ -80,6 +80,7 @@ export const parseSentMessage = (row: MessageRow): SentMessage => ({
   outcome: row.status === 'failed' ? 'failed' : row.delivered ? 'delivered' : 'sent',
   at: new Date(row.outcome_at),
   reason: row.status === 'failed' ? row.failure_reason : null,
+  undelivered: row.undelivered === true,
 });
 
 // A row cached by an older version of the app has no point columns at all.

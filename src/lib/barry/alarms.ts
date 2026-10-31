@@ -1,5 +1,5 @@
 import { serialized } from './serialized';
-import type { InProgressAdventure } from './types';
+import type { AdventureId, InProgressAdventure, SentMessage } from './types';
 
 const REMINDER_LEAD_MS = 30 * 60_000;
 
@@ -17,6 +17,8 @@ export type NotificationService = {
   cancel(identifier: string): Promise<void>;
   /** Shows the Arrival Notice at once, outside the scheduled ones. */
   showArrival(adventure: InProgressAdventure): Promise<void>;
+  /** Shows at once that a text message to a contact of the Adventure was not delivered. */
+  showDeliveryFailure(message: SentMessage, adventureId: AdventureId): Promise<void>;
 };
 
 const alarm = (kind: AlarmKind, at: Date, adventure: InProgressAdventure): Alarm => ({
