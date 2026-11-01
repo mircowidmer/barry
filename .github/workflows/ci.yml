@@ -151,6 +151,53 @@ jobs:
         env:
           APP_VARIANT: production
 
+  android-bundle:
+    name: Android JavaScript bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Take the production env from eas.json
+        run: node -e "for (const [k, v] of Object.entries(require('./eas.json').build.production.env)) console.log(k + '=' + v)" >> "$GITHUB_ENV"
+      - run: npx expo export --platform android --output-dir "$RUNNER_TEMP/android-bundle"
+        env:
+          APP_VARIANT: production
+
+  android:
+    name: Android debug build
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.native == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: gradle
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Generate the Android project
+        run: npx expo prebuild --clean --platform android
+        env:
+          APP_VARIANT: production
+      # A debug build compiles every native module, Barry's own included, without bundling the JavaScript the
+      # android-bundle job already checks. One architecture proves it.
+      - name: Build
+        working-directory: android
+        run: ./gradlew :app:assembleDebug -PreactNativeArchitectures=arm64-v8a
+        env:
+          SENTRY_DISABLE_AUTO_UPLOAD: 'true'
+
   ios:
     name: iOS Release build for the Simulator
     needs: changes
