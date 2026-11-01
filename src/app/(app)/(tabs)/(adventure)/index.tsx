@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { SymbolView, toolbarIcon } from '@/components/symbol';
 import { type ReactNode, useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { ConditionsSection } from '@/components/conditions-section';
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
@@ -223,7 +223,8 @@ function LiveAdventure({
       {reloadFailure}
       <DeadlineCard adventure={adventure} now={now} />
 
-      {lastKnown ? (
+      {/* Only iOS draws the Trail map, so Android shows the Trail's state as a note. */}
+      {lastKnown && Platform.OS === 'ios' ? (
         <View>
           <TrailMapView trail={trail} last={lastKnown} />
           {trailStatus && <TrailBadge status={trailStatus} />}
