@@ -60,4 +60,4 @@ The files in `dist` expect to be served at the root of a domain, and the page ex
 - The map comes from OpenFreeMap (`tiles.openfreemap.org`, style `liberty`) as vector tiles of OpenStreetMap data, which MapLibre draws in the browser, so it stays sharp on a phone with labels at their normal size.
   Leaflet still draws the Trail on top, through `@maplibre/maplibre-gl-leaflet`.
   OpenFreeMap needs no key and has no request limit; the page shows its attribution.
-  MapLibre stays on version 5, because version 6 loads its worker from separate files that the Metro bundle does not ship.
+  MapLibre 6 loads its worker from `/maplibre/maplibre-gl-worker.mjs`, which `scripts/maplibre-worker.mjs` copies from `node_modules` because the Metro bundle does not ship it.
