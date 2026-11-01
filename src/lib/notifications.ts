@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import { AndroidImportance } from 'expo-notifications';
 
 import { currentTexts } from '@/lib/texts';
 
@@ -18,7 +19,7 @@ export const askForNotifications = async () => {
   // Android 13 asks for the permission only once a channel exists; on iOS this does nothing.
   await Notifications.setNotificationChannelAsync(ALARM_CHANNEL, {
     name: currentTexts().adventure.alarmChannel,
-    importance: Notifications.AndroidImportance.MAX,
+    importance: AndroidImportance.MAX,
   });
   const current = await Notifications.getPermissionsAsync();
   if (!current.granted && current.canAskAgain) await Notifications.requestPermissionsAsync();
