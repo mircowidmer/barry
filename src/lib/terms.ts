@@ -7,9 +7,8 @@ export const TERMS_KEY = 'terms_version';
 
 /** The day of `CURRENT_TERMS`, at local midnight. */
 export const termsDay = (): Date => {
-  const [year, month, day] = CURRENT_TERMS.split('-').map(Number);
-  if (year === undefined || month === undefined || day === undefined) throw new Error(`CURRENT_TERMS is not a date: ${CURRENT_TERMS}`);
-  return new Date(year, month - 1, day);
+  // A date and time without an offset is local time.
+  return new Date(`${CURRENT_TERMS}T00:00`);
 };
 
 /** An account from before Barry recorded the version has none, so it is told once too. */
