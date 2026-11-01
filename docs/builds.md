@@ -75,8 +75,8 @@ npm run submit:production
 
 The `ios` job of `.github/workflows/ci.yml` builds the production variant in Release for the iOS Simulator on a macOS runner, without signing and with `BARRY_WITHOUT_PUSH=1`, so without the Push entitlement and the Live Activity.
 It proves that the native project and the JavaScript bundle still build.
-It runs on `main` and on a pull request that changes what goes into the native project: the packages, `app.json`, `app.config.js`, `eas.json`, `plugins/`, `modules/`, `patches/`, `locales/`, `assets/` or the workflow itself.
+It runs on `main` and on a pull request that changes what goes into the native project: the packages, `.nvmrc`, `app.json`, `app.config.js`, `eas.json`, `plugins/`, `modules/`, `patches/`, `locales/`, `assets/`, the workflow itself or the gate script.
 Every pull request also runs the `ios-bundle` job, which only exports the iOS JavaScript bundle and takes a minute.
 Neither makes an app for a phone: that still comes from the local Release build or from EAS.
-In the same way, the jobs that need the local stack run on a pull request only when it changes what the stack, the e2e cases or the relay read: the packages, `deno.json`, `patches/`, `supabase/`, `e2e/`, `scripts/sms-relay.mjs`, `src/lib/database.types.ts`, the backend doctor or the workflow.
+In the same way, the jobs that need the local stack run on a pull request only when it changes what the stack, the e2e cases or the relay read: the packages, `.nvmrc`, `deno.json`, `patches/`, `supabase/`, `e2e/`, `scripts/sms-relay.mjs`, `src/lib/database.types.ts`, the backend doctor, the workflow or the gate script.
 `scripts/changed-inputs.sh` holds both lists.
