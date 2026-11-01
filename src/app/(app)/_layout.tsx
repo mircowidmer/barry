@@ -41,7 +41,8 @@ function Navigation() {
   const response = useLastNotificationResponse();
   const handled = useRef<string | null>(null);
   useEffect(() => {
-    const adventureId = response?.notification.request.content.data?.deliveryFailureOf as AdventureId | undefined;
+    const deliveryFailureOf: unknown = response?.notification.request.content.data?.deliveryFailureOf;
+    const adventureId = typeof deliveryFailureOf === 'string' ? (deliveryFailureOf as AdventureId) : undefined;
     const identifier = response?.notification.request.identifier ?? null;
     if (!session || !adventureId || handled.current === identifier) return;
     handled.current = identifier;
