@@ -46,6 +46,14 @@ const text = (value: unknown, field: string): string => {
 
 const optionalText = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
 
+// The app takes these fields on one line. A line break sent around the app would let the text fake a line of Barry's
+// own, such as a trail link, so control characters become one space. The medical notes keep their lines.
+const oneLine = (value: string): string => value.replace(/\p{Cc}+/gu, ' ');
+const optionalOneLine = (value: unknown): string | null => {
+  const kept = optionalText(value);
+  return kept === null ? null : oneLine(kept);
+};
+
 const date = (value: unknown, field: string): Date => new Date(text(value, field));
 
 const position = (value: unknown): Position | null => {
@@ -64,10 +72,10 @@ export const parseFacts = (raw: unknown): MessageFacts => {
   const plan = (f.plan ?? {}) as Json;
   const base = {
     language: f.language === 'de' ? ('de' as const) : ('en' as const),
-    adventurerName: text(f.adventurer_name, 'adventurer_name'),
+    adventurerName: oneLine(text(f.adventurer_name, 'adventurer_name')),
     timeZone: text(f.time_zone, 'time_zone'),
     plan: {
-      destination: text(plan.destination, 'plan.destination'),
+      destination: oneLine(text(plan.destination, 'plan.destination')),
     },
     deadline: date(f.deadline, 'deadline'),
   };
@@ -92,9 +100,9 @@ export const parseFacts = (raw: unknown): MessageFacts => {
         trailToken: optionalText(f.trail_token),
         profile: {
           phone: optionalText(p.phone),
-          carMake: optionalText(p.car_make),
-          carColour: optionalText(p.car_colour),
-          carPlate: optionalText(p.car_plate),
+          carMake: optionalOneLine(p.car_make),
+          carColour: optionalOneLine(p.car_colour),
+          carPlate: optionalOneLine(p.car_plate),
           medicalNotes: optionalText(p.medical_notes),
         },
         lastKnownPosition: position(f.last_known_position),
