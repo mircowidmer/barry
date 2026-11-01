@@ -131,10 +131,14 @@ const isFeature = (value: unknown): value is Feature => {
 const inside = ({ latitude: y, longitude: x }: Point, rings: Ring[]) => {
   let crossings = 0;
   for (const ring of rings) {
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const [xi, yi] = ring[i]!;
-      const [xj, yj] = ring[j]!;
+    // Each edge runs from the previous vertex to this one, starting with the edge that closes the ring.
+    let previous = ring.at(-1);
+    if (!previous) continue;
+    for (const vertex of ring) {
+      const [xi, yi] = vertex;
+      const [xj, yj] = previous;
       if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) crossings++;
+      previous = vertex;
     }
   }
   return crossings % 2 === 1;
