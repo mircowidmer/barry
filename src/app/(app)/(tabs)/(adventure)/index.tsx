@@ -258,7 +258,7 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
         <ThemedText mono style={styles.cardClock}>
           {`${adventure.alertsSent}/${LIMITS.alertsPerDeadline}`}
         </ThemedText>
-        <ThemedText type="small" style={{ color: theme.text }}>
+        <ThemedText type="small">
           {t.adventure.alerted(adventure.alertsSent)}
         </ThemedText>
       </View>
@@ -290,7 +290,7 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
           </ThemedText>
         </View>
         {overdue && (
-          <ThemedText type="small" style={{ color: theme.text }}>
+          <ThemedText type="small">
             {t.adventure.overdueNote}
           </ThemedText>
         )}
