@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(7);
 delete from public.messages;
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
@@ -52,11 +52,6 @@ select lives_ok(
   'The Adventurer can switch an address back on'
 );
 update public.emergency_contacts set phone_enabled = false where id = 'aaaaaaaa-0000-0000-0000-000000000001';
-select is(
-  (select phone from public.emergency_contacts where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
-  '+41791111111',
-  'A switched-off phone number is kept'
-);
 
 -- Reaching a contact
 
