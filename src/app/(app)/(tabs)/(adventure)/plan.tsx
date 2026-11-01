@@ -1,6 +1,6 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack } from 'expo-router';
-import { SymbolView, toolbarIcon } from '@/components/symbol';
+import { androidToolbarIcon, SymbolView, toolbarIcon } from '@/components/symbol';
 import { useState } from 'react';
 import { Alert, Keyboard, Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
@@ -305,7 +305,12 @@ function PlanForm({
             onPress={() => void onSave()}
           />
         ) : (
-          <Stack.Toolbar.Button variant="prominent" disabled={busy !== null} onPress={() => void onStart()}>
+          <Stack.Toolbar.Button
+            variant="prominent"
+            icon={androidToolbarIcon('play.fill')}
+            accessibilityLabel={t.plan.start}
+            disabled={busy !== null}
+            onPress={() => void onStart()}>
             {t.plan.start}
           </Stack.Toolbar.Button>
         )}

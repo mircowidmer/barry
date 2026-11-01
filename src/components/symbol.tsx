@@ -46,6 +46,7 @@ const MATERIAL = {
   'moon.stars': 'bedtime',
   paperplane: 'send',
   pencil: 'edit',
+  'play.fill': 'play_arrow',
   'person.2': 'group',
   'person.fill': 'person',
   plus: 'add',
@@ -66,7 +67,7 @@ export function SymbolView({ name, ...props }: SymbolViewProps) {
   return <ExpoSymbolView name={{ ios: name, android: MATERIAL[name] }} {...props} />;
 }
 
-const TOOLBAR_SYMBOLS = ['checkmark', 'clock', 'person.2', 'plus', 'trash', 'xmark'] as const satisfies SymbolName[];
+const TOOLBAR_SYMBOLS = ['checkmark', 'clock', 'pencil', 'person.2', 'play.fill', 'plus', 'trash', 'xmark'] as const satisfies SymbolName[];
 type ToolbarSymbol = (typeof TOOLBAR_SYMBOLS)[number];
 
 const toolbarImages = new Map<ToolbarSymbol, ImageSourcePropType>();
@@ -85,3 +86,7 @@ export const loadToolbarIcons = async (): Promise<void> => {
 /** The icon of a Stack.Toolbar item: the SF Symbol on iOS, the image loadToolbarIcons rendered on Android. */
 export const toolbarIcon = (name: ToolbarSymbol): SFSymbol | ImageSourcePropType | undefined =>
   Platform.OS === 'android' ? toolbarImages.get(name) : name;
+
+/** The icon of a Stack.Toolbar item that shows text on iOS: Android's toolbar renders no item without an image. */
+export const androidToolbarIcon = (name: ToolbarSymbol): ImageSourcePropType | undefined =>
+  Platform.OS === 'android' ? toolbarImages.get(name) : undefined;
