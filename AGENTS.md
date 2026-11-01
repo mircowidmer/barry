@@ -137,7 +137,7 @@ The phone may be dead when the Deadline passes, so the clock and every message t
 `src/lib/barry` is the one module screens import, as `@/lib/barry`.
 `client.ts` builds it with `createBarry(deps)`, where the effects (storage, Supabase, location, notifications) are injected and faked in the unit tests.
 `index.ts` wires the real effects; `index.web.ts` is an empty stand-in because the web build has no app.
-The module hides the location fix, the place search (the local Expo module `modules/place-search`, which wraps Apple's `MKLocalSearch`), the geofences of the Trail and of the destination (one task, because expo-location restarts every region whenever any geofence task changes), the offline Check-in queue (`check-in-queue.ts`), the cached Adventure for offline screens (`adventure-cache.ts`), the Trail buffer and upload (`trail.ts`, `trail-buffer.ts`), the local alarms, the Start warnings and the row-to-domain parsing (`rows.ts`).
+The module hides the location fix, the place search (the local Expo module `modules/place-search`, which wraps Apple's `MKLocalSearch` and Android's `Geocoder`), the geofences of the Trail and of the destination (one task, because expo-location restarts every region whenever any geofence task changes), the offline Check-in queue (`check-in-queue.ts`), the cached Adventure for offline screens (`adventure-cache.ts`), the Trail buffer and upload (`trail.ts`, `trail-buffer.ts`), the local alarms, the Start warnings and the row-to-domain parsing (`rows.ts`).
 It returns outcome unions, such as `protected | refused | unconfirmed` for Start and `ended | queued` for Check-in.
 An Adventure is Active only once Supabase confirmed the Start; `unconfirmed` is the state the screen must show as unprotected.
 
