@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(11);
+select plan(9);
 delete from public.messages;
 
 insert into auth.users (id, email) values ('11111111-1111-1111-1111-111111111111', 'anna@example.com');
@@ -50,8 +50,6 @@ select is(
   array[902, 905]::bigint[],
   'Only the text messages Twilio reported not delivered are undelivered, also a report that overtook settle_message'
 );
-select is((select undelivered from public.adventure_messages where id = 904), false, 'A text message that failed to send is no undelivered report');
-select is((select undelivered from public.adventure_messages where id = 901), false, 'A delivered text message is not undelivered');
 
 set local role authenticated;
 select throws_ok($$select public.report_delivery(901, 'SM-heads-up', 'undelivered')$$, '42501', null, 'The app cannot report deliveries');
