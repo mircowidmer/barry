@@ -8,6 +8,7 @@ import { useLoad } from '@/hooks/use-load';
 import { type AdventurerProfile, barry, isPhoneNumber } from '@/lib/barry';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
+import { toolbarIcon } from '@/components/symbol';
 
 export type ProfileForm = Record<keyof AdventurerProfile, string>;
 export type SetField = (field: keyof ProfileForm) => (text: string) => void;
@@ -61,7 +62,7 @@ export function ProfileEdit({ title, sheet = false, children }: { title: string;
       <Stack.Screen options={{ title }} />
       {sheet && (
         <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
+          <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
         </Stack.Toolbar>
       )}
       <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={() => void loaded.reload()} />
@@ -105,13 +106,13 @@ function ProfileEditor({
       <Stack.Screen options={{ title }} />
       {sheet && (
         <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={saving} onPress={() => router.back()} />
+          <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} disabled={saving} onPress={() => router.back()} />
         </Stack.Toolbar>
       )}
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
           variant="done"
-          icon="checkmark"
+          icon={toolbarIcon('checkmark')}
           accessibilityLabel={t.common.save}
           disabled={!complete || saving}
           onPress={() => void save()}

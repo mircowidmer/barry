@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { SymbolView, type SymbolViewProps } from '@/components/symbol';
 import { type RefObject, useEffect, useRef, useState } from 'react';
 import { Alert, type HostInstance, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';

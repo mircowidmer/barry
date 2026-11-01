@@ -1,6 +1,6 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { SymbolView, toolbarIcon } from '@/components/symbol';
 import { useState } from 'react';
 import { Alert, Keyboard, Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
@@ -120,7 +120,7 @@ export default function PlanScreen() {
       <Screen>
         <Stack.Screen options={{ title: '' }} />
         <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
+          <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
         </Stack.Toolbar>
         <FirstLoad failure={loaded.error && t.plan.couldNotLoad} onRetry={() => void loaded.reload()} />
       </Screen>
@@ -293,13 +293,13 @@ function PlanForm({
     <Screen>
       <Stack.Screen options={{ title: live ? t.plan.titleEdit : id ? t.plan.titlePlanned : t.plan.titleNew }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
+        <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
         {live ? (
           <Stack.Toolbar.Button
             variant="done"
-            icon="checkmark"
+            icon={toolbarIcon('checkmark')}
             accessibilityLabel={t.common.save}
             disabled={busy !== null}
             onPress={() => void onSave()}

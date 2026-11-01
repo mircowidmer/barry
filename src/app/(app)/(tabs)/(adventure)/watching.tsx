@@ -14,6 +14,7 @@ import { type AdventureId, barry, type EmergencyContact, reachableAddresses, typ
 import { initials } from '@/lib/initials';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
+import { toolbarIcon } from '@/components/symbol';
 
 const AVATAR = 40;
 
@@ -35,7 +36,7 @@ export default function WatchingSheet() {
 
   const close = (
     <Stack.Toolbar placement="left">
-      <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
+      <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
     </Stack.Toolbar>
   );
   if (!loaded.data) {

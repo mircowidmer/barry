@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { SymbolView, toolbarIcon } from '@/components/symbol';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
@@ -79,7 +79,7 @@ function Overview({
     <Screen onRefresh={onReload}>
       <Stack.Screen options={{ title: t.adventure.title }} />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="plus" tintColor={theme.accent} accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
+        <Stack.Toolbar.Button icon={toolbarIcon('plus')} tintColor={theme.accent} accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
       </Stack.Toolbar>
       {reloadFailure}
       {offlineSince && (
@@ -195,7 +195,7 @@ function LiveAdventure({
     <Screen onRefresh={onChanged}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Menu icon="clock" accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
+        <Stack.Toolbar.Menu icon={toolbarIcon('clock')} accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
           {t.adventure.moves.map((m) => {
             const to = movedDeadline(adventure.deadline, m.minutes);
             return (
@@ -209,7 +209,7 @@ function LiveAdventure({
           })}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
-          icon="person.2"
+          icon={toolbarIcon('person.2')}
           tintColor={messages.some((m) => m.outcome === 'failed') ? theme.warning : undefined}
           accessibilityLabel={t.adventure.watchingTitle}
           onPress={() => router.push({ pathname: '/watching', params: { id: adventure.id } })}

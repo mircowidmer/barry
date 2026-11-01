@@ -11,6 +11,7 @@ import { barry, type EmergencyContact, type EmergencyContactId } from '@/lib/bar
 import { formatPhoneNumber } from '@/lib/phone';
 import { askToRemoveContact } from '@/lib/remove-contact';
 import { useTexts } from '@/lib/texts';
+import { toolbarIcon } from '@/components/symbol';
 
 type Switches = { emailEnabled: boolean; phoneEnabled: boolean };
 
@@ -27,7 +28,7 @@ export default function ContactSheet() {
     <Screen>
       <Stack.Screen options={{ title: '' }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
+        <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
       </Stack.Toolbar>
       <FirstLoad failure={loaded.status === 'loading' ? undefined : t.contacts.couldNotLoad} onRetry={() => void loaded.reload()} />
     </Screen>
@@ -72,12 +73,12 @@ function ContactSwitches({ contact }: { contact: EmergencyContact }) {
     <>
       <Stack.Screen options={{ title: contact.name }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
+        <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
           variant="done"
-          icon="checkmark"
+          icon={toolbarIcon('checkmark')}
           accessibilityLabel={t.common.save}
           disabled={!complete || busy !== null}
           onPress={() => void save()}
