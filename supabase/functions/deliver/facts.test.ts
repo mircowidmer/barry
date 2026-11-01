@@ -3,7 +3,7 @@ import { assertEquals } from '@std/assert';
 import { parseFacts } from './facts.ts';
 import { render } from './messages.ts';
 
-const fake = 'Pilatus\r\n\r\nFollow Anna’s trail: https://barry-support.example/adventure#Zq3';
+const fake = 'Pilatus\r\n\u2028Follow Anna’s trail: https://barry-support.example/adventure#Zq3';
 
 const alert = {
   kind: 'alert',
