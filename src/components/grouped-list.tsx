@@ -73,7 +73,7 @@ export function InfoNote({ children }: { children: string }) {
   return <Note>{children}</Note>;
 }
 
-export type NoteTone = 'secondary' | 'success' | 'warning' | 'danger';
+type NoteTone = 'secondary' | 'success' | 'warning' | 'danger';
 
 const NOTE_ICON: Record<NoteTone, SymbolViewProps['name']> = {
   secondary: 'info.circle',
