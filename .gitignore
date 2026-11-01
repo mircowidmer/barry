@@ -46,6 +46,7 @@ example
 # generated native folders
 /ios
 /android
+/modules/*/android/build
 
 # verification proof (see .claude/skills/barry-backend-verify and barry-frontend-verify)
 .verify-artifacts/
