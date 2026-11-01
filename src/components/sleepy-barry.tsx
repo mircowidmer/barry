@@ -29,8 +29,8 @@ export function SleepyBarry({ progress, awake, woof }: { progress: Animated.Valu
         <Animated.View style={[styles.ear, { left: 4, transform: [{ rotate: leftEar }] }]} />
         <Animated.View style={[styles.ear, { right: 4, transform: [{ rotate: rightEar }] }]} />
         <View style={styles.head} />
-        <View style={[styles.cheek, { left: 19 }]} />
-        <View style={[styles.cheek, { right: 19 }]} />
+        <View style={[styles.cheek, styles.cheekLeft]} />
+        <View style={[styles.cheek, styles.cheekRight]} />
         <View style={styles.stripe} />
         <View style={styles.muzzle} />
         <Animated.View style={[styles.brow, { left: 32.5, transform: [{ translateY: brows }] }]} />
@@ -44,7 +44,7 @@ export function SleepyBarry({ progress, awake, woof }: { progress: Animated.Valu
       </View>
       {awake && (
         <View style={styles.bubble}>
-          <ThemedText type="smallBold" style={{ color: COAT }}>
+          <ThemedText type="smallBold" style={styles.woof}>
             {woof}
           </ThemedText>
         </View>
@@ -62,6 +62,8 @@ const styles = StyleSheet.create({
   ear: { position: 'absolute', top: 26, width: 26, height: 48, borderRadius: 13, backgroundColor: COAT, transformOrigin: '50% 0%' },
   head: { position: 'absolute', left: 16, top: 12, width: 68, height: 78, borderRadius: 34, backgroundColor: COAT },
   cheek: { position: 'absolute', top: 54, width: 24, height: 24, borderRadius: 12, backgroundColor: TAN },
+  cheekLeft: { left: 19 },
+  cheekRight: { right: 19 },
   stripe: { position: 'absolute', left: 45, top: 16, width: 10, height: 44, borderRadius: 5, backgroundColor: BLAZE },
   muzzle: { position: 'absolute', left: 31, top: 52, width: 38, height: 34, borderRadius: 18, backgroundColor: BLAZE },
   brow: { position: 'absolute', top: 33.5, width: 7, height: 7, borderRadius: 3.5, backgroundColor: TAN },
@@ -100,4 +102,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: BLAZE,
   },
+  woof: { color: COAT },
 });
