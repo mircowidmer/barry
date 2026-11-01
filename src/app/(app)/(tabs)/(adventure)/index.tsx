@@ -231,7 +231,10 @@ function LiveAdventure({
         </View>
       ) : (
         <>
-          {trailStatus === 'recording' && <Note icon="location.fill">{t.adventure.recording}</Note>}
+          {/* Android's foreground service keeps the Trail recording after Barry is closed. */}
+          {trailStatus === 'recording' && (
+            <Note icon="location.fill">{Platform.OS === 'android' ? t.adventure.recordingUntilCheckIn : t.adventure.recording}</Note>
+          )}
           {trailStatus === 'off' && <Note icon="location.slash">{t.adventure.trailOff}</Note>}
         </>
       )}

@@ -169,6 +169,7 @@ const en = {
     offline: (when: string) =>
       `No signal. This is your adventure as of ${when}. Check-in still works and is sent when you have signal.`,
     recording: 'Barry is recording your trail. Closing Barry stops the trail.',
+    recordingUntilCheckIn: 'Barry is recording your trail until you check in.',
     trailService: { title: 'Barry is recording your trail', body: 'Check in when you are back, and the trail ends.' },
     alarmChannel: 'Reminder and overdue notice',
     recordingBadge: 'Recording',
@@ -526,6 +527,7 @@ const de: Texts = {
     offline: (when) =>
       `Kein Empfang. So sah dein Abenteuer am ${when} aus. Das Zurückmelden funktioniert trotzdem und wird gesendet, sobald du Empfang hast.`,
     recording: 'Barry zeichnet deine Spur auf. Wenn du Barry schliesst, endet die Spur.',
+    recordingUntilCheckIn: 'Barry zeichnet deine Spur auf, bis du dich zurückmeldest.',
     trailService: { title: 'Barry zeichnet deine Spur auf', body: 'Melde dich nach deiner Rückkehr zurück, dann endet die Spur.' },
     alarmChannel: 'Erinnerung und Überfällig-Hinweis',
     recordingBadge: 'Zeichnet auf',
