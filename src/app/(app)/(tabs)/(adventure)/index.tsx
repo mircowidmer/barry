@@ -3,6 +3,7 @@ import { SymbolView, toolbarIcon } from '@/components/symbol';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { CheckInButton } from '@/components/check-in-accessory';
 import { ConditionsSection } from '@/components/conditions-section';
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { FirstLoad, LoadState, pressedStyle, Screen, Section } from '@/components/form';
@@ -17,7 +18,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, darkBefore, type InProgressAdventure, LIMITS, type Position, type SentMessage, type TrailStatus } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
-import { useOfferCheckIn } from '@/lib/live-check-in';
+import { useCheckInOffer, useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
@@ -165,7 +166,7 @@ function LiveAdventure({
     }
   };
 
-  // The Check In button sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
+  // On iOS the Check In button sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
   useOfferCheckIn(
     adventure.stage !== 'planned' && adventure.stage !== 'ended',
     busy,
@@ -222,6 +223,7 @@ function LiveAdventure({
       )}
       {reloadFailure}
       <DeadlineCard adventure={adventure} now={now} />
+      {Platform.OS === 'android' && <AndroidCheckIn />}
 
       {/* Only iOS draws the Trail map, so Android shows the Trail's state as a note. */}
       {lastKnown && Platform.OS === 'ios' ? (
@@ -312,6 +314,17 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
 }
 
 /** What the Trail is doing, as a badge on the map it belongs to. */
+/** Android's tab bar has no bottom accessory, so the Check In button sits under the Deadline instead. */
+function AndroidCheckIn() {
+  const offer = useCheckInOffer();
+  if (!offer) return null;
+  return (
+    <View style={styles.checkIn}>
+      <CheckInButton offer={offer} inline={false} />
+    </View>
+  );
+}
+
 function TrailBadge({ status }: { status: TrailStatus }) {
   const theme = useTheme();
   const t = useTexts();
@@ -338,6 +351,7 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
+  checkIn: { height: 56 },
   badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
   cardBody: { gap: 2 },
