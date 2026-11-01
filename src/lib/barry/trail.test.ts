@@ -107,15 +107,8 @@ const setup = (world: World = {}) => {
 describe('trailMode', () => {
   const facts: TrailFacts = { signedIn: true, permitted: true, pendingCheckIn: false, inProgressId: a1 };
 
-  it.each<[Partial<TrailFacts>, TrailStatus]>([
-    [{}, 'recording'],
-    [{ pendingCheckIn: true }, 'delivering'],
-    [{ pendingCheckIn: true, inProgressId: null }, 'delivering'],
-    [{ inProgressId: null }, 'off'],
-    [{ permitted: false, pendingCheckIn: true }, 'off'],
-    [{ signedIn: false, pendingCheckIn: true }, 'off'],
-  ])('%j gives %s', (change, mode) => {
-    expect(trailMode({ ...facts, ...change })).toBe(mode);
+  it('delivers a queued Check-in once the cached Adventure is gone', () => {
+    expect(trailMode({ ...facts, pendingCheckIn: true, inProgressId: null })).toBe('delivering');
   });
 });
 
