@@ -39,18 +39,19 @@ export type MessageFacts = {
 
 type Json = Record<string, unknown>;
 
+// Every line of a message is Barry's, so a line break sent around the app must not start one: control characters and
+// Unicode line and paragraph separators become one space. Only the medical notes, written on several lines, keep them.
+const oneLine = (value: string): string => value.replace(/[\p{Cc}\p{Zl}\p{Zp}]+/gu, ' ');
+
+const multilineText = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
+
 const text = (value: unknown, field: string): string => {
   if (typeof value !== 'string' || value === '') throw new Error(`message_facts: ${field} is missing`);
-  return value;
+  return oneLine(value);
 };
 
-const optionalText = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
-
-// The app takes these fields on one line. A line break sent around the app would let the text fake a line of Barry's
-// own, such as a trail link, so control characters become one space. The medical notes keep their lines.
-const oneLine = (value: string): string => value.replace(/\p{Cc}+/gu, ' ');
-const optionalOneLine = (value: unknown): string | null => {
-  const kept = optionalText(value);
+const optionalText = (value: unknown): string | null => {
+  const kept = multilineText(value);
   return kept === null ? null : oneLine(kept);
 };
 
@@ -72,10 +73,10 @@ export const parseFacts = (raw: unknown): MessageFacts => {
   const plan = (f.plan ?? {}) as Json;
   const base = {
     language: f.language === 'de' ? ('de' as const) : ('en' as const),
-    adventurerName: oneLine(text(f.adventurer_name, 'adventurer_name')),
+    adventurerName: text(f.adventurer_name, 'adventurer_name'),
     timeZone: text(f.time_zone, 'time_zone'),
     plan: {
-      destination: oneLine(text(plan.destination, 'plan.destination')),
+      destination: text(plan.destination, 'plan.destination'),
     },
     deadline: date(f.deadline, 'deadline'),
   };
@@ -100,10 +101,10 @@ export const parseFacts = (raw: unknown): MessageFacts => {
         trailToken: optionalText(f.trail_token),
         profile: {
           phone: optionalText(p.phone),
-          carMake: optionalOneLine(p.car_make),
-          carColour: optionalOneLine(p.car_colour),
-          carPlate: optionalOneLine(p.car_plate),
-          medicalNotes: optionalText(p.medical_notes),
+          carMake: optionalText(p.car_make),
+          carColour: optionalText(p.car_colour),
+          carPlate: optionalText(p.car_plate),
+          medicalNotes: multilineText(p.medical_notes),
         },
         lastKnownPosition: position(f.last_known_position),
       };
