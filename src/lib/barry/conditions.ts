@@ -48,7 +48,7 @@ export type ConditionsResult =
   | { kind: 'shown' | 'stale'; conditions: FetchedConditions }
   | { kind: 'unavailable' };
 
-export type ConditionsDeps = {
+type ConditionsDeps = {
   /** The parsed JSON at the URL; throws without signal or on an error status. */
   fetchJson(url: string): Promise<unknown>;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
@@ -211,7 +211,7 @@ export const daylightView = (point: Point, deadline: Date, now: Date): DaylightV
 };
 
 /** The clock as the forecast view reads it: the hour, so the view changes once an hour, and the day, for the Adventure Day. */
-export type ViewClock = { hour: number; dayStart: number };
+type ViewClock = { hour: number; dayStart: number };
 
 export const viewClock = (now: Date): ViewClock => ({ hour: Math.floor(now.getTime() / HOUR_MS), dayStart: midnightOf(now).getTime() });
 
