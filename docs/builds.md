@@ -64,7 +64,7 @@ npm run submit:production
   The Expo website may show the same account under the name `mircowidmer`.
   `npx eas-cli@latest whoami` shows who is logged in.
 - With a paid team, EAS signs the Push Notifications capability itself.
-  `BARRY_WITHOUT_PUSH` is only for local builds with the free team.
+  `BARRY_WITHOUT_PUSH` is for local builds with the free team and for the unsigned Simulator build in CI.
 
 ## Build on your Mac
 
@@ -73,7 +73,7 @@ npm run submit:production
 
 ## Build on GitHub
 
-The `ios` job of `.github/workflows/ci.yml` builds the production variant in Release for the iOS Simulator on a macOS runner, without signing.
+The `ios` job of `.github/workflows/ci.yml` builds the production variant in Release for the iOS Simulator on a macOS runner, without signing and with `BARRY_WITHOUT_PUSH=1`, so without the Push entitlement and the Live Activity.
 It proves that the native project and the JavaScript bundle still build.
 It runs on `main` and on a pull request that changes what goes into the native project: the packages, `app.json`, `app.config.js`, `eas.json`, `plugins/`, `modules/`, `patches/`, `locales/`, `assets/` or the workflow itself.
 Every pull request also runs the `ios-bundle` job, which only exports the iOS JavaScript bundle and takes a minute.
