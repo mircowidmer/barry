@@ -174,8 +174,8 @@ A text change usually touches more than one of them, and the tests of each pin t
   A change to a skill or the README is prefixed with its name, such as `barry-frontend-verify:` or `README:`.
 - Before creating a pull request, run `/simplify` on the branch and commit its fixes.
   `.claude/hooks/simplify-before-pr.sh` refuses `gh pr create` until then and says how to record it.
-- Markdown files hold one sentence per line, and no sentence runs over two lines.
+- Markdown files hold one sentence per line.
   A blank line still separates paragraphs, and a list item's further sentences are indented to its text, so the rendered page does not change.
   Front matter, code blocks, tables and headings stay as they are.
-  `npm run sentences` splits the lines that hold more than one sentence, and `scripts/sentence-lines.test.ts` fails on any it missed.
+  `npm run sentences` splits the lines that hold more than one sentence, and `scripts/sentence-lines.test.ts` fails on any such line it missed.
 - Constants that are implementation choices stay in the code next to what they protect, with a test that pins them, and the spec names them instead of their values.
