@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { admin, adventurer, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
+import { admin, adventurer, missDeadline, must, tick, waitForMail, waitForText } from './stack.mjs';
 
 // .claude/skills/barry-frontend-verify/features/notifications.md § Notifications "Supabase has the push channel turned off and queues no push rows for them."
 test('Supabase has the push channel turned off and queues no push rows, even for an Adventurer with a push device', async () => {
@@ -12,6 +12,7 @@ test('Supabase has the push channel turned off and queues no push rows, even for
   await waitForText(anna.sara.phone, 'Anna is going on an adventure alone');
 
   await missDeadline(id);
+  tick();
   await waitForMail(anna.luca.email, 'Anna has not checked in');
   await waitForText(anna.sara.phone, 'Anna has not checked in from an adventure');
 

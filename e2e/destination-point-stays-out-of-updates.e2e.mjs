@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { admin, adventurer, must, paceOver, waitForMail, waitForText } from './stack.mjs';
+import { admin, adventurer, must, paceOver, runDeliver, waitForMail, waitForText } from './stack.mjs';
 
 // docs/spec.md § Adventures > Fields "Destination on the map ... The contacts are not told the point."
 test('the contacts are not told the point: the Plan Update, the Deadline Update and the All-clear never carry it', async () => {
@@ -29,12 +29,14 @@ test('the contacts are not told the point: the Plan Update, the Deadline Update 
     'save_adventure',
   );
   await paceOver(id);
+  await runDeliver();
   const planUpdate = await waitForMail(anna.luca.email, 'Anna changed the plan for Kleiner Mythen');
   const planUpdateText = await waitForText(anna.sara.phone, 'Anna changed the plan');
 
   const later = new Date(Date.now() + 3 * 3600_000).toISOString();
   assert.equal(must(await anna.client.rpc('move_deadline', { p_id: id, p_deadline: later }), 'move_deadline'), null);
   await paceOver(id);
+  await runDeliver();
   const deadlineUpdate = await waitForMail(anna.luca.email, 'Anna needs more time for Kleiner Mythen');
   const deadlineUpdateText = await waitForText(anna.sara.phone, 'Anna needs more time');
 

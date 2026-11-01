@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { randomInt } from 'node:crypto';
 import { after, test } from 'node:test';
 
-import { adventurer, must, sleep, waitForText } from './stack.mjs';
+import { adventurer, must, poll, waitForText } from './stack.mjs';
 
 // SUBSCRIBED only means the channel joined. Realtime hears the database once it says so in a system message, which
 // on a fresh stack comes seconds later, and a change committed before then never reaches the listener.
@@ -48,7 +48,7 @@ test('the list follows while the screen is open, and a text message turns Delive
   await waitForText(anna.sara.phone, 'Anna is going on an adventure alone');
 
   const delivered = (m) => m.channel === 'sms' && m.to_address === anna.sara.phone && m.status === 'sent' && m.delivered_at !== null;
-  for (let tries = 0; tries < 30 && !annaHears.changes.some(delivered); tries++) await sleep(1);
+  await poll('Realtime change of Sara’s Heads-up to Delivered', async () => annaHears.changes.some(delivered));
   assert.ok(annaHears.changes.some(delivered), 'Anna hears Sara’s Heads-up text message turn Delivered when Twilio reports it');
 
   const [listed] = must(

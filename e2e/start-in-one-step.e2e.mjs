@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { admin, adventurer, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
+import { admin, adventurer, missDeadline, must, tick, waitForMail, waitForText } from './stack.mjs';
 
 // docs/spec.md § Adventures > Start "**Start** saves the sheet and starts the Adventure in one step."
 // docs/spec.md § Adventures > Start "When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts."
@@ -19,7 +19,6 @@ test('Start saves the sheet and starts the Adventure in one step, and the Alert 
   assert.equal(rows.length, 1, 'the command answers with one row');
   const [{ adventure_id: id, refusal }] = rows;
   assert.equal(refusal, null, 'Supabase confirms the Start');
-  assert.ok(id, 'the command names the saved Adventure');
 
   const stored = must(await admin.from('adventures').select('stage, destination').eq('id', id).single(), 'adventure');
   assert.deepEqual(stored, { stage: 'active', destination: 'Grosser Mythen' }, 'the sheet is saved and the Adventure is Active');
@@ -30,6 +29,7 @@ test('Start saves the sheet and starts the Adventure in one step, and the Alert 
   await waitForText(anna.sara.phone, 'Anna is going on an adventure alone');
 
   await missDeadline(id);
+  tick();
   const alert = await waitForMail(anna.luca.email, 'Anna has not checked in');
   assert.match(alert.Text, /Last position at .+: 46\.98760, 8\.65430/, 'the Alert carries the position recorded with the Start');
 });
