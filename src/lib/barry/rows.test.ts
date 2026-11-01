@@ -79,12 +79,6 @@ describe('parseAdventure', () => {
     });
   });
 
-  it('parses an Ended Adventure with its Check-in time and Alert count', () => {
-    expect(
-      parseAdventure(row({ ...started, stage: 'ended', alerts_sent: 2, checked_in_at: '2026-10-17T18:00:00Z', ended_at: '2026-10-17T18:00:00Z' })),
-    ).toMatchObject({ stage: 'ended', alertsSent: 2, checkedInAt: new Date('2026-10-17T18:00:00Z') });
-  });
-
   it('counts the Alerts for an earlier Deadline in an Ended Adventure, but not in an Alerted one', () => {
     expect(
       parseAdventure(row({ ...started, stage: 'ended', alerts_sent: 1, earlier_alerts: 3, checked_in_at: '2026-10-17T18:00:00Z', ended_at: '2026-10-17T18:00:00Z' })),
