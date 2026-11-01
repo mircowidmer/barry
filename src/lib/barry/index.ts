@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { storage } from '@/lib/storage';
 import { fetchWithTimeout, supabase } from '@/lib/supabase';
 import { appLanguage } from '@/lib/language';
+import { ALARM_CHANNEL } from '@/lib/notifications';
 import { currentTexts, liveActivityText } from '@/lib/texts';
 import { arrivalText, notificationText } from '@/lib/wording';
 
@@ -185,7 +186,8 @@ const notifications: NotificationService = {
     await Notifications.scheduleNotificationAsync({
       identifier: alarm.identifier,
       content: notificationText(alarm),
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: alarm.at },
+      // Android defers ordinary alarms for battery; an alarm clock fires on time when exact alarms are allowed.
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: alarm.at, channelId: ALARM_CHANNEL, delivery: 'alarmClock' },
     });
   },
   cancel: (identifier) => Notifications.cancelScheduledNotificationAsync(identifier),
