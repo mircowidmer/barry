@@ -9,8 +9,8 @@ import { type AdventurerProfile, barry, isPhoneNumber } from '@/lib/barry';
 import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
 
-export type ProfileForm = Record<keyof AdventurerProfile, string>;
-export type SetField = (field: keyof ProfileForm) => (text: string) => void;
+type ProfileForm = Record<keyof AdventurerProfile, string>;
+type SetField = (field: keyof ProfileForm) => (text: string) => void;
 
 const empty: ProfileForm = { name: '', phone: '', carMake: '', carColour: '', carPlate: '', medicalNotes: '' };
 
