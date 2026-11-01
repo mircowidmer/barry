@@ -1,28 +1,53 @@
 # Barry specification
 
-Barry is a React Native app with a Supabase backend. An Adventurer plans a solo Adventure, sets a Deadline, and checks in when they are back safe. If the Deadline passes without a Check-in, Barry alerts the Adventurer's Emergency Contacts.
+Barry is a React Native app with a Supabase backend.
+An Adventurer plans a solo Adventure, sets a Deadline, and checks in when they are back safe.
+If the Deadline passes without a Check-in, Barry alerts the Adventurer's Emergency Contacts.
 
-Terms in capitals are defined in [CONTEXT.md](../CONTEXT.md). [ADR 0001](adr/0001-server-owns-the-deadline.md) explains why Supabase, not the phone, owns the Deadline.
+Terms in capitals are defined in [CONTEXT.md](../CONTEXT.md).
+[ADR 0001](adr/0001-server-owns-the-deadline.md) explains why Supabase, not the phone, owns the Deadline.
 
 ## Scope of the first version
 
-The first version serves one Adventurer: the app's author, on their own phone. It still uses real accounts and stores nothing specific to that person in code, so it can become a public app later.
+The first version serves one Adventurer: the app's author, on their own phone.
+It still uses real accounts and stores nothing specific to that person in code, so it can become a public app later.
 
 ## Accounts
 
 - An Adventurer signs in with an email address and a password through Supabase Auth.
-- A new account confirms its email address with a link that Barry sends from help@barry.support. The link opens a page on `https://barry.support/confirmed` that sends the Adventurer back to Barry, which signs them in by itself or asks for the email address and password. The page ends the browser session the link opens and removes its tokens from the address, so the browser's history cannot sign anyone in.
-- After **Create Account**, the app shows **Check Your Inbox** with the address the link went to. It keeps the password in memory only and signs the Adventurer in by itself each time Barry comes back to the foreground, so the Adventurer who opens the link and returns lands on the tabs without typing again. While the link is unopened that sign-in says nothing; only a tap on **Sign In** says the address is not confirmed yet. Until then it offers **Sign In**, **Send Again**, which sends the link again once the wait that Supabase Auth sets between two links has passed, and **Use Another Address**. Signing in from the sign-in screen with an address that is not confirmed yet opens the same screen.
-- An Adventurer who forgot the password asks for a new one with **Forgot Password?** on the sign-in screen. Barry emails an eight-digit code from help@barry.support, valid for 15 minutes. Entering the code with a new password signs the Adventurer in with the new password.
-- The app keeps the sign-in in the iPhone's Keychain, for this phone only, so a backup of the phone carries no sign-in. A phone restored from a backup asks the Adventurer to sign in again.
-- The rest of what the phone keeps for offline use sits in the app's own storage, which a backup of the phone does include: the cached live Adventure with its destination, Deadline and contacts, the Trail readings waiting for signal, the queued Check-in and the kept Conditions with the rounded points of the last destinations. Someone who can open a backup, or the storage of an unlocked phone, learns where the Adventurer went and planned to go, and nothing more: no sign-in, no account. Barry accepts this, decided on 30 October 2026, because the Adventurer's own phone is where this data belongs and the Keychain already keeps the account out of the backup.
+- A new account confirms its email address with a link that Barry sends from help@barry.support.
+  The link opens a page on `https://barry.support/confirmed` that sends the Adventurer back to Barry, which signs them in by itself or asks for the email address and password.
+  The page ends the browser session the link opens and removes its tokens from the address, so the browser's history cannot sign anyone in.
+- After **Create Account**, the app shows **Check Your Inbox** with the address the link went to.
+  It keeps the password in memory only and signs the Adventurer in by itself each time Barry comes back to the foreground, so the Adventurer who opens the link and returns lands on the tabs without typing again.
+  While the link is unopened that sign-in says nothing; only a tap on **Sign In** says the address is not confirmed yet.
+  Until then it offers **Sign In**, **Send Again**, which sends the link again once the wait that Supabase Auth sets between two links has passed, and **Use Another Address**.
+  Signing in from the sign-in screen with an address that is not confirmed yet opens the same screen.
+- An Adventurer who forgot the password asks for a new one with **Forgot Password?** on the sign-in screen.
+  Barry emails an eight-digit code from help@barry.support, valid for 15 minutes.
+  Entering the code with a new password signs the Adventurer in with the new password.
+- The app keeps the sign-in in the iPhone's Keychain, for this phone only, so a backup of the phone carries no sign-in.
+  A phone restored from a backup asks the Adventurer to sign in again.
+- The rest of what the phone keeps for offline use sits in the app's own storage, which a backup of the phone does include: the cached live Adventure with its destination, Deadline and contacts, the Trail readings waiting for signal, the queued Check-in and the kept Conditions with the rounded points of the last destinations.
+  Someone who can open a backup, or the storage of an unlocked phone, learns where the Adventurer went and planned to go, and nothing more: no sign-in, no account.
+  Barry accepts this, decided on 30 October 2026, because the Adventurer's own phone is where this data belongs and the Keychain already keeps the account out of the backup.
 - A Cloudflare Turnstile check guards sign-up, sign-in, the password check before a password change, and the recovery email, so nobody can try passwords or codes in bulk.
-- Creating an account records the version of the Terms of Use it accepted. When the Terms of Use change in a way that matters to the Adventurer, `CURRENT_TERMS` in `src/lib/site.ts` takes the new date, and the next time Barry comes to the foreground with no Adventure in progress, an alert says that the Terms of Use changed and on which day, with **Read**, which opens them, and **OK**. Either records the new version, so the alert shows once. An account from before Barry recorded the version sees it once too. It waits while an Adventure is Active, Overdue or Alerted, so it never stands between the Adventurer and a Check-in.
+- Creating an account records the version of the Terms of Use it accepted.
+  When the Terms of Use change in a way that matters to the Adventurer, `CURRENT_TERMS` in `src/lib/site.ts` takes the new date, and the next time Barry comes to the foreground with no Adventure in progress, an alert says that the Terms of Use changed and on which day, with **Read**, which opens them, and **OK**.
+  Either records the new version, so the alert shows once.
+  An account from before Barry recorded the version sees it once too.
+  It waits while an Adventure is Active, Overdue or Alerted, so it never stands between the Adventurer and a Check-in.
 - Each account has one Adventurer Profile.
-- The Adventurer changes the password and the email address on the Account screen, which slides up as a sheet from **Email and Password** in the Account group of the Profile tab. A password change needs the current password. Supabase also refuses a password change from a sign-in older than 24 hours, so a stolen session cannot lock the Adventurer out. A changed email address takes effect once the Adventurer has confirmed it from both the old and the new address, with the link Barry sends to each.
-- The Adventurer deletes the account from the Profile tab with **Delete Account**, after confirming. Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
+- The Adventurer changes the password and the email address on the Account screen, which slides up as a sheet from **Email and Password** in the Account group of the Profile tab.
+  A password change needs the current password.
+  Supabase also refuses a password change from a sign-in older than 24 hours, so a stolen session cannot lock the Adventurer out.
+  A changed email address takes effect once the Adventurer has confirmed it from both the old and the new address, with the link Barry sends to each.
+- The Adventurer deletes the account from the Profile tab with **Delete Account**, after confirming.
+  Deleting removes the Profile, the Emergency Contacts, every Adventure with its Trail and its messages, and every Trail Map link.
 - An account cannot be deleted while it has an Active, Overdue, or Alerted Adventure, or while a message such as an All-clear is still being sent.
-- The Adventurer logs out from the Profile tab with **Log Out**, after confirming. Logging out forgets the live Adventure and the kept Conditions on this phone, so its Reminder and Overdue Notice no longer fire there and the Trail stops. The Adventure itself goes on, and Barry still alerts the contacts if the Deadline passes.
+- The Adventurer logs out from the Profile tab with **Log Out**, after confirming.
+  Logging out forgets the live Adventure and the kept Conditions on this phone, so its Reminder and Overdue Notice no longer fire there and the Trail stops.
+  The Adventure itself goes on, and Barry still alerts the contacts if the Deadline passes.
 
 ## Adventurer Profile
 
@@ -34,25 +59,44 @@ The first version serves one Adventurer: the app's author, on their own phone. I
 | Medical notes | No | Alert |
 | Message language | Yes, set by the app to the phone's language, German or English | Decides the language of every message to the contacts |
 
-The name must be filled in before the Adventurer starts their first Adventure. The name takes up to 100 characters, the car make and colour 50 each, the number plate 20 and the medical notes 500. Only the Alert carries the full Profile, and it leaves the phone line out when there is no phone number.
+The name must be filled in before the Adventurer starts their first Adventure.
+The name takes up to 100 characters, the car make and colour 50 each, the number plate 20 and the medical notes 500.
+Only the Alert carries the full Profile, and it leaves the phone line out when there is no phone number.
 
 ## Emergency Contacts
 
 - Each Adventurer keeps a saved list of Emergency Contacts.
 - An Emergency Contact has a name and a phone number, an email address, or both.
-- The Adventurer adds a contact only by picking a Phone Contact in the phone's own picker. The pick needs no access to the phone's contacts. Barry keeps, on that phone only, which Phone Contact each Emergency Contact was copied from, so it can show that contact's card later. It asks for access to the contacts only then (see Delivery Failures).
-- Barry copies the name, the first mobile number it can use, else the first other number it can use, and the first email address, and switches both addresses on. A number without a country code is read in the phone's region. A contact without a name takes the company's name, else the email address, else the number.
-- The copy is not typed over. To change an address, the Adventurer deletes the contact and picks it again. Supabase refuses a changed address on a contact that an Active, Overdue or Alerted Adventure uses.
-- A pick whose email address or phone number a saved contact already has is refused, naming that contact. A pick with no email address and no usable phone number is refused.
-- The Adventurer can switch the email address and the phone number on and off. Barry reaches a contact only on the addresses that are switched on. A switched-off address is kept, so switching it back on restores it.
-- A contact needs at least one address that is filled in and switched on. Without one, it cannot be saved.
-- The list holds at most 10 contacts. A pick beyond that is refused until the Adventurer deletes one. A name longer than 100 characters is cut to 100. An email address longer than 254 characters is left out, and the next one the Phone Contact has is used.
+- The Adventurer adds a contact only by picking a Phone Contact in the phone's own picker.
+  The pick needs no access to the phone's contacts.
+  Barry keeps, on that phone only, which Phone Contact each Emergency Contact was copied from, so it can show that contact's card later.
+  It asks for access to the contacts only then (see Delivery Failures).
+- Barry copies the name, the first mobile number it can use, else the first other number it can use, and the first email address, and switches both addresses on.
+  A number without a country code is read in the phone's region.
+  A contact without a name takes the company's name, else the email address, else the number.
+- The copy is not typed over.
+  To change an address, the Adventurer deletes the contact and picks it again.
+  Supabase refuses a changed address on a contact that an Active, Overdue or Alerted Adventure uses.
+- A pick whose email address or phone number a saved contact already has is refused, naming that contact.
+  A pick with no email address and no usable phone number is refused.
+- The Adventurer can switch the email address and the phone number on and off.
+  Barry reaches a contact only on the addresses that are switched on.
+  A switched-off address is kept, so switching it back on restores it.
+- A contact needs at least one address that is filled in and switched on.
+  Without one, it cannot be saved.
+- The list holds at most 10 contacts.
+  A pick beyond that is refused until the Adventurer deletes one.
+  A name longer than 100 characters is cut to 100.
+  An email address longer than 254 characters is left out, and the next one the Phone Contact has is used.
 - Emergency Contacts have no account and do not install Barry.
 - Barry sends nothing to a person when the Adventurer adds them to the list.
-- Each Adventure uses one to five contacts from the list. Saving a sixth is refused.
+- Each Adventure uses one to five contacts from the list.
+  Saving a sixth is refused.
 - The Adventurer deletes a contact from the list with **Delete**, after confirming.
 - A contact that an Active, Overdue, or Alerted Adventure uses cannot be deleted from the list.
-- A contact that only Planned Adventures use can be deleted from the list. The contact leaves those Planned Adventures. If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one.
+- A contact that only Planned Adventures use can be deleted from the list.
+  The contact leaves those Planned Adventures.
+  If a Planned Adventure has no contact left, Start refuses until the Adventurer adds one.
 
 ## Adventures
 
@@ -76,13 +120,26 @@ The name must be filled in before the Adventurer starts their first Adventure. T
 | Alerted | The Grace Period ends without a Check-in. | Active, Ended |
 | Ended | The Adventurer checks in. | Deleted |
 
-An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. They can have any number of Planned Adventures. The Adventure tab lists the Planned Adventures, or shows the Adventure in progress. The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first. Opening an Ended Adventure shows its destination as the title, its Check-in time, and a map of its readings. The Adventurer can delete a Planned or an Ended Adventure after confirming, from its screen or by swiping its card left, and several Ended Adventures at once with **Select** in the History. Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop working. Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
+An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time.
+They can have any number of Planned Adventures.
+The Adventure tab lists the Planned Adventures, or shows the Adventure in progress.
+The History tab, the second tab, shows the Adventure in progress and lists the Ended Adventures, newest first.
+Opening an Ended Adventure shows its destination as the title, its Check-in time, and a map of its readings.
+The Adventurer can delete a Planned or an Ended Adventure after confirming, from its screen or by swiping its card left, and several Ended Adventures at once with **Select** in the History.
+Deleting an Ended Adventure removes its Plan, its readings and its messages, and its Trail Map links stop working.
+Barry refuses while a message for it is still being sent, such as the All-clear after an Alert.
 
 ### Rules by stage
 
-- **Planned.** The Adventurer can edit or delete the Adventure. Barry sends nothing and watches nothing. If the Adventurer never taps **Start**, nobody is protected.
-- **Active and Overdue.** The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later. At least one contact always remains. The Adventure cannot be cancelled. A Check-in is the only way to end it.
-- **Alerted.** The Adventurer can move the Deadline later, but cannot edit the Adventure. A Check-in is the only way to end it.
+- **Planned.** The Adventurer can edit or delete the Adventure.
+  Barry sends nothing and watches nothing.
+  If the Adventurer never taps **Start**, nobody is protected.
+- **Active and Overdue.** The Adventurer can edit the Plan, add contacts, remove contacts, and move the Deadline later.
+  At least one contact always remains.
+  The Adventure cannot be cancelled.
+  A Check-in is the only way to end it.
+- **Alerted.** The Adventurer can move the Deadline later, but cannot edit the Adventure.
+  A Check-in is the only way to end it.
 
 ### Start
 
@@ -91,50 +148,77 @@ An Adventurer has at most one Active, Overdue, or Alerted Adventure at a time. T
 3. The app sends the Start to Supabase.
 4. When Supabase confirms the Start, the Adventure becomes Active and Barry sends a Heads-up to each of its contacts.
 
-An Adventurer can start at most 5 Adventures in 24 hours. A sixth Start is refused, and deleting an Adventure does not give a Start back.
+An Adventurer can start at most 5 Adventures in 24 hours.
+A sixth Start is refused, and deleting an Adventure does not give a Start back.
 
-If the phone has no signal, the Start is not saved for later. The app shows that the Adventurer is not protected until Supabase confirms the Start. If a Start or a save fails, an alert says why. **Start** saves the sheet and starts the Adventure in one step. If Supabase refuses the Start, nothing of the sheet is saved: a new Adventure is not listed on the Adventure tab, and a Planned Adventure keeps what was saved before.
+If the phone has no signal, the Start is not saved for later.
+The app shows that the Adventurer is not protected until Supabase confirms the Start.
+If a Start or a save fails, an alert says why.
+**Start** saves the sheet and starts the Adventure in one step.
+If Supabase refuses the Start, nothing of the sheet is saved: a new Adventure is not listed on the Adventure tab, and a Planned Adventure keeps what was saved before.
 
-Before Start, the app shows these warnings when they apply. Start is still allowed.
+Before Start, the app shows these warnings when they apply.
+Start is still allowed.
 
-- The Adventurer has not allowed notifications. The app shows "you will get no Reminder or Overdue Notice".
+- The Adventurer has not allowed notifications.
+  The app shows "you will get no Reminder or Overdue Notice".
 - While text messages are switched off, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
-- The Adventurer has not allowed Barry to read the location in the background. The app shows "Barry can share only where you started", and that Barry cannot tell them when they reach their destination.
-- The Deadline falls after Dark at the destination on the map, or before the sky gets light again. The app shows it under the Deadline, with the time of Dark, while the Adventurer picks it.
+- The Adventurer has not allowed Barry to read the location in the background.
+  The app shows "Barry can share only where you started", and that Barry cannot tell them when they reach their destination.
+- The Deadline falls after Dark at the destination on the map, or before the sky gets light again.
+  The app shows it under the Deadline, with the time of Dark, while the Adventurer picks it.
 
 ### Move the Deadline
 
-The Adventurer can move the Deadline later at any time until the Check-in, also after the Alert, as long as the new Deadline is in the future and its Alerts would not take the Adventure past nine. Each move records a new Last Position. Moving the Deadline of an Overdue or Alerted Adventure makes it Active again.
+The Adventurer can move the Deadline later at any time until the Check-in, also after the Alert, as long as the new Deadline is in the future and its Alerts would not take the Adventure past nine.
+Each move records a new Last Position.
+Moving the Deadline of an Overdue or Alerted Adventure makes it Active again.
 
-- When a moved Deadline passes too, the contacts get up to three Alerts for it, the same way as for the first one. The History counts the Alerts for every Deadline.
-- An Adventure brings at most nine Alerts in all. Once a moved Deadline's three Alerts would pass nine, a move is refused, so every Deadline still gets all its Alerts and the Check-in is the only way to end the Adventure.
+- When a moved Deadline passes too, the contacts get up to three Alerts for it, the same way as for the first one.
+  The History counts the Alerts for every Deadline.
+- An Adventure brings at most nine Alerts in all.
+  Once a moved Deadline's three Alerts would pass nine, a move is refused, so every Deadline still gets all its Alerts and the Check-in is the only way to end the Adventure.
 
-- A move sends a Deadline Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets none, because the Heads-up carries the new Deadline.
-- The Deadline Update waits 3 minutes, and at least 15 minutes after the last Deadline Update to the same address. Another move in that time replaces it, so quick moves in a row send one Deadline Update, from the time the contact knew to the latest one.
+- A move sends a Deadline Update to each contact whose Heads-up already went out.
+  A contact whose Heads-up is still on its way gets none, because the Heads-up carries the new Deadline.
+- The Deadline Update waits 3 minutes, and at least 15 minutes after the last Deadline Update to the same address.
+  Another move in that time replaces it, so quick moves in a row send one Deadline Update, from the time the contact knew to the latest one.
 - A Deadline Update still waiting at the Check-in or when the Alert goes out is not sent.
-- When a move would put the Deadline after Dark at the destination on the map, the move's choice says so. The move is still allowed.
+- When a move would put the Deadline after Dark at the destination on the map, the move's choice says so.
+  The move is still allowed.
 
 ### Check-in
 
-- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else. One tap is not enough.
-- The **Check In** on the Live Activity does not check in. It opens Barry on the live Adventure, so iOS asks a locked phone to unlock first, and whoever holds a locked phone cannot send the All-clear.
+- A Check-in needs a deliberate gesture: the Adventurer presses and holds **Check In**, which sits in the tab bar's bottom accessory while the Adventure tab shows the live Adventure, and nowhere else.
+  One tap is not enough.
+- The **Check In** on the Live Activity does not check in.
+  It opens Barry on the live Adventure, so iOS asks a locked phone to unlock first, and whoever holds a locked phone cannot send the All-clear.
 - A Check-in ends the Adventure and sends an All-clear to every contact, whether it comes before the Deadline, while Overdue, or after the Alert.
-- If the phone has no signal, the app keeps the Check-in and sends it when the signal returns. If the Alert goes out first, the All-clear follows it.
-- With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives. It keeps location updates running only for that. Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
+- If the phone has no signal, the app keeps the Check-in and sends it when the signal returns.
+  If the Alert goes out first, the All-clear follows it.
+- With the "Always" location permission, Barry keeps trying to send a waiting Check-in in the background, without the app being opened, until it arrives.
+  It keeps location updates running only for that.
+  Without the permission, the Check-in is sent the next time the Adventurer opens Barry.
 
 ### Edit an Active or Overdue Adventure
 
 - The Alert always carries the latest Plan.
-- A change to the destination sends a Plan Update to each contact whose Heads-up already went out. A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
-- A Plan Update waits until 15 minutes after the last Plan Update to the same address. Several changes before a Plan Update goes out send only one, with the latest Plan.
+- A change to the destination sends a Plan Update to each contact whose Heads-up already went out.
+  A contact whose Heads-up is still on its way gets no Plan Update, because the Heads-up carries the latest Plan.
+- A Plan Update waits until 15 minutes after the last Plan Update to the same address.
+  Several changes before a Plan Update goes out send only one, with the latest Plan.
 - Changing only the contacts, moving the Deadline, or moving the destination on the map sends no Plan Update.
-- A contact added to the Adventure gets a Heads-up. One Adventure reaches at most 10 different contacts over its time, counting those removed again; adding an eleventh is refused.
+- A contact added to the Adventure gets a Heads-up.
+  One Adventure reaches at most 10 different contacts over its time, counting those removed again; adding an eleventh is refused.
 - A contact removed from the Adventure gets no further messages, and their Trail Map link stops working.
-- The Adventure always keeps at least one contact. Removing the last one is refused.
+- The Adventure always keeps at least one contact.
+  Removing the last one is refused.
 
 ## Messages
 
-Barry sends every message to an Emergency Contact from Supabase. The phone never sends a message to an Emergency Contact. The Reminder, the Overdue Notice and the Arrival Notice go to the Adventurer only, so the phone shows them itself as local notifications.
+Barry sends every message to an Emergency Contact from Supabase.
+The phone never sends a message to an Emergency Contact.
+The Reminder, the Overdue Notice and the Arrival Notice go to the Adventurer only, so the phone shows them itself as local notifications.
 
 | Message | Recipient | Channel | Sent when | Content |
 | --- | --- | --- | --- | --- |
@@ -149,137 +233,249 @@ Barry sends every message to an Emergency Contact from Supabase. The phone never
 
 ### Message rules
 
-- The Grace Period is 5 minutes. The Reminder lead time is 30 minutes. The Adventurer cannot change either value.
-- If the Adventurer sets a Deadline less than 30 minutes ahead, at Start or with a move, Barry sends no Reminder for it. The Overdue Notice still goes out.
+- The Grace Period is 5 minutes.
+  The Reminder lead time is 30 minutes.
+  The Adventurer cannot change either value.
+- If the Adventurer sets a Deadline less than 30 minutes ahead, at Start or with a move, Barry sends no Reminder for it.
+  The Overdue Notice still goes out.
 - The Last Position in an Alert gives the time of the reading and the coordinates.
 - Every time in a message is in the Adventurer's time zone at Start and does not name the time zone, for example "Sat 17 Oct, 18:00".
-- An Alert states facts only. It gives no guidance on what to do.
-- Messages are in English or German. The text of the messages Supabase sends is kept in one place per language, and the text of the Reminder and the Overdue Notice in the app's texts, so that other languages can be added.
+- An Alert states facts only.
+  It gives no guidance on what to do.
+- Messages are in English or German.
+  The text of the messages Supabase sends is kept in one place per language, and the text of the Reminder and the Overdue Notice in the app's texts, so that other languages can be added.
 - An Alert goes out before every other message that is waiting to be sent, so a queue of other messages cannot hold it back.
-- After the third Alert for a Deadline, Barry sends nothing more for it. The Adventure stays Alerted until the Adventurer checks in or moves the Deadline, as long as a move is still allowed.
-- Barry never contacts a rescue service. The Emergency Contacts decide what to do.
+- After the third Alert for a Deadline, Barry sends nothing more for it.
+  The Adventure stays Alerted until the Adventurer checks in or moves the Deadline, as long as a move is still allowed.
+- Barry never contacts a rescue service.
+  The Emergency Contacts decide what to do.
 
 ### Reminder and Overdue Notice
 
-- The app schedules both notifications on the phone when Supabase confirms the Start, and again whenever it confirms a Deadline move. They need no signal and no push entitlement, so they also work on an iPhone build signed by a free Apple team.
-- Each Adventure has one scheduled notification per kind. Scheduling again replaces it, so a moved Deadline moves both.
-- A Check-in cancels both, even while it waits for signal. So does any time the app sees that the Adventure is no longer Active, Overdue or Alerted.
-- A notification whose time has already passed is not scheduled. A Deadline set less than 30 minutes ahead therefore gets no Reminder.
-- Supabase does not push either notification and has no message for them, so the Adventurer never gets the same notification twice. The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
-- The phone's clock decides when they show. The Alert still follows the server's clock.
+- The app schedules both notifications on the phone when Supabase confirms the Start, and again whenever it confirms a Deadline move.
+  They need no signal and no push entitlement, so they also work on an iPhone build signed by a free Apple team.
+- Each Adventure has one scheduled notification per kind.
+  Scheduling again replaces it, so a moved Deadline moves both.
+- A Check-in cancels both, even while it waits for signal.
+  So does any time the app sees that the Adventure is no longer Active, Overdue or Alerted.
+- A notification whose time has already passed is not scheduled.
+  A Deadline set less than 30 minutes ahead therefore gets no Reminder.
+- Supabase does not push either notification and has no message for them, so the Adventurer never gets the same notification twice.
+  The phone knows every Deadline, because only the app moves it, and push is the part that fails without signal.
+- The phone's clock decides when they show.
+  The Alert still follows the server's clock.
 
 ### Live Activity
 
-- From the Start until the Check-in, the phone shows a Live Activity with the destination, the Deadline, the time left, how much of the time between Start and Deadline has passed, and **Check In**, which opens Barry like a tap anywhere on it. It needs no signal and no push, because the phone starts, updates and ends it itself, like the Reminder.
-- A moved Deadline moves it. A Check-in ends it at once, even while the Check-in waits for signal.
-- Once the Deadline passes, the time left stays at zero. The Overdue Notice says what happens next.
-- Without Live Activities allowed in the iPhone's settings, or on a build signed by a free Apple team, which cannot sign the App Group the Live Activity needs, there is none. Everything else works as before.
+- From the Start until the Check-in, the phone shows a Live Activity with the destination, the Deadline, the time left, how much of the time between Start and Deadline has passed, and **Check In**, which opens Barry like a tap anywhere on it.
+  It needs no signal and no push, because the phone starts, updates and ends it itself, like the Reminder.
+- A moved Deadline moves it.
+  A Check-in ends it at once, even while the Check-in waits for signal.
+- Once the Deadline passes, the time left stays at zero.
+  The Overdue Notice says what happens next.
+- Without Live Activities allowed in the iPhone's settings, or on a build signed by a free Apple team, which cannot sign the App Group the Live Activity needs, there is none.
+  Everything else works as before.
 
 ### Arrival Notice
 
-- With the "Always" location permission, the phone watches a region around the destination on the map from the Start until the Check-in, whether Barry is open or not. iOS wakes Barry when the Adventurer walks into it, and the phone shows the Arrival Notice. It needs no signal and no push.
+- With the "Always" location permission, the phone watches a region around the destination on the map from the Start until the Check-in, whether Barry is open or not. iOS wakes Barry when the Adventurer walks into it, and the phone shows the Arrival Notice.
+  It needs no signal and no push.
 - Each Adventure shows it at most once, even when the Adventurer walks out of the region and back in.
-- It does not check in. A Check-in stays the Adventurer's deliberate press and hold, because reaching the destination is not being back safe.
+- It does not check in.
+  A Check-in stays the Adventurer's deliberate press and hold, because reaching the destination is not being back safe.
 - Without a point on the map, without the "Always" permission, or once a Check-in waits for signal, there is no Arrival Notice.
 
 ### Channels
 
-- Barry sends email and text messages. Each message goes to every channel the contact has, on the addresses that are switched on. "Every channel the contact has" in the table above means the same. A text message carries the same text as the email body, without the subject.
+- Barry sends email and text messages.
+  Each message goes to every channel the contact has, on the addresses that are switched on.
+  "Every channel the contact has" in the table above means the same.
+  A text message carries the same text as the email body, without the subject.
 - Barry sends email through Resend, from the sender name "🐶 Barry".
-- Barry writes every message to the contacts in the language of the Adventurer's phone: German when the phone is in German, English otherwise. The app stores that language in the Profile each time it opens and each time the Profile is saved, so a language changed in Settings reaches the next message. The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du".
-- Barry sends text messages through Twilio. [Text messages](text-messages.md) sets it up.
+- Barry writes every message to the contacts in the language of the Adventurer's phone: German when the phone is in German, English otherwise.
+  The app stores that language in the Profile each time it opens and each time the Profile is saved, so a language changed in Settings reaches the next message.
+  The German texts use Swiss Standard German, with "ss" instead of "ß", and address the contact as "du".
+- Barry sends text messages through Twilio.
+  [Text messages](text-messages.md) sets it up.
 - Contacts that share an email address or a phone number get one message per address.
 - Text messages use only the GSM-7 alphabet, so each segment holds 160 characters.
-- A channel can be switched off. While text messages are switched off, the contact list shows the text message symbol of each contact Barry would text in the warning colour, and VoiceOver reads "Text messages not set up yet". A contact left with no channel Barry can use gets an exclamation mark. A contact with an email address and a phone number gets email only. Barry records no Delivery Failure for the unused phone number. A contact with only a phone number gets a Delivery Failure.
+- A channel can be switched off.
+  While text messages are switched off, the contact list shows the text message symbol of each contact Barry would text in the warning colour, and VoiceOver reads "Text messages not set up yet".
+  A contact left with no channel Barry can use gets an exclamation mark.
+  A contact with an email address and a phone number gets email only.
+  Barry records no Delivery Failure for the unused phone number.
+  A contact with only a phone number gets a Delivery Failure.
 
 ### Sent to your contacts
 
-- The live Adventure screen and each Ended Adventure end with a list of the messages Barry sent to the Adventure's contacts, newest first. It shows only messages that went out and those that failed. A message still waiting, such as a Deadline Update held back by the pace, or one Barry cancelled, is not listed.
-- Each row names the message, with the round of an Alert ("Alert 2 of 3"), every contact on its address, the channel and the address, and its outcome with the time: Sent, Delivered, or Failed. Only a text message becomes Delivered, once Twilio confirms it; an email stays Sent.
+- The live Adventure screen and each Ended Adventure end with a list of the messages Barry sent to the Adventure's contacts, newest first.
+  It shows only messages that went out and those that failed.
+  A message still waiting, such as a Deadline Update held back by the pace, or one Barry cancelled, is not listed.
+- Each row names the message, with the round of an Alert ("Alert 2 of 3"), every contact on its address, the channel and the address, and its outcome with the time: Sent, Delivered, or Failed.
+  Only a text message becomes Delivered, once Twilio confirms it; an email stays Sent.
 - Rows of a contact removed from the Adventure stay.
-- The list follows while the screen is open: a message appears as soon as it goes out or fails, and a text message turns Delivered when Twilio reports it. It also catches up after the app regains its connection.
+- The list follows while the screen is open: a message appears as soon as it goes out or fails, and a text message turns Delivered when Twilio reports it.
+  It also catches up after the app regains its connection.
 - The list is read-only.
 
 ### Delivery Failures
 
-- If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer. That includes a text message that Twilio accepted but later reports as not delivered.
-- A Delivery Failure is a row in the warning colour in the list above, with its reason. Barry names the reasons it records itself; any other reads "Could not be delivered". The contacts button of the live Adventure screen turns to the warning colour, and the sheet behind it lists the failures too.
-- While the app is open, a Delivery Failure appears as soon as Barry records it. Otherwise it appears when the app opens.
-- When Twilio reports a text message to a contact as not delivered, the phone also shows a notification, once per message, naming the message, the contacts on the number and the number. Barry shows it as soon as it learns of the report: at once while open, at the next Trail wake while in the background with the "Always" location permission (minutes, not seconds), and otherwise when the app opens. It is a local notification, so it needs no push, but the phone needs signal to learn of the report. After the Check-in Barry still watches the Ended Adventure's messages for the All-clear, until the next Adventure starts. A text message that failed to send, such as while text messages are switched off, and an email get no notification. Tapping it opens the contacts sheet while the Adventure is in progress, and the Ended Adventure after.
-- Tapping a Delivery Failure shows the phone's own card of the contact it was for, read-only, where the Adventurer can call, text or email them. The first time, Barry explains why and then iOS asks for access to the contacts. Without that access, for a contact picked before Barry kept the link, or for a Phone Contact deleted since, the tap offers to call, text or email the addresses Barry has instead. With several contacts on the address, the Adventurer first picks one.
+- If a Heads-up, a Plan Update, a Deadline Update, an Alert, or an All-clear cannot be delivered, the app shows the Delivery Failure to the Adventurer.
+  That includes a text message that Twilio accepted but later reports as not delivered.
+- A Delivery Failure is a row in the warning colour in the list above, with its reason.
+  Barry names the reasons it records itself; any other reads "Could not be delivered".
+  The contacts button of the live Adventure screen turns to the warning colour, and the sheet behind it lists the failures too.
+- While the app is open, a Delivery Failure appears as soon as Barry records it.
+  Otherwise it appears when the app opens.
+- When Twilio reports a text message to a contact as not delivered, the phone also shows a notification, once per message, naming the message, the contacts on the number and the number.
+  Barry shows it as soon as it learns of the report: at once while open, at the next Trail wake while in the background with the "Always" location permission (minutes, not seconds), and otherwise when the app opens.
+  It is a local notification, so it needs no push, but the phone needs signal to learn of the report.
+  After the Check-in Barry still watches the Ended Adventure's messages for the All-clear, until the next Adventure starts.
+  A text message that failed to send, such as while text messages are switched off, and an email get no notification.
+  Tapping it opens the contacts sheet while the Adventure is in progress, and the Ended Adventure after.
+- Tapping a Delivery Failure shows the phone's own card of the contact it was for, read-only, where the Adventurer can call, text or email them.
+  The first time, Barry explains why and then iOS asks for access to the contacts.
+  Without that access, for a contact picked before Barry kept the link, or for a Phone Contact deleted since, the tap offers to call, text or email the addresses Barry has instead.
+  With several contacts on the address, the Adventurer first picks one.
 
 ## Location
 
-- Barry reads the location at Start and at each Deadline move. This needs only the "while using the app" location permission.
-- If the Adventurer allows the "Always" location permission, Barry also records the Trail. There is no switch for each Adventure.
-- The phone records about one reading of the Trail every 5 minutes, as accurate as the phone allows, from Start until the Check-in. It runs while the Adventure is Active, Overdue, and Alerted.
-- iOS sends background readings when the phone moves, not on a timer. The phone keeps the first one of every 5 minutes and uploads only those.
-- Supabase does not thin the Trail out. It keeps every reading taken since the Start that it gets for an Active, Overdue or Alerted Adventure, and drops only a second reading in the same `slot` window, which is seconds long, not minutes. The 5 minutes are the phone's pace, not a limit of the server.
+- Barry reads the location at Start and at each Deadline move.
+  This needs only the "while using the app" location permission.
+- If the Adventurer allows the "Always" location permission, Barry also records the Trail.
+  There is no switch for each Adventure.
+- The phone records about one reading of the Trail every 5 minutes, as accurate as the phone allows, from Start until the Check-in.
+  It runs while the Adventure is Active, Overdue, and Alerted.
+- iOS sends background readings when the phone moves, not on a timer.
+  The phone keeps the first one of every 5 minutes and uploads only those.
+- Supabase does not thin the Trail out.
+  It keeps every reading taken since the Start that it gets for an Active, Overdue or Alerted Adventure, and drops only a second reading in the same `slot` window, which is seconds long, not minutes.
+  The 5 minutes are the phone's pace, not a limit of the server.
 - Without signal, the phone keeps the readings and sends them when the signal returns.
-- iOS stops background readings when the Adventurer closes the app. The live Adventure screen says that closing Barry stops the Trail. Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
+- iOS stops background readings when the Adventurer closes the app.
+  The live Adventure screen says that closing Barry stops the Trail.
+  Barry also watches an area of about 200 meters around the newest reading, so iOS opens the app again when the Adventurer leaves that area, and the Trail continues.
 - The Last Position is the newest reading, from Start, a Deadline move, or the Trail.
-- The Trail stays with the Adventure after the Check-in. The app shows the map on the live Adventure screen, below the Deadline card, where it adds new readings every 5 minutes and its marker shows the Last Position, and on the Check-in screen and each Ended Adventure in the History tab. Emergency Contacts keep seeing it on the Trail Map.
+- The Trail stays with the Adventure after the Check-in.
+  The app shows the map on the live Adventure screen, below the Deadline card, where it adds new readings every 5 minutes and its marker shows the Last Position, and on the Check-in screen and each Ended Adventure in the History tab.
+  Emergency Contacts keep seeing it on the Trail Map.
 - The Trail is deleted with the Adventurer's account.
 
 ## Trail Map
 
-The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure. The contact needs no account and no app.
+The Trail Map is a web page that lets an Emergency Contact follow the Adventurer during the Adventure.
+The contact needs no account and no app.
 
-- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link. The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
+- Each contact of an Active, Overdue, or Alerted Adventure has their own Trail Map link.
+  The Heads-up, every Plan Update, every Deadline Update, every Alert and the All-clear carry it.
 - The page shows the Adventurer's name, the Plan, the Trail as a line on a map drawn from OpenStreetMap data, and the Last Position with the time of the reading.
 - The page adds new readings every 5 minutes while it is open, the same pace as the Adventurer's live screen.
-- The page does not show the Deadline, and it does not show that the Adventure is Overdue. While the Adventure is Alerted, it shows that.
-- After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Position. Barry records no readings after the Check-in.
+- The page does not show the Deadline, and it does not show that the Adventure is Overdue.
+  While the Adventure is Alerted, it shows that.
+- After the Check-in, the page shows the time of the Check-in, the Trail up to the Check-in and the Last Position.
+  Barry records no readings after the Check-in.
 - The page runs only its own scripts and reaches only Supabase and the map, and it sends no address to the sites it loads from.
-- The link never expires. After the Check-in it keeps showing the Check-in time and the Trail until the Adventurer deletes the Adventure or the account.
+- The link never expires.
+  After the Check-in it keeps showing the Check-in time and the Trail until the Adventurer deletes the Adventure or the account.
 - When the Adventurer removes a contact from the Adventure, that contact's link stops working.
 - Without the "Always" permission, the page shows only the readings from Start and from Deadline moves.
-- The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`. Supabase Edge Functions cannot serve it, because they send HTML as plain text.
+- The page is a web route of the Expo app, served by GitHub Pages at `https://barry.support/adventure`.
+  Supabase Edge Functions cannot serve it, because they send HTML as plain text.
 - Any other address on `barry.support`, such as an old `/trail` link, opens the landing page.
 - The landing page, the Adventure page and the email confirmation page are in German when the browser's first preferred language is German, and in English otherwise.
-- `https://barry.support/privacy` and `https://barry.support/terms` hold the Privacy Policy and the Terms of Use, in English and German. The landing page, the Sign In screen and the Profile link to both, and Sign In says that Barry is not an emergency service.
-- The iOS app is in German when the phone's first language is German, and in English otherwise. Settings › Barry › Language can pick either for Barry alone. The messages to the contacts follow the same language.
+- `https://barry.support/privacy` and `https://barry.support/terms` hold the Privacy Policy and the Terms of Use, in English and German.
+  The landing page, the Sign In screen and the Profile link to both, and Sign In says that Barry is not an emergency service.
+- The iOS app is in German when the phone's first language is German, and in English otherwise.
+  Settings › Barry › Language can pick either for Barry alone.
+  The messages to the contacts follow the same language.
 
 ## Conditions
 
-Conditions show the Adventurer the weather, the avalanche danger and the daylight at the destination on the map, because solo outings go wrong mostly through weather and darkness. They are advice. They never block a Start or a move, and the Emergency Contacts never see them.
+Conditions show the Adventurer the weather, the avalanche danger and the daylight at the destination on the map, because solo outings go wrong mostly through weather and darkness.
+They are advice.
+They never block a Start or a move, and the Emergency Contacts never see them.
 
-- Conditions show only when the Plan has a destination on the map: on the Plan sheet of a new or Planned Adventure, following the pin and the Deadline as they are edited, and on the live Adventure screen of an Active Adventure, below the Plan. Without a point the section invites the Adventurer to put the destination on the map. The sheet that edits a live Adventure shows none, and neither does an Overdue, Alerted or Ended Adventure.
-- **The Adventure Day.** Conditions are for the Adventure Day: the Deadline's day, or the day before it when the Deadline falls in the dark before dawn, in the phone's time zone. The Deadline is when Barry starts to worry, not when the outing ends, so the day runs on past it.
-- **Daylight.** Sunset and Dark at the destination on the map, where Dark is the end of civil twilight. The phone computes both itself, so they show without signal. On the Adventure Day the section counts the daylight left until Dark. When the Adventure Day is another day, it shows sunset and Dark of that day.
-- **The Dark warning.** The Deadline falls after Dark when the sun is more than 6 degrees below the horizon at the destination at the Deadline, so a Deadline before dawn counts too. An overnight Adventure whose Deadline is in daylight gets no warning, and neither does a place where the sun does not set. The warning shows under the Deadline on the Plan sheet, among the Start warnings, and on the choices to move the Deadline.
-- **Forecast.** The phone asks Open-Meteo for the hourly forecast at the destination, from its best model for that place, which in and around Switzerland is MeteoSwiss's ICON-CH. It shows the hours of the Adventure Day that are still to come, through to a Deadline before the next dawn, at least the next few and at most as far as the forecast reaches: temperature, precipitation, wind gusts and thunderstorms per hour, and the range of the freezing level. The table names the Adventure Day when it still lies ahead, and the first hour of a new day carries its weekday. Each row of the table carries its own symbol and unit; an hour with no precipitation value shows a dash, and when no rain or snow is expected in any shown hour the table leaves the precipitation row out and says so in a sentence. An Adventure Day beyond the forecast shows from when the forecast will reach it.
-- **Avalanche bulletin.** In the avalanche season the phone also asks the SLF for the current bulletin and shows the danger level of the warning region that contains the destination, its avalanche problems, until when it is valid and a link to the whole bulletin on White Risk, the SLF's bulletin site. Outside the season, or outside the regions the SLF covers, the section leaves the bulletin out.
-- Barry shows no warning for weather or avalanche danger. Which weather is too much depends on the outing.
+- Conditions show only when the Plan has a destination on the map: on the Plan sheet of a new or Planned Adventure, following the pin and the Deadline as they are edited, and on the live Adventure screen of an Active Adventure, below the Plan.
+  Without a point the section invites the Adventurer to put the destination on the map.
+  The sheet that edits a live Adventure shows none, and neither does an Overdue, Alerted or Ended Adventure.
+- **The Adventure Day.** Conditions are for the Adventure Day: the Deadline's day, or the day before it when the Deadline falls in the dark before dawn, in the phone's time zone.
+  The Deadline is when Barry starts to worry, not when the outing ends, so the day runs on past it.
+- **Daylight.** Sunset and Dark at the destination on the map, where Dark is the end of civil twilight.
+  The phone computes both itself, so they show without signal.
+  On the Adventure Day the section counts the daylight left until Dark.
+  When the Adventure Day is another day, it shows sunset and Dark of that day.
+- **The Dark warning.** The Deadline falls after Dark when the sun is more than 6 degrees below the horizon at the destination at the Deadline, so a Deadline before dawn counts too.
+  An overnight Adventure whose Deadline is in daylight gets no warning, and neither does a place where the sun does not set.
+  The warning shows under the Deadline on the Plan sheet, among the Start warnings, and on the choices to move the Deadline.
+- **Forecast.** The phone asks Open-Meteo for the hourly forecast at the destination, from its best model for that place, which in and around Switzerland is MeteoSwiss's ICON-CH.
+  It shows the hours of the Adventure Day that are still to come, through to a Deadline before the next dawn, at least the next few and at most as far as the forecast reaches: temperature, precipitation, wind gusts and thunderstorms per hour, and the range of the freezing level.
+  The table names the Adventure Day when it still lies ahead, and the first hour of a new day carries its weekday.
+  Each row of the table carries its own symbol and unit; an hour with no precipitation value shows a dash, and when no rain or snow is expected in any shown hour the table leaves the precipitation row out and says so in a sentence.
+  An Adventure Day beyond the forecast shows from when the forecast will reach it.
+- **Avalanche bulletin.** In the avalanche season the phone also asks the SLF for the current bulletin and shows the danger level of the warning region that contains the destination, its avalanche problems, until when it is valid and a link to the whole bulletin on White Risk, the SLF's bulletin site.
+  Outside the season, or outside the regions the SLF covers, the section leaves the bulletin out.
+- Barry shows no warning for weather or avalanche danger.
+  Which weather is too much depends on the outing.
 - The phone sends only the destination's point, rounded to about a kilometre, to Open-Meteo, and asks the SLF for the whole bulletin, so the SLF learns nothing about the Adventure.
-- The phone asks again when the screen opens and when Barry returns to the foreground, but not more often than every half hour. It keeps the last Conditions of each place, and loads the bulletin once for every place it covers. Without signal it shows them with the time they were fetched, and with none kept it says Conditions need signal.
+- The phone asks again when the screen opens and when Barry returns to the foreground, but not more often than every half hour.
+  It keeps the last Conditions of each place, and loads the bulletin once for every place it covers.
+  Without signal it shows them with the time they were fetched, and with none kept it says Conditions need signal.
 
 ## Monitoring
 
-Supabase checks Deadlines every minute. Each run reports to an outside monitor, such as Healthchecks.io. If the reports stop for a few minutes, the monitor emails or texts the operator. It also does when an Alert could not be delivered, or when the email or text message provider refuses every message, because those fail at once instead of piling up.
+Supabase checks Deadlines every minute.
+Each run reports to an outside monitor, such as Healthchecks.io.
+If the reports stop for a few minutes, the monitor emails or texts the operator.
+It also does when an Alert could not be delivered, or when the email or text message provider refuses every message, because those fail at once instead of piling up.
 
 ## Limits that live in the code
 
-A few limits are implementation choices, not promises to the Adventurer. Their values live only in the code, next to what they protect, with a test where one matters, so a changed value needs no change here. Each is named so it can be found.
+A few limits are implementation choices, not promises to the Adventurer.
+Their values live only in the code, next to what they protect, with a test where one matters, so a changed value needs no change here.
+Each is named so it can be found.
 
-- `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many readings of Trail the phone keeps while it has no signal, and `SLOT_MS` there is how often the Trail keeps one. Once full, the oldest readings go first. `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call. `trail-buffer.test.ts` pins both phone values. The `slot` column of `position_readings` in the same migration is the window the server keeps one reading per Adventure in, and `trail.test.sql` pins it.
-- `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading. `ARRIVAL_RADIUS_M` there is how close to the destination on the map the Arrival Notice shows. `trail.test.ts` pins it.
-- `max_contacts`, `max_adventure_contacts` and `max_starts_per_day` (`supabase/migrations/20261028120100_message_limits.sql`) hold the limits above, and the triggers of `supabase/migrations/20261028130000_length_limits_on_change.sql` hold the length limits on the text fields, checked only when a text is new or changed. `LIMITS` in `src/lib/barry/limits.ts` repeats them for the app's inputs and texts. `limits.test.sql` and `limits.test.ts` pin both sides. `starts_window` (`supabase/migrations/20261030090000_prune_starts.sql`) is how long a Start counts towards the daily limit, and each Start drops the Adventurer's older ones from `private.starts`. `limits.test.sql` pins it. `max_alerts` (`supabase/migrations/20261015081453_clock_decide.sql`) is how many Alerts one Deadline brings, and `LIMITS.alertsPerDeadline` repeats it for the Alerted card and its text; `max_alerts_per_adventure` (`supabase/migrations/20261030100100_alert_cap.sql`) is how many one Adventure brings in all, and `LIMITS.alertsPerAdventure` repeats it for the refusal; `limits.test.sql` and `limits.test.ts` pin both sides.
-- `max_deadline_ahead` (`supabase/migrations/20261030120100_deadline_bound.sql`) is how far ahead a new or moved Deadline may lie. A trigger raises `barry:deadline_too_far` past it. `LIMITS.deadlineAheadMonths` in `src/lib/barry/limits.ts` repeats it for the Deadline picker, and the app names the refusal when a save or a move still runs into it. `limits.test.sql` and `limits.test.ts` pin it.
-- `update_pace` (`supabase/migrations/20261029090000_pace_updates.sql`) is how long an address waits between two Plan Updates or two Deadline Updates. `pace.test.sql` pins it.
-- `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261028120100_message_limits.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row. `deliver.test.sql` pins them.
-- `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile. `phone-contact.test.ts` pins it.
-- `RESEND_AFTER_SECONDS` in `src/lib/sign-in.ts` is how long **Send Again** waits after a confirmation link went out. It mirrors `max_frequency` in `[remotes.hosted.auth.email]` of `supabase/config.toml`, and `sign-in.test.ts` pins that the two agree.
-- `CONDITIONS_REFRESH_MS` in `src/lib/barry/conditions.ts` is how long the phone keeps the fetched Conditions before it asks again, `POINT_DECIMALS` there how far it rounds the destination's point before sending it, and `MIN_FORECAST_HOURS` how many hours of forecast show even when fewer are left of the Adventure Day. `conditions.test.ts` pins them. `KEPT` there is how many places' Conditions the phone keeps, the newest first. `DARK_ALTITUDE` in `src/lib/barry/daylight.ts` is how far below the horizon the sun is at Dark, and `daylight.test.ts` pins it.
-- `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one. `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.
+- `MAX_SLOTS` in `src/lib/barry/trail-buffer.ts` is how many readings of Trail the phone keeps while it has no signal, and `SLOT_MS` there is how often the Trail keeps one.
+  Once full, the oldest readings go first.
+  `BATCH` there is how many readings one upload carries, and the `limit` in `record_trail` (`supabase/migrations/20261015200000_ten_second_trail.sql`) is how many the server takes per call.
+  `trail-buffer.test.ts` pins both phone values.
+  The `slot` column of `position_readings` in the same migration is the window the server keeps one reading per Adventure in, and `trail.test.sql` pins it.
+- `FENCE_MOVE_M` in `src/lib/barry/trail.ts` is how far the Adventurer walks before the geofence moves to the newest reading.
+  `ARRIVAL_RADIUS_M` there is how close to the destination on the map the Arrival Notice shows.
+  `trail.test.ts` pins it.
+- `max_contacts`, `max_adventure_contacts` and `max_starts_per_day` (`supabase/migrations/20261028120100_message_limits.sql`) hold the limits above, and the triggers of `supabase/migrations/20261028130000_length_limits_on_change.sql` hold the length limits on the text fields, checked only when a text is new or changed.
+  `LIMITS` in `src/lib/barry/limits.ts` repeats them for the app's inputs and texts.
+  `limits.test.sql` and `limits.test.ts` pin both sides.
+  `starts_window` (`supabase/migrations/20261030090000_prune_starts.sql`) is how long a Start counts towards the daily limit, and each Start drops the Adventurer's older ones from `private.starts`.
+  `limits.test.sql` pins it.
+  `max_alerts` (`supabase/migrations/20261015081453_clock_decide.sql`) is how many Alerts one Deadline brings, and `LIMITS.alertsPerDeadline` repeats it for the Alerted card and its text; `max_alerts_per_adventure` (`supabase/migrations/20261030100100_alert_cap.sql`) is how many one Adventure brings in all, and `LIMITS.alertsPerAdventure` repeats it for the refusal; `limits.test.sql` and `limits.test.ts` pin both sides.
+- `max_deadline_ahead` (`supabase/migrations/20261030120100_deadline_bound.sql`) is how far ahead a new or moved Deadline may lie.
+  A trigger raises `barry:deadline_too_far` past it.
+  `LIMITS.deadlineAheadMonths` in `src/lib/barry/limits.ts` repeats it for the Deadline picker, and the app names the refusal when a save or a move still runs into it.
+  `limits.test.sql` and `limits.test.ts` pin it.
+- `update_pace` (`supabase/migrations/20261029090000_pace_updates.sql`) is how long an address waits between two Plan Updates or two Deadline Updates.
+  `pace.test.sql` pins it.
+- `max_attempts` and `retry_backoff` (`supabase/migrations/20261015084008_deliver.sql`) and the lease in `claim_messages` (last defined in `supabase/migrations/20261028120100_message_limits.sql`) are how often a message is retried, how long Barry waits between attempts, and how long one attempt may run before another run of `deliver` may claim the row.
+  `deliver.test.sql` pins them.
+- `MOBILE_LABELS` in `src/lib/barry/phone-contact.ts` is which labels of a Phone Contact's numbers count as mobile.
+  `phone-contact.test.ts` pins it.
+- `RESEND_AFTER_SECONDS` in `src/lib/sign-in.ts` is how long **Send Again** waits after a confirmation link went out.
+  It mirrors `max_frequency` in `[remotes.hosted.auth.email]` of `supabase/config.toml`, and `sign-in.test.ts` pins that the two agree.
+- `CONDITIONS_REFRESH_MS` in `src/lib/barry/conditions.ts` is how long the phone keeps the fetched Conditions before it asks again, `POINT_DECIMALS` there how far it rounds the destination's point before sending it, and `MIN_FORECAST_HOURS` how many hours of forecast show even when fewer are left of the Adventure Day.
+  `conditions.test.ts` pins them.
+  `KEPT` there is how many places' Conditions the phone keeps, the newest first.
+  `DARK_ALTITUDE` in `src/lib/barry/daylight.ts` is how far below the horizon the sun is at Dark, and `daylight.test.ts` pins it.
+- `POSITION_TIMEOUT_MS` in `src/lib/barry/index.ts` is how long Start or a Deadline move waits for a position fix before going without one.
+  `REQUEST_TIMEOUT_MS` in `src/lib/supabase.ts` is how long any request waits before the app treats the signal as lost and falls back to the saved Adventure.
 
 ## Out of scope for the first version
 
 - A topographic map, such as swisstopo, on the Trail Map.
-- Checkpoints during an Adventure. The only Check-in is the final one.
+- Checkpoints during an Adventure.
+  The only Check-in is the final one.
 - Sign-in with a magic link, Apple, or Google.
 - A message to a contact when they are added to the saved list, and contact confirmation.
-- A scheduled start. Every Adventure starts when the Adventurer taps **Start**.
+- A scheduled start.
+  Every Adventure starts when the Adventurer taps **Start**.
 - A reminder to start a Planned Adventure.
 - Cancelling an Active, Overdue, or Alerted Adventure.
 - Guidance in the Alert, such as emergency numbers.

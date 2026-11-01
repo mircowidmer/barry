@@ -1,6 +1,7 @@
 # Barry
 
-Barry watches over people who go on outdoor outings alone. If an Adventurer fails to check in by the Deadline they set, Barry alerts the people they chose.
+Barry watches over people who go on outdoor outings alone.
+If an Adventurer fails to check in by the Deadline they set, Barry alerts the people they chose.
 
 ## Language
 
@@ -15,17 +16,22 @@ What Barry knows about an Adventurer for rescuers: name, and optionally phone nu
 _Avoid_: Account, user details, settings
 
 **Emergency Contact**:
-A person in an Adventurer's saved list, copied from a Phone Contact, reachable by phone number, email, or both. The Adventurer can switch each address on and off, and Barry uses only the ones that are on. They don't need Barry or an account. Each Adventure uses some of them.
+A person in an Adventurer's saved list, copied from a Phone Contact, reachable by phone number, email, or both.
+The Adventurer can switch each address on and off, and Barry uses only the ones that are on.
+They don't need Barry or an account.
+Each Adventure uses some of them.
 _Avoid_: Watcher, guardian, buddy, friend
 
 **Phone Contact**:
-A person in the phone's own contacts app. Barry reads one only through the phone's picker, copies what it needs into an Emergency Contact, and keeps nothing else of it but a reference on that phone, to show its card again.
+A person in the phone's own contacts app.
+Barry reads one only through the phone's picker, copies what it needs into an Emergency Contact, and keeps nothing else of it but a reference on that phone, to show its card again.
 _Avoid_: Address book, native contact, iOS contact, system contact
 
 ### Adventures
 
 **Adventure**:
-One solo outing an Adventurer plans in Barry, with a Plan and a Deadline. An Adventurer has at most one Active, Overdue or Alerted Adventure at a time.
+One solo outing an Adventurer plans in Barry, with a Plan and a Deadline.
+An Adventurer has at most one Active, Overdue or Alerted Adventure at a time.
 _Avoid_: Trip, outing, tour, activity
 
 **Plan**:
@@ -45,11 +51,13 @@ The Adventurer's single confirmation that they are back safe, which ends the Adv
 _Avoid_: Ping, heartbeat, check-out
 
 **Last Position**:
-The Adventurer's most recent location reading. Barry takes one when they start an Adventure or move its Deadline, and, if the Adventurer lets Barry read the location in the background, about every 5 minutes until they check in.
+The Adventurer's most recent location reading.
+Barry takes one when they start an Adventure or move its Deadline, and, if the Adventurer lets Barry read the location in the background, about every 5 minutes until they check in.
 _Avoid_: Last known position, location, GPS fix, track
 
 **Trail**:
-The location readings Barry takes in the background during an Adventure, about one every 5 minutes, until the Check-in. After the Check-in the Adventurer and their Emergency Contacts can still see them.
+The location readings Barry takes in the background during an Adventure, about one every 5 minutes, until the Check-in.
+After the Check-in the Adventurer and their Emergency Contacts can still see them.
 _Avoid_: Track, breadcrumbs, route, live location
 
 **Trail Map**:
@@ -61,11 +69,13 @@ The weather forecast, the avalanche bulletin and the daylight at the destination
 _Avoid_: Weather, hazards, forecast (as the name of the whole)
 
 **Dark**:
-The moment the sky gets dark at the destination on the map, at the end of civil twilight. Barry warns the Adventurer when their Deadline falls after Dark or before the sky gets light again.
+The moment the sky gets dark at the destination on the map, at the end of civil twilight.
+Barry warns the Adventurer when their Deadline falls after Dark or before the sky gets light again.
 _Avoid_: Nightfall, sunset, dusk
 
 **Adventure Day**:
-The calendar day an Adventure happens on: the Deadline's day, or the day before it when the Deadline falls in the dark before dawn. The Conditions are shown for it.
+The calendar day an Adventure happens on: the Deadline's day, or the day before it when the Deadline falls in the dark before dawn.
+The Conditions are shown for it.
 _Avoid_: Outing day, trip day, the day of the tour
 
 ### Adventure Stages
@@ -78,11 +88,13 @@ A started Adventure whose Deadline has not passed.
 _Avoid_: Running, live, in progress
 
 **Overdue**:
-An Adventure whose Deadline has passed and whose Grace Period is still running. Nobody has been told yet.
+An Adventure whose Deadline has passed and whose Grace Period is still running.
+Nobody has been told yet.
 _Avoid_: Late, missed
 
 **Alerted**:
-An Adventure whose Alert has gone out for its current Deadline. Moving the Deadline makes it Active again.
+An Adventure whose Alert has gone out for its current Deadline.
+Moving the Deadline makes it Active again.
 _Avoid_: Escalated, emergency
 
 **Ended**:
@@ -104,7 +116,8 @@ The message to an Adventure's Emergency Contacts when the Adventurer changes the
 _Avoid_: Change notification, edit message
 
 **Deadline Update**:
-The message to an Adventure's Emergency Contacts a few minutes after the Adventurer moves the Deadline, carrying the destination, the Deadline the contact knew, the new one and the contact's Trail Map link. Quick moves in a row send one.
+The message to an Adventure's Emergency Contacts a few minutes after the Adventurer moves the Deadline, carrying the destination, the Deadline the contact knew, the new one and the contact's Trail Map link.
+Quick moves in a row send one.
 _Avoid_: Extension notice, delay message
 
 **Alert**:

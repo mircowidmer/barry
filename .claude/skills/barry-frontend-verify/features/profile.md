@@ -1,6 +1,10 @@
 # Profile
 
-The Profile tab holds what an Alert tells the Emergency Contacts about the Adventurer: the name, which the first Start needs, and optionally the phone number, the car and medical notes, which only an Alert carries. The screen shows it as in the Account header of Settings: `Edit` at the top right, a card with the initials, the name and the phone number, then an `IN AN ALERT` group with a `Car` row and a `Medical Notes` row that summarise what is stored. `Edit` opens the `About You` sheet; the card itself takes no tap; each row pushes its own screen. Each of the three saves the whole Profile with the checkmark in its header and asks `Discard Changes?` before dropping an edit. Signing out, deleting the account and the language of the messages are in [Sign in](./sign-in.md).
+The Profile tab holds what an Alert tells the Emergency Contacts about the Adventurer: the name, which the first Start needs, and optionally the phone number, the car and medical notes, which only an Alert carries.
+The screen shows it as in the Account header of Settings: `Edit` at the top right, a card with the initials, the name and the phone number, then an `IN AN ALERT` group with a `Car` row and a `Medical Notes` row that summarise what is stored.
+`Edit` opens the `About You` sheet; the card itself takes no tap; each row pushes its own screen.
+Each of the three saves the whole Profile with the checkmark in its header and asks `Discard Changes?` before dropping an edit.
+Signing out, deleting the account and the language of the messages are in [Sign in](./sign-in.md).
 
 ## Sub-features
 
@@ -15,24 +19,60 @@ The Profile tab holds what an Alert tells the Emergency Contacts about the Adven
 
 ## How to get to it (user POV)
 
-- Tap `Profile` in the tab bar (329, 820). The screen titled `Profile` opens with its large title expanded, `Edit` at the top right (364, 84), then the card with the initials on the accent colour at its left and the name above the phone number beside them, as in the Account row of Settings.
+- Tap `Profile` in the tab bar (329, 820).
+  The screen titled `Profile` opens with its large title expanded, `Edit` at the top right (364, 84), then the card with the initials on the accent colour at its left and the name above the phone number beside them, as in the Account row of Settings.
 
 ## Driving it with the iOS Simulator
 
 Preconditions:
 
-- The doctor passes. The app is signed in as the test account, whose Profile has a name and a phone number. Note both before editing, and restore them at the end.
+- The doctor passes.
+  The app is signed in as the test account, whose Profile has a name and a phone number.
+  Note both before editing, and restore them at the end.
 
-- **Rows.** Under the card, `IN AN ALERT` holds `Car`, reading the make, colour and plate joined by ` · `, and `Medical Notes`, reading the first line of the notes; either reads `Not set` when empty. The group has no footer. The email address is not shown; it is on the `Account` sheet.
-- **Save guard (`profile-save-guard`).** Tap `Edit` at the top right. The sheet `About You` slides up with a close button (`Cancel`) and the checkmark (`Save`), which is on from the start. It holds `Name`, showing `Required` while empty, and `Phone Number`, with the footer `An alert gives your emergency contacts your name and this number. Start the number with + and the country code.` Clear `Name`: the checkmark turns off. Paste the name back and replace `Phone Number` with `+4179`: still off, because a number needs `+`, a country code and at least six more digits. Paste `+41791234567`: the checkmark turns on. Tap the close button: `Discard Changes?` offers `Cancel` and `Discard`; tap `Discard` (275, 487).
-- **Required (`profile-required`).** Open `About You` again, paste `+41791234567` into `Phone Number` and tap the checkmark. The sheet closes and the card reads `+41 79 123 45 67`, the spacing the app gives a number with a country code and nine more digits. In the database, `adventurer_profiles.phone` is `+41791234567`. Paste the previous number back and save.
-- **Optional (`profile-optional`).** Tap `Car`. The screen `Car` has a back button, the checkmark, `Make`, `Colour` and `Number Plate` with the footer `Optional. Helps rescuers find where you parked.`, and `Remove Car` in red while any of the three holds text. Paste `Subaru` into `Make` and tap the checkmark: the screen closes, the row reads `Subaru`, and `adventurer_profiles.car_make` is `Subaru`. Tap `Car` again and `Remove Car`: the row reads `Not set` and the three columns are null. Tap `Medical Notes`: a notes area showing `For example allergies or medication` while empty, with the footer `Optional. Only your emergency contacts see this, and only in an alert.`
+- **Rows.** Under the card, `IN AN ALERT` holds `Car`, reading the make, colour and plate joined by ` · `, and `Medical Notes`, reading the first line of the notes; either reads `Not set` when empty.
+  The group has no footer.
+  The email address is not shown; it is on the `Account` sheet.
+- **Save guard (`profile-save-guard`).** Tap `Edit` at the top right.
+  The sheet `About You` slides up with a close button (`Cancel`) and the checkmark (`Save`), which is on from the start.
+  It holds `Name`, showing `Required` while empty, and `Phone Number`, with the footer `An alert gives your emergency contacts your name and this number. Start the number with + and the country code.` Clear `Name`: the checkmark turns off.
+  Paste the name back and replace `Phone Number` with `+4179`: still off, because a number needs `+`, a country code and at least six more digits.
+  Paste `+41791234567`: the checkmark turns on.
+  Tap the close button: `Discard Changes?` offers `Cancel` and `Discard`; tap `Discard` (275, 487).
+- **Required (`profile-required`).** Open `About You` again, paste `+41791234567` into `Phone Number` and tap the checkmark.
+  The sheet closes and the card reads `+41 79 123 45 67`, the spacing the app gives a number with a country code and nine more digits.
+  In the database, `adventurer_profiles.phone` is `+41791234567`.
+  Paste the previous number back and save.
+- **Optional (`profile-optional`).** Tap `Car`.
+  The screen `Car` has a back button, the checkmark, `Make`, `Colour` and `Number Plate` with the footer `Optional. Helps rescuers find where you parked.`, and `Remove Car` in red while any of the three holds text.
+  Paste `Subaru` into `Make` and tap the checkmark: the screen closes, the row reads `Subaru`, and `adventurer_profiles.car_make` is `Subaru`.
+  Tap `Car` again and `Remove Car`: the row reads `Not set` and the three columns are null.
+  Tap `Medical Notes`: a notes area showing `For example allergies or medication` while empty, with the footer `Optional. Only your emergency contacts see this, and only in an alert.`
 - **Name first (`profile-name-first`).** On an account without a Profile, such as the throwaway account of `account-delete` in [Sign in](./sign-in.md), the card reads `Add Your Name` with a person symbol, the two rows are dimmed and take no tap, and the footer reads `Add your name first. Then you can add your car and medical notes.`
-- **Reload (`profile-reload`).** Run `fixture.mjs offline` and pull down: after about 10 seconds the note `Could not reach Barry. …`, with a crossed-out signal symbol in the warning colour, shows above the card, which keeps its values. Run `fixture.mjs online`.
-- **Save failure (`profile-save-failure`).** Run `fixture.mjs offline`, tap `Car`, paste `red` into `Colour` and tap the checkmark. After about 10 seconds the alert `Could Not Save` reads `Check that the phone number starts with + and the country code.`, and `red` stays on screen. Run `fixture.mjs online` and tap the checkmark: it saves. Remove `red` and save again.
-- **Legal (`profile-legal`).** The `ACCOUNT` group holds `Email and Password`, `Privacy Policy` and `Terms of Use`, each with a chevron. Below it, one group holds `Log Out` and `Delete Account`, centred, at the very bottom of the screen. Tapping a row opens `https://barry.support/privacy` or `https://barry.support/terms` in Safari. The `Log Out` and `Delete Account` rows above them are covered by [Sign in](./sign-in.md).
-- **Account (`profile-account`).** Never on the test account's address: create a throwaway account first, as `account-delete` in [Sign in](./sign-in.md) does, and delete it at the end. Scroll down and tap `Email and Password`, the first row of the `ACCOUNT` group. The sheet titled `Account` slides up from the bottom, with a close button at its top left, and holds two groups. `Password` holds `Current Password` and `New Password`, both showing `Required` while empty, and a greyed-out `Change Password` row with the footer `Barry checks your current password before it changes anything.`; the row turns on once both fields are filled. Paste a wrong password into `Current Password` and a new one into `New Password`, tap `Change Password`: the footer under `PASSWORD` turns red and reads `That is not your current password. Nothing was changed.` and both fields keep their text. Paste the real password into `Current Password` and tap again: the footer turns green and reads `Your password is changed.` and both fields are empty. Close the sheet, tap `Log Out` on the Profile and sign in with the new password. `Email Address` holds `Current` with the address, `New Address` and a `Change Email Address` row that stays greyed out while the field is empty or holds the current address, with the footer `Barry sends a link to your current address and one to the new address. Your address changes once you have opened both.` Paste a new address and tap the row: the footer under `EMAIL ADDRESS` turns green and reads `Barry sent a link to <old> and one to <new>. Open both. Until then you sign in with <old>.`, `Current` still shows the old address, and Mailpit has `Confirm your new email address` for both addresses. Pull the screen down: the footer now reads `<new> is waiting for its confirmation links. …` in the warning colour, with an envelope. Open the link from one of the two emails in Safari: it lands on `http://127.0.0.1:3000`, where nothing listens, and the change is done, because locally one link is enough (see Gotchas). Pull the screen down: `Current` shows the new address and the footer is the hint again, and signing in afterwards takes it. Sign in with the new address afterwards.
-- **Proof.** Screenshot the Profile after each save and the `Could Not Save` alert to `.verify-artifacts/<run-id>/`, and save the `adventurer_profiles` row after each change. For `profile-account`, screenshot both notices and the `Account` screen after the second link, and save the `auth.users` row's `email` and `new_email` before and after.
+- **Reload (`profile-reload`).** Run `fixture.mjs offline` and pull down: after about 10 seconds the note `Could not reach Barry. …`, with a crossed-out signal symbol in the warning colour, shows above the card, which keeps its values.
+  Run `fixture.mjs online`.
+- **Save failure (`profile-save-failure`).** Run `fixture.mjs offline`, tap `Car`, paste `red` into `Colour` and tap the checkmark.
+  After about 10 seconds the alert `Could Not Save` reads `Check that the phone number starts with + and the country code.`, and `red` stays on screen.
+  Run `fixture.mjs online` and tap the checkmark: it saves.
+  Remove `red` and save again.
+- **Legal (`profile-legal`).** The `ACCOUNT` group holds `Email and Password`, `Privacy Policy` and `Terms of Use`, each with a chevron.
+  Below it, one group holds `Log Out` and `Delete Account`, centred, at the very bottom of the screen.
+  Tapping a row opens `https://barry.support/privacy` or `https://barry.support/terms` in Safari.
+  The `Log Out` and `Delete Account` rows above them are covered by [Sign in](./sign-in.md).
+- **Account (`profile-account`).** Never on the test account's address: create a throwaway account first, as `account-delete` in [Sign in](./sign-in.md) does, and delete it at the end.
+  Scroll down and tap `Email and Password`, the first row of the `ACCOUNT` group.
+  The sheet titled `Account` slides up from the bottom, with a close button at its top left, and holds two groups.
+  `Password` holds `Current Password` and `New Password`, both showing `Required` while empty, and a greyed-out `Change Password` row with the footer `Barry checks your current password before it changes anything.`; the row turns on once both fields are filled.
+  Paste a wrong password into `Current Password` and a new one into `New Password`, tap `Change Password`: the footer under `PASSWORD` turns red and reads `That is not your current password. Nothing was changed.` and both fields keep their text.
+  Paste the real password into `Current Password` and tap again: the footer turns green and reads `Your password is changed.` and both fields are empty.
+  Close the sheet, tap `Log Out` on the Profile and sign in with the new password.
+  `Email Address` holds `Current` with the address, `New Address` and a `Change Email Address` row that stays greyed out while the field is empty or holds the current address, with the footer `Barry sends a link to your current address and one to the new address. Your address changes once you have opened both.` Paste a new address and tap the row: the footer under `EMAIL ADDRESS` turns green and reads `Barry sent a link to <old> and one to <new>. Open both. Until then you sign in with <old>.`, `Current` still shows the old address, and Mailpit has `Confirm your new email address` for both addresses.
+  Pull the screen down: the footer now reads `<new> is waiting for its confirmation links. …` in the warning colour, with an envelope.
+  Open the link from one of the two emails in Safari: it lands on `http://127.0.0.1:3000`, where nothing listens, and the change is done, because locally one link is enough (see Gotchas).
+  Pull the screen down: `Current` shows the new address and the footer is the hint again, and signing in afterwards takes it.
+  Sign in with the new address afterwards.
+- **Proof.** Screenshot the Profile after each save and the `Could Not Save` alert to `.verify-artifacts/<run-id>/`, and save the `adventurer_profiles` row after each change.
+  For `profile-account`, screenshot both notices and the `Account` screen after the second link, and save the `auth.users` row's `email` and `new_email` before and after.
 
 ## Gotchas
 
@@ -40,5 +80,8 @@ Preconditions:
 - Every save also writes the phone's language to the Profile, which `profile-language` in [Sign in](./sign-in.md) covers.
 - Without signal each request waits up to 10 seconds before it fails.
 - A wrong current password shows Barry's own text in the footer; anything else Supabase refuses, such as a new password under ten characters or an address another account uses, shows Supabase's English message.
-- Locally `enable_confirmations = false` in `supabase/config.toml` makes Auth confirm an address change with the first link that is opened; the other link then fails with `otp_expired`. The hosted project confirms new accounts by email, so there both links are needed: the first lands on `https://barry.support/confirmed` saying `One more link to open`, the second saying `Your email address is changed`. The screen's texts describe the hosted behaviour.
-- The confirmation links redirect to the Site URL in `supabase/config.toml`, `http://127.0.0.1:3000`, where nothing listens locally. The change is complete once Safari lands there without `error` in the address.
+- Locally `enable_confirmations = false` in `supabase/config.toml` makes Auth confirm an address change with the first link that is opened; the other link then fails with `otp_expired`.
+  The hosted project confirms new accounts by email, so there both links are needed: the first lands on `https://barry.support/confirmed` saying `One more link to open`, the second saying `Your email address is changed`.
+  The screen's texts describe the hosted behaviour.
+- The confirmation links redirect to the Site URL in `supabase/config.toml`, `http://127.0.0.1:3000`, where nothing listens locally.
+  The change is complete once Safari lands there without `error` in the address.

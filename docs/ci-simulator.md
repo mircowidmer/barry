@@ -1,13 +1,17 @@
 # Sketch: the Simulator tests on GitHub
 
-Status: a sketch, not built. Today `/barry-frontend-verify` drives the app in the iOS Simulator on a Mac by hand. This page sketches how its Maestro flows could run in GitHub Actions instead.
+Status: a sketch, not built.
+Today `/barry-frontend-verify` drives the app in the iOS Simulator on a Mac by hand.
+This page sketches how its Maestro flows could run in GitHub Actions instead.
 
 ## What blocks the obvious setup
 
 The flows need two things at the same time: the app in an iOS Simulator, and a Supabase backend the app can reach.
 
-- **The Simulator** runs only on macOS, so that part needs a `macos-26` runner. The repository is public, so macOS minutes cost nothing.
-- **The local stack** (`npx supabase start`) needs Docker. GitHub's macOS runners are Apple-silicon virtual machines without nested virtualization, so Docker does not run there.
+- **The Simulator** runs only on macOS, so that part needs a `macos-26` runner.
+  The repository is public, so macOS minutes cost nothing.
+- **The local stack** (`npx supabase start`) needs Docker.
+  GitHub's macOS runners are Apple-silicon virtual machines without nested virtualization, so Docker does not run there.
 - **A separate job can't help directly.** The `backend` job runs the local stack on Linux, but a Linux job and a macOS job can't reach each other's ports without a tunnel.
 
 ## Options
@@ -34,17 +38,20 @@ flowchart LR
   M --> mac
 ```
 
-1. **Keep the CI project current.** A Linux job runs `npx supabase db push` and `npx supabase functions deploy deliver` against the CI project before the Simulator job. Secrets needed: `SUPABASE_ACCESS_TOKEN`, the CI project's database password and its ref.
+1. **Keep the CI project current.** A Linux job runs `npx supabase db push` and `npx supabase functions deploy deliver` against the CI project before the Simulator job.
+   Secrets needed: `SUPABASE_ACCESS_TOKEN`, the CI project's database password and its ref.
    - The CI project gets no `RESEND_API_KEY` and no Twilio keys, so it never emails or texts anyone.
    - The flows prove what the app does; the messages stay `barry-backend-verify`'s job.
-2. **Build the app.** The `ios` job already builds a Release `.app` for the Simulator. The Simulator job builds it with the CI project's `EXPO_PUBLIC_SUPABASE_URL` and key instead of production's.
+2. **Build the app.** The `ios` job already builds a Release `.app` for the Simulator.
+   The Simulator job builds it with the CI project's `EXPO_PUBLIC_SUPABASE_URL` and key instead of production's.
    - The flows' `appId` is `support.barry.dev`, so they need an `APP_ID` parameter for `support.barry`.
    - Alternatively, a `ci` variant could be added to `app.config.js`.
 3. **Prepare the Simulator.** Boot an iPhone, `xcrun simctl install` the `.app`, then set what the flows otherwise get from a person:
    - permissions, through Maestro's `launchApp: permissions` for notifications and location;
    - a location, with `xcrun simctl location`;
    - contacts, with `xcrun simctl addmedia booted contacts.vcf`.
-4. **Create a throwaway account** with the CI project's secret key, as each `e2e/*.e2e.mjs` file does locally. Seed the Emergency Contacts and the Adventure the flows expect, and pass the email and password to Maestro as parameters.
+4. **Create a throwaway account** with the CI project's secret key, as each `e2e/*.e2e.mjs` file does locally.
+   Seed the Emergency Contacts and the Adventure the flows expect, and pass the email and password to Maestro as parameters.
 5. **Run the flows** with `maestro test`, and upload the screenshots and Maestro's debug output as an artifact on failure.
    - Steps that the recipe does with the Simulator control tool need Maestro equivalents:
      - tapping a tab bar item: `tapOn: point`;
@@ -54,6 +61,9 @@ flowchart LR
 
 ## Open questions
 
-- Does Maestro's tap reach the iOS 27 tab bar in a Release build? It does not in the debug build, which is why the recipe taps tabs with the Simulator tool.
-- Should the job run on every pull request? It probably takes 25 to 40 minutes, so maybe only on pull requests that touch `src/`, `modules/` or the flows, plus every night.
-- The Trail and the geofences need simulated movement (`xcrun simctl location start`). Is that worth automating, or does it stay a manual check?
+- Does Maestro's tap reach the iOS 27 tab bar in a Release build?
+  It does not in the debug build, which is why the recipe taps tabs with the Simulator tool.
+- Should the job run on every pull request?
+  It probably takes 25 to 40 minutes, so maybe only on pull requests that touch `src/`, `modules/` or the flows, plus every night.
+- The Trail and the geofences need simulated movement (`xcrun simctl location start`).
+  Is that worth automating, or does it stay a manual check?

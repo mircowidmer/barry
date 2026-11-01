@@ -5,60 +5,112 @@ description: Drive the Barry iOS app (Expo SDK 58 development build in the iOS S
 
 # Verify Barry's frontend
 
-Barry is a solo-adventure safety app. The user touches the iOS app: its screens, and the client module in `src/lib/barry` behind them, which hides the location fix, the offline Check-in queue, the cached Adventure, the Trail buffer and the local alarms. The app schedules the Reminder and the Overdue Notice as local notifications, and records the Trail in the background. Everything it sends goes through the local Supabase stack. This skill proves what the app does; what the stack does with it (the clock, the commands, the messages) is [barry-backend-verify](../barry-backend-verify/SKILL.md)'s, and runs without the app. Read [features/README.md](features/README.md) before driving, then use the matching feature file as the recipe.
+Barry is a solo-adventure safety app.
+The user touches the iOS app: its screens, and the client module in `src/lib/barry` behind them, which hides the location fix, the offline Check-in queue, the cached Adventure, the Trail buffer and the local alarms.
+The app schedules the Reminder and the Overdue Notice as local notifications, and records the Trail in the background.
+Everything it sends goes through the local Supabase stack.
+This skill proves what the app does; what the stack does with it (the clock, the commands, the messages) is [barry-backend-verify](../barry-backend-verify/SKILL.md)'s, and runs without the app.
+Read [features/README.md](features/README.md) before driving, then use the matching feature file as the recipe.
 
-Helpers live in `.claude/skills/barry-frontend-verify/scripts/`, run from the repo root. Shell commands that touch Docker, the simulator or the clipboard need the sandbox disabled.
+Helpers live in `.claude/skills/barry-frontend-verify/scripts/`, run from the repo root.
+Shell commands that touch Docker, the simulator or the clipboard need the sandbox disabled.
 
-The iOS Simulator runs only on a Mac. In a Linux cloud session, report every step as unverified with the precondition "no iOS Simulator", and prove the backend half of the change with barry-backend-verify instead.
+The iOS Simulator runs only on a Mac.
+In a Linux cloud session, report every step as unverified with the precondition "no iOS Simulator", and prove the backend half of the change with barry-backend-verify instead.
 
 ## Launch
 
 From the repo root, in this order:
 
-1. The stack: steps 1 to 4 of the **Launch** in barry-backend-verify, which start Supabase and the text message relay. A `npx supabase db reset --local` deletes the test account: create it again through the app's **Create Account** with the values in `.env.local`, then run `fixture.mjs seed` for its Profile and the contacts Luca and Sara.
+1. The stack: steps 1 to 4 of the **Launch** in barry-backend-verify, which start Supabase and the text message relay.
+   A `npx supabase db reset --local` deletes the test account: create it again through the app's **Create Account** with the values in `.env.local`, then run `fixture.mjs seed` for its Profile and the contacts Luca and Sara.
 2. The app:
-   - If `ios/` is missing or a native dependency changed: `APP_VARIANT=development LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process. If `ios/` was generated for another variant, run `APP_VARIANT=development LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios` first. It builds for 5 to 10 minutes and starts Metro. Ready when it prints `iOS Bundled`.
-   - Otherwise: `npm start` as a background process, then `xcrun simctl launch booted support.barry.dev`. Ready when Metro prints `iOS Bundled`.
+   - If `ios/` is missing or a native dependency changed: `APP_VARIANT=development LANG=en_US.UTF-8 npx expo run:ios --device "iPhone 18 Pro"` as a background process.
+     If `ios/` was generated for another variant, run `APP_VARIANT=development LANG=en_US.UTF-8 npx expo prebuild --clean --platform ios` first.
+     It builds for 5 to 10 minutes and starts Metro.
+     Ready when it prints `iOS Bundled`.
+   - Otherwise: `npm start` as a background process, then `xcrun simctl launch booted support.barry.dev`.
+     Ready when Metro prints `iOS Bundled`.
    - If iOS shows `Open in "Barry Dev"?`, choose **Open**.
-3. Run the doctor. Every line must say `ok`.
+3. Run the doctor.
+   Every line must say `ok`.
 
-Only one instance exists: one database, one Metro port, one booted simulator. Never start a second run while another agent drives the app. If the doctor shows a stack you did not start, drive it only if the user said so.
+Only one instance exists: one database, one Metro port, one booted simulator.
+Never start a second run while another agent drives the app.
+If the doctor shows a stack you did not start, drive it only if the user said so.
 
 ## Doctor
 
-`.claude/skills/barry-frontend-verify/scripts/doctor.sh` is read-only. It runs barry-backend-verify's doctor (Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the text message relay on :8788), then checks Metro on :8081, a booted simulator, the `support.barry.dev` build, and the test account in `.env.local`. Run it first, and again whenever anything looks off.
+`.claude/skills/barry-frontend-verify/scripts/doctor.sh` is read-only.
+It runs barry-backend-verify's doctor (Docker, the three Supabase containers, the API, a pg_cron tick in the last two minutes, the text message relay on :8788), then checks Metro on :8081, a booted simulator, the `support.barry.dev` build, and the test account in `.env.local`.
+Run it first, and again whenever anything looks off.
 
 ## Drive
 
-There are two harnesses. The iOS Simulator control tool (`screenshot`, `tap` with `duration` for a long-press, `swipe`, `touch_path`, `button HOME`, `open_url`) does tabs, switches, long-presses and anything found by position. [Maestro](https://maestro.mobile.dev), through `.claude/skills/barry-frontend-verify/scripts/maestro.sh`, types text and finds controls by accessibility label (every field and button in `src/components/form.tsx` sets one). Coordinates are device points on the iPhone 18 Pro, 402 × 874, in both. A screenshot is shown scaled, so convert with the factor the tool reports.
+There are two harnesses.
+The iOS Simulator control tool (`screenshot`, `tap` with `duration` for a long-press, `swipe`, `touch_path`, `button HOME`, `open_url`) does tabs, switches, long-presses and anything found by position.
+[Maestro](https://maestro.mobile.dev), through `.claude/skills/barry-frontend-verify/scripts/maestro.sh`, types text and finds controls by accessibility label (every field and button in `src/components/form.tsx` sets one).
+Coordinates are device points on the iPhone 18 Pro, 402 × 874, in both.
+A screenshot is shown scaled, so convert with the factor the tool reports.
 
-- **Wait after every tap.** The debug build reacts one to three seconds late. Wait 2 to 3 seconds after a tap before the next screenshot, or the screenshot shows the old screen and the next tap lands on the new one.
-- **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign In`, `Plan an Adventure`, `Start`, `Check In`, the clock (`Need More Time?`) and the contacts button (`Who Is Watching`) at the top right of the live screen, the `Plan` card. A header's close button and checkmark have no text: VoiceOver reads them as `Cancel` and `Save` or `Add`. Coordinates in the feature files are hints for an unscrolled screen only.
-- **Language.** The app follows the simulator's language, and every recipe quotes the English texts, so keep the simulator in English. To check the German texts, run `xcrun simctl spawn booted defaults write -g AppleLanguages -array de-CH en`, then `xcrun simctl shutdown booted` and boot it again. Set it back with `-array en-CH` the same way.
-- **Text entry.** The simulator tool's `text` action does not reach the field. Type with Maestro: `maestro.sh field "Destination"` prints the point of the field's input box, and `maestro.sh run <run-id> type AT=<x,y> VALUE="Grosser Mythen"` replaces its text. Tap the input box, never the field's name: a tap on the name lands on the label and the field gets no focus, so the text goes nowhere. The keyboard stays up afterwards and covers the lower half of the screen, `Forgot Password?` included; Maestro's `hideKeyboard` fails on iOS, so hide it with the simulator tool's `set_keyboard` before tapping there. Without Maestro, use the clipboard, which breaks whenever someone copies on the Mac during the run:
+- **Wait after every tap.** The debug build reacts one to three seconds late.
+  Wait 2 to 3 seconds after a tap before the next screenshot, or the screenshot shows the old screen and the next tap lands on the new one.
+- **Find controls by their visible text.** Take a fresh screenshot before every tap and locate the button or field by its label: `Sign In`, `Plan an Adventure`, `Start`, `Check In`, the clock (`Need More Time?`) and the contacts button (`Who Is Watching`) at the top right of the live screen, the `Plan` card.
+  A header's close button and checkmark have no text: VoiceOver reads them as `Cancel` and `Save` or `Add`.
+  Coordinates in the feature files are hints for an unscrolled screen only.
+- **Language.** The app follows the simulator's language, and every recipe quotes the English texts, so keep the simulator in English.
+  To check the German texts, run `xcrun simctl spawn booted defaults write -g AppleLanguages -array de-CH en`, then `xcrun simctl shutdown booted` and boot it again.
+  Set it back with `-array en-CH` the same way.
+- **Text entry.** The simulator tool's `text` action does not reach the field.
+  Type with Maestro: `maestro.sh field "Destination"` prints the point of the field's input box, and `maestro.sh run <run-id> type AT=<x,y> VALUE="Grosser Mythen"` replaces its text.
+  Tap the input box, never the field's name: a tap on the name lands on the label and the field gets no focus, so the text goes nowhere.
+  The keyboard stays up afterwards and covers the lower half of the screen, `Forgot Password?` included; Maestro's `hideKeyboard` fails on iOS, so hide it with the simulator tool's `set_keyboard` before tapping there.
+  Without Maestro, use the clipboard, which breaks whenever someone copies on the Mac during the run:
   1. `.claude/skills/barry-frontend-verify/scripts/clip.sh set "Grosser Mythen"` (or `clip.sh email`, `clip.sh password`).
   2. Long-press the field: `tap` at its centre with `duration: 0.9`.
-  3. Wait one second, then take a screenshot. A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
-  4. Tap `Paste`. Never tap `AutoFill`.
+  3. Wait one second, then take a screenshot.
+     A menu with `Paste` and `AutoFill` appears 46 points below the field, or above it near the bottom of the screen.
+  4. Tap `Paste`.
+     Never tap `AutoFill`.
   5. After pasting the password, run `clip.sh clear`.
-- **Sign in.** Paste the email and the password, then tap `Sign In`. The first sign-in shows `"Barry Dev" Would Like to Send You Notifications`. Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
-- **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`. Wait for scrolling to stop before tapping, or the tap lands on moving content. On a screen with a map, start the swipe on the header: a swipe that starts on the map pans the map, in Maestro's `scrollUntilVisible` too.
-- **Tab bar.** Switch tabs with the simulator tool's `tap` at the tab's position (the recipes give them). Maestro's taps on the iOS 27 tab bar do not register. After scrolling, the tab bar can collapse into a single icon at the bottom left, about (52, 824): tap it to expand the bar, take a screenshot, then tap the tab. A row near the bottom of the screen can sit under the floating tab bar, so scroll it to the middle before tapping (`centerElement: true` in Maestro).
-- **Swipe to delete.** The red `Delete` behind a swiped row is not in the accessibility tree. Swipe with `touch_path` or `maestro.sh run <run-id> swipe-row ROW=<name>`, then tap `Delete` with the simulator tool at (333, y).
-- **Check In.** A Check-in needs `tap` with `duration: 2.2` on `Check In`. A shorter press must not end the Adventure.
-- **Preconditions and time.** `.claude/skills/barry-frontend-verify/scripts/fixture.mjs` creates the baseline's Profile and contacts where they are missing (`seed`), creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`) and the Trail (`trail`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`). Use it only to set up state or skip waiting. The app performs every step being verified.
-- **Refreshing banner.** A blue `Refreshing…` bar at the top means Metro reloaded after a file in the repo changed, including files in this skill. It does not affect the run.
-- **Messages.** Email lands in Mailpit at http://127.0.0.1:54324. Notifications appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600). The text message relay prints `texted <to> from Barry: <first line>` for each text message, then the other lines indented, and `curl -s http://localhost:8788/messages` lists them in full. A message is the side effect that proves the app's tap reached the stack; its wording and timing are barry-backend-verify's to prove.
+- **Sign in.** Paste the email and the password, then tap `Sign In`.
+  The first sign-in shows `"Barry Dev" Would Like to Send You Notifications`.
+  Choose **Allow**, so the app can show the Reminder and the Overdue Notice.
+- **Scrolling.** `swipe` from (380, 600) to (380, 120) with `duration: 0.4`.
+  Wait for scrolling to stop before tapping, or the tap lands on moving content.
+  On a screen with a map, start the swipe on the header: a swipe that starts on the map pans the map, in Maestro's `scrollUntilVisible` too.
+- **Tab bar.** Switch tabs with the simulator tool's `tap` at the tab's position (the recipes give them).
+  Maestro's taps on the iOS 27 tab bar do not register.
+  After scrolling, the tab bar can collapse into a single icon at the bottom left, about (52, 824): tap it to expand the bar, take a screenshot, then tap the tab.
+  A row near the bottom of the screen can sit under the floating tab bar, so scroll it to the middle before tapping (`centerElement: true` in Maestro).
+- **Swipe to delete.** The red `Delete` behind a swiped row is not in the accessibility tree.
+  Swipe with `touch_path` or `maestro.sh run <run-id> swipe-row ROW=<name>`, then tap `Delete` with the simulator tool at (333, y).
+- **Check In.** A Check-in needs `tap` with `duration: 2.2` on `Check In`.
+  A shorter press must not end the Adventure.
+- **Preconditions and time.** `.claude/skills/barry-frontend-verify/scripts/fixture.mjs` creates the baseline's Profile and contacts where they are missing (`seed`), creates a live Adventure (`live [minutes]`), moves its Deadline into the past (`overdue`), shows the stored state (`state`) and the Trail (`trail`), takes the API offline and back (`offline`, `online`), and checks in for cleanup (`end`).
+  Use it only to set up state or skip waiting.
+  The app performs every step being verified.
+- **Refreshing banner.** A blue `Refreshing…` bar at the top means Metro reloaded after a file in the repo changed, including files in this skill.
+  It does not affect the run.
+- **Messages.** Email lands in Mailpit at http://127.0.0.1:54324.
+  Notifications appear as banners, and in Notification Center after a swipe from (201, 2) to (201, 600).
+  The text message relay prints `texted <to> from Barry: <first line>` for each text message, then the other lines indented, and `curl -s http://localhost:8788/messages` lists them in full.
+  A message is the side effect that proves the app's tap reached the stack; its wording and timing are barry-backend-verify's to prove.
 
 ## Evidence
 
 Write proof to `.verify-artifacts/<run-id>/`, which git ignores, with `<run-id>` as `YYYYMMDD-HHMM-<feature>`.
 
 - Screenshots: `xcrun simctl io booted screenshot .verify-artifacts/<run-id>/<step>.png` after the user action and after the resulting state.
-- Stored state: `.claude/skills/barry-frontend-verify/scripts/fixture.mjs state > .verify-artifacts/<run-id>/<step>.state.txt`. Every mutation needs this second, read-only view.
+- Stored state: `.claude/skills/barry-frontend-verify/scripts/fixture.mjs state > .verify-artifacts/<run-id>/<step>.state.txt`.
+  Every mutation needs this second, read-only view.
 - Messages: banner screenshots for notifications, the text message relay's output lines, and Mailpit subjects for email.
 
-Proof standards: drive the real screens, not the database. Capture the action and the result, not only the final screen. Check side effects (rows, messages, notifications) alongside what is visible. A step you could not reach is reported as unverified with the unmet precondition. It is never passed through a different path.
+Proof standards: drive the real screens, not the database.
+Capture the action and the result, not only the final screen.
+Check side effects (rows, messages, notifications) alongside what is visible.
+A step you could not reach is reported as unverified with the unmet precondition.
+It is never passed through a different path.
 
 ## Cleanup
 
@@ -66,16 +118,25 @@ Proof standards: drive the real screens, not the database. Capture the action an
 - `.claude/skills/barry-frontend-verify/scripts/fixture.mjs online` if the run took the API offline.
 - `.claude/skills/barry-frontend-verify/scripts/clip.sh clear`.
 - Stop only the processes this run started: Metro by its task ID, and the stack as barry-backend-verify's **Cleanup** says.
-- Keep `.verify-artifacts/`. Cleanup never deletes proof.
+- Keep `.verify-artifacts/`.
+  Cleanup never deletes proof.
 
 ## Maestro
 
-Maestro and OpenJDK come from Homebrew (`brew install openjdk mobile-dev-inc/tap/maestro`); install them only with the user's approval. Homebrew's JDK is not on the system Java path, so `maestro.sh` sets `JAVA_HOME` itself. Run it with the sandbox disabled.
+Maestro and OpenJDK come from Homebrew (`brew install openjdk mobile-dev-inc/tap/maestro`); install them only with the user's approval.
+Homebrew's JDK is not on the system Java path, so `maestro.sh` sets `JAVA_HOME` itself.
+Run it with the sandbox disabled.
 
-- `maestro.sh run <run-id> <flow> [KEY=VALUE ...]` runs `flows/<flow>.yaml` on the booted simulator and copies its screenshots to `.verify-artifacts/<run-id>/`. A failed flow also leaves Maestro's debug output, with the screen's hierarchy, in `$TMPDIR/maestro-debug/<run-id>/`, outside the repo, because a new folder under `.verify-artifacts/` makes Metro reload the app in the middle of the next flow, whose typed text then lands in the wrong field. Each run takes 20 to 60 seconds to start.
+- `maestro.sh run <run-id> <flow> [KEY=VALUE ...]` runs `flows/<flow>.yaml` on the booted simulator and copies its screenshots to `.verify-artifacts/<run-id>/`.
+  A failed flow also leaves Maestro's debug output, with the screen's hierarchy, in `$TMPDIR/maestro-debug/<run-id>/`, outside the repo, because a new folder under `.verify-artifacts/` makes Metro reload the app in the middle of the next flow, whose typed text then lands in the wrong field.
+  Each run takes 20 to 60 seconds to start.
 - `maestro.sh labels` lists every accessibility label on screen with its bounds, and `maestro.sh field <label>` prints the point of a field's input box.
-- `flows/` holds building blocks (`type`, `pull`, `alert`, `swipe-row`, `sign-in`) and the recipe steps that run whole (`profile-save-guard`, `profile-account`, `plan-start` and `plan-start-go`, `history-select`, `logout`, `reset`, `reset-set`, `delete-account`). Each file names its parameters in its first comment. Screenshots are named after the recipe step.
-- Maestro reads every text as a regular expression that must match the whole label: escape `?`, `.`, `+`, `(` and `)` (`"Log Out\\?"`), or `Log Out?` also matches the `Log Out` row. A row's label joins its parts with commas, such as `Terms of Use, Forward` or `Current, <address>`, and a note starts with its symbol, such as `Error, That is not your current password…` or `get mail, Barry sent a code to…`, so match them as `"Terms of Use.*"`, `".*<address>.*"` or `".*Barry sent a code to .*"`.
-- Defaults in a flow's `env:` block override the values given on the command line. Write a default inline instead: `"${BUTTON || 'Sign In'}"`.
+- `flows/` holds building blocks (`type`, `pull`, `alert`, `swipe-row`, `sign-in`) and the recipe steps that run whole (`profile-save-guard`, `profile-account`, `plan-start` and `plan-start-go`, `history-select`, `logout`, `reset`, `reset-set`, `delete-account`).
+  Each file names its parameters in its first comment.
+  Screenshots are named after the recipe step.
+- Maestro reads every text as a regular expression that must match the whole label: escape `?`, `.`, `+`, `(` and `)` (`"Log Out\\?"`), or `Log Out?` also matches the `Log Out` row.
+  A row's label joins its parts with commas, such as `Terms of Use, Forward` or `Current, <address>`, and a note starts with its symbol, such as `Error, That is not your current password…` or `get mail, Barry sent a code to…`, so match them as `"Terms of Use.*"`, `".*<address>.*"` or `".*Barry sent a code to .*"`.
+- Defaults in a flow's `env:` block override the values given on the command line.
+  Write a default inline instead: `"${BUTTON || 'Sign In'}"`.
 - Alert buttons go by position (`alert.yaml` takes `AT`): the destructive button sits at (275, 507) in a two-line alert such as `Delete <name>?`, at (275, 497) in `Log Out?` and at (275, 527) in `Delete Your Account?`.
 - Maestro does not see the system contact picker's rows reliably; tap the contact with the simulator tool.
