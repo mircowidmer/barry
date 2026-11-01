@@ -39,7 +39,7 @@ import type {
   ShowPhoneContactOptions,
 } from './types';
 
-export type BarryDeps = {
+type BarryDeps = {
   supabase: SupabaseClient<Database>;
   /** One reading, or null when permission is denied or there is no fix in time. */
   readPosition(): Promise<Position | null>;
