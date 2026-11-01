@@ -2,6 +2,7 @@
 
 This puts the development build of Barry, Barry Dev with the bundle identifier `support.barry.dev`, on a real iPhone.
 It talks to the Supabase stack and the Metro bundler on your Mac, so the iPhone and the Mac must be on the same Wi-Fi.
+Everyone on that Wi-Fi can then reach the stack too, including Supabase Studio without a login, the database and Mailpit, so do this only on a network you trust, and stop the stack (`npx supabase stop`) and `scripts/sms-relay.mjs` before you join another one.
 
 ## Before you start
 
@@ -133,4 +134,4 @@ A code change reaches it only through a new build.
   [How to see what Barry sends locally](local-messages.md) shows where to read them and the emails.
 - A free team's profile expires after 7 days.
   When iOS says Barry is no longer available, repeat steps 3 and 4.
-- If the macOS firewall asks whether `node` or Docker may accept incoming connections, allow it.
+- If the macOS firewall asks whether `node` or Docker may accept incoming connections, allow it on a network you trust only.
