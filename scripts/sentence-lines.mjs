@@ -13,16 +13,17 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 // Words that end with a full stop without ending the sentence.
-const ABBREVIATION = /(?:^|[\s(])(?:e\.g|i\.e|[ap]\.m|vs|cf|approx|ca|z\.\s?B|d\.\s?h|bzw|usw|Nr|Mr|Mrs|Ms|Dr|St|Mt|No|Fig)\.$/;
+const ABBREVIATION = /(?:^|[\s(])(?:e\.g|i\.e|[ap]\.m|vs|cf|approx|Mr|Mrs|Ms|Dr|St|Mt|No|Fig)\.$/;
 
 // A bold or italic label that opens a line, such as **Clock.**, which stays with the sentence it introduces.
 const LABEL = /^(\*\*|__|\*|_)(?:(?!\1).)+\1$/;
 
-// A piece that would start a new block if it began a line, so it stays on the line before.
-const BLOCK_START = /^(?:[-*+]\s|\d+[.)]\s|#|>|\||<|```|~~~|=+$|-+$|\[[^\]]+\]:)/;
+// A sentence that would start a new block if it began a line, so it stays on the line before.
+// Only these can follow a sentence boundary: a list item, a code fence or a link definition.
+const BLOCK_START = /^(?:\*\s|\d+[.)]\s|```|\[[^\]]+\]:)/;
 
 const SKIP = /^\s*(?:#|\||<|\[[^\]]+\]:\s)/;
-const FENCE = /^((?:\s*>)*\s*)(`{3,}|~{3,})/;
+const FENCE = /^(?:\s*>)*\s*(`{3,}|~{3,})/;
 const PREFIX = /^((?:[ \t]*>[ \t]?)*)([ \t]*)((?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?)?/;
 
 /** Replaces code spans, link targets and URLs with filler of the same length, so their stops never end a sentence. */
@@ -42,13 +43,13 @@ function sentences(text) {
   const pieces = [];
   let start = 0;
   for (let match; (match = boundary.exec(masked)); ) {
-    const end = match.index + match[0].length - match[1].length;
-    const before = masked.slice(start, end).replace(/["'”’)\]*_]+$/, '');
-    const next = text.slice(match.index + match[0].length);
-    const label = start === 0 && LABEL.test(text.slice(0, end).trim());
-    if (label || ABBREVIATION.test(before) || BLOCK_START.test(next)) continue;
+    const after = boundary.lastIndex;
+    const end = after - match[1].length;
+    const label = start === 0 && LABEL.test(text.slice(0, end));
+    const abbreviation = ABBREVIATION.test(masked.slice(start, match.index + 1));
+    if (label || abbreviation || BLOCK_START.test(text.slice(after))) continue;
     pieces.push(text.slice(start, end));
-    start = match.index + match[0].length;
+    start = after;
   }
   pieces.push(text.slice(start));
   return pieces;
@@ -69,12 +70,12 @@ function format(markdown) {
     }
     const opener = line.match(FENCE);
     if (fence) {
-      if (opener && opener[2][0] === fence[0] && opener[2].length >= fence.length) fence = null;
+      if (opener?.[1].startsWith(fence)) fence = null;
       out.push(line);
       return;
     }
     if (opener) {
-      fence = opener[2];
+      fence = opener[1];
       out.push(line);
       return;
     }
@@ -85,16 +86,9 @@ function format(markdown) {
       return;
     }
     const pieces = sentences(body);
-    if (pieces.length === 1) {
-      out.push(line);
-      return;
-    }
-    split.push(index + 1);
+    if (pieces.length > 1) split.push(index + 1);
     const continuation = quote + indent + ' '.repeat(marker.length);
-    pieces.forEach((piece, i) => {
-      const last = i === pieces.length - 1;
-      out.push((i === 0 ? prefix : continuation) + (last ? piece : piece.trimEnd()));
-    });
+    pieces.forEach((piece, i) => out.push((i === 0 ? prefix : continuation) + piece));
   });
   return { markdown: out.join('\n'), split };
 }
