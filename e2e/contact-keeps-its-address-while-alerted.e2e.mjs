@@ -20,6 +20,8 @@ test('Supabase refuses a changed address on a contact that an Overdue or Alerted
   assert.equal(await stage(), 'overdue');
   assert.match(await change(anna.luca, { email: strangerEmail }), /contact_in_use/, 'Luca’s email address cannot change while the Adventure is Overdue');
 
+  await missDeadline(id);
+  tick();
   await waitForMail(anna.luca.email, 'Anna has not checked in');
   assert.equal(await stage(), 'alerted');
   assert.match(await change(anna.sara, { phone: strangerPhone }), /contact_in_use/, 'Sara’s phone number cannot change while the Adventure is Alerted');

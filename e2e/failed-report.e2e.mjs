@@ -3,7 +3,7 @@ import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { API, admin, adventurer, must, sleep, waitForText } from './stack.mjs';
+import { API, admin, adventurer, must, poll, waitForText } from './stack.mjs';
 
 const DELIVER_SECRET = readFileSync('supabase/config.toml', 'utf8').match(/^DELIVER_SECRET = "(.+)"$/m)[1];
 
@@ -21,11 +21,10 @@ test('a failed delivery report turns the text message into failed, with Twilio�
 
   const row = async () =>
     must(await admin.from('messages').select('id, status, provider_ref, delivered_at, failure_reason').eq('adventure_id', id).eq('channel', 'sms').single(), 'message');
-  let headsUp = await row();
-  for (let tries = 0; tries < 20 && !headsUp.delivered_at; tries++) {
-    await sleep(1);
-    headsUp = await row();
-  }
+  const headsUp = await poll('delivery report for Sara’s Heads-up', async () => {
+    const found = await row();
+    return found.delivered_at && found;
+  });
   assert.ok(headsUp.delivered_at, 'the relay’s own report for Sara’s Heads-up is in');
 
   const response = await fetch(`${API}/functions/v1/deliver/status?message=${headsUp.id}&token=${reportToken(headsUp.id)}`, {

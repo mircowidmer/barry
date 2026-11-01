@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { adventurer, mailCount, must, sleep, waitForMail } from './stack.mjs';
+import { adventurer, mailCount, must, poll, sleep, waitForMail } from './stack.mjs';
 
 const SUBJECT = 'Reset your password for Barry';
 
@@ -29,10 +29,7 @@ test('a wrong code fails, and Send Again sends a new code after which the old on
   // Auth lets one address ask again after max_frequency, a second locally.
   await sleep(2);
   must(await client.auth.resetPasswordForEmail(email), 'send the code again');
-  for (let waited = 0; (await mailCount(email, SUBJECT)) < 2; waited++) {
-    assert.ok(waited < 30, 'the second recovery email arrives within 30 seconds');
-    await sleep(1);
-  }
+  await poll('second recovery email', async () => (await mailCount(email, SUBJECT)) >= 2);
   const second = codeIn(await waitForMail(email, SUBJECT));
   assert.notEqual(second, first, 'Send Again sends a new code');
 

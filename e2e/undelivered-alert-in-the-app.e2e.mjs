@@ -2,10 +2,7 @@ import assert from 'node:assert/strict';
 import { randomInt } from 'node:crypto';
 import { test } from 'node:test';
 
-import { adventurer, missDeadline, must, sleep, waitForMail, waitForText } from './stack.mjs';
-
-// The columns the app reads, as MESSAGE_SELECT in src/lib/barry/rows.ts names them.
-const MESSAGE_SELECT = 'id, kind, round, channel, to_address, contacts, status, delivered, outcome_at, failure_reason, undelivered';
+import { adventurer, appMessages, missDeadline, must, poll, tick, waitForMail, waitForText } from './stack.mjs';
 
 // docs/text-messages.md § Delivery reports "`undelivered` or `failed` turns the message into `failed`, with Twilio's error as the reason"
 // docs/text-messages.md § Delivery reports "The app shows it as a Delivery Failure"
@@ -18,17 +15,17 @@ test('an Alert text message Twilio reports undelivered is one the app shows as a
   const id = await anna.start();
   await waitForMail(anna.luca.email, 'Anna is heading out to Grosser Mythen');
   await missDeadline(id);
+  tick();
   await waitForMail(anna.luca.email, 'Anna has not checked in');
   await waitForText(unreachable, 'Anna has not checked in from an adventure');
 
   // The same query as undeliveredMessages in src/lib/barry/client.ts, on Anna's own session.
   const undelivered = async () =>
-    must(await anna.client.from('adventure_messages').select(MESSAGE_SELECT).eq('adventure_id', id).eq('undelivered', true), 'undelivered messages');
-  let listed = [];
-  for (let tries = 0; tries < 20 && !listed.some((m) => m.kind === 'alert'); tries++) {
-    if (tries > 0) await sleep(1);
-    listed = await undelivered();
-  }
+    must(await appMessages(anna.client, id).eq('undelivered', true), 'undelivered messages');
+  const listed = await poll('undelivered Alert in the list', async () => {
+    const found = await undelivered();
+    return found.some((m) => m.kind === 'alert') && found;
+  });
   const sara = [{ id: anna.sara.id, name: 'Sara' }];
   assert.deepEqual(
     listed

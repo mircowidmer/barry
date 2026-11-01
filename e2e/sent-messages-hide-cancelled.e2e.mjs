@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { adventurer, messageKinds, messagesOut, must, waitForMail, waitForText } from './stack.mjs';
-
-// The select of the list in src/lib/barry/client.ts (MESSAGE_SELECT in src/lib/barry/rows.ts).
-const MESSAGE_SELECT = 'id, kind, round, channel, to_address, contacts, status, delivered, outcome_at, failure_reason, undelivered';
+import { adventurer, appMessages, messageKinds, messagesOut, must, waitForMail, waitForText } from './stack.mjs';
 
 // docs/spec.md § Messages > Sent to your contacts "A message still waiting, such as a Deadline Update held back by the pace, or one Barry cancelled, is not listed."
 test('a message Barry cancelled is not listed', async () => {
@@ -25,7 +22,7 @@ test('a message Barry cancelled is not listed', async () => {
     ['cancelled', 'cancelled'],
     'the Check-in cancelled the waiting Deadline Update to each address',
   );
-  const listed = must(await anna.client.from('adventure_messages').select(MESSAGE_SELECT).eq('adventure_id', id), 'adventure_messages');
+  const listed = must(await appMessages(anna.client, id), 'adventure_messages');
   assert.deepEqual(
     listed.map((m) => `${m.kind} ${m.channel}`).sort(),
     ['all_clear email', 'all_clear sms', 'heads_up email', 'heads_up sms'],

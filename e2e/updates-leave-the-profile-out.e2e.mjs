@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { adventurer, must, paceOver, waitForMail, waitForText } from './stack.mjs';
+import { adventurer, must, paceOver, runDeliver, waitForMail, waitForText } from './stack.mjs';
 
 // docs/spec.md § Adventurer Profile "Only the Alert carries the full Profile, and it leaves the phone line out when there is no phone number."
 test('only the Alert carries the full Profile: the Plan Update, the Deadline Update and the All-clear leave it out', async () => {
@@ -18,12 +18,14 @@ test('only the Alert carries the full Profile: the Plan Update, the Deadline Upd
     'save_adventure',
   );
   await paceOver(id);
+  await runDeliver();
   const planUpdate = await waitForMail(anna.luca.email, 'Anna changed the plan for Kleiner Mythen');
   const planUpdateText = await waitForText(anna.sara.phone, 'Anna changed the plan');
 
   const later = new Date(Date.now() + 3 * 3600_000).toISOString();
   assert.equal(must(await anna.client.rpc('move_deadline', { p_id: id, p_deadline: later }), 'move_deadline'), null);
   await paceOver(id);
+  await runDeliver();
   const deadlineUpdate = await waitForMail(anna.luca.email, 'Anna needs more time for Kleiner Mythen');
   const deadlineUpdateText = await waitForText(anna.sara.phone, 'Anna needs more time');
 

@@ -25,6 +25,8 @@ test('an Adventurer has at most one Active, Overdue, or Alerted Adventure at a t
   assert.equal(await stage(id), 'overdue');
   assert.equal(await start(), 'another_adventure_in_progress', 'the Planned Adventure cannot start while the first is Overdue');
 
+  await missDeadline(id);
+  tick();
   await waitForMail(anna.luca.email, 'Anna has not checked in');
   assert.equal(await stage(id), 'alerted');
   assert.equal(await start(), 'another_adventure_in_progress', 'the Planned Adventure cannot start while the first is Alerted');

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { adventurer, missDeadline, must, waitForMail, waitForText } from './stack.mjs';
+import { adventurer, missDeadline, must, tick, waitForMail, waitForText } from './stack.mjs';
 
 // The same parts as supabase/functions/deliver/messages.en.ts, so a wrong time zone or a named one fails the match.
 const inZurich = (at) => {
@@ -27,6 +27,7 @@ test('the Last Position in an Alert gives the time of the reading and the coordi
   );
 
   await missDeadline(id);
+  tick();
   const line = `Last position at ${inZurich(takenAt)}: 47.12345, 8.54321`;
   const alert = await waitForMail(anna.luca.email, 'Anna has not checked in');
   assert.ok(alert.Text.includes(line), `Luca’s Alert email says "${line}"`);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { admin, adventurer, must, tick, trailMap, trailToken, waitForMail } from './stack.mjs';
+import { admin, adventurer, must, trailMap, trailToken, waitForMail } from './stack.mjs';
 
 const YEAR = 365 * 24 * 3600_000;
 const yearBack = (at) => new Date(new Date(at).getTime() - YEAR).toISOString();
@@ -27,7 +27,6 @@ test('the Trail Map link never expires: a year after the Check-in it still shows
   for (const reading of must(await admin.from('position_readings').select('id, taken_at').eq('adventure_id', id), 'readings')) {
     must(await admin.from('position_readings').update({ taken_at: yearBack(reading.taken_at) }).eq('id', reading.id), 'move a reading a year back');
   }
-  tick();
 
   const map = await trailMap(token);
   assert.equal(map?.status, 'checked_in', 'the link still works a year after the Check-in');
