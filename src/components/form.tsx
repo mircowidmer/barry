@@ -26,7 +26,7 @@ import { useTexts } from '@/lib/texts';
 
 export { Button } from '@/components/button';
 
-export function Loading() {
+function Loading() {
   const theme = useTheme();
   return <ActivityIndicator color={theme.textSecondary} style={styles.loading} />;
 }
