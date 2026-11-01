@@ -12,7 +12,8 @@ begin
     ) or exists (
       select 1 from public.messages m
       join public.adventures a on a.id = m.adventure_id
-      where m.contact_id = new.id and a.stage in ('active', 'overdue', 'alerted')
+      -- The Adventurer's own, so the one Adventure in progress narrows the outbox to its rows.
+      where m.contact_id = new.id and a.adventurer_id = new.adventurer_id and a.stage in ('active', 'overdue', 'alerted')
     )
   ) then
     raise exception 'barry:contact_in_use' using errcode = 'P0001';
