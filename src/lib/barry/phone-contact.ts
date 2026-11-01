@@ -17,7 +17,7 @@ export type PhoneContact = {
 };
 
 /** What an Emergency Contact keeps of a Phone Contact. */
-export type ContactCopy = { name: string; email: string | null; phone: string | null };
+type ContactCopy = { name: string; email: string | null; phone: string | null };
 
 /** A number whose label contains one of these can get a text message. */
 export const MOBILE_LABELS = ['mobile', 'mobil', 'iphone', 'cell'];
