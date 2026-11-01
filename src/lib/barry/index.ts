@@ -134,8 +134,17 @@ const location: LocationService = {
     if (!foreground.granted) return false;
     return (await Location.requestBackgroundPermissionsAsync()).granted;
   },
-  // On a running task iOS only reapplies the options, which is how the mode switches.
-  startUpdates: (mode) => Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, UPDATE_OPTIONS[mode]),
+  // On a running task iOS only reapplies the options, which is how the mode switches. Android stops
+  // background updates within minutes unless a foreground service with its own notification runs them.
+  startUpdates: (mode) =>
+    Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, {
+      ...UPDATE_OPTIONS[mode],
+      foregroundService: {
+        notificationTitle: currentTexts().adventure.trailService.title,
+        notificationBody: currentTexts().adventure.trailService.body,
+        killServiceOnDestroy: false,
+      },
+    }),
   stopUpdates: async () => {
     if (await Location.hasStartedLocationUpdatesAsync(TRAIL_LOCATION_TASK)) {
       await Location.stopLocationUpdatesAsync(TRAIL_LOCATION_TASK);
