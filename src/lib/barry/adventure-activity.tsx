@@ -16,7 +16,7 @@ import {
 import { createLiveActivity, type LiveActivityEnvironment } from 'expo-widgets';
 
 /** Times in milliseconds, because the props travel as JSON. Texts come translated, since the layout cannot import. */
-export type AdventureActivityProps = {
+type AdventureActivityProps = {
   destination: string;
   startedAt: number;
   deadline: number;
