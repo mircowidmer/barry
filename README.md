@@ -65,7 +65,6 @@ On a pull request, the checks that need the stack and the build run only when th
 - [Crash reports](docs/crash-reports.md), what the app sends to Sentry and how to set the project up
 - [Sketch: the Simulator tests on GitHub](docs/ci-simulator.md), how the Simulator flows could run in CI
 - [Backend design](docs/design/backend/design.md) and [Trail design](docs/design/trail/design.md), the sketches the implementation started from
-- [Prompt overview](barry-prompts.html), the prompts of its first two days
 
 ## Skills
 
