@@ -476,7 +476,7 @@ export const createBarry = ({
       return { smsEnabled: channels.has('sms'), notificationsPermitted: notificationsAllowed, exactAlarmsPermitted: exactAlarmsAllowed, trailPermitted };
     },
 
-    allowExactAlarms: () => requestExactAlarms(),
+    allowExactAlarms: requestExactAlarms,
 
     start: async (draft) => {
       const position = await readPosition();
