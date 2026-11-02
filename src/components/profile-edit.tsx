@@ -10,8 +10,8 @@ import { formatPhoneNumber } from '@/lib/phone';
 import { useTexts } from '@/lib/texts';
 import { toolbarIcon } from '@/components/symbol';
 
-export type ProfileForm = Record<keyof AdventurerProfile, string>;
-export type SetField = (field: keyof ProfileForm) => (text: string) => void;
+type ProfileForm = Record<keyof AdventurerProfile, string>;
+type SetField = (field: keyof ProfileForm) => (text: string) => void;
 
 const empty: ProfileForm = { name: '', phone: '', carMake: '', carColour: '', carPlate: '', medicalNotes: '' };
 

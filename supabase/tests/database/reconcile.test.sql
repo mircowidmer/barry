@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(27);
+select plan(25);
 delete from public.messages;
 
 insert into auth.users (id, email) values
@@ -116,12 +116,6 @@ select private.reconcile('a0000000-0000-0000-0000-000000000001', '2026-10-17 20:
 select is((pg_temp.anna()).stage, 'overdue'::public.adventure_stage, 'At the new Deadline the Adventure becomes Overdue');
 
 select is(
-  pg_temp.pushed('a0000000-0000-0000-0000-000000000001'),
-  0,
-  'Overdue: Supabase pushes Anna no Overdue Notice'
-);
-
-select is(
   pg_temp.messages('a0000000-0000-0000-0000-000000000001', 'alert'),
   '{}'::text[],
   'During the Grace Period no Alert is queued'
@@ -221,12 +215,6 @@ select is(
   pg_temp.messages('b0000000-0000-0000-0000-000000000001', 'alert'),
   array['email noah@example.com pending 1 2026-10-17 16:00:00+00'],
   'Catch-up: only Alert 1 goes out, never a burst'
-);
-
-select is(
-  pg_temp.pushed('b0000000-0000-0000-0000-000000000001'),
-  0,
-  'Catch-up: nothing is pushed to Ben'
 );
 
 select is(

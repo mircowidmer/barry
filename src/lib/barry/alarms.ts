@@ -5,7 +5,7 @@ const REMINDER_LEAD_MS = 30 * 60_000;
 
 const PREFIX = 'barry.';
 
-export type AlarmKind = 'reminder' | 'overdue_notice';
+type AlarmKind = 'reminder' | 'overdue_notice';
 
 /** A notification the phone shows by itself, so it needs neither signal nor push. */
 export type Alarm = { identifier: string; kind: AlarmKind; at: Date; adventure: InProgressAdventure };

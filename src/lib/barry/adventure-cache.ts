@@ -2,7 +2,7 @@ import type { AdventureWithRelations } from './rows';
 
 const KEY = 'barry.inProgressAdventure';
 
-export type CachedAdventure = { row: AdventureWithRelations; savedAt: Date };
+type CachedAdventure = { row: AdventureWithRelations; savedAt: Date };
 
 /** The last live Adventure the server returned, so the app can show it and accept a Check-in without signal. */
 export const createAdventureCache = (storage: Pick<Storage, 'getItem' | 'setItem'>, now: () => Date) => ({

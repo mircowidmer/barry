@@ -4,7 +4,7 @@ const KEY = 'barry.failureNoticesShown';
 
 type Shown = { adventureId: AdventureId; ids: number[] };
 
-export type FailureNoticesDeps = {
+type FailureNoticesDeps = {
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Shows the notice on the phone at once. Needs neither push nor the app in front. */
   show(message: SentMessage, adventureId: AdventureId): Promise<void>;

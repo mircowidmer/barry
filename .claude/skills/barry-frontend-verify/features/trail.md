@@ -16,7 +16,7 @@ The app shows the Adventurer the map of the Trail on the Check-in screen and on 
 - `trail-live-map` shows the Trail on an Apple map on the live screen, below the Deadline card, with a dot per reading and a marker titled `Last position: <time>` for the newest reading.
   It adds new readings every five minutes.
 - `trail-after-checkin` keeps every reading at Check-in and shows the Trail on an Apple map on the screen after the Check-in.
-- `trail-history` opens an Ended Adventure from its day on the History tab (accessibility hint `Open <destination>`) with its destination as the title, its Check-in time and the same map, and no Plan section.
+- `trail-history` opens an Ended Adventure from its day on the History tab (accessibility hint `Open <destination>`) with its destination as the title and the same map, and no Plan section and no check-in note.
 - `history-delete` deletes an Ended Adventure, from its screen with `Delete` or from its day on the History tab by swiping the row left (`swipe` from (330, y) to (140, y)) and tapping `Delete`.
   Both ask `Delete this Adventure?`; `Delete` removes it, and a message still being sent refuses with `Barry is still sending messages for this adventure. Try again in a few minutes.`
 
@@ -57,7 +57,7 @@ Preconditions:
   `fixture.mjs trail` prints `adventure | ended` and the same `trail` count as before.
   Reload the page with `location.reload()`: it reads `Anna checked in on <time>.` above the same map and Last Position as before.
 - **History (`trail-history`).** Tap `Done`, tap `History` (158, 820), then the Adventure's row under its day.
-  The pushed screen has a `Back` button and shows the Plan and the same map, without a check-in note.
+  The pushed screen has a `Back` button and shows the same map, without a Plan section or a check-in note.
   An Ended Adventure without readings shows `No positions were recorded.`
 - **Proof.** Screenshot the live screen's map badge and the page, and save `fixture.mjs trail` after each step to `.verify-artifacts/<run-id>/`.
 

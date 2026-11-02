@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { SymbolView, type SymbolViewProps } from '@/components/symbol';
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
 import { Alert, type HostInstance, type LayoutChangeEvent, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
@@ -216,7 +216,7 @@ function Row({
   time,
   trailing,
 }: {
-  leading: React.ReactNode;
+  leading: ReactNode;
   title: string;
   line: string;
   warning: boolean;

@@ -48,7 +48,7 @@ export type ConditionsResult =
   | { kind: 'shown' | 'stale'; conditions: FetchedConditions }
   | { kind: 'unavailable' };
 
-export type ConditionsDeps = {
+type ConditionsDeps = {
   /** The parsed JSON at the URL; throws without signal or on an error status. */
   fetchJson(url: string): Promise<unknown>;
   storage: Pick<Storage, 'getItem' | 'setItem'>;
@@ -131,10 +131,14 @@ const isFeature = (value: unknown): value is Feature => {
 const inside = ({ latitude: y, longitude: x }: Point, rings: Ring[]) => {
   let crossings = 0;
   for (const ring of rings) {
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const [xi, yi] = ring[i]!;
-      const [xj, yj] = ring[j]!;
+    // Each edge runs from the previous vertex to this one, starting with the edge that closes the ring.
+    let previous = ring.at(-1);
+    if (!previous) continue;
+    for (const vertex of ring) {
+      const [xi, yi] = vertex;
+      const [xj, yj] = previous;
       if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) crossings++;
+      previous = vertex;
     }
   }
   return crossings % 2 === 1;
@@ -207,7 +211,7 @@ export const daylightView = (point: Point, deadline: Date, now: Date): DaylightV
 };
 
 /** The clock as the forecast view reads it: the hour, so the view changes once an hour, and the day, for the Adventure Day. */
-export type ViewClock = { hour: number; dayStart: number };
+type ViewClock = { hour: number; dayStart: number };
 
 export const viewClock = (now: Date): ViewClock => ({ hour: Math.floor(now.getTime() / HOUR_MS), dayStart: midnightOf(now).getTime() });
 

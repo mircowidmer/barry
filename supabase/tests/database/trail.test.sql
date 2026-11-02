@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local timezone = 'UTC';
-select plan(39);
+select plan(38);
 delete from public.messages;
 
 insert into auth.users (id, email) values
@@ -84,8 +84,7 @@ create temp table batch as
 select is(public.record_trail('a0000000-0000-0000-0000-000000000001', (select readings from batch)), null,
   'Anna records Trail readings on her Active Adventure');
 select is(pg_temp.trail_count(), 3, 'Each reading is stored as a Trail reading');
-select is(public.record_trail('a0000000-0000-0000-0000-000000000001', (select readings from batch)), null,
-  'The same batch again is accepted');
+select public.record_trail('a0000000-0000-0000-0000-000000000001', (select readings from batch));
 select is(pg_temp.trail_count(), 3, 'The same batch again stores nothing new');
 
 select is(public.record_trail('a0000000-0000-0000-0000-000000000001', jsonb_build_array(

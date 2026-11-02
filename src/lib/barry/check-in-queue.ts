@@ -5,7 +5,7 @@ export type PendingCheckIn = { adventureId: AdventureId; checkedInAt: Date };
 /** What sending one Check-in did: accepted, refused for good, or no signal. */
 export type SendOutcome = 'accepted' | 'refused' | 'no_signal';
 
-export type CheckInQueue = {
+type CheckInQueue = {
   /** Saves the Check-in before anything is sent, so a crash after the gesture keeps it. */
   add(checkIn: PendingCheckIn): void;
   pending(): PendingCheckIn[];

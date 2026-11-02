@@ -25,6 +25,9 @@ await fetch(SMS_RELAY).catch(() => {
 const options = { auth: { persistSession: false } };
 export const admin = createClient(API, keys.SECRET_KEY, options);
 
+/** A client with nobody signed in, as on a fresh phone. */
+export const newClient = () => createClient(API, keys.PUBLISHABLE_KEY, options);
+
 export const must = ({ data, error }, what) => {
   if (error) throw new Error(`${what}: ${error.message}`);
   return data;
@@ -35,7 +38,8 @@ export const sleep = (seconds) => new Promise((resolve) => setTimeout(resolve, s
 // The clock ticks once a minute, so anything it does shows up within about two minutes.
 const POLL_SECONDS = 150;
 
-const poll = async (what, find) => {
+/** Calls find every two seconds until it returns something, and returns that; throws naming what after 150 seconds. */
+export const poll = async (what, find) => {
   const deadline = Date.now() + POLL_SECONDS * 1000;
   while (Date.now() < deadline) {
     const found = await find();
@@ -74,6 +78,12 @@ export const trailMap = async (token, after) => {
 };
 
 export const trailToken = (text) => text.match(/\/adventure#([\w-]{22})/)?.[1];
+
+// Read from src/lib/barry/rows.ts, so the cases select what the app selects.
+export const MESSAGE_SELECT = readFileSync('src/lib/barry/rows.ts', 'utf8').match(/MESSAGE_SELECT = '([^']+)'/)[1];
+
+// The list of sent messages the app reads in src/lib/barry/client.ts.
+export const appMessages = (client, adventureId) => client.from('adventure_messages').select(MESSAGE_SELECT).eq('adventure_id', adventureId);
 
 export const messageKinds = async (adventureId) =>
   must(await admin.from('messages').select('kind, to_address, status').eq('adventure_id', adventureId), 'messages');
@@ -129,7 +139,7 @@ export const adventurer = async () => {
 };
 
 /** A fresh sign-in with an email address and a password, the way the Sign In screen does it. */
-export const signIn = (email, password) => createClient(API, keys.PUBLISHABLE_KEY, options).auth.signInWithPassword({ email, password });
+export const signIn = (email, password) => newClient().auth.signInWithPassword({ email, password });
 
 /** Fails unless the clock ticked in the last two minutes, so a test that expects silence cannot pass on a stopped clock. */
 export const assertClockRan = async () => {

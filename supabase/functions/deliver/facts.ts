@@ -39,12 +39,21 @@ export type MessageFacts = {
 
 type Json = Record<string, unknown>;
 
+// Every line of a message is Barry's, so a line break sent around the app must not start one: control characters and
+// Unicode line and paragraph separators become one space. Only the medical notes, written on several lines, keep them.
+const oneLine = (value: string): string => value.replace(/[\p{Cc}\p{Zl}\p{Zp}]+/gu, ' ');
+
+const multilineText = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
+
 const text = (value: unknown, field: string): string => {
   if (typeof value !== 'string' || value === '') throw new Error(`message_facts: ${field} is missing`);
-  return value;
+  return oneLine(value);
 };
 
-const optionalText = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
+const optionalText = (value: unknown): string | null => {
+  const kept = multilineText(value);
+  return kept === null ? null : oneLine(kept);
+};
 
 const date = (value: unknown, field: string): Date => new Date(text(value, field));
 
@@ -95,7 +104,7 @@ export const parseFacts = (raw: unknown): MessageFacts => {
           carMake: optionalText(p.car_make),
           carColour: optionalText(p.car_colour),
           carPlate: optionalText(p.car_plate),
-          medicalNotes: optionalText(p.medical_notes),
+          medicalNotes: multilineText(p.medical_notes),
         },
         lastKnownPosition: position(f.last_known_position),
       };

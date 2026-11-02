@@ -2,7 +2,7 @@ import type { AdventureId, InProgressAdventure } from './types';
 
 const KEY = 'barry.arrivalNoticeShown';
 
-export type ArrivalDeps = {
+type ArrivalDeps = {
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Shows the Arrival Notice on the phone at once. Needs neither signal nor push. */
   show(adventure: InProgressAdventure): Promise<void>;
