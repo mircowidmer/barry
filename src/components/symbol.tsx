@@ -72,8 +72,11 @@ type ToolbarSymbol = (typeof TOOLBAR_SYMBOLS)[number];
 
 const toolbarImages = new Map<ToolbarSymbol, ImageSourcePropType>();
 
-/** Renders the toolbar's Material Symbols to images once, because Android's toolbar takes images only. */
-export const loadToolbarIcons = async (): Promise<void> => {
+/**
+ * The toolbar's Material Symbols rendered to images, because Android's toolbar takes images only. The work starts on
+ * the first import, beside the session restore, rather than after the first render.
+ */
+export const toolbarIconsLoaded: Promise<void> = (async () => {
   if (Platform.OS !== 'android') return;
   await Promise.all(
     TOOLBAR_SYMBOLS.map(async (name) => {
@@ -81,9 +84,9 @@ export const loadToolbarIcons = async (): Promise<void> => {
       if (image) toolbarImages.set(name, image);
     }),
   );
-};
+})();
 
-/** The icon of a Stack.Toolbar item: the SF Symbol on iOS, the image loadToolbarIcons rendered on Android. */
+/** The icon of a Stack.Toolbar item: the SF Symbol on iOS, the image rendered for it on Android. */
 export const toolbarIcon = (name: ToolbarSymbol): SFSymbol | ImageSourcePropType | undefined =>
   Platform.OS === 'android' ? toolbarImages.get(name) : name;
 
