@@ -313,7 +313,6 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
   );
 }
 
-/** What the Trail is doing, as a badge on the map it belongs to. */
 /** Android's tab bar has no bottom accessory, so the Check In button sits under the Deadline instead. */
 function AndroidCheckIn() {
   const offer = useCheckInOffer();
@@ -325,6 +324,7 @@ function AndroidCheckIn() {
   );
 }
 
+/** What the Trail is doing, as a badge on the map it belongs to. */
 function TrailBadge({ status }: { status: TrailStatus }) {
   const theme = useTheme();
   const t = useTexts();
