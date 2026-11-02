@@ -23,11 +23,11 @@ const all = { smsEnabled: true, notificationsPermitted: true, exactAlarmsPermitt
 
 describe('startWarnings', () => {
   it('warns about nothing when notifications are allowed and text messages work', () => {
-    expect(startWarnings([luca, mia, sara], { smsEnabled: true, notificationsPermitted: true, exactAlarmsPermitted: true, trailPermitted: true }, daylit)).toEqual([]);
+    expect(startWarnings([luca, mia, sara], all, daylit)).toEqual([]);
   });
 
   it('warns that there will be no Reminder while notifications are off', () => {
-    expect(startWarnings([luca], { smsEnabled: true, notificationsPermitted: false, exactAlarmsPermitted: true, trailPermitted: true }, daylit)).toEqual([{ kind: 'no_notifications' }]);
+    expect(startWarnings([luca], { ...all, notificationsPermitted: false }, daylit)).toEqual([{ kind: 'no_notifications' }]);
   });
 
   it('warns that the Reminder may come late while exact alarms are not allowed', () => {
@@ -39,14 +39,14 @@ describe('startWarnings', () => {
   });
 
   it('names who gets email only and who gets nothing while text messages are off', () => {
-    expect(startWarnings([luca, mia, sara], { smsEnabled: false, notificationsPermitted: true, exactAlarmsPermitted: true, trailPermitted: true }, daylit)).toEqual([
+    expect(startWarnings([luca, mia, sara], { ...all, smsEnabled: false }, daylit)).toEqual([
       { kind: 'email_only', contacts: [mia] },
       { kind: 'unreachable', contacts: [sara] },
     ]);
   });
 
   it('warns that Barry can share only where you started without the Always permission', () => {
-    expect(startWarnings([luca], { smsEnabled: true, notificationsPermitted: true, exactAlarmsPermitted: true, trailPermitted: false }, daylit)).toEqual([
+    expect(startWarnings([luca], { ...all, trailPermitted: false }, daylit)).toEqual([
       { kind: 'no_trail' },
     ]);
   });
@@ -54,8 +54,8 @@ describe('startWarnings', () => {
   it('counts only the addresses that are switched on', () => {
     const miaPhoneOff = contact('Mia', 'mia@example.com', '+41791111111', { phoneEnabled: false });
     const miaEmailOff = contact('Mia', 'mia@example.com', '+41791111111', { emailEnabled: false });
-    expect(startWarnings([miaPhoneOff], { smsEnabled: false, notificationsPermitted: true, exactAlarmsPermitted: true, trailPermitted: true }, daylit)).toEqual([]);
-    expect(startWarnings([miaEmailOff], { smsEnabled: false, notificationsPermitted: true, exactAlarmsPermitted: true, trailPermitted: true }, daylit)).toEqual([
+    expect(startWarnings([miaPhoneOff], { ...all, smsEnabled: false }, daylit)).toEqual([]);
+    expect(startWarnings([miaEmailOff], { ...all, smsEnabled: false }, daylit)).toEqual([
       { kind: 'unreachable', contacts: [miaEmailOff] },
     ]);
   });
