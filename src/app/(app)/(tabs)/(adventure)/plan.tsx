@@ -89,6 +89,8 @@ const warningText = (w: StartWarning, t: Texts) => {
       return t.plan.noTrail;
     case 'no_notifications':
       return t.plan.noNotifications;
+    case 'late_alarms':
+      return t.plan.lateAlarms;
     case 'after_dark':
       return t.plan.afterDark(t.when(w.dark));
     case 'email_only':
@@ -163,6 +165,7 @@ function PlanForm({
   const shown = live ? [] : warnings;
   const noTrail = shown.some((w) => w.kind === 'no_trail');
   const noNotifications = shown.some((w) => w.kind === 'no_notifications');
+  const lateAlarms = shown.some((w) => w.kind === 'late_alarms');
   const afterDark = shown.find((w) => w.kind === 'after_dark');
   const contactWarnings = shown.filter((w) => w.kind === 'email_only' || w.kind === 'unreachable');
   const typeDestination = (destination: string) => {
@@ -242,6 +245,11 @@ function PlanForm({
     });
     setBusy(null);
     if (saved) leave();
+  };
+
+  const allowAlarms = async () => {
+    await barry.allowExactAlarms().catch(() => false);
+    reload();
   };
 
   const allowTrail = async () => {
@@ -407,6 +415,14 @@ function PlanForm({
             <Note tone="warning" icon="bell.slash">
               {t.plan.noNotifications}
             </Note>
+          )}
+          {lateAlarms && (
+            <>
+              <Note tone="warning" icon="clock">
+                {t.plan.lateAlarms}
+              </Note>
+              <Button title={t.plan.allowAlarms} kind="secondary" onPress={() => void allowAlarms()} />
+            </>
           )}
         </Section>
       )}

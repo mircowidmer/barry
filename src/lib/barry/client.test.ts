@@ -187,6 +187,8 @@ const setup = ({ cached = true, picked = null as PhoneContact | null, contacts =
     region: () => 'CH',
     storage,
     notificationsPermitted: async () => true,
+    exactAlarmsPermitted: async () => true,
+    requestExactAlarms: async () => true,
     notifications,
     liveActivity: { show: async (view) => void activities.push(view) },
     location,

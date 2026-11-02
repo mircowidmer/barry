@@ -241,6 +241,8 @@ export const barry = createBarry({
   region: () => getLocales()[0].regionCode ?? null,
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
+  exactAlarmsPermitted: async () => (await Notifications.getExactAlarmPermissionsAsync()).granted,
+  requestExactAlarms: async () => (await Notifications.requestExactAlarmPermissionsAsync()).granted,
   notifications,
   liveActivity,
   location,

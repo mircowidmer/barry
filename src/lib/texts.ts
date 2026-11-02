@@ -251,6 +251,8 @@ const en = {
     couldNotLoad: 'Could not load the adventure.',
     noTrail: 'Barry can share only where you started. Allow location Always to share your trail and to hear when you reach your destination.',
     noNotifications: 'Notifications are off for Barry, so you will get no reminder or overdue notice.',
+    lateAlarms: 'Android may show your reminder and overdue notice minutes late. Allow alarms for Barry, so they come on time.',
+    allowAlarms: 'Allow Alarms',
     afterDark: (dark: string) => `Your deadline is after dark, which falls at ${dark} at your destination.`,
     emailOnly: (names: string) => `Text messages are not set up yet, so ${names} get email only.`,
     unreachableOne: (name: string) =>
@@ -610,6 +612,9 @@ const de: Texts = {
     noTrail:
       'Barry kann nur teilen, wo du gestartet bist. Erlaube den Standortzugriff «Immer», um deine Spur zu teilen und zu erfahren, wann du dein Ziel erreichst.',
     noNotifications: 'Mitteilungen sind für Barry ausgeschaltet, also erhältst du keine Erinnerung und keinen Überfällig-Hinweis.',
+    lateAlarms:
+      'Android kann deine Erinnerung und den Überfällig-Hinweis Minuten zu spät zeigen. Erlaube Barry «Wecker und Erinnerungen», damit sie pünktlich kommen.',
+    allowAlarms: 'Wecker erlauben',
     afterDark: (dark) => `Deine Rückkehrzeit liegt nach Einbruch der Dunkelheit, die an deinem Ziel um ${dark} beginnt.`,
     emailOnly: (names) => `SMS sind noch nicht eingerichtet, darum erhalten ${names} nur E-Mails.`,
     unreachableOne: (name) =>

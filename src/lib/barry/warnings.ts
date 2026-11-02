@@ -10,6 +10,7 @@ export const startWarnings = (
   const warnings: StartWarning[] = [];
   if (!checks.trailPermitted) warnings.push({ kind: 'no_trail' });
   if (!checks.notificationsPermitted) warnings.push({ kind: 'no_notifications' });
+  else if (!checks.exactAlarmsPermitted) warnings.push({ kind: 'late_alarms' });
   const dark = darkBefore(deadline, point);
   if (dark) warnings.push({ kind: 'after_dark', dark });
   if (!checks.smsEnabled) {

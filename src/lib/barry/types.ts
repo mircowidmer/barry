@@ -109,12 +109,13 @@ export type ShowPhoneContactOptions = {
 
 export type StartWarning =
   | { kind: 'no_notifications' }
+  | { kind: 'late_alarms' }
   | { kind: 'email_only'; contacts: EmergencyContact[] }
   | { kind: 'unreachable'; contacts: EmergencyContact[] }
   | { kind: 'no_trail' }
   | { kind: 'after_dark'; dark: Date };
 
-export type StartChecks = { smsEnabled: boolean; notificationsPermitted: boolean; trailPermitted: boolean };
+export type StartChecks = { smsEnabled: boolean; notificationsPermitted: boolean; exactAlarmsPermitted: boolean; trailPermitted: boolean };
 
 export type RawLocation = { timestamp: number; coords: { latitude: number; longitude: number; accuracy: number | null } };
 
@@ -205,6 +206,8 @@ export type Barry = {
   logOut(): Promise<void>;
 
   startChecks(): Promise<StartChecks>;
+  /** Opens the system's setting for exact alarms and resolves with the answer once the Adventurer returns. */
+  allowExactAlarms(): Promise<boolean>;
   /** Saves the draft and starts it in one step; when the Start is refused, nothing of the draft is saved. */
   start(draft: AdventureDraft): Promise<StartResult>;
   moveDeadline(id: AdventureId, deadline: Date): Promise<MoveDeadlineResult>;
