@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { SymbolView, type SymbolViewProps } from '@/components/symbol';
 import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
-import { Alert, type HostInstance, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, type HostInstance, type LayoutChangeEvent, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 
 import { FirstLoad, LoadState, Screen } from '@/components/form';
@@ -321,7 +321,8 @@ export default function HistoryScreen() {
   return (
     <Screen onRefresh={loaded.reload}>
       {search}
-      {ended.length > 0 && (
+      {/* Android has no bottom toolbar for Delete, so there each Ended Adventure is removed by swiping its row. */}
+      {ended.length > 0 && Platform.OS !== 'android' && (
         <Stack.Toolbar placement="right">
           {selecting ? (
             <Stack.Toolbar.Button variant="done" onPress={finishSelecting}>

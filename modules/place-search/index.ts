@@ -4,7 +4,7 @@ export type FoundPlace = { name: string; subtitle: string; latitude: number; lon
 
 type Near = { latitude: number; longitude: number };
 
-// Only Apple has the module; elsewhere the search finds nothing instead of failing every import of the client module.
+// Only iOS and Android have the module; on the web the search finds nothing instead of failing every import of the client module.
 const PlaceSearch = requireOptionalNativeModule<{ search(query: string, near: Near | null): Promise<FoundPlace[]> }>('PlaceSearch');
 
 export const searchPlaces = async (query: string, near: Near | null): Promise<FoundPlace[]> =>

@@ -11,8 +11,12 @@ import { formatClock } from '@/lib/wording';
 
 // iOS draws the accessory twice, full width above the tab bar and inline beside it once the bar shrinks on scroll.
 export function CheckInAccessory({ offer }: { offer: CheckInOffer }) {
+  return <CheckInButton offer={offer} inline={NativeTabs.BottomAccessory.usePlacement() === 'inline'} />;
+}
+
+/** The Check In button, or the waiting Check-in in its place, wherever the platform puts it. */
+export function CheckInButton({ offer, inline }: { offer: CheckInOffer; inline: boolean }) {
   const t = useTexts();
-  const inline = NativeTabs.BottomAccessory.usePlacement() === 'inline';
   if (offer.waiting) return <Waiting waiting={offer.waiting} inline={inline} />;
   return (
     <HoldButton

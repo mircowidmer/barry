@@ -19,26 +19,34 @@ const sara = contact('Sara', null, '+41792222222');
 
 const zermatt = { latitude: 46.02, longitude: 7.75 };
 const daylit = { deadline: null, point: null };
-const all = { smsEnabled: true, notificationsPermitted: true, trailPermitted: true };
+const all = { smsEnabled: true, notificationsPermitted: true, exactAlarmsPermitted: true, trailPermitted: true };
 
 describe('startWarnings', () => {
   it('warns about nothing when notifications are allowed and text messages work', () => {
-    expect(startWarnings([luca, mia, sara], { smsEnabled: true, notificationsPermitted: true, trailPermitted: true }, daylit)).toEqual([]);
+    expect(startWarnings([luca, mia, sara], all, daylit)).toEqual([]);
   });
 
   it('warns that there will be no Reminder while notifications are off', () => {
-    expect(startWarnings([luca], { smsEnabled: true, notificationsPermitted: false, trailPermitted: true }, daylit)).toEqual([{ kind: 'no_notifications' }]);
+    expect(startWarnings([luca], { ...all, notificationsPermitted: false }, daylit)).toEqual([{ kind: 'no_notifications' }]);
+  });
+
+  it('warns that the Reminder may come late while exact alarms are not allowed', () => {
+    expect(startWarnings([luca], { ...all, exactAlarmsPermitted: false }, daylit)).toEqual([{ kind: 'late_alarms' }]);
+  });
+
+  it('does not warn about late alarms while notifications are off, since none will come', () => {
+    expect(startWarnings([luca], { ...all, notificationsPermitted: false, exactAlarmsPermitted: false }, daylit)).toEqual([{ kind: 'no_notifications' }]);
   });
 
   it('names who gets email only and who gets nothing while text messages are off', () => {
-    expect(startWarnings([luca, mia, sara], { smsEnabled: false, notificationsPermitted: true, trailPermitted: true }, daylit)).toEqual([
+    expect(startWarnings([luca, mia, sara], { ...all, smsEnabled: false }, daylit)).toEqual([
       { kind: 'email_only', contacts: [mia] },
       { kind: 'unreachable', contacts: [sara] },
     ]);
   });
 
   it('warns that Barry can share only where you started without the Always permission', () => {
-    expect(startWarnings([luca], { smsEnabled: true, notificationsPermitted: true, trailPermitted: false }, daylit)).toEqual([
+    expect(startWarnings([luca], { ...all, trailPermitted: false }, daylit)).toEqual([
       { kind: 'no_trail' },
     ]);
   });
@@ -46,8 +54,8 @@ describe('startWarnings', () => {
   it('counts only the addresses that are switched on', () => {
     const miaPhoneOff = contact('Mia', 'mia@example.com', '+41791111111', { phoneEnabled: false });
     const miaEmailOff = contact('Mia', 'mia@example.com', '+41791111111', { emailEnabled: false });
-    expect(startWarnings([miaPhoneOff], { smsEnabled: false, notificationsPermitted: true, trailPermitted: true }, daylit)).toEqual([]);
-    expect(startWarnings([miaEmailOff], { smsEnabled: false, notificationsPermitted: true, trailPermitted: true }, daylit)).toEqual([
+    expect(startWarnings([miaPhoneOff], { ...all, smsEnabled: false }, daylit)).toEqual([]);
+    expect(startWarnings([miaEmailOff], { ...all, smsEnabled: false }, daylit)).toEqual([
       { kind: 'unreachable', contacts: [miaEmailOff] },
     ]);
   });

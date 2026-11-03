@@ -1,8 +1,9 @@
 import { router, Stack } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { SymbolView, toolbarIcon } from '@/components/symbol';
 import { type ReactNode, useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { CheckInButton } from '@/components/check-in-accessory';
 import { ConditionsSection } from '@/components/conditions-section';
 import { EndedAdventureScreen } from '@/components/ended-adventure-screen';
 import { FirstLoad, LoadState, pressedStyle, Screen, Section } from '@/components/form';
@@ -17,7 +18,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTrailStatus } from '@/hooks/use-trail-status';
 import { type Adventure, type AdventureId, barry, darkBefore, type InProgressAdventure, LIMITS, type Position, type SentMessage, type TrailStatus } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
-import { useOfferCheckIn } from '@/lib/live-check-in';
+import { useCheckInOffer, useOfferCheckIn } from '@/lib/live-check-in';
 import { refusalText, useTexts } from '@/lib/texts';
 import { formatClock } from '@/lib/wording';
 
@@ -79,7 +80,7 @@ function Overview({
     <Screen onRefresh={onReload}>
       <Stack.Screen options={{ title: t.adventure.title }} />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="plus" tintColor={theme.accent} accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
+        <Stack.Toolbar.Button icon={toolbarIcon('plus')} tintColor={theme.accent} accessibilityLabel={t.adventure.plan} onPress={() => router.push('/plan')} />
       </Stack.Toolbar>
       {reloadFailure}
       {offlineSince && (
@@ -165,7 +166,7 @@ function LiveAdventure({
     }
   };
 
-  // The Check In button sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
+  // On iOS the Check In button sits in the tab bar's bottom accessory, which the tab bar draws while the Adventure tab shows.
   useOfferCheckIn(
     adventure.stage !== 'planned' && adventure.stage !== 'ended',
     busy,
@@ -195,7 +196,7 @@ function LiveAdventure({
     <Screen onRefresh={onChanged}>
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Menu icon="clock" accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
+        <Stack.Toolbar.Menu icon={toolbarIcon('clock')} accessibilityLabel={t.adventure.needMoreTime} disabled={busy}>
           {t.adventure.moves.map((m) => {
             const to = movedDeadline(adventure.deadline, m.minutes);
             return (
@@ -209,7 +210,7 @@ function LiveAdventure({
           })}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
-          icon="person.2"
+          icon={toolbarIcon('person.2')}
           tintColor={messages.some((m) => m.outcome === 'failed') ? theme.warning : undefined}
           accessibilityLabel={t.adventure.watchingTitle}
           onPress={() => router.push({ pathname: '/watching', params: { id: adventure.id } })}
@@ -222,15 +223,20 @@ function LiveAdventure({
       )}
       {reloadFailure}
       <DeadlineCard adventure={adventure} now={now} />
+      {Platform.OS === 'android' && <AndroidCheckIn />}
 
-      {lastKnown ? (
+      {/* Only iOS draws the Trail map, so Android shows the Trail's state as a note. */}
+      {lastKnown && Platform.OS === 'ios' ? (
         <View>
           <TrailMapView trail={trail} last={lastKnown} />
           {trailStatus && <TrailBadge status={trailStatus} />}
         </View>
       ) : (
         <>
-          {trailStatus === 'recording' && <Note icon="location.fill">{t.adventure.recording}</Note>}
+          {/* Android's foreground service keeps the Trail recording after Barry is closed. */}
+          {trailStatus === 'recording' && (
+            <Note icon="location.fill">{Platform.OS === 'android' ? t.adventure.recordingUntilCheckIn : t.adventure.recording}</Note>
+          )}
           {trailStatus === 'off' && <Note icon="location.slash">{t.adventure.trailOff}</Note>}
         </>
       )}
@@ -307,6 +313,17 @@ function DeadlineCard({ adventure, now }: { adventure: InProgressAdventure; now:
   );
 }
 
+/** Android's tab bar has no bottom accessory, so the Check In button sits under the Deadline instead. */
+function AndroidCheckIn() {
+  const offer = useCheckInOffer();
+  if (!offer) return null;
+  return (
+    <View style={styles.checkIn}>
+      <CheckInButton offer={offer} inline={false} />
+    </View>
+  );
+}
+
 /** What the Trail is doing, as a badge on the map it belongs to. */
 function TrailBadge({ status }: { status: TrailStatus }) {
   const theme = useTheme();
@@ -334,6 +351,7 @@ const styles = StyleSheet.create({
   cardTime: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12 },
   cardClock: { fontSize: 52, lineHeight: 62, fontWeight: 700 },
   cardLeft: { fontSize: 17, lineHeight: 22, fontWeight: 500 },
+  checkIn: { height: 56 },
   badge: { position: 'absolute', left: 12, top: 12, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   badgeText: { fontSize: 13, lineHeight: 18, fontWeight: 600 },
   cardBody: { gap: 2 },

@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { androidToolbarIcon, SymbolView, type SymbolViewProps } from '@/components/symbol';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
@@ -45,7 +45,9 @@ export default function ProfileScreen() {
   return (
     <Screen onRefresh={loaded.reload}>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button onPress={() => router.push('/profile/about')}>{t.profile.edit}</Stack.Toolbar.Button>
+        <Stack.Toolbar.Button icon={androidToolbarIcon('pencil')} accessibilityLabel={t.profile.edit} onPress={() => router.push('/profile/about')}>
+          {t.profile.edit}
+        </Stack.Toolbar.Button>
       </Stack.Toolbar>
       {profile === undefined ? (
         <FirstLoad failure={loaded.error && t.common.couldNotReach} onRetry={() => void loaded.reload()} />

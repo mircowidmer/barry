@@ -26,7 +26,8 @@
       "package": "support.barry",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.SCHEDULE_EXACT_ALARM"
       ]
     },
     "web": {
@@ -56,6 +57,19 @@
               "./assets/fonts/NordwandMono-Medium.ttf",
               "./assets/fonts/NordwandMono-SemiBold.ttf",
               "./assets/fonts/NordwandMono-Bold.ttf"
+            ]
+          },
+          "android": {
+            "fonts": [
+              {
+                "fontFamily": "Nordwand Mono",
+                "fontDefinitions": [
+                  { "path": "./assets/fonts/NordwandMono-Regular.ttf", "weight": 400 },
+                  { "path": "./assets/fonts/NordwandMono-Medium.ttf", "weight": 500 },
+                  { "path": "./assets/fonts/NordwandMono-SemiBold.ttf", "weight": 600 },
+                  { "path": "./assets/fonts/NordwandMono-Bold.ttf", "weight": 700 }
+                ]
+              }
             ]
           }
         }
@@ -87,6 +101,8 @@
           "locationAlwaysAndWhenInUsePermission": "With Always, Barry records your trail about every 5 minutes until you check in, so your emergency contacts can follow it and an alert can show where you were last.",
           "locationAlwaysPermission": "With Always, Barry records your trail about every 5 minutes until you check in, so your emergency contacts can follow it and an alert can show where you were last.",
           "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
           "motionUsagePermission": false,
           "locationFullAccuracyPermission": "Barry needs your precise location, so your trail and your last position show where you really are."
         }
