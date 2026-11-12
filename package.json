@@ -50,7 +50,7 @@
     "eslint-config-expo": "~58.0.4",
     "jest": "30",
     "jest-expo": "~58.0.13",
-    "supabase": "2",
+    "supabase": "3",
     "typescript": "6"
   },
   "scripts": {
