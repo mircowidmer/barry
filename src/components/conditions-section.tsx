@@ -1,4 +1,4 @@
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { SymbolView, type SymbolViewProps } from '@/components/symbol';
 import { memo, useMemo } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 

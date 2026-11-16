@@ -77,6 +77,7 @@ The `ios` job of `.github/workflows/ci.yml` builds the production variant in Rel
 It proves that the native project and the JavaScript bundle still build.
 It runs on `main` and on a pull request that changes what goes into the native project: the packages, `.nvmrc`, `app.json`, `app.config.js`, `eas.json`, `plugins/`, `modules/`, `patches/`, `locales/`, `assets/`, the workflow itself or the gate script.
 Every pull request also runs the `ios-bundle` job, which only exports the iOS JavaScript bundle and takes a minute.
-Neither makes an app for a phone: that still comes from the local Release build or from EAS.
+The `android` and `android-bundle` jobs do the same for Android on a Linux runner: a debug build for one architecture under the same rule, and the Android JavaScript bundle on every pull request.
+None of them makes an app for a phone: that still comes from the local Release build or from EAS.
 In the same way, the jobs that need the local stack run on a pull request only when it changes what the stack, the e2e cases or the relay read: the packages, `.nvmrc`, `deno.json`, `patches/`, `supabase/`, `e2e/`, `scripts/sms-relay.mjs`, `src/lib/database.types.ts`, the backend doctor, the workflow or the gate script.
 `scripts/changed-inputs.sh` holds both lists.

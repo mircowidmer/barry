@@ -1,6 +1,6 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, Stack } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { androidToolbarIcon, SymbolView, toolbarIcon } from '@/components/symbol';
 import { useState } from 'react';
 import { Alert, Keyboard, Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
@@ -89,6 +89,8 @@ const warningText = (w: StartWarning, t: Texts) => {
       return t.plan.noTrail;
     case 'no_notifications':
       return t.plan.noNotifications;
+    case 'late_alarms':
+      return t.plan.lateAlarms;
     case 'after_dark':
       return t.plan.afterDark(t.when(w.dark));
     case 'email_only':
@@ -120,7 +122,7 @@ export default function PlanScreen() {
       <Screen>
         <Stack.Screen options={{ title: '' }} />
         <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
+          <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} onPress={() => router.back()} />
         </Stack.Toolbar>
         <FirstLoad failure={loaded.error && t.plan.couldNotLoad} onRetry={() => void loaded.reload()} />
       </Screen>
@@ -163,6 +165,7 @@ function PlanForm({
   const shown = live ? [] : warnings;
   const noTrail = shown.some((w) => w.kind === 'no_trail');
   const noNotifications = shown.some((w) => w.kind === 'no_notifications');
+  const lateAlarms = shown.some((w) => w.kind === 'late_alarms');
   const afterDark = shown.find((w) => w.kind === 'after_dark');
   const contactWarnings = shown.filter((w) => w.kind === 'email_only' || w.kind === 'unreachable');
   const typeDestination = (destination: string) => {
@@ -244,6 +247,11 @@ function PlanForm({
     if (saved) leave();
   };
 
+  const allowAlarms = async () => {
+    await barry.allowExactAlarms().catch(() => false);
+    reload();
+  };
+
   const allowTrail = async () => {
     const granted = await barry.trail.requestPermission().catch(() => false);
     if (!granted) await Linking.openSettings().catch(() => undefined);
@@ -293,19 +301,24 @@ function PlanForm({
     <Screen>
       <Stack.Screen options={{ title: live ? t.plan.titleEdit : id ? t.plan.titlePlanned : t.plan.titleNew }} />
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
+        <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.cancel} disabled={busy !== null} onPress={() => router.back()} />
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
         {live ? (
           <Stack.Toolbar.Button
             variant="done"
-            icon="checkmark"
+            icon={toolbarIcon('checkmark')}
             accessibilityLabel={t.common.save}
             disabled={busy !== null}
             onPress={() => void onSave()}
           />
         ) : (
-          <Stack.Toolbar.Button variant="prominent" disabled={busy !== null} onPress={() => void onStart()}>
+          <Stack.Toolbar.Button
+            variant="prominent"
+            icon={androidToolbarIcon('play.fill')}
+            accessibilityLabel={t.plan.start}
+            disabled={busy !== null}
+            onPress={() => void onStart()}>
             {t.plan.start}
           </Stack.Toolbar.Button>
         )}
@@ -402,6 +415,14 @@ function PlanForm({
             <Note tone="warning" icon="bell.slash">
               {t.plan.noNotifications}
             </Note>
+          )}
+          {lateAlarms && (
+            <>
+              <Note tone="warning" icon="clock">
+                {t.plan.lateAlarms}
+              </Note>
+              <Button title={t.plan.allowAlarms} kind="secondary" onPress={() => void allowAlarms()} />
+            </>
           )}
         </Section>
       )}

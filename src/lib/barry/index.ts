@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { storage } from '@/lib/storage';
 import { fetchWithTimeout, supabase } from '@/lib/supabase';
 import { appLanguage } from '@/lib/language';
+import { ALARM_CHANNEL } from '@/lib/notifications';
 import { currentTexts, liveActivityText } from '@/lib/texts';
 import { arrivalText, notificationText } from '@/lib/wording';
 
@@ -134,8 +135,15 @@ const location: LocationService = {
     if (!foreground.granted) return false;
     return (await Location.requestBackgroundPermissionsAsync()).granted;
   },
-  // On a running task iOS only reapplies the options, which is how the mode switches.
-  startUpdates: (mode) => Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, UPDATE_OPTIONS[mode]),
+  // On a running task iOS only reapplies the options, which is how the mode switches. Android stops
+  // background updates within minutes unless a foreground service with its own notification runs them.
+  startUpdates: (mode) => {
+    const { title, body } = currentTexts().adventure.trailService;
+    return Location.startLocationUpdatesAsync(TRAIL_LOCATION_TASK, {
+      ...UPDATE_OPTIONS[mode],
+      foregroundService: { notificationTitle: title, notificationBody: body, killServiceOnDestroy: false },
+    });
+  },
   stopUpdates: async () => {
     if (await Location.hasStartedLocationUpdatesAsync(TRAIL_LOCATION_TASK)) {
       await Location.stopLocationUpdatesAsync(TRAIL_LOCATION_TASK);
@@ -176,7 +184,8 @@ const notifications: NotificationService = {
     await Notifications.scheduleNotificationAsync({
       identifier: alarm.identifier,
       content: notificationText(alarm),
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: alarm.at },
+      // Android defers ordinary alarms for battery; an alarm clock fires on time when exact alarms are allowed.
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: alarm.at, channelId: ALARM_CHANNEL, delivery: 'alarmClock' },
     });
   },
   cancel: (identifier) => Notifications.cancelScheduledNotificationAsync(identifier),
@@ -230,6 +239,8 @@ export const barry = createBarry({
   region: () => getLocales()[0].regionCode ?? null,
   storage,
   notificationsPermitted: async () => (await Notifications.getPermissionsAsync()).granted,
+  exactAlarmsPermitted: async () => (await Notifications.getExactAlarmPermissionsAsync()).granted,
+  requestExactAlarms: async () => (await Notifications.requestExactAlarmPermissionsAsync()).granted,
   notifications,
   liveActivity,
   location,

@@ -61,6 +61,9 @@ type BarryDeps = {
   storage: Pick<Storage, 'getItem' | 'setItem'>;
   /** Whether the system lets Barry show notifications. */
   notificationsPermitted(): Promise<boolean>;
+  /** Whether the system fires the Reminder and the Overdue Notice on time; Android may delay them without this. */
+  exactAlarmsPermitted(): Promise<boolean>;
+  requestExactAlarms(): Promise<boolean>;
   notifications: NotificationService;
   /** The Live Activity on the Lock Screen. */
   liveActivity: LiveActivityService;
@@ -121,6 +124,8 @@ export const createBarry = ({
   region,
   storage,
   notificationsPermitted,
+  exactAlarmsPermitted,
+  requestExactAlarms,
   notifications,
   liveActivity,
   location,
@@ -462,13 +467,16 @@ export const createBarry = ({
     },
 
     startChecks: async () => {
-      const [channels, notificationsAllowed, trailPermitted] = await Promise.all([
+      const [channels, notificationsAllowed, exactAlarmsAllowed, trailPermitted] = await Promise.all([
         enabledChannels(),
         notificationsPermitted(),
+        exactAlarmsPermitted(),
         location.backgroundPermitted(),
       ]);
-      return { smsEnabled: channels.has('sms'), notificationsPermitted: notificationsAllowed, trailPermitted };
+      return { smsEnabled: channels.has('sms'), notificationsPermitted: notificationsAllowed, exactAlarmsPermitted: exactAlarmsAllowed, trailPermitted };
     },
+
+    allowExactAlarms: requestExactAlarms,
 
     start: async (draft) => {
       const position = await readPosition();

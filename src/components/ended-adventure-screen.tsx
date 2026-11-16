@@ -12,6 +12,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { barry, type EndedAdventure, type SentMessage } from '@/lib/barry';
 import { askToDeleteAdventure } from '@/lib/delete-adventure';
 import { useTexts } from '@/lib/texts';
+import { toolbarIcon } from '@/components/symbol';
 
 /** With onDone it is the screen right after the Check-in; without, an entry of the history. */
 export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAdventure; onDone?: () => void }) {
@@ -35,9 +36,9 @@ export function EndedAdventureScreen({ adventure, onDone }: { adventure: EndedAd
       <Stack.Screen options={{ title: adventure.plan.destination }} />
       <Stack.Toolbar placement="right">
         {onDone ? (
-          <Stack.Toolbar.Button variant="done" icon="checkmark" accessibilityLabel={t.common.done} onPress={onDone} />
+          <Stack.Toolbar.Button variant="done" icon={toolbarIcon('checkmark')} accessibilityLabel={t.common.done} onPress={onDone} />
         ) : (
-          <Stack.Toolbar.Button icon="trash" accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={() => void remove()} />
+          <Stack.Toolbar.Button icon={toolbarIcon('trash')} accessibilityLabel={t.common.deleteLabel(adventure.plan.destination)} onPress={() => void remove()} />
         )}
       </Stack.Toolbar>
 

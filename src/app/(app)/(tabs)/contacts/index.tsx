@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { SymbolView, type SymbolViewProps, toolbarIcon } from '@/components/symbol';
 import { useRef, useState } from 'react';
 import { Alert, type LayoutChangeEvent, Pressable, type ScrollViewInstance, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -108,7 +108,7 @@ export default function ContactsScreen() {
     <>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
-          icon="plus"
+          icon={toolbarIcon('plus')}
           tintColor={theme.accent}
           accessibilityLabel={t.contacts.addLabel}
           disabled={picking}

@@ -8,6 +8,7 @@ import { useLoad } from '@/hooks/use-load';
 import { type AccountEmail, createAccount } from '@/lib/account';
 import { supabase } from '@/lib/supabase';
 import { useTexts } from '@/lib/texts';
+import { toolbarIcon } from '@/components/symbol';
 
 const account = createAccount(supabase.auth);
 
@@ -42,7 +43,7 @@ function Close() {
   const t = useTexts();
   return (
     <Stack.Toolbar placement="left">
-      <Stack.Toolbar.Button icon="xmark" accessibilityLabel={t.common.done} onPress={() => router.back()} />
+      <Stack.Toolbar.Button icon={toolbarIcon('xmark')} accessibilityLabel={t.common.done} onPress={() => router.back()} />
     </Stack.Toolbar>
   );
 }

@@ -162,6 +162,8 @@ Start is still allowed.
 
 - The Adventurer has not allowed notifications.
   The app shows "you will get no Reminder or Overdue Notice".
+- On Android, the Adventurer allowed notifications but not exact alarms, which Android 14 and later deny a new app.
+  The app shows that the Reminder and the Overdue Notice may come minutes late, with a button that opens the setting.
 - While text messages are switched off, the app lists the contacts that get email only, and the contacts that have only a phone number and get no message at all.
 - The Adventurer has not allowed Barry to read the location in the background.
   The app shows "Barry can share only where you started", and that Barry cannot tell them when they reach their destination.

@@ -1,4 +1,4 @@
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { SymbolView, type SymbolViewProps } from '@/components/symbol';
 import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { Group } from '@/components/grouped-list';
