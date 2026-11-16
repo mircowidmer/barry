@@ -4,7 +4,9 @@
   "timezone": "Europe/Zurich",
   "minimumReleaseAge": "3 days",
   "osvVulnerabilityAlerts": true,
-  "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
+  "dependencyDashboard": {
+    "osvVulnerabilitySummary": "unresolved"
+  },
   "vulnerabilityAlerts": { "automerge": true },
   "lockFileMaintenance": { "enabled": true, "automerge": true, "schedule": ["before 4am on tuesday"] },
   "postUpdateOptions": ["npmDedupe"],
