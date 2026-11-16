@@ -59,7 +59,14 @@ const KEY = 'barry.phoneContacts';
  * on another one. A contact picked before Barry kept it has none.
  */
 export const createPhoneContactLinks = (storage: Pick<Storage, 'getItem' | 'setItem'>) => {
-  const load = (): Record<string, string> => JSON.parse(storage.getItem(KEY) || '{}') as Record<string, string>;
+  // Unreadable storage only loses the links; it must not fail a contact that Supabase already saved or removed.
+  const load = (): Record<string, string> => {
+    try {
+      return JSON.parse(storage.getItem(KEY) || '{}') as Record<string, string>;
+    } catch {
+      return {};
+    }
+  };
   return {
     get: (contactId: string): string | null => load()[contactId] ?? null,
     set: (contactId: string, phoneId: string) => storage.setItem(KEY, JSON.stringify({ ...load(), [contactId]: phoneId })),

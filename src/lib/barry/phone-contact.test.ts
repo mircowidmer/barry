@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { LIMITS } from './limits';
-import { copyPhoneContact, fullPhoneNumber, MOBILE_LABELS, type PhoneContact } from './phone-contact';
+import { copyPhoneContact, createPhoneContactLinks, fullPhoneNumber, MOBILE_LABELS, type PhoneContact } from './phone-contact';
 
 const picked = (overrides: Partial<PhoneContact>): PhoneContact => ({
   phoneId: null,
@@ -85,5 +85,18 @@ describe('copyPhoneContact', () => {
 
   it('cuts a name to the 100 characters the server takes', () => {
     expect(copyPhoneContact(picked({ fullName: 'N'.repeat(150) }), 'CH').name).toHaveLength(100);
+  });
+});
+
+describe('createPhoneContactLinks', () => {
+  it('forgets the links instead of failing when the stored text cannot be read', () => {
+    const stored = new Map<string, string>([['barry.phoneContacts', '{broken']]);
+    const links = createPhoneContactLinks({
+      getItem: (key) => stored.get(key) ?? null,
+      setItem: (key, value) => void stored.set(key, value),
+    });
+    expect(links.get('contact-1')).toBeNull();
+    links.set('contact-1', 'phone-1');
+    expect(links.get('contact-1')).toBe('phone-1');
   });
 });
