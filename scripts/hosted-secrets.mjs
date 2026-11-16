@@ -36,12 +36,12 @@ const dir = mkdtempSync(join(tmpdir(), 'barry-secrets-'));
 try {
   const envFile = join(dir, 'hosted.env');
   writeFileSync(envFile, Object.entries({ ...hosted, DELIVER_SECRET: deliverSecret }).map(([k, v]) => `${k}=${v}`).join('\n'), { mode: 0o600 });
-  supabase('secrets', 'set', '--env-file', envFile);
+  supabase('secrets', 'set', '--env-file', envFile, '--yes');
   if (localOnly.length > 0) supabase('secrets', 'unset', ...localOnly, '--yes');
 
   const sqlFile = join(dir, 'vault.sql');
   writeFileSync(sqlFile, `select vault.update_secret(id, '${deliverSecret}') from vault.secrets where name = 'deliver_secret';\n`, { mode: 0o600 });
-  supabase('db', 'query', '--linked', '-f', sqlFile);
+  supabase('db', 'query', '--remote', '-f', sqlFile, '--yes');
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
